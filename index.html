@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<META charset="UTF-8"/>
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<title>Interface</title>
+	<script src="javascripts/jquery-1.6.2.min.js"></script>
+	<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+	<script src="javascripts/jquery.jstree.js"></script>
+	<script src="javascripts/raphael-min.js"></script>
+	<script src="javascripts/shortcut.js"></script>
+	<script src="json.js"></script>
+	<script src="controler.js"></script>
+	<script src="view.js"></script>
+	<link href="stylesheets/my_style.css" rel="stylesheet">
+</head>
+<body>
+<div id="sandbox" style="background-color:ivory;"> </div>
+<div id="raport" style='clear: both; display:block;'>ds</div>
+
+<script>
+"use strict"; 
+Object.prototype.extend = function () {
+	var tempObj;
+	for (var i in arguments) {
+		tempObj = arguments[i];
+		for (var property in tempObj) {
+			this[property] = (this[property] === undefined ? tempObj[property] : this[property]);
+		}
+	}
+};
+
+var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
+var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
+var AVV;
+
+function Graph_GUI(id, width, height, modules, url){
+	var r = {};
+	r.id_postfix = Math.round( Math.random() * 10e5 );
+	r.controler = Controler(url, r);
+	r.view = View(id, width, height, r);
+	r.library = {gui: r};
+	
+	//r.controler.init();
+	r.controler.init();
+			
+	return r;
+}
+
+</script>
+
+</body>
+</html>

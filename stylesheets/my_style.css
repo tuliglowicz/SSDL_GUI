@@ -1,0 +1,30 @@
+	#canvas_container, #c2 {
+		text-align: center;  
+		width: 1024px;
+		border: 1px solid #aaa;
+		border: 2px solid black;
+		background-color: #eee;	 
+	}
+	.connector {
+		fill: silver;
+		opacity: 0;
+		cursor:crosshair;
+	}
+	.start, .stop {
+		cursor:crosshair;
+	}
+	text:not(.repository_text) {
+		cursor: move;
+		font: 16px Times New Roman Bold
+	}
+	.repository_element {
+		cursor: move;
+	}
+	.label {
+		cursor: move;
+		color: white;
+		font: 16px Times New Roman Bold;
+	}
+	.gear {
+		cursor:pointer;
+	}

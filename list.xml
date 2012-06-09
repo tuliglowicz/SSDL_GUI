@@ -1,0 +1,10 @@
+<list>
+	<element>
+		<name>7_SLA_mapped</name>
+		<url>7_SLA_map.xml</url>
+	</element>
+	<element>
+		<name>1_SLA</name>
+		<url>1_SLA.xml</url>
+	</element>
+</list>
