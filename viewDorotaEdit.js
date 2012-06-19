@@ -114,6 +114,8 @@ function View(id, width, height, gui){
 				newNode.label = node.nodeLabel;
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
+				newNode.inputs = node.functionalDescription.inputs;
+				newNode.outputs = node.functionalDescription.outputs;
 				newNode.set = view.paper.set();
 				
 				return ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode);
@@ -141,8 +143,9 @@ function View(id, width, height, gui){
 				}
 				
 				node.set.push(c, label);
-				view.dragNodes(label, node);
-				view.dragArrow(c, node);
+				gui.controler.dragNodes(label, node);
+
+				c.drag(move2, start2, stop2);
 
 				return node;
 			},
@@ -156,14 +159,29 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, radius),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, radius),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, radius),
-					c_tab = [],
-					i, j=0,
+					c_tab = [], i_tab = [], o_tab = [],
+					i,
+					j=0,
 					serviceName = node.serviceName,
 					maxLength = 25,
 					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
-					serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
+					input_length, output_length
 					;
 
+				input_length = node.inputs.length;
+				output_length = node.outputs.length;
+
+				var iDist = node.width/(input_length+1);
+				var oDist = node.width/(output_length+1);
+
+				for(var k = 0; k < input_length; k++){
+					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#fbec88"}));
+				}
+				for(var l = 0; l < output_length; l++){
+					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#fbec88"}));
+				}
+
+				var serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
 				serviceNameShown.node.setAttribute("class", name);
 				serviceNameShown.attr({title: serviceName, cursor: "default"});
 								
@@ -175,7 +193,7 @@ function View(id, width, height, gui){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");				
 			
-				// KÓŁKA
+				// KĂĹKA
 				c_tab.push(c1, c2, c3, c4);
 				for(i=0, j=c_tab.length; i<j; i++)
 					c_tab[i].node.setAttribute("class", id+" connector");
@@ -191,15 +209,25 @@ function View(id, width, height, gui){
 							c_tab[i].animate({opacity: 0}, 150);
 					}
 				})(c_tab);
-				// EOF KÓŁKA
+				// EOF KĂĹKA
 				
 				node.set.push(rect, label, img_gear, c1, c2, c3, c4, serviceNameShown);
+				$.each(i_tab, function(){
+					node.set.push(this);
+				});
+				$.each(o_tab, function(){
+					node.set.push(this);
+				});
 				
 				for(i=0, j=node.set.length; i<j; i++)
 					node.set[i].mouseover(msoverc).mouseout(msoutc);
 
-				view.dragNodes(label, node);
-				view.dragArrow([c1, c2, c3, c4], node);
+				gui.controler.dragNodes(label, node);
+
+				c1.drag(move2, start2, stop2);
+				c2.drag(move2, start2, stop2);
+				c3.drag(move2, start2, stop2);
+				c4.drag(move2, start2, stop2);
 				
 				return node;
 			},
@@ -212,11 +240,25 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					c_tab = [],
+					c_tab = [], i_tab = [], o_tab = [],
 					i,
-					j=0
+					j=0,
+					input_length, output_length
 					;
-								
+				
+				input_length = node.inputs.length;
+				output_length = node.outputs.length;
+
+				var iDist = node.width/(input_length+1);
+				var oDist = node.width/(output_length+1);
+
+				for(var k = 0; k < input_length; k++){
+					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#a6c9e2"}));
+				}
+				for(var l = 0; l < output_length; l++){
+					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#a6c9e2"}));
+				}
+
 				img_gear.node.setAttribute("class", id+" gear");
 				
 				rect.node.setAttribute("class", name);
@@ -225,7 +267,7 @@ function View(id, width, height, gui){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");				
 			
-				// KÓŁKA
+				// KĂĹKA
 				c_tab.push(c1, c2, c3, c4);
 				for(i=0, j=c_tab.length; i<j; i++)
 					c_tab[i].node.setAttribute("class", id+" connector");
@@ -241,15 +283,25 @@ function View(id, width, height, gui){
 							c_tab[i].animate({opacity: 0}, 150);
 					}
 				})(c_tab);
-				// EOF KÓŁKA
+				// EOF KĂĹKA
 				
 				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
+				$.each(i_tab, function(){
+					node.set.push(this);
+				});
+				$.each(o_tab, function(){
+					node.set.push(this);
+				});
 				
 				for(i=0, j=node.set.length; i<j; i++)
 					node.set[i].mouseover(msoverc).mouseout(msoutc);
 
-				view.dragNodes(label, node);
-				view.dragArrow([c1, c2, c3, c4], node);
+				gui.controler.dragNodes(label, node);
+				
+				c1.drag(move2, start2, stop2);
+				c2.drag(move2, start2, stop2);
+				c3.drag(move2, start2, stop2);
+				c4.drag(move2, start2, stop2);
 
 				return node;
 			},
@@ -275,141 +327,6 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
-		},
-		dragNodes : function drag(element, node){
-			var	lastDragX,
-				lastDragY,
-				ox, dx,
-				oy, dy,
-				width, height,
-				rWidth = gui.view.paper.width,
-				rHeight = gui.view.paper.height,
-				bbox,
-				ctrl,
-				transX, transY,
-				flag = true,
-				ready2move = false,
-				itWasJustAClick = false,
-				move = function move(x,y){
-					if(ready2move){
-						itWasJustAClick = false;
-						dx = x - lastDragX;	// mouse x
-						dy = y - lastDragY; // mouse y
-						
-						transX = ox + dx > rWidth-width ? rWidth-width-ox : (ox + dx < 0 ? -ox : dx);
-						transY = oy + dy > rHeight-height ? rHeight-height-oy : (oy + dy < 0 ? -oy : dy);
-	
-				  		$.each(gui.view.graph_view.nodes, function(i, val){
-							if(val.highlighted){
-								val.translate(transX, transY);
-							}
-						});
-					  	
-						lastDragX = x;
-						lastDragY = y;
-						ox += transX;
-						oy += transY;
-
-						gui.controler.reactOnEvent("NodeMoved");
-				 	}
-				},
-				start = function start(x,y,evt){
-					itWasJustAClick = true;
-					lastDragX = 0;
-					lastDragY = 0;
-					bbox = node.set.getBBox();
-					width = bbox.width;
-					height = bbox.height;
-					ox = bbox.x;
-					oy = bbox.y;
-
-					flag = false;
-					if(!node.highlighted){
-						if(!evt.ctrlKey)
-							gui.controler.reactOnEvent("DESELECT");
-
-						flag = true;
-						node.highlight2();
-					}
-					ready2move = node.highlighted;
-					ctrl = evt.ctrlKey;
-				},
-				stop = function stop(x,y,evt){
-					ready2move = false;
-					if(itWasJustAClick){
-						if(ctrl){
-							if(!flag) {
-								node.highlight(ctrl);
-								//alert("");
-							}
-						}
-						else {
-							gui.controler.reactOnEvent("DESELECT");
-							node.highlight2();
-						}
-					}
-				}
-
-				if(element.getType() === "Array"){
-					$.each(element, function(){
-						this.drag(move, start, stop);
-					})
-				} else
-					element.drag(move, start, stop);
-		},		
-		dragArrow : function dragArrow(element, node){
-			var arrow,
-				cx,
-				cy,
-				ofsetX,
-				ofsetY,
-				sourceNode,
-				start = function start(){
-					var canvas = $(outputView.paper.canvas);
-					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
-					cx = this.attr("cx");
-					cy = this.attr("cy");
-					sourceNode = outputView.getNodeById(this.node.classList[0]);
-
-					arrow = outputView.paper.arrow(cx, cy, cx, cy, 4);
-				},
-				move = function(a, b, c, d, event){
-					// todo awizowanie arrow po najechaniu na node
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						console.log(e);
-					}
-					
-					arrow = outputView.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
-				},
-				stop = function(event){
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						console.log(e);
-					}
-
-					var targetNode = outputView.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
-					if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
-						gui.controler.reactOnEvent("AddEdge", {
-						 	source: sourceNode,
-						 	target: targetNode,
-						 	CF_or_DF: "CF"
-						 	// type: 
-						})
-				}
-				;
-
-			if(element.getType() === "Array"){
-				$.each(element, function(){
-					this.drag(move, start, stop);
-				})
-			} else
-				element.drag(move, start, stop);
 		},
 		addBlankEdge : function addBlankEdge(sourceId, targetId){
 			var edgeObject = {
@@ -502,7 +419,7 @@ function View(id, width, height, gui){
 				for(j=0, jMax=targetConnectors.length; j<jMax; j++){
 						dx = sourceConnectors[i][0]-targetConnectors[j][0]; // odleglosc w poziomie
 						dy = sourceConnectors[i][1]-targetConnectors[j][1];	// odleglosc w pionie
-						dz = dx*dx + dy*dy;	// odleglość
+						dz = dx*dx + dy*dy;	// odlegloĹÄ
 						if(dz < minOdl)
 						{
 							minI = i;
@@ -560,6 +477,7 @@ function View(id, width, height, gui){
 				if(tmp)
 					that.graph_view.nodes.push( tmp );
 				$.each(val.sources, function(k, v){
+					// alert(v+":"+val.nodeId)
 					that.addBlankEdge(v, val.nodeId);
 				});
 			});
@@ -705,7 +623,7 @@ function View(id, width, height, gui){
 				y1+=lastDragY;
 				
 
-			// TUTAJ POWINNO BYC WYSŁANIE EVENTU DO KONTROLERA Z 4MA WSPÓŁŻĘDNYMI
+			// TUTAJ POWINNO BYC WYSĹANIE EVENTU DO KONTROLERA Z 4MA WSPĂĹĹťÄDNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
@@ -729,7 +647,7 @@ function View(id, width, height, gui){
 				sel.remove();
 				sel = null;
 				lastRot = 0;
-				// TUTAJ POWINNO BYĆ WYSŁANIE EVENTU DO KONTROLERA Z SELEKTEM
+				// TUTAJ POWINNO BYÄ WYSĹANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
 					x1 : x1,
@@ -746,6 +664,62 @@ function View(id, width, height, gui){
 		}
 	
 	outputView.bgSelectionHelper.drag(bgMove, bgStart, bgStop);
+	
+
+
+	// ========================================= D-R-A-G-G-I-N-G---A-R-R-O-W-S
+	var arrow, cx, cy, ofsetX, ofsetY, sourceNode;
+	var start2 = function(){
+		var canvas = $(outputView.paper.canvas);
+		ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+		ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+		cx = this.attr("cx");
+		cy = this.attr("cy");
+		sourceNode = outputView.getNodeById(this.node.classList[0]);
+
+		if(sourceNode)
+			console.log(sourceNode.id);
+		else
+			console.log(sourceNode);
+
+		arrow = outputView.paper.arrow(cx, cy, cx, cy, 4);
+	}
+	var move2 = function(a, b, c, d, event){
+		//awizowanie arrow po najechaniu na node
+		try {
+			arrow[0].remove();
+			arrow[1].remove();
+		} catch(e){
+			console.log(e);
+		}
+		
+		arrow = outputView.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+	}
+
+	var stop2 = function(event){
+		try {
+			arrow[0].remove();
+			arrow[1].remove();
+		} catch(e){
+			console.log(e);
+		}
+
+		var targetNode = outputView.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY)
+
+		if(targetNode)
+			console.log(targetNode.id);
+		else
+			console.log(targetNode);
+
+		if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
+			gui.controler.reactOnEvent("AddEdge", {
+			 	source: sourceNode,
+			 	target: targetNode,
+			 	CF_or_DF: "CF"
+			 	// type: 
+			})
+	}
+	// ========================================= END OF D-R-A-G-G-I-N-G---A-R-R-O-W-S
 
 	return outputView;
 }

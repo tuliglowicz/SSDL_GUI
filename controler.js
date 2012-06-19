@@ -1,5 +1,5 @@
 "use strict"; 
-//url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
+//url to adres do pliku albo repozytorium, ktÃ³re wysyÂ³a listÃª dostÃªpnych usÂ³ug.
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
@@ -33,7 +33,7 @@ function Controler(url, gui){
 						"themes" : {
 							"theme" : "default",
 							"dots" : true,
-							"icons" : false					
+							"icons" : false
 						},
 						"plugins" : [ "themes", "json_data", "ui" ] //,  "contextmenu""crrm",
 					}).delegate("a", "click", function (event, data) {
@@ -114,7 +114,7 @@ function Controler(url, gui){
 	}
 	var controlerObject = {
 		plugins : [],
-		data : null, // element modelu, ale celowo zawarty w kontrolerze
+		graphData : {}, // element modelu, ale celowo zawarty w kontrolerze
 		setGraph : function(l){			
 			alert(l+":"+pf);
 		},
@@ -135,97 +135,14 @@ function Controler(url, gui){
 				}
 			});
 		},
-		getNode : function(id){
-			var returnValue;
-			$.each(data.nodes, function(i, node){
-				if(node.id == id){
-					returnValue = node;
-					return false;
-				}
-			});
-		},
-		drag : function drag(element, node){
-			var	lastDragX,
-				lastDragY,
-				ox, dx,
-				oy, dy,
-				width, height,
-				rWidth = gui.view.paper.width,
-				rHeight = gui.view.paper.height,
-				bbox,
-				ctrl,
-				transX, transY,
-				flag = true,
-				ready2move = false,
-				itWasJustAClick = false,
-				move = function move(x,y){
-					if(ready2move){
-						itWasJustAClick = false;
-						dx = x - lastDragX;	// mouse x
-						dy = y - lastDragY; // mouse y
-						
-						transX = ox + dx > rWidth-width ? rWidth-width-ox : (ox + dx < 0 ? -ox : dx);
-						transY = oy + dy > rHeight-height ? rHeight-height-oy : (oy + dy < 0 ? -oy : dy);
-	
-				  		$.each(gui.view.graph_view.nodes, function(i, val){
-							if(val.highlighted){
-								val.translate(transX, transY);
-							}
-						});
-					  	
-						lastDragX = x;
-						lastDragY = y;
-						ox += transX;
-						oy += transY;
-				 	}
-				},
-				start = function start(x,y,evt){
-					itWasJustAClick = true;
-					lastDragX = 0;
-					lastDragY = 0;
-					bbox = node.set.getBBox();
-					width = bbox.width;
-					height = bbox.height;
-					ox = bbox.x;
-					oy = bbox.y;
-
-					flag = false;
-					if(!node.highlighted){
-						if(!evt.ctrlKey)
-							gui.controler.reactOnEvent("DESELECT");
-
-						flag = true;
-						node.highlight2();
-					}
-					ready2move = node.highlighted;
-					ctrl = evt.ctrlKey;
-				},
-				stop = function stop(x,y,evt){
-					ready2move = false;
-					if(itWasJustAClick){
-						if(ctrl){
-							if(!flag) {
-								node.highlight(ctrl);
-								//alert("");
-							}
-						}
-						else {
-							gui.controler.reactOnEvent("DESELECT");
-							node.highlight2();
-						}
-					}
-				}
-
-				element.drag(move, start, stop);
-		},
-		loadSSDL : function loadSSDL(url){
+		loadSSDL : function loadSSDL(url){ 
 			var that = this;
 			this.load(url, function(ssdl){
 				var ssdl_json = that.convert(ssdl);
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.data = ssdl_json;					
-					gui.view.drawGraph();
+					that.graphData = ssdl_json;					
+					gui.view.drawGraph(gui.controler.graphData);
 					
 				$.each(that.plugins, function(i, v){
 					v.draw();
@@ -239,15 +156,36 @@ function Controler(url, gui){
 			});
 			
 			that.plugins.push(subgraphTree());
+
+		},
+		getNodeById : function getNodeById(id){
+			var result;
+
+			$.each(gui.controler.graphData.nodes, function(){
+				if( this.nodeId === id ){
+					result = this;
+					return false;
+				}
+			});
+
+			return result;
 		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
-			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");
-			switch(evtType){
+			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
+			switch(evtType.toUpperCase()){
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
 				case "DESELECT" : (function () {
 					gui.view.deselectAll();
+				})(); break;
+				case "ADDEDGE" : (function(e){
+					var target = gui.controler.getNodeById(e.target.id);
+					target.sources.push( e.source.id );
+					gui.view.addEdge(e);
+				})(evtObj); break;
+				case "NODEMOVED" : (function(){
+					gui.view.updateEdges();
 				})(); break;
 			}
 		},
@@ -257,7 +195,9 @@ function Controler(url, gui){
 			Graph.id = id ? id : "root";
 			Graph.nodes = [];
 			
-			(id ? ssdl.find("nodes node:first, nodes node:first ~ node") : $(ssdl).find("nodes node:first, nodes node:first ~ node")).each(function(){
+			(id ? ssdl : $(ssdl)).
+			find("nodes node:first, nodes node:first ~ node").
+			each(function(){
 				var _this = $(this);
 				var node = {};
 				node.nodeId = _this.find("nodeId:first").text();
@@ -376,8 +316,9 @@ function Controler(url, gui){
 			$(ssdl).find("nonFunctionalParameters:first nonFunctionalProperty").remove();	
 			Graph.nonFunctionalParameters = nonFunctionalParameters;
 					
+			// console.log(Graph)
 			return Graph;
 		}
-}	
+	}	
 	return controlerObject;
 }

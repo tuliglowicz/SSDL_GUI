@@ -16,37 +16,46 @@
 </head>
 <body>
 <div id="sandbox" style="background-color:ivory;"> </div>
-<div id="raport" style='clear: both; display:block;'>ds</div>
+<div id="raport" style='clear: both; display:block;'> </div>
 
 <script>
-"use strict"; 
-Object.prototype.extend = function () {
-	var tempObj;
-	for (var i in arguments) {
-		tempObj = arguments[i];
-		for (var property in tempObj) {
-			this[property] = (this[property] === undefined ? tempObj[property] : this[property]);
+	"use strict";
+	Object.prototype.extend = function () {
+		var tempObj;
+		for (var i in arguments) {
+			tempObj = arguments[i];
+			for (var property in tempObj) {
+				this[property] = (this[property] === undefined ? tempObj[property] : this[property]);
+			}
 		}
+	};
+	Raphael.fn.arrow = function (x1, y1, x2, y2, size) {
+	    var angle = (Math.atan2(x1-x2,y2-y1) / Math.PI) * 180;
+	    var arrowPath = this.path("M" + x2 + " " + y2 + " L" + (x2 - size) + " " + (y2 - size) + " L" + (x2 - size) + " " + (y2 + size) + " L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle),x2,y2);
+	    var linePath = this.path("M" + x1 + " " + y1 + " L" + x2 + " " + y2);
+	    return [linePath,arrowPath];
+	};
+	Object.prototype.getType = function getType(){
+		var tmp = Object.prototype.toString.call(this);
+
+		return tmp.substring(8, tmp.length-1);
+	};
+	var a = alert;
+
+	var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
+	var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
+
+	function Graph_GUI(id, width, height, modules, url){
+		var r = {};
+		r.id_postfix = Math.round( Math.random() * 10e5 );
+		r.controler = Controler(url, r);
+		r.view = View(id, width, height, r);
+		r.library = {gui: r};
+		
+		r.controler.init();
+				
+		return r;
 	}
-};
-
-var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
-var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
-var AVV;
-
-function Graph_GUI(id, width, height, modules, url){
-	var r = {};
-	r.id_postfix = Math.round( Math.random() * 10e5 );
-	r.controler = Controler(url, r);
-	r.view = View(id, width, height, r);
-	r.library = {gui: r};
-	
-	//r.controler.init();
-	r.controler.init();
-			
-	return r;
-}
-
 </script>
 
 </body>
