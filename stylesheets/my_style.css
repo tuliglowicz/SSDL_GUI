@@ -7,7 +7,7 @@
 	}
 	.connector {
 		fill: silver;
-		opacity: 0;
+		opacity: 1;
 		cursor:crosshair;
 	}
 	.start, .stop {
