@@ -1,5 +1,4 @@
-"use strict"; 
-//var supportedTypes = [];
+"use strict";
 var c = 0;
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
@@ -32,7 +31,7 @@ function View(id, width, height, gui){
 						}
 					},
 					switchToCFMode : function switchToMode(){
-
+						this.i_tab
 					},
 					switchToDFMode : function switchToMode(){
 
@@ -700,15 +699,21 @@ function View(id, width, height, gui){
 			}
 			var p = this.paper,
 				that = this,
-				type, tmp;
+				type, visualizedNode;
 				
 			$.each(graph_json.nodes, function(key, val){
-				tmp = that.visualiser.visualiseNode(val);
-				if(tmp)
-					that.graph_view.nodes.push( tmp );
+				visualizedNode = that.visualiser.visualiseNode(val);
+				if(visualizedNode)
+					that.graph_view.nodes.push( visualizedNode );
+
 				$.each(val.sources, function(k, v){
 					that.addBlankEdge(v, val.nodeId);
 				});
+
+				$.each(visualizedNode.inputs, function(){
+
+				})
+
 			});
 
 			this.updateEdges();
