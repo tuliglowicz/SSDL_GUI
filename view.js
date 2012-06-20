@@ -115,6 +115,8 @@ function View(id, width, height, gui){
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
+				newNode.inputs = node.functionalDescription.inputs;
+				newNode.outputs = node.functionalDescription.outputs;
 				
 				return ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode);
 			},
@@ -156,8 +158,10 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, radius),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, radius),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, radius),
-					c_tab = [],
-					i, j=0,
+					c_tab = [], i_tab = [], o_tab = [],
+					i, j, k, l,
+					input_length, output_length,
+					iDist, oDist,
 					serviceName = node.serviceName,
 					maxLength = 25,
 					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
@@ -175,6 +179,19 @@ function View(id, width, height, gui){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");				
 			
+				input_length = node.inputs.length;
+				output_length = node.outputs.length;
+
+				iDist = node.width/(input_length+1);
+				oDist = node.width/(output_length+1);
+
+				for(k = 0; k < input_length; k++){
+					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#fbec88"}));
+				}
+				for(l = 0; l < output_length; l++){
+					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#fbec88"}));
+				}
+
 				// KÓŁKA
 				c_tab.push(c1, c2, c3, c4);
 				for(i=0, j=c_tab.length; i<j; i++)
@@ -193,8 +210,15 @@ function View(id, width, height, gui){
 				})(c_tab);
 				// EOF KÓŁKA
 				
-				node.set.push(rect, label, img_gear, c1, c2, c3, c4, serviceNameShown);
-				
+				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
+				$.each(i_tab, function(){
+					node.set.push(this);
+				});
+				$.each(o_tab, function(){
+					node.set.push(this);
+				});
+				node.set.push(serviceNameShown);
+
 				for(i=0, j=node.set.length; i<j; i++)
 					node.set[i].mouseover(msoverc).mouseout(msoutc);
 
@@ -212,11 +236,25 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					c_tab = [],
-					i,
-					j=0
+					c_tab = [], i_tab = [], o_tab = [],
+					input_length, output_length,
+					i, j=0
 					;
-								
+
+				input_length = node.inputs.length;
+				output_length = node.outputs.length;
+
+				var iDist = node.width/(input_length+1);
+				var oDist = node.width/(output_length+1);
+
+				for(var k = 0; k < input_length; k++){
+					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#a6c9e2"})); //wyrzucić stąd dokładny kolor
+				}
+				for(var l = 0; l < output_length; l++){
+					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#a6c9e2"})); //wyrzucić stąd dokładny kolor
+				}
+
+
 				img_gear.node.setAttribute("class", id+" gear");
 				
 				rect.node.setAttribute("class", name);
@@ -244,6 +282,13 @@ function View(id, width, height, gui){
 				// EOF KÓŁKA
 				
 				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
+				$.each(i_tab, function(){
+					node.set.push(this);
+				});
+				$.each(o_tab, function(){
+					node.set.push(this);
+				});
+				node.set.push("a", "b");
 				
 				for(i=0, j=node.set.length; i<j; i++)
 					node.set[i].mouseover(msoverc).mouseout(msoutc);
