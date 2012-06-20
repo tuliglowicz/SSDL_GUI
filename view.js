@@ -24,6 +24,22 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
+					switchMode : function switchMode(newMode){
+						switch(newMode){
+							case "CF" : switchToCFMode(); break;
+							case "DF" : switchToCFMode(); break;
+							case "H" : switchToCFMode(); break;
+						}
+					},
+					switchToCFMode : function switchToMode(){
+
+					},
+					switchToDFMode : function switchToMode(){
+
+					},
+					switchToHybrydMode : function switchToMode(){
+
+					},
 					setBold : function(flag){
 						if(flag)
 							this.set[0].attr("stroke-width", "2px");
@@ -93,7 +109,7 @@ function View(id, width, height, gui){
 							[this.x, this.y + this.height/2]
 							]
 							;
-					},
+					}
 				}
 				
 				return blankNode;
@@ -308,7 +324,7 @@ function View(id, width, height, gui){
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		
 		return outputObject;
-	}
+	}	
 	
 	var outputView = {
 		id : id,
@@ -316,6 +332,12 @@ function View(id, width, height, gui){
 		height : height,
 		controler : gui.controler,
 		bgSelectionHelper : null,
+		columnParams : {
+			top_nav : {},
+			leftCol : {},
+			centerCol : {},
+			rightCol : {}
+		},
 		graph_view: {
 			nodes : [],
 			edgesCF : [],
@@ -401,7 +423,7 @@ function View(id, width, height, gui){
 					})
 				} else
 					element.drag(move, start, stop);
-		},		
+		},
 		dragArrow : function dragArrow(element, node){
 			var arrow,
 				cx,
@@ -574,10 +596,11 @@ function View(id, width, height, gui){
 			}
 			var heightOfTopBar = 20;
 
-			var html = [];
-			var h = (this.height-2-heightOfTopBar);
-			var canvas_width = (Math.floor(this.width * .7));
-			var left_plugins_width = (Math.floor(this.width * .15));
+			var html = [],
+				h = (this.height-2-heightOfTopBar),
+				canvas_width = (Math.floor(this.width * .7)),
+				left_plugins_width = (Math.floor(this.width * .15))
+			;
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt;</div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:" + h + "px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:" + h + "px; float:left;border:1px solid black; '> </div>");
@@ -590,6 +613,43 @@ function View(id, width, height, gui){
 	
 			$elem.css("width", this.width);
 			$elem.css("height", this.height);
+
+			//zbieranie danych o położeniu
+			var $column = $("#canvas_holder_"+pf),
+				position = $column.position();
+			this.columnParams.centerCol = {
+				top : position.top,
+				left : position.left,
+				width : $column.width(),
+				height : $column.height(),
+			};
+
+			$column = $("#left_plugins_"+pf)
+			position = $column.position();
+			this.columnParams.leftCol = {
+				top : position.top,
+				left : position.left,
+				width : $column.width(),
+				height : $column.height(),
+			};
+			
+			$column = $("#right_plugins_"+pf);
+			position = $column.position();
+			this.columnParams.rightCol = {
+				top : position.top,
+				left : position.left,
+				width : $column.width(),
+				height : $column.height(),
+			};
+
+			$column = $("#top_nav_"+pf)
+			position = $column.position();
+			this.columnParams.top_nav = {
+				top : position.top,
+				left : position.left,
+				width : $column.width(),
+				height : $column.height(),
+			};
 		},
 		drawGraph : function drawGraph(graph_json){
 			var that = this;
