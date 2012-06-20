@@ -138,9 +138,45 @@ function View(id, width, height, gui){
 			},
 			draw_controlNode : function draw_controlNode(node){
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white", cursor: "crosshair"}),
-					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
-					;
-				
+					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
+					input_length, output_length, i_tab = [], o_tab = [],
+					multX = 1, multY = 1, x1, y1, x2, y2;
+
+				input_length = node.inputs.length;
+				output_length = node.outputs.length;
+
+				//obliczanie punktów na okręgu
+				x1 = (node.x+node.r) - 10;
+				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
+				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
+				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
+
+				for(var k = 0; k < input_length; k++){
+					if(k < 4){
+						multX = ((k % 2) === 0) ? 1 : -1;
+						multY = (k < 2) ? 1 : -1;
+						i_tab.push(view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"}));
+					}
+					else{
+						multX = ((k % 2) === 0) ? 1 : -1;
+						multY = (k < 6) ? 1 : -1;
+						i_tab.push(view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"}));
+					}
+				}
+				multX = 1; multY = 1;
+				for(var l = 0; l < output_length; l++){
+					if(l < 4){
+						multX = ((l % 2) === 0) ? 1 : -1;
+						multY = (l < 2) ? 1 : -1;
+						o_tab.push(view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"}));
+					}
+					else{
+						multX = ((l % 2) === 0) ? 1 : -1;
+						multY = (l < 6) ? 1 : -1;
+						o_tab.push(view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"}));
+					}
+				}
+
 				c.node.setAttribute("class", node.id);
 						
 				label.node.removeAttribute("style");
@@ -159,6 +195,13 @@ function View(id, width, height, gui){
 				}
 				
 				node.set.push(c, label);
+				$.each(i_tab, function(){
+					node.set.push(this);
+				});
+				$.each(o_tab, function(){
+					node.set.push(this);
+				});
+
 				view.dragNodes(label, node);
 				view.dragArrow(c, node);
 
@@ -201,11 +244,11 @@ function View(id, width, height, gui){
 				iDist = node.width/(input_length+1);
 				oDist = node.width/(output_length+1);
 
-				for(k = 0; k < input_length; k++){
-					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#fbec88"}));
+				for(var k = 0; k < input_length; k++){
+					i_tab.push(view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"}));
 				}
-				for(l = 0; l < output_length; l++){
-					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#fbec88"}));
+				for(var l = 0; l < output_length; l++){
+					o_tab.push(view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"}));
 				}
 
 				// KÓŁKA
@@ -254,22 +297,22 @@ function View(id, width, height, gui){
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
 					c_tab = [], i_tab = [], o_tab = [],
 					input_length, output_length,
-					i, j=0
+					i, j=0,
+					iDist, oDist
 					;
 
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
-				var iDist = node.width/(input_length+1);
-				var oDist = node.width/(output_length+1);
+				iDist = node.width/(input_length+1);
+				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					i_tab.push(view.paper.rect(node.x+((k+1)*iDist), node.y-10, 10, 10, 2).attr({'fill':"#a6c9e2"})); //wyrzucić stąd dokładny kolor
+					i_tab.push(view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#a6c9e2"}));
 				}
 				for(var l = 0; l < output_length; l++){
-					o_tab.push(view.paper.rect(node.x+((l+1)*oDist), node.y+node.height, 10, 10, 2).attr({'fill':"#a6c9e2"})); //wyrzucić stąd dokładny kolor
+					o_tab.push(view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#a6c9e2"}));
 				}
-
 
 				img_gear.node.setAttribute("class", id+" gear");
 				
@@ -304,7 +347,6 @@ function View(id, width, height, gui){
 				$.each(o_tab, function(){
 					node.set.push(this);
 				});
-				node.set.push("a", "b");
 				
 				for(i=0, j=node.set.length; i<j; i++)
 					node.set[i].mouseover(msoverc).mouseout(msoutc);
