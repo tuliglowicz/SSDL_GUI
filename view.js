@@ -3,6 +3,59 @@ var c = 0;
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
 	
+
+	function drawBottomBar(paper){
+		// rób funkcje pomocnicze (tworzenie pathStringa)
+		// jeśli jakaś wartość powtarza się wiele razy, to przypisz ją do zmiennej, w celu ułatwienia dokonywania zmian (czas animacji);
+		// 0.0 === 0 (ta druga forma jest preferowana)
+		// 0.x === .x (ta druga forma jest preferowana)
+		// wartość paper.height-30 jest na sztywno... tak nie może być. powinno to być wyliczane na podstawie pewnej
+			// wartođci procentowej (dobranej przez Ciebie) z całkowitego rozmiaru z pewnym ograniczeniem dolnym (nie mniejsze niż...) i być może górnym (Ty decydujesz)
+		// chciałbym, żeby z tej funkcji zwracany był obiekt
+		// return {
+		// 		top:
+		// 		left:
+		// 		width:
+		// 		height:
+		// 		set:
+		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
+		//		removeElem: function (){ ... }	// 
+		// };
+		var triangle1, triangle2,
+			click = false,
+			invisibleBar = paper.rect(0, paper.height-30, paper.width, 30)
+			;
+		invisibleBar.attr({fill:"grey", opacity: 0.0});
+		triangle1 = paper.path("M " + parseInt(invisibleBar.attr("x")+20) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
+		triangle2 = paper.path("M " + parseInt(paper.width-40) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
+
+		invisibleBar.mouseover(function(){
+			if(!click){
+				invisibleBar.animate({opacity: 0.1}, 100);
+				triangle1.animate({opacity: 0.2}, 100);
+				triangle2.animate({opacity: 0.2}, 100);
+			}
+		});
+		invisibleBar.mouseout(function(){
+			if(!click){
+				invisibleBar.animate({opacity: 0.0}, 100);
+				triangle1.animate({opacity: 0.0}, 100);
+				triangle2.animate({opacity: 0.0}, 100);
+			}
+		});
+		invisibleBar.click(function(){
+			if(!click){
+				invisibleBar.animate({y: paper.height-75, height: 75, opacity: 0.2},100);
+				triangle1.animate({opacity: 0.0}, 100);
+				triangle2.animate({opacity: 0.0}, 100);
+				click = true;
+			}
+			else{
+				invisibleBar.animate({y: paper.height-30, height: 30, opacity: 0.0},100);
+				click = false
+			}
+		});
+	};
 	function nodeVisualizator(view){
 		var outputObject = {
 			color : {
@@ -802,6 +855,7 @@ function View(id, width, height, gui){
 	}
 	outputView.init();
 	outputView.visualiser = nodeVisualizator(outputView);
+	outputView.bottomBar = drawBottomBar(outputView.paper)
 	
 	var	lastDragX,
 		lastDragY,
@@ -895,43 +949,7 @@ function View(id, width, height, gui){
 					val.setBold(false);
 				});
 			}
-		},
-	
-		drawBottomBar = function drawBottomBar(){
-			var triangle1, triangle2;
-			var click = false;
-			var invisibleBar = gui.view.paper.rect(0, gui.view.paper.height-30, gui.view.paper.width, 30);
-			invisibleBar.attr({"fill":"grey", "opacity":0.0});
-			triangle1 = gui.view.paper.path("M " + parseInt(invisibleBar.attr("x")+20) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
-			triangle2 = gui.view.paper.path("M " + parseInt(gui.view.paper.width-40) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
-
-			invisibleBar.mouseover(function(){
-				if(!click){
-					invisibleBar.animate({opacity: 0.1}, 200);
-					triangle1.animate({opacity: 0.2}, 200);
-					triangle2.animate({opacity: 0.2}, 200);
-				}
-			});
-			invisibleBar.mouseout(function(){
-				if(!click){
-					invisibleBar.animate({opacity: 0.0}, 200);
-					triangle1.animate({opacity: 0.0}, 200);
-					triangle2.animate({opacity: 0.0}, 200);
-				}
-			});
-			invisibleBar.click(function(){
-				if(!click){
-					invisibleBar.animate({y: gui.view.paper.height-75, height: 75, opacity: 0.2},200);
-					triangle1.animate({opacity: 0.0}, 200);
-					triangle2.animate({opacity: 0.0}, 200);
-					click = true;
-				}
-				else{
-					invisibleBar.animate({y: gui.view.paper.height-30, height: 30, opacity: 0.0},200);
-					click = false
-				}
-			});
-			}
+		}
 
 	outputView.bgSelectionHelper.drag(bgMove, bgStart, bgStop);
 

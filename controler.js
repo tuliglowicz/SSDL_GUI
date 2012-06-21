@@ -119,9 +119,6 @@ function Controler(url, gui){
 	var controlerObject = {
 		plugins : [],
 		graphData : {}, // element modelu, ale celowo zawarty w kontrolerze
-		// setGraph : function(l){			
-		// 	alert(l+":"+pf);
-		// },
 		init: function init(){
 			this.initPlugins();
 		},
