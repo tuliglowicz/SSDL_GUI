@@ -436,7 +436,7 @@ function View(id, width, height, gui){
 					o_tab.push(view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"}));
 				}
 
-				// KÓŁKA
+				// KÓ�?KA
 				c_tab.push(c1, c2, c3, c4);
 				for(i=0, j=c_tab.length; i<j; i++)
 					c_tab[i].node.setAttribute("class", id+" connector");
@@ -452,7 +452,7 @@ function View(id, width, height, gui){
 							c_tab[i].animate({opacity: 0}, 150);
 					}
 				})(c_tab);
-				// EOF KÓŁKA
+				// EOF KÓ�?KA
 				
 				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
 				$.each(i_tab, function(){
@@ -507,7 +507,7 @@ function View(id, width, height, gui){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");				
 			
-				// KÓŁKA
+				// KÓ�?KA
 				c_tab.push(c1, c2, c3, c4);
 				for(i=0, j=c_tab.length; i<j; i++)
 					c_tab[i].node.setAttribute("class", id+" connector");
@@ -523,7 +523,7 @@ function View(id, width, height, gui){
 							c_tab[i].animate({opacity: 0}, 150);
 					}
 				})(c_tab);
-				// EOF KÓŁKA
+				// EOF KÓ�?KA
 				
 				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
 				$.each(i_tab, function(){
@@ -1023,7 +1023,7 @@ function View(id, width, height, gui){
 				y1+=lastDragY;
 				
 
-			// TUTAJ POWINNO BYC WYSŁANIE EVENTU DO KONTROLERA Z 4MA WSPÓŁŻĘDNYMI
+			// TUTAJ POWINNO BYC WYS�?ANIE EVENTU DO KONTROLERA Z 4MA WSPÓ�?Ż�?DNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
@@ -1047,7 +1047,7 @@ function View(id, width, height, gui){
 				sel.remove();
 				sel = null;
 				lastRot = 0;
-				// TUTAJ POWINNO BYĆ WYSŁANIE EVENTU DO KONTROLERA Z SELEKTEM
+				// TUTAJ POWINNO BYĆ WYS�?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
 					x1 : x1,
