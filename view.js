@@ -2,58 +2,165 @@
 var c = 0;
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
-	
+	function blankNode(paper){
+		var tmp = {
+			name: "blankNode",
+			version: "1.0",
+			author: "Author",
+			dataType: 'json',
+			data: null,
+			//parent: gui.controler, ???
+			globalEvents: ["load"],
+			localEvents: ["select"],
+			
+			draw: function draw(){
+				var clone;
+				paper.text(100,10,"Start/Stop").node.setAttribute("class","repository_text");
+				var repo_circle = paper.circle(100,35,15).attr({"opacity": "1", "fill":"white"});
+				repo_circle.node.setAttribute("class","repository_element");
+				paper.text(100,70,"Service").node.setAttribute("class","repository_text");
+				var repo_service = paper.rect(33,80,135,35,5).attr({fill:"#fbec88"});
+				repo_service.node.setAttribute("class","repository_element");
+				paper.text(100,140,"Functionality").node.setAttribute("class","repository_text");
+				var repo_functionality = paper.rect(33,150,135,35,5).attr({fill:"#a6c9e2"});
+				repo_functionality.node.setAttribute("class","repository_element");
+				paper.text(100,210,"Mediator").node.setAttribute("class","repository_text");
+				var repo_mediator = paper.rect(33,220,135,35,5).attr({fill:"white"});
+				repo_mediator.node.setAttribute("class","repository_element");
+				
+				move = function move(dx,dy){
+					clone.attr({x:this.ox + dx, y:this.oy+dy});
+				},
+				start = function start(x,y,evt){
+					this.ox = this.attr("x");
+					this.oy = this.attr("y");
+
+					clone = this.clone();
+				},
+				stop = function stop(x,y,evt){
+					if(true) clone.remove();
+				}
+
+				cMove = function move(dx,dy){
+					clone.attr({cx:this.ox + dx, cy:this.oy+dy});
+				},
+				cStart = function start(x,y,evt){
+					this.ox = this.attr("cx");
+					this.oy = this.attr("cy");
+
+					clone = this.clone();
+				},
+				cStop = function stop(x,y,evt){
+					if(true) clone.remove();
+				}
+
+				repo_service.drag(move, start, stop);
+				repo_functionality.drag(move, start, stop);
+				repo_mediator.drag(move, start, stop);
+
+				repo_circle.drag(cMove, cStart, cStop);
+			}
+		}
+
+		tmp.draw();
+		
+		return tmp;
+	}
+
 	function drawBottomBar(paper){
-		// rób funkcje pomocnicze (tworzenie pathStringa)
-		// jeśli jakaś wartość powtarza się wiele razy, to przypisz ją do zmiennej, w celu ułatwienia dokonywania zmian (czas animacji);
-		// 0.0 === 0 (ta druga forma jest preferowana)
-		// 0.x === .x (ta druga forma jest preferowana)
-		// wartość paper.height-30 jest na sztywno... tak nie może być. powinno to być wyliczane na podstawie pewnej
-			// wartođci procentowej (dobranej przez Ciebie) z całkowitego rozmiaru z pewnym ograniczeniem dolnym (nie mniejsze niż...) i być może górnym (Ty decydujesz)
-		// chciałbym, żeby z tej funkcji zwracany był obiekt
+		// chciaĹ‚bym, ĹĽeby z tej funkcji zwracany byĹ‚ obiekt
 		// return {
 		// 		top:
 		// 		left:
 		// 		width:
 		// 		height:
 		// 		set:
-		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
+		//		addElem: function (){ ... }		// tutaj chodzi o moĹĽliwoĹ›Ä‡ dodania czegoĹ›...
 		//		removeElem: function (){ ... }	// 
 		// };
-		var triangle1, triangle2,
-			click = false,
-			invisibleBar = paper.rect(0, paper.height-30, paper.width, 30)
-			;
-		invisibleBar.attr({fill:"grey", opacity: 0.0});
-		triangle1 = paper.path("M " + parseInt(invisibleBar.attr("x")+20) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
-		triangle2 = paper.path("M " + parseInt(paper.width-40) + " " + parseInt(invisibleBar.attr("y")+20) + " l 20 0 l -10 -10 z").attr({"fill":"grey", "opacity": 0.0});
 
-		invisibleBar.mouseover(function(){
-			if(!click){
-				invisibleBar.animate({opacity: 0.1}, 100);
-				triangle1.animate({opacity: 0.2}, 100);
-				triangle2.animate({opacity: 0.2}, 100);
-			}
-		});
-		invisibleBar.mouseout(function(){
-			if(!click){
-				invisibleBar.animate({opacity: 0.0}, 100);
-				triangle1.animate({opacity: 0.0}, 100);
-				triangle2.animate({opacity: 0.0}, 100);
-			}
-		});
-		invisibleBar.click(function(){
-			if(!click){
-				invisibleBar.animate({y: paper.height-75, height: 75, opacity: 0.2},100);
-				triangle1.animate({opacity: 0.0}, 100);
-				triangle2.animate({opacity: 0.0}, 100);
-				click = true;
-			}
-			else{
-				invisibleBar.animate({y: paper.height-30, height: 30, opacity: 0.0},100);
-				click = false
-			}
-		});
+		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
+			left = 0,
+			width = paper.width,
+			height = (paper.height*.05 >= 25) ? paper.height*.05 : 25,
+
+			offset = 20,
+			visible = .2,
+			invisible = .0,
+			result = {
+				top: top,
+				left: left,
+				width: width,
+				height: height,
+
+				offset: offset,
+				visible: visible,
+				invisible: invisible,
+				animationTime: 100,
+				click: false,
+				set: [],
+
+				pathString: function pathString(x, y){
+					return("M " + x + " " + y + " l 20 0 l -10 -10 z");
+				},
+				createBar: function createBar(x, y, width, height){
+					// alert(this.triangle1);
+					var that = this,
+						bar = paper.rect(x, y, width, height).
+					attr({fill:"grey", opacity: this.invisible}).
+					mouseover(function(){
+						if(!that.click){
+							bar.animate({opacity: visible/2}, that.animationTime);
+							that.triangle1.animate({opacity: visible}, that.animationTime);
+							that.triangle2.animate({opacity: visible}, that.animationTime);
+						}
+					}).
+					mouseout(function(){
+						if(!that.click){
+							bar.animate({opacity: invisible}, that.animationTime);
+							that.triangle1.animate({opacity: invisible}, that.animationTime);
+							that.triangle2.animate({opacity: invisible}, that.animationTime);
+						}
+					}).
+					click(function(){
+						if(!that.click){
+							bar.animate({y: paper.height*.85, height: paper.height*.15, opacity: visible},that.animationTime);
+							that.triangle1.animate({opacity: invisible}, that.animationTime);
+							that.triangle2.animate({opacity: invisible}, that.animationTime);
+							that.click = true;
+						}
+						else{
+							bar.animate({y: paper.height*.95, height: paper.height*.05, opacity: invisible},that.animationTime);
+							that.click = false
+						}
+					});
+					return bar;
+				},
+				createTriangle: function createTriangle(path){
+					var tr = paper.path(path);
+					tr.attr({fill:"grey", opacity: invisible});
+					return tr;
+				},
+				addElement: function addElement(element){
+					// this.set.push(element);
+				},
+				removeElement: function removeElement(element){
+					//TODO
+				}
+			};
+
+		result.triangle1 = result.createTriangle(
+			result.pathString(parseInt(left+offset),
+			parseInt(top+offset)
+		));
+		result.triangle2 = result.createTriangle(
+			result.pathString(parseInt(width-2*offset),
+			parseInt(top+offset)
+		));
+		result.invisibleBar = result.createBar(left, top, width, height);
+		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
+
+		return result;
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
