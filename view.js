@@ -3,7 +3,6 @@ var c = 0;
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
 	
-
 	function drawBottomBar(paper){
 		// rób funkcje pomocnicze (tworzenie pathStringa)
 		// jeśli jakaś wartość powtarza się wiele razy, to przypisz ją do zmiennej, w celu ułatwienia dokonywania zmian (czas animacji);
@@ -67,6 +66,9 @@ function View(id, width, height, gui){
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
 					type : "", //inputNode.nodeType,
+					inputs : [],
+					outputs : [],
+					connectors : [],
 					x : 10+55*c,
 					y : 10+35*c,
 					r : 15,
@@ -76,6 +78,7 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
+
 					switchMode : function switchMode(newMode){
 						switch(newMode){
 							case "CF" : switchToCFMode(); break;
@@ -91,6 +94,29 @@ function View(id, width, height, gui){
 					},
 					switchToHybrydMode : function switchToMode(){
 
+					},
+					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
+					getInputById : function getInputById(id){
+						var result;
+						$.each(this.outputs, function(){
+							if(this.id === id){
+								result = this;
+								return false;
+							}
+						});
+
+						return result;
+					},
+					getOutputById : function getOutputById(id){
+						var result;
+						$.each(this.inputs, function(){
+							if(this.id === id){
+								result = this;
+								return false;
+							}
+						});
+
+						return result;
 					},
 					setBold : function(flag){
 						if(flag)
@@ -424,6 +450,7 @@ function View(id, width, height, gui){
 		id : id,
 		width : width,
 		height : height,
+		mode : "CF",
 		controler : gui.controler,
 		bgSelectionHelper : null,
 		columnParams : {
@@ -436,6 +463,18 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		getNodeById : function getNodeById(id){
+			var result;
+
+			$.each(this.graph_view.nodes, function(){
+				if( this.id === id ){
+					result = this;
+					return false;
+				}
+			});
+
+			return result;
 		},
 		dragNodes : function drag(element, node){
 			var	lastDragX,
@@ -572,39 +611,7 @@ function View(id, width, height, gui){
 			} else
 				element.drag(move, start, stop);
 		},
-		addBlankEdge : function addBlankEdge(sourceId, targetId){
-			var edgeObject = {
-				validated : false,
-				arrow : undefined,
-				source : sourceId,
-				target : targetId,
-				view : this,
-				toString : function (){ return "ssdlEdge Object";},
-				update : function(){
-					if(! (this.source.getType() === "Object" && this.target.getType() === "Object") ){
-						this.source = this.view.getNodeById(this.source) || this.source;
-						this.target = this.view.getNodeById(this.target) || this.target;
-					}
-					// alert(this.source.getType() +":"+ this.target.getType() )
-					if( this.source.getType() === "Object" && this.target.getType() === "Object"){
-						// a(source+":"+target+":"+source.getType());
-						var bestConnectors = this.view.getBestConnectors(
-						this.source.getPossiblePositionsOfConnectors(),
-						this.target.getPossiblePositionsOfConnectors()
-						);
-						try {
-							this.arrow[0].remove();	this.arrow[1].remove();
-						} catch(e){	//console.log(e);	
-						}
-
-						this.arrow = this.view.visualiser.drawEdge( bestConnectors )
-					}
-				}
-			};
-
-			this.graph_view.edgesCF.push( edgeObject );
-		},
-		addEdge : function addEdge(data){
+		addCFEdge : function addCFEdge(data){
 			var foundedEdge = this.getEdge(data.source.id, data.target.id);
 			if(foundedEdge){
 				gui.controler.reactOnEvent(""); //err msg
@@ -651,6 +658,42 @@ function View(id, width, height, gui){
 			});
 
 			return foundedEdge;
+		},
+		drawGraph : function drawGraph(graph_json){
+			var that = this;
+			if(!this.paper){
+				console.error("you have to run init() function first");
+			}
+			var p = this.paper,
+				that = this,
+				type, visualizedNode;
+				
+			$.each(graph_json.nodes, function(key, val){
+				visualizedNode = that.visualiser.visualiseNode(val);
+				if(visualizedNode)
+					that.graph_view.nodes.push( visualizedNode );
+			});
+
+			$.each(graph_json.nodes, function(key, val){	
+				$.each(val.sources, function(){
+					that.addCFEdge({
+						source: that.getNodeById(this),
+						target: that.getNodeById(val.nodeId)
+					});
+				});
+				$.each(visualizedNode.inputs, function(){
+
+					console.log( val.nodeId+":"+jstr(this) );
+					// that.addDFEdge({
+					// 	sourceId: ,
+					// 	sourceOutputId: that.getNodeById(val.nodeId),
+					// 	targetId: ,
+					// 	targetInputId: 
+					// });
+				});
+			});
+
+			this.updateEdges();
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
 			var minOdl=Infinity,
@@ -745,32 +788,6 @@ function View(id, width, height, gui){
 				height : $column.height(),
 			};
 		},
-		drawGraph : function drawGraph(graph_json){
-			var that = this;
-			if(!this.paper){
-				console.error("you have to run init() function first");
-			}
-			var p = this.paper,
-				that = this,
-				type, visualizedNode;
-				
-			$.each(graph_json.nodes, function(key, val){
-				visualizedNode = that.visualiser.visualiseNode(val);
-				if(visualizedNode)
-					that.graph_view.nodes.push( visualizedNode );
-
-				$.each(val.sources, function(k, v){
-					that.addBlankEdge(v, val.nodeId);
-				});
-
-				$.each(visualizedNode.inputs, function(){
-
-				})
-
-			});
-
-			this.updateEdges();
-		},
 		setBold : function setBold(x1, y1, x2, y2){
 			$.each(this.graph_view.nodes, function(k, v){
 				if( v.isInside(x1, y1, x2, y2) )
@@ -832,18 +849,6 @@ function View(id, width, height, gui){
 			//alert(resultTab[0]);
 			return count === 1 ? resultTab[0] : resultTab;
 		},
-		getNodeById : function getNodeById(id){
-			var result;
-
-			$.each(this.graph_view.nodes, function(){
-				if( this.id === id ){
-					result = this;
-					return false;
-				}
-			});
-
-			return result;
-		},
 		removeNode : function removeNode(id){
 			$.each(this.graph_view.nodes, function(k, v){
 				if(v.id === id){
@@ -855,8 +860,8 @@ function View(id, width, height, gui){
 	}
 	outputView.init();
 	outputView.visualiser = nodeVisualizator(outputView);
-	outputView.bottomBar = drawBottomBar(outputView.paper)
-	
+	outputView.bottomBar = drawBottomBar(outputView.paper);
+
 	var	lastDragX,
 		lastDragY,
 		ox, dx,
@@ -954,4 +959,4 @@ function View(id, width, height, gui){
 	outputView.bgSelectionHelper.drag(bgMove, bgStart, bgStop);
 
 	return outputView;
-}
+};
