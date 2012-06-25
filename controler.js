@@ -3,6 +3,319 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
+	function deployer(ssdlJson, canvasW, canvasH, nodeW, nodeH, nodeSpacing, startY) {
+		/* SSDL Graph Deployment v0.62
+		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
+		* "Lasciate ogni speranza, voi ch'entrate"
+		* SUBMITTED: 25.06.2012
+		*/
+		//-STATE-VARIABLES------------------->>>
+		var jnodes;
+		var nodeArr;
+		var graphMat;
+		var out;
+		//-MAIN-FUNCTIONS-------------------->>>
+		this.init = function init(){
+			jnodes = json.nodes;
+			nodeArr = getNodes(jnodes);
+			processNodes(nodeArr);
+			graphMat = postProcessNodes(nodeArr);
+		}
+		this.deploy = function deploy(){
+			console.time("Deploying Time");
+			var bestI = bruteForce(graphMat);
+			out = generateCoords(graphMat, bestI);
+			console.group("DEPLOYMENT RESULTS:");
+			console.log("ALGHORITM PERFORMANCE: ");
+			console.timeEnd("Deploying Time");
+			console.log("GRAPH MATRIX: ");
+			console.log(graphMat);
+			console.log("DEPLOYMENT: ");
+			console.log(out);
+			console.groupEnd();
+			return out;
+		}
+		this.deploySubgraph = function deploySubgraph(nodeId){
+			console.time("Deploying Time");
+			var sNode = getNodeById(nodeArr, nodeId);
+			var subgraphMat = sNode.subgraphMatrix;
+			var bestI = bruteForce(subgraphMat);
+			out = generateCoords(subgraphMat, bestI);
+			console.group("DEPLOYMENT RESULTS:");
+			console.log("ALGHORITM PERFORMANCE: ");
+			console.timeEnd("Deploying Time");
+			console.log("GRAPH MATRIX: ");
+			console.log(graphMat);
+			console.log("DEPLOYMENT: ");
+			console.log(out);
+			console.groupEnd();
+			return out;
+		}
+		//-PARSING-FUNCTIONS----------------->>>
+		function node(id, sources, subgraph) {//NODE OBJECT
+			this.id = id;
+			this.parents = [];
+			this.children = [];
+			this.sources = sources;
+			this.subgraph = subgraph;
+			this.subgraphMatrix = null;
+			this.level = -1;
+			this.column = -1;
+		}
+		function getNodes(jsonNodes) {//building nodes list basing on JSon form of SSDL
+			var nodes = [];
+			var i = 0;
+			$.each(jsonNodes, function() {
+				nodes[i] = new node(this.nodeId, this.sources, this.subgraph.nodes);
+				i++;
+			});
+			return nodes;
+		}
+		function getNodeById(nodeArray, nId) {//searching nodes list for node with specific id
+			var ret = null
+			$.each(nodeArray, function() {
+				if(this.id == nId) {
+					ret = this;
+					return false;
+				}
+			});
+			return ret;
+		}
+		function processNodes(nodeArray) {//setting flow and processing subgraph for each node
+			$.each(nodeArray, function() {
+				if(!jQuery.isEmptyObject(this.subgraph)) {
+					this.subgraph = getNodes(this.subgraph); //parsing subgraph
+					processNodes(this.subgraph);
+				} else {
+					this.subgraph = null;
+				}
+				var tempObj = this;
+				$.each(this.sources, function() {//assigning parent/child refferences for each node
+					var temp = getNodeById(nodeArray, this);
+					if(temp != null) {
+						tempObj.parents.push(temp);
+						temp.children.push(tempObj);
+					} else {
+						console.error("getNodeByID(" + this + ") returned NULL!!!");
+					}
+				});
+			});
+		}
+		function postProcessNode(node) {//assigning node level to node and its parents/children
+			if(node.id == "#Start") {//if in root assigning level 0
+				node.level = 0;
+			} else {
+				$.each(node.parents, function() {
+					postProcessNode(this);
+				});
+			}
+			var lowerLevel = node.level;
+			$.each(node.children, function() {//assigning  node level incremented by one to all children
+				if(this.level == -1 || this.level > lowerLevel + 1) {
+					this.level = lowerLevel + 1;
+				}
+			});
+		}
+		function postProcessNodes(nodeArray) {//creating graphMatrix and subgraph Matrixes
+			var graphMatrix = [[]];
+			postProcessNode(getNodeById(nodeArray, "#End")); //assigning node levels
+			$.each(nodeArray, function() {
+				if(this.subgraph != null) {//if subgraph exists postProcess it
+					console.info(this.id + " has aviable Subgraph");
+					this.subgraphMatrix = postProcessNodes(this.subgraph);
+				}
+				if(this.id != "#End") {//for all nodes except #End
+					if(!graphMatrix[this.level]) {//creating level array if not present
+						graphMatrix[this.level] = [];
+					}
+					graphMatrix[this.level].push(this); //assigning node to graph matrix
+					this.column = graphMatrix[this.level].length - 1; //assigning column nuber to node
+				}
+			});
+			//assigning #End to graph matrix
+			var stop = getNodeById(nodeArray, "#End");
+			if(graphMatrix[stop.level]) {
+				stop.level++;
+			}
+			graphMatrix[stop.level] = [stop];
+			stop.column = 0;
+			return graphMatrix;
+		}
+		//-DEPLOYMENT-ALGORITHM-FUNCTIONS---->>>
+		function individual(deploymentMatrix) {//INDIVIDUAL OBJECT
+			this.deploymentMatrix = deploymentMatrix;
+			this.rating = null;
+		}
+		function rate(individual, graphMatrix) {//rating individual by square criterion
+			var deploymentMatrix = individual.deploymentMatrix,
+				len = deploymentMatrix.length,
+				rating = 0;
+			for(var i = 1; i < len; i++) {//for each level
+				var len2 = deploymentMatrix[i].length;
+				for(var j = 0; j < len2; j++) {//for each column
+					var num = deploymentMatrix[i][j],
+						temp = graphMatrix[i][num].parents, //get parents
+						len3 = temp.length,
+						parentColIds = [],
+						parentRowIds = [];
+					for(var k = 0; k < len3; k++) {//get their IDs
+						parentColIds.push(temp[k].column);
+						parentRowIds.push(temp[k].level);
+					}
+					var len4 = parentColIds.length;
+					for(var l = 0; l<len4; l++){
+						var len5 = deploymentMatrix[parentRowIds[l]].length;
+						if(len2>1){
+							for(var o = 0; o<len5; o++){
+								if(deploymentMatrix[parentRowIds[l]][o]==parentColIds[l]){
+									var xLen = ((j+1)/(len2+1))-((o+1)/(deploymentMatrix[parentRowIds[l]].length+1));
+									xLen *= xLen;
+									rating += Math.sqrt(xLen);
+								}
+							}
+						}
+					}
+				}
+			}
+			individual.rating = rating;
+			return rating;
+		}
+		function bruteForce(graphMatrix) {//searching for best deployment by bruteForce
+			var len = graphMatrix.length,
+				matrix = [[]],
+				bruteForceMatrix = [[[]]],
+				individuals = [],
+				bestRating,
+				tempRating,
+				bestIndividual,
+				tempIndividual;
+			for(var i = 0; i < len; i++) {//for each level
+				var len2 = graphMatrix[i].length,
+					tab = [];
+				for(var j = 0; j < len2; j++) {//create table of possible IDs
+					tab.push(j);
+				}
+				//ZuO i mrokH i rekurencja
+				bruteForceMatrix[i] = [];
+				generatePossibleRows(tab, [], bruteForceMatrix[i], len2);
+			}
+			//here we have matrix of possible levels, now it's time to mix it to individuals
+			generateDepMat(bruteForceMatrix, [], individuals, 0);
+			var am = individuals.length,
+				tempMat = [[]];
+			for(var i = 0; i<len; i++){
+				tempMat[i] = [];
+				tempMat[i] = bruteForceMatrix[i][individuals[0][i]];
+			}
+			bestIndividual = new individual(tempMat);
+			bestRating = rate(bestIndividual, graphMatrix);
+			for(var i = 1; i<am; i++){
+				tempMat = [[]];
+				for(var j = 0; j<len; j++){
+					tempMat[j] = [];
+					tempMat[j] = bruteForceMatrix[j][individuals[i][j]];
+				}
+				tempIndividual = new individual(tempMat);
+				tempRating = rate(tempIndividual, graphMatrix);
+				if(tempRating<bestRating){
+					bestRating = tempRating;
+					bestIndividual = tempIndividual;
+				}
+			}
+			return bestIndividual;
+		}
+		function generatePossibleRows(possibleIds, combination, output, left){//generating table of possible rows
+			if(left==0){//if combination was completed
+				output.push(combination); //add it to output matrix
+			}else{
+				for(var i = 0; i < left; i++){//for left possible ids
+					var ids = clone(possibleIds),
+						newCombination = clone(combination);
+					newCombination.push(ids[i]); //create new combinations
+					for(var j = i; j < left - 1; j++) {//shrink support table
+						ids[j] = ids[j + 1];
+					}
+					generatePossibleRows(ids, newCombination, output, left-1); //send combination further
+				}
+			}
+		}
+		function generateDepMat(bfMatrix, combination, output, row){//generating deployment matrixes for individuals
+			if(row==bfMatrix.length){//if combination was completed
+				output.push(combination); //add it to output table
+			}else{
+				var len = bfMatrix[row].length;
+				for(var i = 0; i<len; i++){//for all possible combinations of this level
+					var newCombination = clone(combination);
+					newCombination.push(i); //create new deployment option based on row ids
+					generateDepMat(bfMatrix, newCombination, output, row+1); //send combination further
+				}
+			}
+		}
+		function clone(tab){//array cloning function
+			var result = [];
+			$.each(tab, function(i, v){
+				result.push(v);
+			});
+			return result;
+		}
+		function generateCoords(graphMatrix, bestInd) {//generating ID's -> coordinates table
+			if(startY==undefined){
+				startY = 15;
+			}
+			w = canvasW;
+			if(nodeW!=undefined){
+				width = nodeW;
+				height = nodeH;
+			}else{
+				width = 145;
+				height = 30;
+			}
+			if(nodeSpacing!=undefined){
+				spacing = nodeSpacing;
+			}else{
+				spacing = 30;
+			}
+			dMatrix = bestInd.deploymentMatrix;
+			len = dMatrix.length;
+			maxWidth = 1;
+			rowWidth = new Array();
+			columnWidth = new Array();
+			for(var i = 0; i < len; i++) {
+				rowWidth[i] = dMatrix[i].length;
+				if(rowWidth[i] > maxWidth) {
+					maxWidth = dMatrix[i].length;
+				}
+			}
+			if(w / maxWidth < width + spacing) {
+				for(var i = 0; i < len; i++) {
+					columnWidth[i] = width + spacing;
+				}
+			} else {
+				for(var i = 0; i < len; i++) {
+					columnWidth[i] = w / rowWidth[i];
+				}
+			}
+			dTab = [];
+			for(var i = 0; i < len; i++) {
+				len2 = dMatrix[i].length;
+				for(var j = 0; j < len2; j++) {
+					id = graphMatrix[i][dMatrix[i][j]].id;
+					y = i * (height + spacing) + startY;
+					x = Math.floor(j * columnWidth[i] + (columnWidth[i] - width) / 2);
+					tab = new Array;
+					tab[0] = id;
+					tab[1] = x;
+					tab[2] = y;
+					dTab.push(tab);
+				}
+			}
+			return dTab;
+		}
+		//-PLUGIN-OBJECT-INIT-&-RETURN------->>>
+		this.init();
+		return this;
+	}
+
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
