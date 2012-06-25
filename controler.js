@@ -496,13 +496,16 @@ function Controler(url, gui){
 				case "DESELECT" : (function () {
 					gui.view.deselectAll();
 				})(); break;
-				case "ADDEDGE" : (function(e){
+				case "ADDCFEDGE" : (function(e){
 					var target = gui.controler.getNodeById(e.target.id);
 					target.sources.push( e.source.id );
-					gui.view.addEdge(e);
+					gui.view.addCFEdge(e);
 				})(evtObj); break;
 				case "NODEMOVED" : (function(){
 					gui.view.updateEdges();
+				})(); break;
+				case "SWITCHMODE" : (function(mode){
+					gui.view.switchMode(mode);
 				})(); break;
 			}
 		},
