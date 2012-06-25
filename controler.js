@@ -3,11 +3,19 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
-	function deployer(ssdlJson, canvasW, canvasH, nodeW, nodeH, nodeSpacing, startY) {
+	function deployer(ssdlJson, canvasW, nodeW, nodeH, nodeSpacing, startY) {
 		/* SSDL Graph Deployment v0.62
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
 		* "Lasciate ogni speranza, voi ch'entrate"
 		* SUBMITTED: 25.06.2012
+		* REQUIRED PARAMS: 
+		* - ssdlJson (jSon form of SSDL XML)
+		* - canvasW (width of canvas we will be drawing on)
+		* OPTIONAL PARAMS:
+		* - nodeW (width of nodes)
+		* - nodeH (height of nodes)
+		* - nodeSpacing (spacing between nodes (horizontal & vertical))
+		* - startY (height on canvas from which we start to draw graph)
 		*/
 		//-STATE-VARIABLES------------------->>>
 		var jnodes;
@@ -15,13 +23,13 @@ function Controler(url, gui){
 		var graphMat;
 		var out;
 		//-MAIN-FUNCTIONS-------------------->>>
-		this.init = function init(){
+		this.init = function init(){//initialization of data model
 			jnodes = json.nodes;
 			nodeArr = getNodes(jnodes);
 			processNodes(nodeArr);
 			graphMat = postProcessNodes(nodeArr);
 		}
-		this.deploy = function deploy(){
+		this.deploy = function deploy(){//deploying main ssdl graph
 			console.time("Deploying Time");
 			var bestI = bruteForce(graphMat);
 			out = generateCoords(graphMat, bestI);
@@ -35,7 +43,7 @@ function Controler(url, gui){
 			console.groupEnd();
 			return out;
 		}
-		this.deploySubgraph = function deploySubgraph(nodeId){
+		this.deploySubgraph = function deploySubgraph(nodeId){//deploying subgraph of node with selected id
 			console.time("Deploying Time");
 			var sNode = getNodeById(nodeArr, nodeId);
 			var subgraphMat = sNode.subgraphMatrix;
@@ -162,6 +170,7 @@ function Controler(url, gui){
 						parentColIds.push(temp[k].column);
 						parentRowIds.push(temp[k].level);
 					}
+					//sum horizontal distance to all parents for all nodes
 					var len4 = parentColIds.length;
 					for(var l = 0; l<len4; l++){
 						var len5 = deploymentMatrix[parentRowIds[l]].length;
@@ -209,6 +218,7 @@ function Controler(url, gui){
 			}
 			bestIndividual = new individual(tempMat);
 			bestRating = rate(bestIndividual, graphMatrix);
+			//searching for best individual by checking all generated matrixes
 			for(var i = 1; i<am; i++){
 				tempMat = [[]];
 				for(var j = 0; j<len; j++){
@@ -259,10 +269,11 @@ function Controler(url, gui){
 			return result;
 		}
 		function generateCoords(graphMatrix, bestInd) {//generating ID's -> coordinates table
+			w = canvasW;
+			//check if node properties are defined. if not assign default
 			if(startY==undefined){
 				startY = 15;
 			}
-			w = canvasW;
 			if(nodeW!=undefined){
 				width = nodeW;
 				height = nodeH;
@@ -280,12 +291,14 @@ function Controler(url, gui){
 			maxWidth = 1;
 			rowWidth = new Array();
 			columnWidth = new Array();
+			//searching for longest row
 			for(var i = 0; i < len; i++) {
 				rowWidth[i] = dMatrix[i].length;
 				if(rowWidth[i] > maxWidth) {
 					maxWidth = dMatrix[i].length;
 				}
 			}
+			//assigning widths to rows
 			if(w / maxWidth < width + spacing) {
 				for(var i = 0; i < len; i++) {
 					columnWidth[i] = width + spacing;
@@ -296,6 +309,7 @@ function Controler(url, gui){
 				}
 			}
 			dTab = [];
+			//assigning x & y to nodes
 			for(var i = 0; i < len; i++) {
 				len2 = dMatrix[i].length;
 				for(var j = 0; j < len2; j++) {
