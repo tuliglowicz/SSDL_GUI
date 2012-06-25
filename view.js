@@ -1,5 +1,6 @@
 "use strict";
-var c = 0;
+var c = -1;
+var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
 	function blankNode(paper){
@@ -66,27 +67,26 @@ function View(id, width, height, gui){
 		
 		return tmp;
 	}
-
 	function drawBottomBar(paper){
-		// chciaĹ‚bym, ĹĽeby z tej funkcji zwracany byĹ‚ obiekt
+		// chciaÄ¹â€šbym, Ä¹Ä½eby z tej funkcji zwracany byÄ¹â€š obiekt
 		// return {
 		// 		top:
 		// 		left:
 		// 		width:
 		// 		height:
 		// 		set:
-		//		addElem: function (){ ... }		// tutaj chodzi o moĹĽliwoĹ›Ä‡ dodania czegoĹ›...
+		//		addElem: function (){ ... }		// tutaj chodzi o moÄ¹Ä½liwoÄ¹â€ºÃ„â€¡ dodania czegoÄ¹â€º...
 		//		removeElem: function (){ ... }	// 
 		// };
 
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
-			height = (paper.height*.05 >= 25) ? paper.height*.05 : 25,
+			height = paper.height*.15,
 
 			offset = 20,
 			visible = .2,
-			invisible = .0,
+			invisible = .01,
 			result = {
 				top: top,
 				left: left,
@@ -96,8 +96,7 @@ function View(id, width, height, gui){
 				offset: offset,
 				visible: visible,
 				invisible: invisible,
-				animationTime: 100,
-				click: false,
+				animationTime: 200,
 				set: [],
 
 				pathString: function pathString(x, y){
@@ -109,36 +108,21 @@ function View(id, width, height, gui){
 						bar = paper.rect(x, y, width, height).
 					attr({fill:"grey", opacity: this.invisible}).
 					mouseover(function(){
-						if(!that.click){
-							bar.animate({opacity: visible/2}, that.animationTime);
-							that.triangle1.animate({opacity: visible}, that.animationTime);
-							that.triangle2.animate({opacity: visible}, that.animationTime);
-						}
-					}).
-					mouseout(function(){
-						if(!that.click){
-							bar.animate({opacity: invisible}, that.animationTime);
-							that.triangle1.animate({opacity: invisible}, that.animationTime);
-							that.triangle2.animate({opacity: invisible}, that.animationTime);
-						}
-					}).
-					click(function(){
-						if(!that.click){
-							bar.animate({y: paper.height*.85, height: paper.height*.15, opacity: visible},that.animationTime);
+							bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
 							that.click = true;
-						}
-						else{
-							bar.animate({y: paper.height*.95, height: paper.height*.05, opacity: invisible},that.animationTime);
-							that.click = false
-						}
+					}).
+					mouseout(function(){
+							bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+							that.triangle1.animate({opacity: visible}, that.animationTime);
+							that.triangle2.animate({opacity: visible}, that.animationTime);
 					});
 					return bar;
 				},
 				createTriangle: function createTriangle(path){
 					var tr = paper.path(path);
-					tr.attr({fill:"grey", opacity: invisible});
+					tr.attr({fill:"grey", opacity: visible});
 					return tr;
 				},
 				addElement: function addElement(element){
@@ -150,13 +134,17 @@ function View(id, width, height, gui){
 			};
 
 		result.triangle1 = result.createTriangle(
-			result.pathString(parseInt(left+offset),
-			parseInt(top+offset)
-		));
+			result.pathString(
+				parseInt(left+offset),
+				parseInt(top+offset)
+			)
+		);
 		result.triangle2 = result.createTriangle(
-			result.pathString(parseInt(width-2*offset),
-			parseInt(top+offset)
-		));
+			result.pathString(
+				parseInt(width-2*offset),
+				parseInt(top+offset)
+			)
+		);
 		result.invisibleBar = result.createBar(left, top, width, height);
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
@@ -173,11 +161,12 @@ function View(id, width, height, gui){
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
 					type : "", //inputNode.nodeType,
+					mainShape: undefined,
 					inputs : [],
 					outputs : [],
 					connectors : [],
-					x : 10+55*c,
-					y : 10+35*c,
+					x : rozmieszczenie[2*c] || 10+55*c,
+					y : rozmieszczenie[2*c+1] || 10+35*c,
 					r : 15,
 					width : 145,
 					height : 35,
@@ -185,36 +174,33 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
-
+					show : function show(i, v){
+						(v.node.animate ? v.node : v).myShow(250);
+					},
+					hide : function hide(i, v){
+						(v.node.animate ? v.node : v).myHide(250);
+					},
 					switchMode : function switchMode(newMode){
 						switch(newMode){
-							case "CF" : switchToCFMode(); break;
-							case "DF" : switchToCFMode(); break;
-							case "H" : switchToCFMode(); break;
+							case "CF" : this.switchToCFMode(); break;
+							case "DF" : this.switchToDFMode(); break;
+							case "H" : this.switchToHybrydMode(); break;
 						}
 					},
 					switchToCFMode : function switchToMode(){
-						this.i_tab
+						$.each(this.inputs, this.hide);
+						$.each(this.outputs, this.hide);
+						$.each(this.connectors, this.show);
 					},
 					switchToDFMode : function switchToMode(){
-
+						$.each(this.inputs, this.show);
+						$.each(this.outputs, this.show);
+						$.each(this.connectors, this.hide);
 					},
 					switchToHybrydMode : function switchToMode(){
-
 					},
 					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
 					getInputById : function getInputById(id){
-						var result;
-						$.each(this.outputs, function(){
-							if(this.id === id){
-								result = this;
-								return false;
-							}
-						});
-
-						return result;
-					},
-					getOutputById : function getOutputById(id){
 						var result;
 						$.each(this.inputs, function(){
 							if(this.id === id){
@@ -225,13 +211,24 @@ function View(id, width, height, gui){
 
 						return result;
 					},
-					setBold : function(flag){
+					getOutputById : function getOutputById(id){
+						var result;
+						$.each(this.outputs, function(){
+							if(this.id === id){
+								result = this;
+								return false;
+							}
+						});
+
+						return result;
+					},
+					setBold : function setBold(flag){
 						if(flag)
 							this.set[0].attr("stroke-width", "2px");
 						else
 							this.set[0].attr("stroke-width", "1px");
 					},
-					highlight : function(ctrl){
+					highlight : function highlight(ctrl){
 						console.trace();
 						if(ctrl){
 							this.highlighted ? this.removeHighlight() : this.highlight2();
@@ -240,15 +237,31 @@ function View(id, width, height, gui){
 						}
 					},
 					highlight2: function highlight(){
-						this.set[0].attr("stroke", this.highlightColor);
-						for(var i=3, j=this.set.length; i<j-1; i++)
-							this.set[i].attr("stroke", this.highlightColor);
+						var that = this;
+						this.mainShape.attr("stroke", that.highlightColor);
+						$.each(this.inputs, function(i, v){
+							v.node.attr("stroke", that.highlightColor);
+						});
+						$.each(this.outputs, function(i, v){
+							v.node.attr("stroke", that.highlightColor);
+						});
+						$.each(this.connectors, function(i, v){
+							v.attr("stroke", that.highlightColor);
+						});
 						this.highlighted = true;
 					},
-					removeHighlight : function(){
-						this.set[0].attr("stroke", this.normalColor);
-						for(var i=3, j=this.set.length; i<j-1; i++)
-							this.set[i].attr("stroke", this.normalColor);
+					removeHighlight : function removeHighlight(){
+						var that = this;
+						this.mainShape.attr("stroke", that.normalColor);
+						$.each(this.inputs, function(i, v){
+							v.node.attr("stroke", that.normalColor);
+						});
+						$.each(this.outputs, function(i, v){
+							v.node.attr("stroke", that.normalColor);
+						});
+						$.each(this.connectors, function(i, v){
+							v.attr("stroke", that.normalColor);
+						});
 						this.highlighted = false;
 					},
 					isInside : function isInside(x1,y1,x2,y2){
@@ -271,16 +284,21 @@ function View(id, width, height, gui){
 						this.y = newCoords.y;
 					},
 					toString : function toString(){
-						return "ssdlViewNode Object";
+						return "SSDLNode Object";
 					},
 					translate : function translate(transX, transY){
 						$.each(this.set, function(i, v){
-							if(v.attr("cx")) {
-								v.attr("cx", v.attr("cx") + transX);
-								v.attr("cy", v.attr("cy") + transY);
-							}
-							else
 								v.translate(transX, transY);
+						});
+						$.each(this.inputs, function(i, v){
+							v.node.translate(transX, transY);
+						});
+						$.each(this.outputs, function(i, v){
+							v.node.translate(transX, transY);
+						});
+						$.each(this.connectors, function(i, v){
+							v.attr("cx", v.attr("cx") + transX);
+							v.attr("cy", v.attr("cy") + transY);
 						});
 							
 						this.x += transX;
@@ -325,40 +343,49 @@ function View(id, width, height, gui){
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white", cursor: "crosshair"}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
 					input_length, output_length, i_tab = [], o_tab = [],
-					multX = 1, multY = 1, x1, y1, x2, y2;
+					multX = 1, multY = 1, x1, y1, x2, y2
+					;
+				node.mainShape = c;
 
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
-				//obliczanie punktów na okręgu
+				//obliczanie punktÃ³w na okrÄ™gu
 				x1 = (node.x+node.r) - 10;
 				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
 				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
 
+				var currIO;
 				for(var k = 0; k < input_length; k++){
+					currIO = node.inputs[k];
 					if(k < 4){
 						multX = ((k % 2) === 0) ? 1 : -1;
 						multY = (k < 2) ? 1 : -1;
-						i_tab.push(view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"}));
+						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
+						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
 					}
 					else{
 						multX = ((k % 2) === 0) ? 1 : -1;
 						multY = (k < 6) ? 1 : -1;
-						i_tab.push(view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"}));
+						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
+						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
 					}
 				}
 				multX = 1; multY = 1;
 				for(var l = 0; l < output_length; l++){
+					currIO = node.outputs[l];
 					if(l < 4){
 						multX = ((l % 2) === 0) ? 1 : -1;
 						multY = (l < 2) ? 1 : -1;
-						o_tab.push(view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"}));
+						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"});
+						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
 					}
 					else{
 						multX = ((l % 2) === 0) ? 1 : -1;
 						multY = (l < 6) ? 1 : -1;
-						o_tab.push(view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"}));
+						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"});
+						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
 					}
 				}
 
@@ -380,15 +407,12 @@ function View(id, width, height, gui){
 				}
 				
 				node.set.push(c, label);
-				$.each(i_tab, function(){
-					node.set.push(this);
-				});
-				$.each(o_tab, function(){
-					node.set.push(this);
-				});
 
 				view.dragNodes(label, node);
-				view.dragArrow(c, node);
+				view.dragCFArrow(c, node);
+
+				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
+				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -402,7 +426,6 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, radius),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, radius),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, radius),
-					c_tab = [], i_tab = [], o_tab = [],
 					i, j, k, l,
 					input_length, output_length,
 					iDist, oDist,
@@ -411,6 +434,7 @@ function View(id, width, height, gui){
 					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
 					serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
 					;
+				node.mainShape = rect;
 
 				serviceNameShown.node.setAttribute("class", name);
 				serviceNameShown.attr({title: serviceName, cursor: "default"});
@@ -430,44 +454,26 @@ function View(id, width, height, gui){
 				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					i_tab.push(view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"}));
+					node.inputs[k].node = view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"});
+					node.inputs[k].node.node.setAttribute("class", node.id+" input" + node.inputs[k].id);
 				}
 				for(var l = 0; l < output_length; l++){
-					o_tab.push(view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"}));
+					node.outputs[l].node = view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"});
+					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
-				// KÓ�?KA
-				c_tab.push(c1, c2, c3, c4);
-				for(i=0, j=c_tab.length; i<j; i++)
-					c_tab[i].node.setAttribute("class", id+" connector");
-				var msoverc = (function(c_tab){
-					return function(){
-						for(var i=0, j=c_tab.length; i<j; i++)
-							c_tab[i].animate({opacity: 1}, 150);
-					}
-				})(c_tab);
-				var msoutc = (function(c_tab){
-					return function(){
-						for(var i=0, j=c_tab.length; i<j; i++)
-							c_tab[i].animate({opacity: 0}, 150);
-					}
-				})(c_tab);
-				// EOF KÓ�?KA
+				node.connectors.push(c1, c2, c3, c4);
+				for(i=0, j=node.connectors.length; i<j; i++)
+					node.connectors[i].node.setAttribute("class", id+" connector");
 				
-				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
-				$.each(i_tab, function(){
-					node.set.push(this);
-				});
-				$.each(o_tab, function(){
-					node.set.push(this);
-				});
+				node.set.push(rect, label, img_gear);
 				node.set.push(serviceNameShown);
 
-				for(i=0, j=node.set.length; i<j; i++)
-					node.set[i].mouseover(msoverc).mouseout(msoutc);
-
 				view.dragNodes(label, node);
-				view.dragArrow([c1, c2, c3, c4], node);
+				view.dragCFArrow(node.connectors, node);
+
+				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
+				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 				
 				return node;
 			},
@@ -480,11 +486,11 @@ function View(id, width, height, gui){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					c_tab = [], i_tab = [], o_tab = [],
 					input_length, output_length,
 					i, j=0,
 					iDist, oDist
 					;
+				node.mainShape = rect;
 
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
@@ -493,10 +499,12 @@ function View(id, width, height, gui){
 				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					i_tab.push(view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#a6c9e2"}));
+					node.inputs[k].node = view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#a6c9e2"});
+					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
 				}
 				for(var l = 0; l < output_length; l++){
-					o_tab.push(view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#a6c9e2"}));
+					node.outputs[l].node = view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#a6c9e2"});
+					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
 				img_gear.node.setAttribute("class", id+" gear");
@@ -507,37 +515,17 @@ function View(id, width, height, gui){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");				
 			
-				// KÓ�?KA
-				c_tab.push(c1, c2, c3, c4);
-				for(i=0, j=c_tab.length; i<j; i++)
-					c_tab[i].node.setAttribute("class", id+" connector");
-				var msoverc = (function(c_tab){
-					return function(){
-						for(var i=0, j=c_tab.length; i<j; i++)
-							c_tab[i].animate({opacity: 1}, 150);
-					}
-				})(c_tab);
-				var msoutc = (function(c_tab){
-					return function(){
-						for(var i=0, j=c_tab.length; i<j; i++)
-							c_tab[i].animate({opacity: 0}, 150);
-					}
-				})(c_tab);
-				// EOF KÓ�?KA
+				node.connectors.push(c1, c2, c3, c4);
+				for(i=0, j=node.connectors.length; i<j; i++)
+					node.connectors[i].node.setAttribute("class", id+" connector");
 				
-				node.set.push(rect, label, img_gear, c1, c2, c3, c4);
-				$.each(i_tab, function(){
-					node.set.push(this);
-				});
-				$.each(o_tab, function(){
-					node.set.push(this);
-				});
-				
-				for(i=0, j=node.set.length; i<j; i++)
-					node.set[i].mouseover(msoverc).mouseout(msoutc);
+				node.set.push(rect, label, img_gear);
 
 				view.dragNodes(label, node);
-				view.dragArrow([c1, c2, c3, c4], node);
+				view.dragCFArrow(node.connectors, node);
+
+				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
+				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -570,6 +558,19 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		switchMode : function switchMode(mode){
+			$.each(this.graph_view.nodes, function(){
+				this.switchMode(mode);
+			});
+
+			$.each(this.graph_view.edgesCF, function(){
+				this.switchMode(mode);
+			});
+			$.each(this.graph_view.edgesDF, function(){
+				this.switchMode(mode);
+			});
+			this.mode = mode;
 		},
 		getNodeById : function getNodeById(id){
 			var result;
@@ -664,22 +665,24 @@ function View(id, width, height, gui){
 				} else
 					element.drag(move, start, stop);
 		},
-		dragArrow : function dragArrow(element, node){
+		dragCFArrow : function dragArrow(element, node){
 			var arrow,
 				cx,
 				cy,
 				ofsetX,
 				ofsetY,
 				sourceNode,
+				bbox,
 				start = function start(){
-					var canvas = $(outputView.paper.canvas);
+					var canvas = $(gui.view.paper.canvas);
 					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
-					cx = this.attr("cx");
-					cy = this.attr("cy");
-					sourceNode = outputView.getNodeById(this.node.classList[0]);
+					bbox = this.getBBox();
+					cx = (bbox.x + bbox.x2) / 2;
+					cy = (bbox.y + bbox.y2) / 2;
+					sourceNode = gui.view.getNodeById(this.node.classList[0]);
 
-					arrow = outputView.paper.arrow(cx, cy, cx, cy, 4);
+					arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
 				},
 				move = function(a, b, c, d, event){
 					// todo awizowanie arrow po najechaniu na node
@@ -690,7 +693,7 @@ function View(id, width, height, gui){
 						console.log(e);
 					}
 					
-					arrow = outputView.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+					arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
 				},
 				stop = function(event){
 					try {
@@ -700,9 +703,9 @@ function View(id, width, height, gui){
 						console.log(e);
 					}
 
-					var targetNode = outputView.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
+					var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
 					if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
-						gui.controler.reactOnEvent("AddEdge", {
+						gui.controler.reactOnEvent("AddCFEdge", {
 						 	source: sourceNode,
 						 	target: targetNode,
 						 	CF_or_DF: "CF"
@@ -711,63 +714,258 @@ function View(id, width, height, gui){
 				}
 				;
 
+				// alert(element+":"+element.getType())
 			if(element.getType() === "Array"){
 				$.each(element, function(){
+					// alert(this +":"+ this.getType());
+					// console.log( this );
+					this.drag(move, start, stop);
+				})
+			} else
+				element.drag(move, start, stop);
+		},
+		dragDFArrow : function dragArrow(element, node){
+			var arrow,
+				cx,
+				cy,
+				ofsetX,
+				ofsetY,
+				sourceNode,
+				output,
+				bbox,
+				canvas = $(gui.view.paper.canvas),
+				glows = [],
+				start = function start(){
+					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+					bbox = this.getBBox();
+					cx = (bbox.x + bbox.x2) / 2;
+					cy = (bbox.y + bbox.y2) / 2;
+					sourceNode = outputView.getNodeById(this.node.classList[0]);
+					output = sourceNode.getOutputById(this.node.classList[2]);
+
+					$.each(gui.view.graph_view.nodes, function(){
+						$.each(this.inputs, function(){
+							// alert(this.dataType+":"+output.dataType)
+							if(this.dataType === output.dataType){
+								glows.push( this.node.glow({color: "red"}) );
+							}
+						});						
+					});
+
+					// a(gui);
+
+					arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
+				},
+				move = function move(a, b, c, d, event){
+					// todo awizowanie arrow po najechaniu na node
+					try {
+						arrow[0].remove();
+						arrow[1].remove();
+					} catch(e){
+						console.log(e);
+					}
+					
+					arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+				},
+				stop = function stop(event){
+					try {
+						arrow[0].remove();
+						arrow[1].remove();
+					} catch(e){
+						console.log(e);
+					}
+
+					var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
+					if(targetNode && sourceNode  )
+						gui.controler.reactOnEvent("AddCFEdge", {
+						 	source: sourceNode,
+						 	target: targetNode,
+						 	CF_or_DF: "CF"
+						 	// type: 
+						})
+
+					$.each(glows, function(){
+						this.remove();
+					})
+				}
+				;
+
+				// alert(element+":"+element.getType())
+			if(element.getType() === "Array"){
+				$.each(element, function(){
+					// alert(this +":"+ this.getType());
+					// console.log( this );
 					this.drag(move, start, stop);
 				})
 			} else
 				element.drag(move, start, stop);
 		},
 		addCFEdge : function addCFEdge(data){
-			var foundedEdge = this.getEdge(data.source.id, data.target.id);
+			var foundedEdge = this.getCFEdge(data.source.id, data.target.id);
 			if(foundedEdge){
 				gui.controler.reactOnEvent(""); //err msg
-			} else {
-				var bestConnectors = this.getBestConnectors(
-						data.source.getPossiblePositionsOfConnectors(),
-						data.target.getPossiblePositionsOfConnectors()
-					),
-					edgeObject = {
-						arrow : this.visualiser.drawEdge( bestConnectors ),
-						source : data.source,
-						target : data.target,
+			}
+			else {
+				var edgeObject = {
+					arrow : undefined,
+					source : data.source,
+					target : data.target,
+					view : this,
+					type: "CF",
+					toString : function toString(){ return "ssdl_CFEdge Object";},
+					hide: function hide(){
+						this.arrow[0].hide();
+						this.arrow[1].hide();
+					},
+					show: function show(){
+						this.arrow[0].myShow(300);
+						this.arrow[1].myShow(300);
+					},
+					switchMode: function switchMode(mode){
+						if(mode === "CF"){
+							this.update();
+							this.show();
+						} else if(mode === "DF"){
+							this.hide();
+						} else if(mode === "H"){
+
+						} else {
+							// console.log(Wrong Argument)
+						}
+					},
+					update : function(){
+						var bestConnectors = this.view.getBestConnectors(
+							this.source.getPossiblePositionsOfConnectors(),
+							this.target.getPossiblePositionsOfConnectors()
+						);
+						try {
+							this.arrow[0].remove();	this.arrow[1].remove();
+						} catch(e){	
+							// console.log(e);
+						}
+
+						this.arrow = this.view.visualiser.drawEdge( bestConnectors )
+					}
+				}
+				;
+				edgeObject.update();
+				this.graph_view.edgesCF.push( edgeObject );
+			}
+		},
+		addDFEdge : function addCFEdge(data){
+			//source, sourceOutputId
+			//target, targetInputId
+			// console.log(data)
+			var foundedDFEdge = this.getDFEdge(data.sourceId, data.targetId, data.inputId, data.outputId);
+			if(foundedDFEdge){
+				gui.controler.reactOnEvent(""); //err msg
+			}
+			else {
+				var	edgeObject = {
+						arrow : undefined,
+						sourceId: data.sourceId,
+						targetId: data.targetId,
+						output : data.output,
+						input : data.input,
 						view : this,
-						toString : function (){ return "ssdlEdge Object";},
+						type : "DF",
+						toString : function (){ return "ssdl_DFEdge Object";},
+						hide: function hide(){
+							this.arrow[0].hide();
+							this.arrow[1].hide();
+						},
+						show: function show(){
+							this.arrow[0].myShow(300);
+							this.arrow[1].myShow(300);
+						},
+						switchMode: function switchMode(mode){
+							if(mode === "CF"){
+								this.hide();
+							} else if(mode === "DF"){
+								this.update();
+								this.show();
+							} else if(mode === "H"){
+
+							} else {
+								// console.log(Wrong Argument)
+							}
+						},						
 						update : function(){
-							var bestConnectors = this.view.getBestConnectors(
-								this.source.getPossiblePositionsOfConnectors(),
-								this.target.getPossiblePositionsOfConnectors()
-							);
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
 							} catch(e){	console.log(e);	}
 
-							this.arrow = this.view.visualiser.drawEdge( bestConnectors )
+							// console.log(this);
+
+							var bboxInput = this.input.node.getBBox(),
+								bboxOutput = this.output.node.getBBox(),
+								coords = {
+									x1 : bboxOutput.x + bboxOutput.width / 2,
+									y1 : bboxOutput.y + bboxOutput.height / 2,
+									x2 : bboxInput.x + bboxInput.width / 2,
+									y2 : bboxInput.y + bboxInput.height / 2
+								}
+								;
+
+							this.arrow = this.view.visualiser.drawEdge(coords);
 						}
 					}
-					;
-				this.graph_view.edgesCF.push( edgeObject );
+				;
+				edgeObject.update();
+				this.graph_view.edgesDF.push( edgeObject );
 			}
 		},
-		updateEdges : function refreshEdges(){
-			$.each(this.graph_view.edgesCF, function(){
-				this.update();
-				// alert(this.source.id);
-			});
+		updateEdges : function updateEdges(){
+			if(this.mode === "CF"){
+				$.each(this.graph_view.edgesCF, function(){
+					this.update();
+				});
+			}
+			else if(this.mode === "DF"){
+				$.each(this.graph_view.edgesDF, function(){
+					this.update();
+				});
+			}
 		},
-		getEdge : function getEdge(sourceId, targetId){
-			var foundedEdge;
+		getCFEdge : function getEdge(sourceId, targetId){
+			var foundedCFEdge;
 			$.each(this.graph_view.edgesCF, function(){
 				if(this.source.id === sourceId && this.target.id === targetId){
-					foundedEdge = this;
+					foundedCFEdge = this;
 					return false;
 				}
 			});
 
-			return foundedEdge;
+			return foundedCFEdge;
+		},
+		getDFEdge : function getEdge(sourceId, targetId, inputId, outputId){
+			var foundedDFEdge;
+			$.each(this.graph_view.edgesDF, function(){
+				if( this.sourceId === sourceId && this.targetId === targetId &&
+					this.input.id === inputId && this.output.id === inputId ) {
+
+					foundedDFEdge = this;
+					return false;
+				}
+			});
+
+			return foundedDFEdge;
+		},
+		isInputConnected: function isInputConnected(nodeId, inputId){
+			var result = false;
+			$.each(this.graph_view.edgesDF, function(){
+				if(this.targetId === nodeId && this.input.id === inputId){
+					result = true;
+					return false;
+				}
+			});
+
+			return result;
 		},
 		drawGraph : function drawGraph(graph_json){
 			var that = this;
+			// console.log(graph_json);
 			if(!this.paper){
 				console.error("you have to run init() function first");
 			}
@@ -788,19 +986,20 @@ function View(id, width, height, gui){
 						target: that.getNodeById(val.nodeId)
 					});
 				});
-				$.each(visualizedNode.inputs, function(){
-
-					console.log( val.nodeId+":"+jstr(this) );
-					// that.addDFEdge({
-					// 	sourceId: ,
-					// 	sourceOutputId: that.getNodeById(val.nodeId),
-					// 	targetId: ,
-					// 	targetInputId: 
-					// });
+				$.each(val.functionalDescription.inputs, function(){
+					// a(val.nodeId+":"+this.source[0]+":"+this.source[1])
+					// a(that.getNodeById(this.source[0]).getOutputById(this.source[1]))
+					that.addDFEdge({
+						sourceId : this.source[0],
+						targetId : val.nodeId,
+						input : that.getNodeById(val.nodeId).getInputById(this.id),
+						output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
+					});
 				});
 			});
 
-			this.updateEdges();
+			this.switchMode("DF");
+			//dataType equal
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
 			var minOdl=Infinity,
@@ -811,16 +1010,16 @@ function View(id, width, height, gui){
 				;
 			for(i=0, iMax=sourceConnectors.length; i<iMax; i++){
 				for(j=0, jMax=targetConnectors.length; j<jMax; j++){
-						dx = sourceConnectors[i][0]-targetConnectors[j][0]; // odleglosc w poziomie
-						dy = sourceConnectors[i][1]-targetConnectors[j][1];	// odleglosc w pionie
-						dz = dx*dx + dy*dy;	// odleglość
-						if(dz < minOdl)
-						{
-							minI = i;
-							minJ = j;
-							minOdl = dz;
-						}
+					dx = sourceConnectors[i][0]-targetConnectors[j][0]; // odleglosc w poziomie
+					dy = sourceConnectors[i][1]-targetConnectors[j][1];	// odleglosc w pionie
+					dz = dx*dx + dy*dy;	// odlegloÅ›Ä‡
+					if(dz < minOdl)
+					{
+						minI = i;
+						minJ = j;
+						minOdl = dz;
 					}
+				}
 			}
 
 			return {
@@ -858,7 +1057,7 @@ function View(id, width, height, gui){
 			$elem.css("width", this.width);
 			$elem.css("height", this.height);
 
-			//zbieranie danych o położeniu
+			//zbieranie danych o poÅ‚oÅ¼eniu
 			var $column = $("#canvas_holder_"+pf),
 				position = $column.position();
 			this.columnParams.centerCol = {
@@ -951,10 +1150,16 @@ function View(id, width, height, gui){
 				});
 			}
 			else {
-				console.trace()
+				// console.trace();
 			}
 			//alert(resultTab[0]);
 			return count === 1 ? resultTab[0] : resultTab;
+		},
+		getInputByPosition: function getInputByPosition(x, y){
+			var result = {};
+			$.each(this.graph_view.nodes, function(){
+				//.isPointInside
+			})
 		},
 		removeNode : function removeNode(id){
 			$.each(this.graph_view.nodes, function(k, v){
@@ -1023,7 +1228,7 @@ function View(id, width, height, gui){
 				y1+=lastDragY;
 				
 
-			// TUTAJ POWINNO BYC WYS�?ANIE EVENTU DO KONTROLERA Z 4MA WSPÓ�?Ż�?DNYMI
+			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSPÃ“Å?Å»Ä?DNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
@@ -1047,7 +1252,7 @@ function View(id, width, height, gui){
 				sel.remove();
 				sel = null;
 				lastRot = 0;
-				// TUTAJ POWINNO BYĆ WYS�?ANIE EVENTU DO KONTROLERA Z SELEKTEM
+				// TUTAJ POWINNO BYÄ† WYSÅ?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
 					x1 : x1,
@@ -1067,3 +1272,44 @@ function View(id, width, height, gui){
 
 	return outputView;
 };
+
+/*
+
+
+function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
+  var timeAtStart = ( new Date() ).getTime(),
+    ingredients = {
+      0: {name: "brokuł", weight: "500", unit:"gram", strip: function strip(){...}},
+      1: {name: "woda", amount: .5, unit:"litr", isBoiling: false},
+      2: {name: "śmietana"},
+      3: {name: "kostka bulionowa cielęca", quantity: 1},
+      4: {name: "sól i pieprz", description: "do smaku"},
+      5: {name: "migdały w płatkach", hasGoldColor: false}
+    },
+    tools = {
+      0: {name: "blender"},
+      1: {name: "garczek", capacity: "1", unit:"litr"},
+      2: {name: "kuchenka gazowa", quantity: 1, lightFire: function(){...}},
+      3: {name: "patelnia", quantity: 1}
+    },
+    place = function place(what, inOrOnWhat){...},
+    blend = function blend(what, withWhat){...}
+  ;
+
+place( [
+      ingredients[1],
+      ingredients[3]
+    ],
+    tools[1]
+  );
+  place(tools[1], tools[2]);
+  tools[2].lightFire();
+  ingredients[0]
+  
+
+    
+
+
+  return ;
+}
+*/

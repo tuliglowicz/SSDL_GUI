@@ -28,3 +28,11 @@
 	.gear {
 		cursor:pointer;
 	}
+
+	path.input {
+		#cursor: crosshair;
+	}
+
+	path.output {
+		cursor: crosshair;	
+	}

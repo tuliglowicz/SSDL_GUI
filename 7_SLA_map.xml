@@ -23,17 +23,17 @@
 				<inputs/>
 				<outputs>
 					<output>
-						<class>Message</class>
-						<id>BuildingMonitoringStarted</id>
-						<label>BuildingMonitoringStarted</label>
-						<dataType>Message</dataType>
-						<properties/>
-					</output>
-					<output>
 						<class>Object</class>
 						<id>MonitoredObject</id>
 						<label>MonitoredObject</label>
 						<dataType>Object</dataType>
+						<properties/>
+					</output>
+					<output>
+						<class>Message</class>
+						<id>BuildingMonitoringStarted</id>
+						<label>BuildingMonitoringStarted</label>
+						<dataType>Message</dataType>
 						<properties/>
 					</output>
 				</outputs>
