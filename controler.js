@@ -3,7 +3,7 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
-	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeSpacing, startY) {
+	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
 		* "Lasciate ogni speranza, voi ch'entrate"
@@ -14,7 +14,8 @@ function Controler(url, gui){
 		* OPTIONAL PARAMS:
 		* - nodeW (width of nodes)
 		* - nodeH (height of nodes)
-		* - nodeSpacing (spacing between nodes (horizontal & vertical))
+		* - nodeHSpacing (minimum horizontal spacing between nodes)
+		* - nodeVSpacing (vertical spacing between nodes)
 		* - startY (height on canvas from which we start to draw graph)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
@@ -368,32 +369,44 @@ function Controler(url, gui){
 			if(startY==undefined){
 				startY = 15;
 			}
-			if(nodeW!=undefined){
+			if(nodeW!=undefined&&nodeH!=undefined){
 				width = nodeW;
 				height = nodeH;
 			}else{
 				width = 145;
 				height = 30;
 			}
-			if(nodeSpacing!=undefined){
-				spacing = nodeSpacing;
+			if(nodeVSpacing!=undefined){
+				spacing = nodeVSpacing;
 			}else{
 				spacing = 30;
+			}
+			if(nodeHSpacing!=undefined){
+				hSpacing = nodeHSpacing;
+			}else{
+				hSpacing = 30;
 			}
 			dMatrix = bestInd.deploymentMatrix;
 			len = dMatrix.length;
 			maxWidth = 1;
-			rowWidth = new Array();
-			columnWidth = new Array();
+			rowLength = [];
+			rowElWidth = [];
+			columnPadding = [];
 			//searching for longest row
 			for(var i = 0; i < len; i++) {
-				rowWidth[i] = dMatrix[i].length;
-				if(rowWidth[i] > maxWidth) {
+				rowLength[i] = dMatrix[i].length;
+				if(rowLength[i] > maxWidth) {
 					maxWidth = dMatrix[i].length;
 				}
 			}
 			for(var i = 0; i < len; i++) {
-				columnWidth[i] = w / rowWidth[i];
+				rowElWidth[i] = w / rowLength[i];
+				if(rowElWidth[i]<width+hSpacing){
+					rowElWidth[i] = width+hSpacing;
+					columnPadding[i] = (w - rowLength[i]*(width+hSpacing))/2;
+				}else{
+					columnPadding[i] = 0;
+				}
 			}
 			dTab = [];
 			//assigning x & y to nodes
@@ -402,7 +415,7 @@ function Controler(url, gui){
 				for(var j = 0; j < len2; j++) {
 					id = graphMatrix[i][dMatrix[i][j]].id;
 					y = i * (height + spacing) + startY;
-					x = Math.floor(j * columnWidth[i] + (columnWidth[i] - width) / 2);
+					x = Math.floor(columnPadding[i] + j * rowElWidth[i] + (rowElWidth[i] - width) / 2);
 					tab = new Array;
 					tab[0] = id;
 					tab[1] = x;
