@@ -3,63 +3,150 @@ var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
-	function blankNode(paper){
+	
+	function preloader(divId){
+		var $divElem = $("#"+divId+"_"+pf),
+			position = $divElem.offset(),
+			top = parseInt(position.top),
+			left = parseInt(position.left),
+			width = parseInt($divElem.width()+2),
+			height = parseInt($divElem.height()),
+			imgTop = parseInt(height/2-6),
+			imgLeft = parseInt(width/2-55),
+			temp = {
+				top: top,
+				left: left,
+				width: width,
+				height: height,
+				imgTop: imgTop,
+				imgLeft: imgLeft,
+				$preloader: undefined,
+
+				cover: function cover(){
+					this.$preloader.show();
+				},
+				uncover: function uncover(){
+					this.$preloader.hide();
+				},
+				init: function init(){
+					var newDiv = "<div id=\"preloader_" + pf 
+						+ "\" style=\" position:absolute; top:" + this.top + "px; left:" 
+						+ this.left + "px; width:" + this.width + "px; height:"+ this.height 
+						+ "px; background-color: black; opacity: .5; z-index: 5\">" 
+						+ "<img src=\"preloader.gif\" style=\" position:relative; top:" 
+						+ this.imgTop + "px; left:" + this.imgLeft + "px\"></img></div>";
+
+					$divElem.parent().prepend(newDiv);
+					this.$preloader = $("#preloader_"+pf);
+				}
+		};
+
+		temp.init();
+		return temp;
+	}
+
+	function blankNode(paper, mainCanvas, visualiser){
 		var tmp = {
 			name: "blankNode",
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
 			data: null,
-			//parent: gui.controler, ???
+			minCanvas: undefined,
 			globalEvents: ["load"],
 			localEvents: ["select"],
 			
 			draw: function draw(){
-				var clone;
-				paper.text(100,10,"Start/Stop").node.setAttribute("class","repository_text");
-				var repo_circle = paper.circle(100,35,15).attr({"opacity": "1", "fill":"white"});
+				var clone, newRect, newCirc;
+				var nodeLength = 135,
+					nodeHeight = 35,
+					nodeHorizontalPosition = paper.width/2 - nodeLength/2, 
+					textHorizontalPosition = paper.width/2,
+					move, start, stop, x2, fillColor,
+					nodeType, blankNode;
+				
+				paper.text(textHorizontalPosition,10,"Start/Stop")
+					.node.setAttribute("class","repository_text");
+				var repo_circle = paper.circle(textHorizontalPosition,35,15)
+					.attr({"opacity": "1", "fill":"white"});
 				repo_circle.node.setAttribute("class","repository_element");
-				paper.text(100,70,"Service").node.setAttribute("class","repository_text");
-				var repo_service = paper.rect(33,80,135,35,5).attr({fill:"#fbec88"});
+				paper.text(textHorizontalPosition,70,"Service")
+					.node.setAttribute("class","repository_text");
+				var repo_service = paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
+					.attr({fill:"#fbec88"});
 				repo_service.node.setAttribute("class","repository_element");
-				paper.text(100,140,"Functionality").node.setAttribute("class","repository_text");
-				var repo_functionality = paper.rect(33,150,135,35,5).attr({fill:"#a6c9e2"});
+				paper.text(textHorizontalPosition,140,"Functionality")
+					.node.setAttribute("class","repository_text");
+				var repo_functionality = paper.rect(nodeHorizontalPosition,150,nodeLength,nodeHeight,5)
+					.attr({fill:"#a6c9e2"});
 				repo_functionality.node.setAttribute("class","repository_element");
-				paper.text(100,210,"Mediator").node.setAttribute("class","repository_text");
-				var repo_mediator = paper.rect(33,220,135,35,5).attr({fill:"white"});
+				paper.text(textHorizontalPosition,210,"Mediator")
+					.node.setAttribute("class","repository_text");
+				var repo_mediator = paper.rect(nodeHorizontalPosition,220,nodeLength,nodeHeight,5)
+					.attr({fill:"white"});
 				repo_mediator.node.setAttribute("class","repository_element");
 				
 				move = function move(dx,dy){
-					clone.attr({x:this.ox + dx, y:this.oy+dy});
-				},
+					if(clone.attr("x")){
+						clone.attr({x:this.ox + dx, y:this.oy+dy});
+						newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
+						if((clone.attr("x") + nodeLength) > paper.width) 
+							newRect.attr({opacity:1});
+						else newRect.attr({opacity:0});
+					}
+					else if(clone.attr("cx")){
+						clone.attr({cx:this.ox + dx, cy:this.oy+dy});
+						newCirc.attr({cx:newCirc.ox + dx, cy:newCirc.oy + dy});
+						if((clone.attr("cx") + clone.attr("r")) > paper.width) 
+							newCirc.attr({opacity:1});
+						else newCirc.attr({opacity:0});
+					}
+				};
 				start = function start(x,y,evt){
-					this.ox = this.attr("x");
-					this.oy = this.attr("y");
-
 					clone = this.clone();
-				},
+					fillColor = clone.attr("fill");
+					if(this.attr("x")){
+						if(this === repo_functionality) nodeType = "functionality";
+						else if(this === repo_service) nodeType = "service";
+						else if(this === repo_mediator) nodeType = "mediator";
+						this.ox = this.attr("x");
+						this.oy = this.attr("y");
+						x2 = paper.width - clone.attr("x");
+						newRect = mainCanvas.rect(-1*x2, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
+						newRect.ox = newRect.attr("x");
+						newRect.oy = newRect.attr("y");
+					}
+					else if(this.attr("cx")){
+						nodeType = "control";
+						this.ox = this.attr("cx");
+						this.oy = this.attr("cy");
+						x2 = paper.width - clone.attr("cx");
+						newCirc = mainCanvas.circle(-1*x2, clone.attr("cy"), clone.attr("r")).attr({fill:fillColor});
+						newCirc.ox = newCirc.attr("cx");
+						newCirc.oy = newCirc.attr("cy");
+					}
+				};
 				stop = function stop(x,y,evt){
-					if(true) clone.remove();
-				}
-
-				cMove = function move(dx,dy){
-					clone.attr({cx:this.ox + dx, cy:this.oy+dy});
-				},
-				cStart = function start(x,y,evt){
-					this.ox = this.attr("cx");
-					this.oy = this.attr("cy");
-
-					clone = this.clone();
-				},
-				cStop = function stop(x,y,evt){
-					if(true) clone.remove();
-				}
+					clone.remove();
+					if(newRect && newRect.attr("opacity")>0){
+						// stworz nowy blank node
+						blankNode = visualiser.getBlankNode();
+						// zmien typ na odpowiedni
+						blankNode.type = nodeType;
+						// wywołaj funkcję draw_odpowiednityp(node)
+						//(visualiser["draw_"+nodeType+"Node"] || visualiser.draw_unknownNode )(blankNode)
+						// otworz formularz edycji bloczka
+						// jesli walidacja puszcz, to zapisz:
+						// 		widok boczka do gui.view.graph_view.nodes
+						//		dane bloczka do gui.controler.graphData
+						//		gui.view.graph_view.nodes.push(newRect);			
+					}
+				};
 
 				repo_service.drag(move, start, stop);
 				repo_functionality.drag(move, start, stop);
 				repo_mediator.drag(move, start, stop);
-
-				repo_circle.drag(cMove, cStart, cStop);
+				repo_circle.drag(move, start, stop);
 			}
 		}
 
@@ -67,15 +154,16 @@ function View(id, width, height, gui){
 		
 		return tmp;
 	}
+
 	function drawBottomBar(paper){
-		// chciaÄ¹â€šbym, Ä¹Ä½eby z tej funkcji zwracany byÄ¹â€š obiekt
+		// chciałbym, żeby z tej funkcji zwracany był obiekt
 		// return {
 		// 		top:
 		// 		left:
 		// 		width:
 		// 		height:
 		// 		set:
-		//		addElem: function (){ ... }		// tutaj chodzi o moÄ¹Ä½liwoÄ¹â€ºÃ„â€¡ dodania czegoÄ¹â€º...
+		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
 		//		removeElem: function (){ ... }	// 
 		// };
 
@@ -150,6 +238,7 @@ function View(id, width, height, gui){
 
 		return result;
 	};
+
 	function nodeVisualizator(view){
 		var outputObject = {
 			color : {
@@ -1082,6 +1171,7 @@ function View(id, width, height, gui){
 			$elem.html(html.join(""));
 
 			this.paper = Raphael("canvas_holder_"+pf, canvas_width, h);
+			this.leftPlugins = Raphael("left_plugins_"+pf, left_plugins_width, h);
 			this.bgSelectionHelper = this.paper.rect(0,0,width,height).attr({fill : "#DEDEDE", stroke: "none"}).toBack();
 	
 			$elem.css("width", this.width);
@@ -1218,6 +1308,7 @@ function View(id, width, height, gui){
 	outputView.init();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
+	outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
 
 	var	lastDragX,
 		lastDragY,
