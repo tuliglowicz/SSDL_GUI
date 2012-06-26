@@ -18,24 +18,24 @@ function Controler(url, gui){
 		* - startY (height on canvas from which we start to draw graph)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
-		run = function run(){//deploying main ssdl graph
+		function run(){//deploying main ssdl graph
 			var jnodes = json.nodes,
 				nodeArr = getNodes(jnodes);
 			processNodes(nodeArr);
 			var graphMat = postProcessNodes(nodeArr);
 			console.time("Deploying Time");
 			console.group("DEPLOYMENT RESULTS:");
-			if(nodeArr.length<18){//CHOICE TIME
-				console.log("Genetic Alghoritm in use");
+			if(nodeArr.length>18){//CHOICE TIME
+				console.info("Genetic Alghoritm in use");
 				var bestI = genetic(graphMat, 200, 250, 20, 25, 50);
 			}else{
-				console.log("BruteForce Alghoritm in use");
+				console.info("BruteForce Alghoritm in use");
 				var bestI = bruteForce(graphMat);
 			}
 			out = generateCoords(graphMat, bestI);
 			console.log("ALGHORITM PERFORMANCE: ");
 			console.timeEnd("Deploying Time");
-			console.log("Best deployment rating: " + bestI.rating);
+			console.info("Best deployment rating: " + bestI.rating);
 			console.log("GRAPH MATRIX: ");
 			console.log(graphMat);
 			console.log("DEPLOYMENT: ");
@@ -302,7 +302,7 @@ function Controler(url, gui){
 					individuals[j] = individual1;
 				}
 			}
-			console.log("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
+			console.info("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
 			return bestIndividual;
 		}
 		function select(individuals, indAm, rivalsAmount) {//selection by tournament
