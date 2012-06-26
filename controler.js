@@ -25,7 +25,7 @@ function Controler(url, gui){
 			var graphMat = postProcessNodes(nodeArr);
 			console.time("Deploying Time");
 			console.group("DEPLOYMENT RESULTS:");
-			if(nodeArr.length<18){//CHOICE TIME
+			if(nodeArr.length>18){//CHOICE TIME
 				console.log("Genetic Alghoritm in use");
 				var bestI = genetic(graphMat, 200, 250, 20, 25, 50);
 			}else{
