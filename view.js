@@ -190,16 +190,16 @@ function View(id, width, height, gui){
 						bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 						that.triangle1.animate({opacity: invisible}, that.animationTime);
 						that.triangle2.animate({opacity: invisible}, that.animationTime);
-						that.button1.animate({opacity: visible}, that.animationTime);
-						that.button2.animate({opacity: visible}, that.animationTime);
+						that.button1.show().animate({opacity: visible}, that.animationTime);
+						that.button2.show().animate({opacity: visible}, that.animationTime);
 						that.click = true;
 					}).
 					mouseout(function(){
 						bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 						that.triangle1.animate({opacity: visible}, that.animationTime);
 						that.triangle2.animate({opacity: visible}, that.animationTime);
-						that.button1.animate({opacity: invisible}, that.animationTime);
-						that.button2.animate({opacity: invisible}, that.animationTime);
+						that.button1.animate({opacity: invisible}, that.animationTime).hide();
+						that.button2.animate({opacity: invisible}, that.animationTime).hide();
 					});
 					return bar;
 				},
@@ -209,18 +209,20 @@ function View(id, width, height, gui){
 					return tr;
 				},
 				createButton: function createButton(text, mult){
+					var glow;
 					var temp1 = paper.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
 						.attr({fill:"ivory", opacity:invisible});
-					temp1.mouseover(function(){
-						if( true) temp1.glow({color:"#fbec88", opacity:visible, size:5});
-					});
-					temp1.mouseout(function(){
-						temp1.glow.remove();
-					});
 					var temp2 = paper.text(temp1.attr("x")+30, temp1.attr("y")+20, text)
 						.attr({"font-size":40, "stroke-width":"4", "stroke-linejoin":"round", "stroke-linecap":"butt", stroke:"gray", fill:"ivory", opacity:invisible});
 					var set = paper.set();
 					set.push(temp1, temp2);
+					set.mouseover(function(){
+						glow = temp1.glow({color:"white", opacity:visible, size:5});
+					})
+					.mouseout(function(){
+						glow.remove();
+					})
+					.hide();
 					return set;
 				},
 				addElement: function addElement(element){
@@ -244,9 +246,9 @@ function View(id, width, height, gui){
 			)
 		);
 		//chwilowa partyzantka
-		result.button1 = result.createButton("CF", -1).click(function(){alert("KLIKŁEŚ CF");});
-		result.button2 = result.createButton("DF", 1).click(function(){alert("KLIKŁEŚ DF");});
 		result.invisibleBar = result.createBar(left, top, width, height);
+		result.button1 = result.createButton("CF", -1).click(function(){alert("KLIKNĄŁEŚ CF");});
+		result.button2 = result.createButton("DF", 1).click(function(){alert("KLIKNĄŁEŚ DF");});
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
 		return result;
@@ -1291,18 +1293,10 @@ function View(id, width, height, gui){
 		getInputByPosition: function getInputByPosition(x, y){
 			// gui.view.paper.rect(x-1, y-1, 2, 2).attr("fill", "red");
 			var result,
-				loopControler = true,
-				bbox
-				;
+				loopControler = true;
 			$.each(this.graph_view.nodes, function(k, v){
 				$.each(v.inputs, function(){
-					bbox = this.node.getBBox();
-					if ( bbox.x+bbox.width > x &&
-						bbox.y+bbox.height > y &&
-						bbox.x < x &&
-						bbox.y < y
-						)
-					{
+					if(this.node.isPointInside(x, y)){
 						result = {
 							targetId : v.id,
 							input : this
@@ -1432,6 +1426,7 @@ function View(id, width, height, gui){
 
 /*
 
+
 function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
   var timeAtStart = ( new Date() ).getTime(),
     ingredients = {
@@ -1444,7 +1439,7 @@ function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
     },
     tools = {
       0: {name: "blender"},
-      1: {name: "garczek", capacity: "5", unit:"litr"},
+      1: {name: "garczek", capacity: "1", unit:"litr"},
       2: {name: "kuchenka gazowa", quantity: 1, lightFire: function(){...}},
       3: {name: "patelnia", quantity: 1}
     },
@@ -1460,7 +1455,11 @@ place( [
   );
   place(tools[1], tools[2]);
   tools[2].lightFire();
-  ingredients[0];
+  ingredients[0]
+  
+
+    
+
 
   return ;
 }
