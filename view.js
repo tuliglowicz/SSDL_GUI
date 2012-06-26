@@ -210,7 +210,7 @@ function View(id, width, height, gui){
 					var temp1 = paper.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
 						.attr({fill:"ivory", opacity:invisible});
 					temp1.mouseover(function(){
-						if( true) temp1.glow({color:"#fbec88", opacity:visible, size:5});
+						if( true ) temp1.glow({color:"#fbec88", opacity:visible, size:5});
 					});
 					temp1.mouseout(function(){
 						temp1.glow.remove();
@@ -242,9 +242,10 @@ function View(id, width, height, gui){
 			)
 		);
 		//chwilowa partyzantka
+		result.invisibleBar = result.createBar(left, top, width, height);
 		result.button1 = result.createButton("CF", -1).click(function(){alert("KLIKŁEŚ CF");});
 		result.button2 = result.createButton("DF", 1).click(function(){alert("KLIKŁEŚ DF");});
-		result.invisibleBar = result.createBar(left, top, width, height);
+		
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
 		return result;
