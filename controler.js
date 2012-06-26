@@ -3,8 +3,8 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
-	function deployer(ssdlJson, canvasW, nodeW, nodeH, nodeSpacing, startY) {
-		/* SSDL Graph Deployment v0.62
+	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeSpacing, startY) {
+		/* SSDL Graph Deployment v0.63
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
 		* "Lasciate ogni speranza, voi ch'entrate"
 		* SUBMITTED: 25.06.2012
@@ -16,56 +16,34 @@ function Controler(url, gui){
 		* - nodeH (height of nodes)
 		* - nodeSpacing (spacing between nodes (horizontal & vertical))
 		* - startY (height on canvas from which we start to draw graph)
+		* TODO:
+		* - add genetic alghoritm (optional)
 		*/
-		//-STATE-VARIABLES------------------->>>
-		var jnodes,
-			nodeArr,
-			graphMat,
-			out,
-			init = function init(){//initialization of data model
-				jnodes = json.nodes;
-				nodeArr = getNodes(jnodes);
-				processNodes(nodeArr);
-				graphMat = postProcessNodes(nodeArr);
-			},
-			deploy = function deploy(){//deploying main ssdl graph
-				console.time("Deploying Time");
-				var bestI = bruteForce(graphMat);
-				out = generateCoords(graphMat, bestI);
-				console.group("DEPLOYMENT RESULTS:");
-				console.log("ALGHORITM PERFORMANCE: ");
-				console.timeEnd("Deploying Time");
-				console.log("GRAPH MATRIX: ");
-				console.log(graphMat);
-				console.log("DEPLOYMENT: ");
-				console.log(out);
-				console.groupEnd();
-				return out;
-			},
-			deploySubgraph = function deploySubgraph(nodeId){//deploying subgraph of node with selected id
-				console.time("Deploying Time");
-				var sNode = getNodeById(nodeArr, nodeId);
-				var subgraphMat = sNode.subgraphMatrix;
-				var bestI = bruteForce(subgraphMat);
-				out = generateCoords(subgraphMat, bestI);
-				console.group("DEPLOYMENT RESULTS:");
-				console.log("ALGHORITM PERFORMANCE: ");
-				console.timeEnd("Deploying Time");
-				console.log("GRAPH MATRIX: ");
-				console.log(graphMat);
-				console.log("DEPLOYMENT: ");
-				console.log(out);
-				console.groupEnd();
-				return out;
-			};
+		//-MAIN-FUNCTION--------------------->>>
+		run = function run(){//deploying main ssdl graph
+			var jnodes = json.nodes;
+			var nodeArr = getNodes(jnodes);
+			processNodes(nodeArr);
+			var graphMat = postProcessNodes(nodeArr);
+			console.time("Deploying Time");
+			var bestI = bruteForce(graphMat);
+			out = generateCoords(graphMat, bestI);
+			console.group("DEPLOYMENT RESULTS:");
+			console.log("ALGHORITM PERFORMANCE: ");
+			console.timeEnd("Deploying Time");
+			console.log("GRAPH MATRIX: ");
+			console.log(graphMat);
+			console.log("DEPLOYMENT: ");
+			console.log(out);
+			console.groupEnd();
+			return out;
+		}
 		//-PARSING-FUNCTIONS----------------->>>
-		function node(id, sources, subgraph) {//NODE OBJECT
+		function node(id, sources) {//NODE OBJECT
 			this.id = id;
 			this.parents = [];
 			this.children = [];
 			this.sources = sources;
-			this.subgraph = subgraph;
-			this.subgraphMatrix = null;
 			this.level = -1;
 			this.column = -1;
 		}
@@ -73,7 +51,7 @@ function Controler(url, gui){
 			var nodes = [];
 			var i = 0;
 			$.each(jsonNodes, function() {
-				nodes[i] = new node(this.nodeId, this.sources, this.subgraph.nodes);
+				nodes[i] = new node(this.nodeId, this.sources);
 				i++;
 			});
 			return nodes;
@@ -90,12 +68,6 @@ function Controler(url, gui){
 		}
 		function processNodes(nodeArray) {//setting flow and processing subgraph for each node
 			$.each(nodeArray, function() {
-				if(!jQuery.isEmptyObject(this.subgraph)) {
-					this.subgraph = getNodes(this.subgraph); //parsing subgraph
-					processNodes(this.subgraph);
-				} else {
-					this.subgraph = null;
-				}
 				var tempObj = this;
 				$.each(this.sources, function() {//assigning parent/child refferences for each node
 					var temp = getNodeById(nodeArray, this);
@@ -127,10 +99,6 @@ function Controler(url, gui){
 			var graphMatrix = [[]];
 			postProcessNode(getNodeById(nodeArray, "#End")); //assigning node levels
 			$.each(nodeArray, function() {
-				if(this.subgraph != null) {//if subgraph exists postProcess it
-					console.info(this.id + " has aviable Subgraph");
-					this.subgraphMatrix = postProcessNodes(this.subgraph);
-				}
 				if(this.id != "#End") {//for all nodes except #End
 					if(!graphMatrix[this.level]) {//creating level array if not present
 						graphMatrix[this.level] = [];
@@ -188,6 +156,7 @@ function Controler(url, gui){
 			individual.rating = rating;
 			return rating;
 		}
+		//-BRUTEFORCE-VERSION---------------->>>
 		function bruteForce(graphMatrix) {//searching for best deployment by bruteForce
 			var len = graphMatrix.length,
 				matrix = [[]],
@@ -298,14 +267,8 @@ function Controler(url, gui){
 				}
 			}
 			//assigning widths to rows
-			if(w / maxWidth < width + spacing) {
-				for(var i = 0; i < len; i++) {
-					columnWidth[i] = width + spacing;
-				}
-			} else {
-				for(var i = 0; i < len; i++) {
-					columnWidth[i] = w / rowWidth[i];
-				}
+			for(var i = 0; i < len; i++) {
+				columnWidth[i] = w / rowWidth[i];
 			}
 			dTab = [];
 			//assigning x & y to nodes
@@ -324,9 +287,8 @@ function Controler(url, gui){
 			}
 			return dTab;
 		}
-		
-		init();
-		return this;
+		//-PLUGIN-RUN------------------------>>>
+		return run();
 	}
 	function subgraphTree(){
 		var tmp = {
@@ -468,8 +430,6 @@ function Controler(url, gui){
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
 					that.graphData = ssdl_json;
-					var deploy = deployer(ssdl_json, gui.view.paper.width);
-					console.log(deploy);
 					gui.view.drawGraph(gui.controler.graphData);
 					
 				// alert(that.plugins)
