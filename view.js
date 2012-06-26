@@ -1188,10 +1188,18 @@ function View(id, width, height, gui){
 		getInputByPosition: function getInputByPosition(x, y){
 			// gui.view.paper.rect(x-1, y-1, 2, 2).attr("fill", "red");
 			var result,
-				loopControler = true;
+				loopControler = true,
+				bbox
+				;
 			$.each(this.graph_view.nodes, function(k, v){
 				$.each(v.inputs, function(){
-					if(this.node.isPointInside(x, y)){
+					bbox = this.node.getBBox();
+					if ( bbox.x+bbox.width > x &&
+						bbox.y+bbox.height > y &&
+						bbox.x < x &&
+						bbox.y < y
+						)
+					{
 						result = {
 							targetId : v.id,
 							input : this
@@ -1320,7 +1328,6 @@ function View(id, width, height, gui){
 
 /*
 
-
 function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
   var timeAtStart = ( new Date() ).getTime(),
     ingredients = {
@@ -1333,7 +1340,7 @@ function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
     },
     tools = {
       0: {name: "blender"},
-      1: {name: "garczek", capacity: "1", unit:"litr"},
+      1: {name: "garczek", capacity: "5", unit:"litr"},
       2: {name: "kuchenka gazowa", quantity: 1, lightFire: function(){...}},
       3: {name: "patelnia", quantity: 1}
     },
@@ -1349,11 +1356,7 @@ place( [
   );
   place(tools[1], tools[2]);
   tools[2].lightFire();
-  ingredients[0]
-  
-
-    
-
+  ingredients[0];
 
   return ;
 }
