@@ -4,10 +4,10 @@ function Controler(url, gui){
 	var pf = gui.id_postfix;
 
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeSpacing, startY) {
-		/* SSDL Graph Deployment v0.63
+		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
 		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 25.06.2012
+		* SUBMITTED: 26.06.2012
 		* REQUIRED PARAMS: 
 		* - ssdlJson (jSon form of SSDL XML)
 		* - canvasW (width of canvas we will be drawing on)
@@ -16,21 +16,26 @@ function Controler(url, gui){
 		* - nodeH (height of nodes)
 		* - nodeSpacing (spacing between nodes (horizontal & vertical))
 		* - startY (height on canvas from which we start to draw graph)
-		* TODO:
-		* - add genetic alghoritm (optional)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
 		run = function run(){//deploying main ssdl graph
-			var jnodes = json.nodes;
-			var nodeArr = getNodes(jnodes);
+			var jnodes = json.nodes,
+				nodeArr = getNodes(jnodes);
 			processNodes(nodeArr);
 			var graphMat = postProcessNodes(nodeArr);
 			console.time("Deploying Time");
-			var bestI = bruteForce(graphMat);
-			out = generateCoords(graphMat, bestI);
 			console.group("DEPLOYMENT RESULTS:");
+			if(nodeArr.length<18){//CHOICE TIME
+				console.log("Genetic Alghoritm in use");
+				var bestI = genetic(graphMat, 200, 250, 20, 25, 50);
+			}else{
+				console.log("BruteForce Alghoritm in use");
+				var bestI = bruteForce(graphMat);
+			}
+			out = generateCoords(graphMat, bestI);
 			console.log("ALGHORITM PERFORMANCE: ");
 			console.timeEnd("Deploying Time");
+			console.log("Best deployment rating: " + bestI.rating);
 			console.log("GRAPH MATRIX: ");
 			console.log(graphMat);
 			console.log("DEPLOYMENT: ");
@@ -115,6 +120,18 @@ function Controler(url, gui){
 			graphMatrix[stop.level] = [stop];
 			stop.column = 0;
 			return graphMatrix;
+		}
+		//-AUXILIARY-FUNCTIONS--------------->>>
+		function clone(tab){//array cloning function
+			var result = [];
+			$.each(tab, function(i, v){
+				result.push(v);
+			});
+			return result;
+		}
+		function cloneObj(obj){//object cloning function
+			var result = jQuery.extend(true, {}, obj);
+			return result;
 		}
 		//-DEPLOYMENT-ALGORITHM-FUNCTIONS---->>>
 		function individual(deploymentMatrix) {//INDIVIDUAL OBJECT
@@ -229,13 +246,122 @@ function Controler(url, gui){
 				}
 			}
 		}
-		function clone(tab){//array cloning function
-			var result = [];
-			$.each(tab, function(i, v){
-				result.push(v);
-			});
-			return result;
+		//-GENETIC-VERSION------------------->>>
+		function genetic(graphMatrix, generationsAmount, individualsAmount, rivalsAmount, mutationRatio, hybridizationRatio) {
+			var individuals = [];
+			var oldIndividuals = null;
+			//generating 1st individual and save it as best
+			var deploymentMatrix = generateRandom(graphMatrix);
+			var bestIndividual = new individual(deploymentMatrix);
+			var bestRating = rate(bestIndividual, graphMatrix);
+			var bestGen = 0;
+			individuals.push(bestIndividual);
+			//generating 1st generation
+			for(var i = 1; i < individualsAmount; i++) {
+				deploymentMatrix = generateRandom(graphMatrix); //generating random individual
+				ind = new individual(deploymentMatrix);
+				if(rate(ind, graphMatrix) < bestRating) {//rating random individual / if it's best then save it as best
+					bestRating = ind.rating;
+					bestIndividual = jQuery.extend(true, {}, ind);
+					// console.log("0 - New best (r): " + bestIndividual.rating);
+				}
+				individuals.push(ind);
+			}
+			//generating further generations
+			for(var i = 1; i < generationsAmount && bestRating > 0; i++) {
+				oldIndividuals = cloneObj(individuals);
+				for(var j = 0; j < individualsAmount; j++) {
+					individual1 = select(oldIndividuals, individualsAmount, rivalsAmount);
+					rand = Math.floor((Math.random() * 100)) + 1;
+					if(rand < mutationRatio) {
+						individual1 = mute(individual1);
+					}
+					rand = Math.floor((Math.random() * 100)) + 1;
+					if(rand < hybridizationRatio) {
+						individual2 = select(oldIndividuals, individualsAmount, rivalsAmount);
+						hybridize(individual1, individual2);
+						rand = Math.floor((Math.random() * 100)) + 1;
+						if(rand < mutationRatio) {
+							individual2 = mute(individual2);
+						}
+						individuals[j] = individual2;
+						if(rate(individual2, graphMatrix) < bestRating) {
+							bestRating = individual2.rating;
+							bestIndividual = cloneObj(individual2);
+							bestGen = i;
+							// console.log(i + " - New best (h): " + bestIndividual.rating);
+						}
+						j++;
+					}
+					if(rate(individual1, graphMatrix) < bestRating) {
+						bestRating = individual1.rating;
+						bestIndividual = cloneObj(individual1);
+						bestGen = i;
+						// console.log(i + " - New best (m): " + bestIndividual.rating);
+					}
+					individuals[j] = individual1;
+				}
+			}
+			console.log("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
+			return bestIndividual;
 		}
+		function select(individuals, indAm, rivalsAmount) {//selection by tournament
+			rand = Math.floor((Math.random() * indAm));
+			bestIndividual = individuals[rand];
+			bestRating = bestIndividual.rating;
+			for(var j = 1; j < rivalsAmount; j++) {
+				rand = Math.floor((Math.random() * indAm));
+				ind = individuals[rand];
+				if(ind.rating < bestRating) {
+					bestIndividual = ind;
+					bestRating = ind.rating;
+				}
+			}
+			return new individual(bestIndividual.deploymentMatrix.slice());
+		}
+		function mute(individual1) {//mutation by switching 2 elements of random level
+			deploymentMatrix = individual1.deploymentMatrix.slice();
+			individual2 = new individual(deploymentMatrix);
+			rand = Math.floor((Math.random() * individual2.deploymentMatrix.length));
+			rand2 = Math.floor((Math.random() * individual2.deploymentMatrix[rand].length));
+			rand3 = Math.floor((Math.random() * individual2.deploymentMatrix[rand].length));
+			temp = individual2.deploymentMatrix[rand][rand2];
+			individual2.deploymentMatrix[rand][rand2] = individual2.deploymentMatrix[rand][rand3];
+			individual2.deploymentMatrix[rand][rand3] = temp;
+			return individual2;
+		}
+		function hybridize(individual1, individual2) {//hybridization
+			len = individual2.deploymentMatrix.length;
+			rand1 = Math.floor((Math.random() * len));
+			rand2 = Math.floor((Math.random() * len));
+			for(var i = rand1; i<rand2; i++){
+				individual2.deploymentMatrix[i] = clone(individual1.deploymentMatrix[i]);
+			}
+		}
+		function generateRandom(graphMatrix) {//generating random deployment matrix
+			len = graphMatrix.length;
+			matrix = [[]];
+			for(var i = 0; i < len; i++) {//for each level
+				len2 = graphMatrix[i].length;
+				tab = [];
+				tab2 = [];
+				elAmount = len2;
+				for(var j = 0; j < len2; j++) {//create table of possible IDs
+					tab.push(j);
+				}
+				for(var j = 0; j < len2; j++) {//randomly place all IDs
+					rand = Math.floor((Math.random() * elAmount));
+					tab2.push(tab[rand]);
+					for(var k = rand; k < elAmount - 1; k++) {//shrink support table (tab)
+						tab[k] = tab[k + 1];
+					}
+					elAmount--;
+				}
+				matrix[i] = tab2;
+			}
+			return matrix;
+		}
+		//-COMMON-FINISH--------------------->>>
 		function generateCoords(graphMatrix, bestInd) {//generating ID's -> coordinates table
 			w = canvasW;
 			//check if node properties are defined. if not assign default
@@ -266,7 +392,6 @@ function Controler(url, gui){
 					maxWidth = dMatrix[i].length;
 				}
 			}
-			//assigning widths to rows
 			for(var i = 0; i < len; i++) {
 				columnWidth[i] = w / rowWidth[i];
 			}
@@ -290,6 +415,7 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
+
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
