@@ -78,10 +78,7 @@
 						<label>InputVideo</label>
 						<dataType>VideoData</dataType>
 						<properties/>
-						<source>
-							<nodeId>CCTVSendStart</nodeId>
-							<outputId>OutputVideo</outputId>
-						</source>
+						<source/>
 					</input>
 				</inputs>
 				<outputs/>
@@ -126,10 +123,6 @@
 						<label>InputBuildingMonitoringStarted</label>
 						<dataType>Message</dataType>
 						<properties/>
-						<source>
-							<nodeId>#Start</nodeId>
-							<outputId>BuildingMonitoringStarted</outputId>
-						</source>
 					</input>
 					<input>
 						<class>Object</class>
@@ -137,10 +130,6 @@
 						<label>InputMonitoredObject</label>
 						<dataType>Object</dataType>
 						<properties/>
-						<source>
-							<nodeId>#Start</nodeId>
-							<outputId>MonitoredObject</outputId>
-						</source>
 					</input>
 				</inputs>
 				<outputs>

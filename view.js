@@ -187,17 +187,17 @@ function View(id, width, height, gui){
 							case "H" : this.switchToHybrydMode(); break;
 						}
 					},
-					switchToCFMode : function switchToMode(){
+					switchToCFMode : function switchToCFMode(){
 						$.each(this.inputs, this.hide);
 						$.each(this.outputs, this.hide);
 						$.each(this.connectors, this.show);
 					},
-					switchToDFMode : function switchToMode(){
+					switchToDFMode : function switchToDFMode(){
 						$.each(this.inputs, this.show);
 						$.each(this.outputs, this.show);
 						$.each(this.connectors, this.hide);
 					},
-					switchToHybrydMode : function switchToMode(){
+					switchToHybrydMode : function switchToHybrydMode(){
 					},
 					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
 					getInputById : function getInputById(id){
@@ -321,7 +321,6 @@ function View(id, width, height, gui){
 				this["draw_"+type.toLowerCase()+"Node"] = fun;
 			},
 			draw_unknownNode : function draw_unknownNode(node){
-				// alert("draw_unknownNode");
 			},
 			visualiseNode : function visualiseNode(node){
 				++c;
@@ -340,7 +339,7 @@ function View(id, width, height, gui){
 				return ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode);
 			},
 			draw_controlNode : function draw_controlNode(node){
-				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white", cursor: "crosshair"}),
+				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
 					input_length, output_length, i_tab = [], o_tab = [],
 					multX = 1, multY = 1, x1, y1, x2, y2
@@ -405,7 +404,21 @@ function View(id, width, height, gui){
 				node.getPossiblePositionsOfConnectors = function(){
 					return [[this.x, this.y]];
 				}
-				
+
+				node.switchToCFMode = function switchToCFMode(){
+					$.each(this.inputs, this.hide);
+					$.each(this.outputs, this.hide);
+					$.each(this.connectors, this.show);
+					this.mainShape.attr({cursor: "crosshair"})
+				},
+				node.switchToDFMode = function switchToDFMode(){
+					$.each(this.inputs, this.show);
+					$.each(this.outputs, this.show);
+					$.each(this.connectors, this.hide);
+					this.mainShape.attr({cursor: "default"})
+				}
+				;
+
 				node.set.push(c, label);
 
 				view.dragNodes(label, node);
@@ -537,9 +550,9 @@ function View(id, width, height, gui){
 		};
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
-		
+
 		return outputObject;
-	}	
+	}
 	
 	var outputView = {
 		id : id,
@@ -674,43 +687,49 @@ function View(id, width, height, gui){
 				sourceNode,
 				bbox,
 				start = function start(){
-					var canvas = $(gui.view.paper.canvas);
-					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
-					bbox = this.getBBox();
-					cx = (bbox.x + bbox.x2) / 2;
-					cy = (bbox.y + bbox.y2) / 2;
-					sourceNode = gui.view.getNodeById(this.node.classList[0]);
+					if(gui.view.mode === "CF"){
+						var canvas = $(gui.view.paper.canvas);
+						ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+						ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+						bbox = this.getBBox();
+						cx = (bbox.x + bbox.x2) / 2;
+						cy = (bbox.y + bbox.y2) / 2;
+						sourceNode = gui.view.getNodeById(this.node.classList[0]);
 
-					arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
+						arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
+					}
 				},
 				move = function(a, b, c, d, event){
-					// todo awizowanie arrow po najechaniu na node
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						console.log(e);
+					if(gui.view.mode === "CF"){
+						// todo awizowanie arrow po najechaniu na node
+						try {
+							arrow[0].remove();
+							arrow[1].remove();
+						} catch(e){
+							console.log(e);
+						}
+						
+						arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
 					}
-					
-					arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
 				},
 				stop = function(event){
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						console.log(e);
-					}
+					if(gui.view.mode === "CF"){
+						try {
+							arrow[0].remove();
+							arrow[1].remove();
+						} catch(e){
+							console.log(e);
+						}
 
-					var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
-					if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
-						gui.controler.reactOnEvent("AddCFEdge", {
-						 	source: sourceNode,
-						 	target: targetNode,
-						 	CF_or_DF: "CF"
-						 	// type: 
-						})
+						var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
+						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
+							gui.controler.reactOnEvent("AddCFEdge", {
+							 	source: sourceNode,
+							 	target: targetNode,
+							 	CF_or_DF: "CF"
+							 	// type: 
+							})
+					}
 				}
 				;
 
@@ -731,10 +750,12 @@ function View(id, width, height, gui){
 				ofsetX,
 				ofsetY,
 				sourceNode,
+				targetId,
 				output,
 				bbox,
-				canvas = $(gui.view.paper.canvas),
 				glows = [],
+				paper = gui.view.paper,
+				canvas = $(paper.canvas),
 				start = function start(){
 					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
@@ -744,18 +765,15 @@ function View(id, width, height, gui){
 					sourceNode = outputView.getNodeById(this.node.classList[0]);
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
-					$.each(gui.view.graph_view.nodes, function(){
-						$.each(this.inputs, function(){
-							// alert(this.dataType+":"+output.dataType)
-							if(this.dataType === output.dataType){
+					$.each(gui.view.graph_view.nodes, function(i, v){
+						$.each(v.inputs, function(){
+							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "red"}) );
 							}
 						});						
 					});
 
-					// a(gui);
-
-					arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
+					arrow = paper.arrow(cx, cy, cx, cy, 4);
 				},
 				move = function move(a, b, c, d, event){
 					// todo awizowanie arrow po najechaniu na node
@@ -763,28 +781,33 @@ function View(id, width, height, gui){
 						arrow[0].remove();
 						arrow[1].remove();
 					} catch(e){
-						console.log(e);
+						// console.log(e);
 					}
-					
-					arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+					arrow = paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
 				},
 				stop = function stop(event){
 					try {
 						arrow[0].remove();
 						arrow[1].remove();
 					} catch(e){
-						console.log(e);
+						// console.log(e);
 					}
 
-					var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
-					if(targetNode && sourceNode  )
-						gui.controler.reactOnEvent("AddCFEdge", {
-						 	source: sourceNode,
-						 	target: targetNode,
-						 	CF_or_DF: "CF"
-						 	// type: 
-						})
-
+					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX, event.clientY-ofsetY);
+					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
+						if(resultObj.input.dataType === output.dataType){
+							gui.controler.reactOnEvent("AddDFEdge", {
+							 	sourceId: sourceNode.id,
+							 	targetId: resultObj.targetId,
+							 	input: resultObj.input,
+							 	output: output,
+							 	CF_or_DF: "DF"
+							});
+						} else {
+							gui.controler.reactOnEvent("Error", {msg: "You tried to make connection between input and output od different data types"})
+						}
+					} else {
+					}
 					$.each(glows, function(){
 						this.remove();
 					})
@@ -857,7 +880,7 @@ function View(id, width, height, gui){
 			//source, sourceOutputId
 			//target, targetInputId
 			// console.log(data)
-			var foundedDFEdge = this.getDFEdge(data.sourceId, data.targetId, data.inputId, data.outputId);
+			var foundedDFEdge = this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id);
 			if(foundedDFEdge){
 				gui.controler.reactOnEvent(""); //err msg
 			}
@@ -894,7 +917,9 @@ function View(id, width, height, gui){
 						update : function(){
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
-							} catch(e){	console.log(e);	}
+							 } catch(e){
+							 	//console.log(e);	
+							 }
 
 							// console.log(this);
 
@@ -939,7 +964,7 @@ function View(id, width, height, gui){
 
 			return foundedCFEdge;
 		},
-		getDFEdge : function getEdge(sourceId, targetId, inputId, outputId){
+		getDFEdge : function getEdge(sourceId, targetId, outputId, inputId){
 			var foundedDFEdge;
 			$.each(this.graph_view.edgesDF, function(){
 				if( this.sourceId === sourceId && this.targetId === targetId &&
@@ -971,7 +996,10 @@ function View(id, width, height, gui){
 			}
 			var p = this.paper,
 				that = this,
-				type, visualizedNode;
+				type,
+				visualizedNode,
+				tmp
+			;
 				
 			$.each(graph_json.nodes, function(key, val){
 				visualizedNode = that.visualiser.visualiseNode(val);
@@ -987,14 +1015,16 @@ function View(id, width, height, gui){
 					});
 				});
 				$.each(val.functionalDescription.inputs, function(){
-					// a(val.nodeId+":"+this.source[0]+":"+this.source[1])
-					// a(that.getNodeById(this.source[0]).getOutputById(this.source[1]))
-					that.addDFEdge({
-						sourceId : this.source[0],
-						targetId : val.nodeId,
-						input : that.getNodeById(val.nodeId).getInputById(this.id),
-						output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
-					});
+					if(this && this.source && this.source.length == 2){
+						// alert(val.nodeId+":"+this.source);
+						// alert(this.source[1]);
+						that.addDFEdge({
+							sourceId : this.source[0],
+							targetId : val.nodeId,
+							input : that.getNodeById(val.nodeId).getInputById(this.id),
+							output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
+						});
+					}
 				});
 			});
 
@@ -1156,10 +1186,25 @@ function View(id, width, height, gui){
 			return count === 1 ? resultTab[0] : resultTab;
 		},
 		getInputByPosition: function getInputByPosition(x, y){
-			var result = {};
-			$.each(this.graph_view.nodes, function(){
-				//.isPointInside
-			})
+			// gui.view.paper.rect(x-1, y-1, 2, 2).attr("fill", "red");
+			var result,
+				loopControler = true;
+			$.each(this.graph_view.nodes, function(k, v){
+				$.each(v.inputs, function(){
+					if(this.node.isPointInside(x, y)){
+						result = {
+							targetId : v.id,
+							input : this
+						};
+						loopControler = false;
+						return false;
+					}
+				});
+
+				return loopControler;
+			});
+
+			return result;
 		},
 		removeNode : function removeNode(id){
 			$.each(this.graph_view.nodes, function(k, v){

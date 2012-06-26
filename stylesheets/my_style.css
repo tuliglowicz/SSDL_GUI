@@ -7,10 +7,6 @@
 	}
 	.connector {
 		fill: silver;
-		opacity: 1;
-		cursor:crosshair;
-	}
-	.start, .stop {
 		cursor:crosshair;
 	}
 	text:not(.repository_text) {

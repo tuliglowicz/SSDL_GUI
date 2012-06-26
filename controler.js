@@ -18,47 +18,46 @@ function Controler(url, gui){
 		* - startY (height on canvas from which we start to draw graph)
 		*/
 		//-STATE-VARIABLES------------------->>>
-		var jnodes;
-		var nodeArr;
-		var graphMat;
-		var out;
-		//-MAIN-FUNCTIONS-------------------->>>
-		this.init = function init(){//initialization of data model
-			jnodes = json.nodes;
-			nodeArr = getNodes(jnodes);
-			processNodes(nodeArr);
-			graphMat = postProcessNodes(nodeArr);
-		}
-		this.deploy = function deploy(){//deploying main ssdl graph
-			console.time("Deploying Time");
-			var bestI = bruteForce(graphMat);
-			out = generateCoords(graphMat, bestI);
-			console.group("DEPLOYMENT RESULTS:");
-			console.log("ALGHORITM PERFORMANCE: ");
-			console.timeEnd("Deploying Time");
-			console.log("GRAPH MATRIX: ");
-			console.log(graphMat);
-			console.log("DEPLOYMENT: ");
-			console.log(out);
-			console.groupEnd();
-			return out;
-		}
-		this.deploySubgraph = function deploySubgraph(nodeId){//deploying subgraph of node with selected id
-			console.time("Deploying Time");
-			var sNode = getNodeById(nodeArr, nodeId);
-			var subgraphMat = sNode.subgraphMatrix;
-			var bestI = bruteForce(subgraphMat);
-			out = generateCoords(subgraphMat, bestI);
-			console.group("DEPLOYMENT RESULTS:");
-			console.log("ALGHORITM PERFORMANCE: ");
-			console.timeEnd("Deploying Time");
-			console.log("GRAPH MATRIX: ");
-			console.log(graphMat);
-			console.log("DEPLOYMENT: ");
-			console.log(out);
-			console.groupEnd();
-			return out;
-		}
+		var jnodes,
+			nodeArr,
+			graphMat,
+			out,
+			init = function init(){//initialization of data model
+				jnodes = json.nodes;
+				nodeArr = getNodes(jnodes);
+				processNodes(nodeArr);
+				graphMat = postProcessNodes(nodeArr);
+			},
+			deploy = function deploy(){//deploying main ssdl graph
+				console.time("Deploying Time");
+				var bestI = bruteForce(graphMat);
+				out = generateCoords(graphMat, bestI);
+				console.group("DEPLOYMENT RESULTS:");
+				console.log("ALGHORITM PERFORMANCE: ");
+				console.timeEnd("Deploying Time");
+				console.log("GRAPH MATRIX: ");
+				console.log(graphMat);
+				console.log("DEPLOYMENT: ");
+				console.log(out);
+				console.groupEnd();
+				return out;
+			},
+			deploySubgraph = function deploySubgraph(nodeId){//deploying subgraph of node with selected id
+				console.time("Deploying Time");
+				var sNode = getNodeById(nodeArr, nodeId);
+				var subgraphMat = sNode.subgraphMatrix;
+				var bestI = bruteForce(subgraphMat);
+				out = generateCoords(subgraphMat, bestI);
+				console.group("DEPLOYMENT RESULTS:");
+				console.log("ALGHORITM PERFORMANCE: ");
+				console.timeEnd("Deploying Time");
+				console.log("GRAPH MATRIX: ");
+				console.log(graphMat);
+				console.log("DEPLOYMENT: ");
+				console.log(out);
+				console.groupEnd();
+				return out;
+			};
 		//-PARSING-FUNCTIONS----------------->>>
 		function node(id, sources, subgraph) {//NODE OBJECT
 			this.id = id;
@@ -325,11 +324,10 @@ function Controler(url, gui){
 			}
 			return dTab;
 		}
-		//-PLUGIN-OBJECT-INIT-&-RETURN------->>>
-		this.init();
+		
+		init();
 		return this;
 	}
-
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
@@ -469,7 +467,9 @@ function Controler(url, gui){
 				var ssdl_json = that.convert(ssdl);
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.graphData = ssdl_json;					
+					that.graphData = ssdl_json;
+					var deploy = deployer(ssdl_json, gui.view.paper.width);
+					console.log(deploy);
 					gui.view.drawGraph(gui.controler.graphData);
 					
 				// alert(that.plugins)
@@ -501,6 +501,23 @@ function Controler(url, gui){
 
 			return result;
 		},
+		getInputById : function getInputById(nodeId, inputId){
+			var result;
+
+			$.each(gui.controler.graphData.nodes, function(){
+				if( this.nodeId === nodeId ){
+					$.each(this.functionalDescription.inputs, function(){
+						if( this.id === inputId ){
+							result = this;
+							return false;
+						}
+					});
+					return false;
+				}
+			});
+
+			return result;
+		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			switch(evtType.toUpperCase()){
@@ -514,6 +531,12 @@ function Controler(url, gui){
 					var target = gui.controler.getNodeById(e.target.id);
 					target.sources.push( e.source.id );
 					gui.view.addCFEdge(e);
+				})(evtObj); break;
+				case "ADDDFEDGE" : (function(e){
+					var input = gui.controler.getInputById(e.targetId, e.input.id);
+					// a(e.sourceId +":"+ e.output.id);
+					input.source = [e.sourceId, e.output.id];
+					gui.view.addDFEdge(e);
 				})(evtObj); break;
 				case "NODEMOVED" : (function(){
 					gui.view.updateEdges();
@@ -554,7 +577,7 @@ function Controler(url, gui){
 						node.functionalDescription.metaKeywords.push($(this).text());
 					});
 				node.functionalDescription.inputs = [];
-				var input;
+				var input, tmp1, tmp2;
 				_this.find("functionalDescription inputs:first input").each(function(){
 					input = {}
 						input.class = $(this).find("class").text();
@@ -562,8 +585,13 @@ function Controler(url, gui){
 						input.label = $(this).find("label").text();
 						input.dataType = $(this).find("dataType").text();
 						input.properties = $(this).find("properties").text();
-						input.source = [$(this).find("nodeId").text(), $(this).find("outputId").text()];
-						
+						input.source = [];
+
+						tmp1 = $(this).find("nodeId").text();
+						tmp2 = $(this).find("outputId").text();
+						if(tmp1.length > 0 && tmp1.length > 0){
+							input.source.push(tmp1, tmp2);
+						}
 					node.functionalDescription.inputs.push(input);
 				});
 				node.functionalDescription.outputs = [];
