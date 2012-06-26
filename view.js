@@ -167,7 +167,7 @@ function View(id, width, height, gui){
 
 			offset = 20,
 			visible = .2,
-			invisible = .01,
+			invisible = 0,
 			result = {
 				top: top,
 				left: left,
@@ -197,6 +197,9 @@ function View(id, width, height, gui){
 							that.button2[0].show().animate({opacity: visible}, that.animationTime);
 							that.button2[1].show().animate({opacity: visible}, that.animationTime);
 							that.button2[2].show();
+							that.button3[0].show().animate({opacity: visible}, that.animationTime);
+							that.button3[1].show().animate({opacity: visible}, that.animationTime);
+							that.button3[2].show();
 							that.click = true;
 						}).
 						mouseout(function(evt,x,y){
@@ -206,9 +209,9 @@ function View(id, width, height, gui){
 						// var targetNode = ();
 
 							var b = that.bar.getBBox();
-							console.log(b.x+"-"+b.x2+"::::"+b.y+"-"+b.y2);
-							console.log((x-ofsetX + window.scrollX)+":"+( y - ofsetY + window.scrollY));
-							console.log("---------------------------------------");
+							// console.log(b.x+"-"+b.x2+"::::"+b.y+"-"+b.y2);
+							// console.log((x-ofsetX + window.scrollX)+":"+( y - ofsetY + window.scrollY));
+							// console.log("---------------------------------------");
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
 								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 								that.triangle1.animate({opacity: visible}, that.animationTime);
@@ -219,6 +222,9 @@ function View(id, width, height, gui){
 								that.button2[0].hide().animate({opacity: invisible}, that.animationTime);
 								that.button2[1].hide().animate({opacity: invisible}, that.animationTime);
 								that.button2[2].hide();
+								that.button3[0].hide().animate({opacity: invisible}, that.animationTime);
+								that.button3[1].hide().animate({opacity: invisible}, that.animationTime);
+								that.button3[2].hide();
 							}
 						})
 						;
@@ -232,7 +238,7 @@ function View(id, width, height, gui){
 					var glow;
 					var that = this;
 					var temp1 = paper
-							.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
+							.rect(parseInt(width/2+(40*mult)), paper.height*.89, 60, 40, 5)
 							.attr({fill:"ivory", opacity:invisible});
 					var temp2 = paper.text(temp1.attr("x")+30, temp1.attr("y")+20, text)
 						.attr({
@@ -241,25 +247,18 @@ function View(id, width, height, gui){
 							"stroke-linejoin":"round",
 							"stroke-linecap":"butt",
 							stroke:"gray",
-							fill:"ivory",
+							fill:"red",
 							opacity:invisible
 						});
 					var cover = paper.
-							rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5).
+							rect(parseInt(width/2+(40*mult)), paper.height*.89, 60, 40, 5).
 							attr({"cursor": "pointer", "stroke-width": 1, fill: "red", opacity: 0.0}).
-							mouseover((function(txt){
-								return (function(){
-									// alert(txt);
-									txt.attr("fill", "red");
-								});
-							})(temp2)
-							).
-							mouseout((function(txt){
-								return (function(){
-									// alert(txt);
-									txt.attr("fill", "ivory");
-								});
-							})(temp2)).
+							mouseover(function(){
+								// alert("")
+							}).
+							mouseout(function(){
+
+							}).
 							click(function(){
 								gui.controler.reactOnEvent("SwitchMode", {mode: text})
 									// txt.attr("fill", "white");
@@ -287,6 +286,7 @@ function View(id, width, height, gui){
 		result.invisibleBar = result.createBar(left, top, width, height);
 		result.button1 = result.createButton("CF", -1);
 		result.button2 = result.createButton("DF", 1);
+		result.button3 = result.createButton("SS", -8);
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
 		return result;
@@ -941,6 +941,7 @@ function View(id, width, height, gui){
 					}
 
 					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
+					// alert(resultObj)
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
 						if(resultObj.input.dataType === output.dataType){
 							gui.controler.reactOnEvent("AddDFEdge", {
@@ -1336,10 +1337,16 @@ function View(id, width, height, gui){
 		getInputByPosition: function getInputByPosition(x, y){
 			// gui.view.paper.rect(x-1, y-1, 2, 2).attr("fill", "red");
 			var result,
+				bbox,
 				loopControler = true;
 			$.each(this.graph_view.nodes, function(k, v){
 				$.each(v.inputs, function(){
-					if(this.node.isPointInside(x, y)){
+					bbox = this.node.getBBox();
+					if ( bbox.x+bbox.width > x &&
+						bbox.y+bbox.height > y &&
+						bbox.x < x &&
+						bbox.y < y
+						){
 						result = {
 							targetId : v.id,
 							input : this
