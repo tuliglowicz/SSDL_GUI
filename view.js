@@ -44,7 +44,6 @@ function View(id, width, height, gui){
 		temp.init();
 		return temp;
 	}
-
 	function blankNode(paper, mainCanvas, visualiser){
 		var tmp = {
 			name: "blankNode",
@@ -154,7 +153,6 @@ function View(id, width, height, gui){
 		
 		return tmp;
 	}
-
 	function drawBottomBar(paper){
 		// chciałbym, żeby z tej funkcji zwracany był obiekt
 		// return {
@@ -799,6 +797,7 @@ function View(id, width, height, gui){
 						}
 						
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
 				},
 				stop = function(event){
@@ -873,6 +872,7 @@ function View(id, width, height, gui){
 						// console.log(e);
 					}
 					arrow = paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},
 				stop = function stop(event){
 					try {
