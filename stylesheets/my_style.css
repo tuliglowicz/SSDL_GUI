@@ -9,14 +9,10 @@
 		fill: silver;
 		cursor:crosshair;
 	}
-	text:not(.repository_text) {
-		cursor: move;
-		font: 16px Times New Roman Bold
-	}
 	.repository_element {
 		cursor: move;
 	}
-	.label {
+	text.label {
 		cursor: move;
 		color: white;
 		font: 16px Times New Roman Bold;

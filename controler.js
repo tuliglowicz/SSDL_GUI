@@ -640,9 +640,9 @@ function Controler(url, gui){
 				case "NODEMOVED" : (function(){
 					gui.view.updateEdges();
 				})(); break;
-				case "SWITCHMODE" : (function(mode){
-					gui.view.switchMode(mode);
-				})(); break;
+				case "SWITCHMODE" : (function(e){
+					gui.view.switchMode(e.mode);
+				})(evtObj); break;
 			}
 		},
 		convert : function convert(ssdl, id){ // converst ssdl into json

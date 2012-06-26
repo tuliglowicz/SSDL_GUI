@@ -161,6 +161,9 @@ function View(id, width, height, gui){
 			left = 0,
 			width = paper.width,
 			height = paper.height*.15,
+			canvas = $(paper.canvas),
+			ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
+			ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
 
 			offset = 20,
 			visible = .2,
@@ -176,30 +179,49 @@ function View(id, width, height, gui){
 				invisible: invisible,
 				animationTime: 200,
 				set: [],
-
 				pathString: function pathString(x, y){
 					return("M " + x + " " + y + " l 20 0 l -10 -10 z");
 				},
 				createBar: function createBar(x, y, width, height){
-					var that = this,
-						bar = paper.rect(x, y, width, height).
-					attr({fill:"grey", opacity: this.invisible}).
-					mouseover(function(){
-						bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
-						that.triangle1.animate({opacity: invisible}, that.animationTime);
-						that.triangle2.animate({opacity: invisible}, that.animationTime);
-						that.button1.show().animate({opacity: visible}, that.animationTime);
-						that.button2.show().animate({opacity: visible}, that.animationTime);
-						that.click = true;
-					}).
-					mouseout(function(){
-						bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
-						that.triangle1.animate({opacity: visible}, that.animationTime);
-						that.triangle2.animate({opacity: visible}, that.animationTime);
-						that.button1.animate({opacity: invisible}, that.animationTime).hide();
-						that.button2.animate({opacity: invisible}, that.animationTime).hide();
-					});
-					return bar;
+					var that = this;
+
+					this.bar = paper.rect(x, y, width, height).
+						attr({fill:"grey", opacity: this.invisible}).
+						mouseover(function(){
+							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
+							that.triangle1.animate({opacity: invisible}, that.animationTime);
+							that.triangle2.animate({opacity: invisible}, that.animationTime);
+							that.button1[0].show().animate({opacity: visible}, that.animationTime);
+							that.button1[1].show().animate({opacity: visible}, that.animationTime);
+							that.button1[2].show();
+							that.button2[0].show().animate({opacity: visible}, that.animationTime);
+							that.button2[1].show().animate({opacity: visible}, that.animationTime);
+							that.button2[2].show();
+							that.click = true;
+						}).
+						mouseout(function(evt,x,y){
+							// console.log(evt);
+							// console.log(x+":"+y);
+							// (event.clientX-ofsetX, event.clientY-ofsetY);
+						// var targetNode = ();
+
+							var b = that.bar.getBBox();
+							console.log(b.x+"-"+b.x2+"::::"+b.y+"-"+b.y2);
+							console.log((x-ofsetX + window.scrollX)+":"+( y - ofsetY + window.scrollY));
+							console.log("---------------------------------------");
+							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
+								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+								that.triangle1.animate({opacity: visible}, that.animationTime);
+								that.triangle2.animate({opacity: visible}, that.animationTime);
+								that.button1[0].hide().animate({opacity: invisible}, that.animationTime);
+								that.button1[1].hide().animate({opacity: invisible}, that.animationTime);
+								that.button1[2].hide();
+								that.button2[0].hide().animate({opacity: invisible}, that.animationTime);
+								that.button2[1].hide().animate({opacity: invisible}, that.animationTime);
+								that.button2[2].hide();
+							}
+						})
+						;
 				},
 				createTriangle: function createTriangle(path){
 					var tr = paper.path(path);
@@ -208,26 +230,44 @@ function View(id, width, height, gui){
 				},
 				createButton: function createButton(text, mult){
 					var glow;
-					var temp1 = paper.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
-						.attr({fill:"ivory", opacity:invisible});
+					var that = this;
+					var temp1 = paper
+							.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
+							.attr({fill:"ivory", opacity:invisible});
 					var temp2 = paper.text(temp1.attr("x")+30, temp1.attr("y")+20, text)
-						.attr({"font-size":40, "stroke-width":"4", "stroke-linejoin":"round", "stroke-linecap":"butt", stroke:"gray", fill:"ivory", opacity:invisible});
-					var set = paper.set();
-					set.push(temp1, temp2);
-					set.mouseover(function(){
-						glow = temp1.glow({color:"white", opacity:visible, size:5});
-					})
-					.mouseout(function(){
-						glow.remove();
-					})
-					.hide();
+						.attr({
+							"font-size":40,
+							"stroke-width":"4",
+							"stroke-linejoin":"round",
+							"stroke-linecap":"butt",
+							stroke:"gray",
+							fill:"ivory",
+							opacity:invisible
+						});
+					var cover = paper.
+							rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5).
+							attr({"cursor": "pointer", "stroke-width": 1, fill: "red", opacity: 0.0}).
+							mouseover((function(txt){
+								return (function(){
+									// alert(txt);
+									txt.attr("fill", "red");
+								});
+							})(temp2)
+							).
+							mouseout((function(txt){
+								return (function(){
+									// alert(txt);
+									txt.attr("fill", "ivory");
+								});
+							})(temp2)).
+							click(function(){
+								gui.controler.reactOnEvent("SwitchMode", {mode: text})
+									// txt.attr("fill", "white");
+							})
+							;
+					var set = paper.set(temp1, temp2, cover);
+
 					return set;
-				},
-				addElement: function addElement(element){
-					// this.set.push(element);
-				},
-				removeElement: function removeElement(element){
-					//TODO
 				}
 			};
 
@@ -245,8 +285,8 @@ function View(id, width, height, gui){
 		);
 		//chwilowa partyzantka
 		result.invisibleBar = result.createBar(left, top, width, height);
-		result.button1 = result.createButton("CF", -1).click(function(){alert("KLIKNĄ�?EŚ CF");});
-		result.button2 = result.createButton("DF", 1).click(function(){alert("KLIKNĄ�?EŚ DF");});
+		result.button1 = result.createButton("CF", -1);
+		result.button2 = result.createButton("DF", 1);
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
 		return result;
@@ -722,18 +762,21 @@ function View(id, width, height, gui){
 						transX = ox + dx > rWidth-width ? rWidth-width-ox : (ox + dx < 0 ? -ox : dx);
 						transY = oy + dy > rHeight-height ? rHeight-height-oy : (oy + dy < 0 ? -oy : dy);
 	
-				  		$.each(gui.view.graph_view.nodes, function(i, val){
-							if(val.highlighted){
-								val.translate(transX, transY);
-							}
-						});
-					  	
-						lastDragX = x;
-						lastDragY = y;
-						ox += transX;
-						oy += transY;
+						// console.log(transX+":"+transY)
+						if(transX != 0 || transY != 0){
+					  		$.each(gui.view.graph_view.nodes, function(i, val){
+								if(val.highlighted){
+									val.translate(transX, transY);
+								}
+							});
+						  	
+							lastDragX = x;
+							lastDragY = y;
+							ox += transX;
+							oy += transY;
 
-						gui.controler.reactOnEvent("NodeMoved");
+							gui.controler.reactOnEvent("NodeMoved");
+						}
 				 	}
 				},
 				start = function start(x,y,evt){
@@ -824,7 +867,7 @@ function View(id, width, height, gui){
 							console.log(e);
 						}
 
-						var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX, event.clientY-ofsetY);
+						var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
 							gui.controler.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
@@ -897,7 +940,7 @@ function View(id, width, height, gui){
 						// console.log(e);
 					}
 
-					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX, event.clientY-ofsetY);
+					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
 						if(resultObj.input.dataType === output.dataType){
 							gui.controler.reactOnEvent("AddDFEdge", {
@@ -1132,7 +1175,7 @@ function View(id, width, height, gui){
 				});
 			});
 
-			this.switchMode("DF");
+			this.switchMode("CF");
 			//dataType equal
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
@@ -1400,9 +1443,6 @@ function View(id, width, height, gui){
 				else
 					y1+=lastDragY;
 				
-				sel.remove();
-				sel = null;
-				lastRot = 0;
 				// TUTAJ POWINNO BYÄ† WYSÅ?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
@@ -1417,6 +1457,10 @@ function View(id, width, height, gui){
 					val.setBold(false);
 				});
 			}
+
+			sel.remove();
+			sel = null;
+			lastRot = 0;
 		}
 
 	outputView.bgSelectionHelper.drag(bgMove, bgStart, bgStop);
@@ -1425,8 +1469,6 @@ function View(id, width, height, gui){
 };
 
 /*
-
-
 function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
   var timeAtStart = ( new Date() ).getTime(),
     ingredients = {
@@ -1457,10 +1499,6 @@ place( [
   tools[2].lightFire();
   ingredients[0]
   
-
-    
-
-
   return ;
 }
 */
