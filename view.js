@@ -156,16 +156,8 @@ function View(id, width, height, gui){
 	}
 
 	function drawBottomBar(paper){
-		// chciałbym, żeby z tej funkcji zwracany był obiekt
-		// return {
-		// 		top:
-		// 		left:
-		// 		width:
-		// 		height:
-		// 		set:
 		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
 		//		removeElem: function (){ ... }	// 
-		// };
 
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
@@ -191,20 +183,23 @@ function View(id, width, height, gui){
 					return("M " + x + " " + y + " l 20 0 l -10 -10 z");
 				},
 				createBar: function createBar(x, y, width, height){
-					// alert(this.triangle1);
 					var that = this,
 						bar = paper.rect(x, y, width, height).
 					attr({fill:"grey", opacity: this.invisible}).
 					mouseover(function(){
-							bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
-							that.triangle1.animate({opacity: invisible}, that.animationTime);
-							that.triangle2.animate({opacity: invisible}, that.animationTime);
-							that.click = true;
+						bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
+						that.triangle1.animate({opacity: invisible}, that.animationTime);
+						that.triangle2.animate({opacity: invisible}, that.animationTime);
+						that.button1.animate({opacity: visible}, that.animationTime);
+						that.button2.animate({opacity: visible}, that.animationTime);
+						that.click = true;
 					}).
 					mouseout(function(){
-							bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
-							that.triangle1.animate({opacity: visible}, that.animationTime);
-							that.triangle2.animate({opacity: visible}, that.animationTime);
+						bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+						that.triangle1.animate({opacity: visible}, that.animationTime);
+						that.triangle2.animate({opacity: visible}, that.animationTime);
+						that.button1.animate({opacity: invisible}, that.animationTime);
+						that.button2.animate({opacity: invisible}, that.animationTime);
 					});
 					return bar;
 				},
@@ -212,6 +207,21 @@ function View(id, width, height, gui){
 					var tr = paper.path(path);
 					tr.attr({fill:"grey", opacity: visible});
 					return tr;
+				},
+				createButton: function createButton(text, mult){
+					var temp1 = paper.rect(parseInt(width/2+(70*mult)), paper.height*.87, 60, 40, 5)
+						.attr({fill:"ivory", opacity:invisible});
+					temp1.mouseover(function(){
+						if( true) temp1.glow({color:"#fbec88", opacity:visible, size:5});
+					});
+					temp1.mouseout(function(){
+						temp1.glow.remove();
+					});
+					var temp2 = paper.text(temp1.attr("x")+30, temp1.attr("y")+20, text)
+						.attr({"font-size":40, "stroke-width":"4", "stroke-linejoin":"round", "stroke-linecap":"butt", stroke:"gray", fill:"ivory", opacity:invisible});
+					var set = paper.set();
+					set.push(temp1, temp2);
+					return set;
 				},
 				addElement: function addElement(element){
 					// this.set.push(element);
@@ -233,6 +243,9 @@ function View(id, width, height, gui){
 				parseInt(top+offset)
 			)
 		);
+		//chwilowa partyzantka
+		result.button1 = result.createButton("CF", -1).click(function(){alert("KLIKŁEŚ CF");});
+		result.button2 = result.createButton("DF", 1).click(function(){alert("KLIKŁEŚ DF");});
 		result.invisibleBar = result.createBar(left, top, width, height);
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
