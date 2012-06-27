@@ -428,7 +428,6 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
-
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
@@ -537,14 +536,14 @@ function Controler(url, gui){
 			
 			tmp.draw();
 			
-			$("a:first").click(); //od razu wczytanie pierwszego serwisu
+			// $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
 	}
 	var controlerObject = {
 		plugins : [],
-		graphData : {}, // element modelu, ale celowo zawarty w kontrolerze
+		graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
 		},
@@ -590,35 +589,96 @@ function Controler(url, gui){
 		},
 		getNodeById : function getNodeById(id){
 			var result;
-
-			$.each(gui.controler.graphData.nodes, function(){
-				if( this.nodeId === id ){
-					result = this;
-					return false;
-				}
-			});
+			if(gui.controler.graphData.nodes){
+				$.each(gui.controler.graphData.nodes, function(){
+					if( this.nodeId === id ){
+						result = this;
+						return false;
+					}
+				});
+			}
 
 			return result;
 		},
 		getInputById : function getInputById(nodeId, inputId){
 			var result;
 
-			$.each(gui.controler.graphData.nodes, function(){
-				if( this.nodeId === nodeId ){
-					$.each(this.functionalDescription.inputs, function(){
-						if( this.id === inputId ){
-							result = this;
-							return false;
-						}
-					});
-					return false;
-				}
-			});
+			if(gui.controler.graphData.nodes){
+				$.each(gui.controler.graphData.nodes, function(){
+					if( this.nodeId === nodeId ){
+						$.each(this.functionalDescription.inputs, function(){
+							if( this.id === inputId ){
+								result = this;
+								return false;
+							}
+						});
+						return false;
+					}
+				});
+			}
 
 			return result;
 		},
+		addStartStop : function addStartStop(){
+			if( this.getNodeById("#Start") || this.getNodeById("#End") )
+			var start = {
+					nodeId : "#Start",
+					nodeLabel : "#Start",
+					nodeType : "Control",
+					controlType : "#start",
+					physicalDescription : {
+						address : "",
+						operation : "",
+						serviceGlobalId : "",
+						serviceName : ""
+					},
+					functionalDescription: {
+						description : "Start node",
+						effects : "",
+						inputs : [],
+						outputs : [],
+						metaKeywords : [],
+						preconditions : "",
+						serviceClasses : []
+					},
+					alternatives : "",
+					condition : "",
+					sources : [],
+					subgraph : {},
+					nonFunctionalDescription : []
+				},
+				stop = {
+					nodeId : "#End",
+					nodeLabel : "#End",
+					nodeType : "Control",
+					controlType : "#end",
+					physicalDescription : {
+						address : "",
+						operation : "",
+						serviceGlobalId : "",
+						serviceName : ""
+					},
+					functionalDescription: {
+						description : "end node",
+						effects : "",
+						inputs : [],
+						outputs : [],
+						metaKeywords : [],
+						preconditions : "",
+						serviceClasses : []
+					},
+					alternatives : "",
+					condition : "",
+					sources : [],
+					subgraph : {},
+					nonFunctionalDescription : []
+				};
+
+				this.graphData.nodes.unshift(start, stop);
+		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
+			var that = this;
 			switch(evtType.toUpperCase()){
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
@@ -643,6 +703,13 @@ function Controler(url, gui){
 				case "SWITCHMODE" : (function(e){
 					gui.view.switchMode(e.mode);
 				})(evtObj); break;
+				case "ADDSTARTSTOPAUTOMATICALLY" : (function(){
+
+					if( this.addStartStop() ){
+						gui.view.addStartStop();
+					}
+
+				})(); break;
 			}
 		},
 		convert : function convert(ssdl, id){ // converst ssdl into json
@@ -783,3 +850,5 @@ function Controler(url, gui){
 	}	
 	return controlerObject;
 }
+
+//Czy mogę założyć, że 

@@ -258,12 +258,20 @@ function View(id, width, height, gui){
 							}).
 							mouseout(function(){
 
-							}).
-							click(function(){
-								gui.controler.reactOnEvent("SwitchMode", {mode: text})
-									// txt.attr("fill", "white");
-							})
-							;
+							});
+
+					if(text === "SS"){
+						cover.click(function(){
+							gui.controler.reactOnEvent("AddStartStopAutomatically");
+						})
+						;
+					} else {
+						cover.click(function(){
+							gui.controler.reactOnEvent("SwitchMode", {mode: text})
+								// txt.attr("fill", "white");
+						})
+						;
+					}
 					var set = paper.set(temp1, temp2, cover);
 
 					return set;
@@ -713,6 +721,12 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		addStartStop : function addStartStop(whichOne){
+			var blankNode = this.visualiser.getBlankNode();
+			// console.log( jstr(blankNode))
+			//{"id":"","label":"","type":"","inputs":[],"outputs":[],"connectors":[],"x":-45,"y":-25,"r":15,"width":145,"height":35,"scale":100,"highlighted":false,"highlightColor":"orange","normalColor":"black"}
+			// blankNode.id = 
 		},
 		switchMode : function switchMode(mode){
 			$.each(this.graph_view.nodes, function(){
