@@ -3,7 +3,7 @@ var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;		
-	
+	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
 			position = $divElem.offset(),
@@ -63,7 +63,8 @@ function View(id, width, height, gui){
 					textHorizontalPosition = paper.width/2,
 					move, start, stop, x2, fillColor,
 					nodeType, blankNode;
-				
+				//nodeType: 0 = Control, 1 = Service, 2 = Functionality, 3 = Mediator
+
 				paper.text(textHorizontalPosition,10,"Start/Stop")
 					.node.setAttribute("class","repository_text");
 				var repo_circle = paper.circle(textHorizontalPosition,35,15)
@@ -105,9 +106,9 @@ function View(id, width, height, gui){
 					clone = this.clone();
 					fillColor = clone.attr("fill");
 					if(this.attr("x")){
-						if(this === repo_functionality) nodeType = "functionality";
-						else if(this === repo_service) nodeType = "service";
-						else if(this === repo_mediator) nodeType = "mediator";
+						if(this === repo_functionality) nodeType = 2;
+						else if(this === repo_service) nodeType = 1;
+						else if(this === repo_mediator) nodeType = 3;
 						this.ox = this.attr("x");
 						this.oy = this.attr("y");
 						x2 = paper.width - clone.attr("x");
@@ -116,7 +117,7 @@ function View(id, width, height, gui){
 						newRect.oy = newRect.attr("y");
 					}
 					else if(this.attr("cx")){
-						nodeType = "control";
+						nodeType = 0;
 						this.ox = this.attr("cx");
 						this.oy = this.attr("cy");
 						x2 = paper.width - clone.attr("cx");
@@ -128,10 +129,31 @@ function View(id, width, height, gui){
 				stop = function stop(x,y,evt){
 					clone.remove();
 					if(newRect && newRect.attr("opacity")>0){
-						// stworz nowy blank node
 						blankNode = visualiser.getBlankNode();
-						// zmien typ na odpowiedni
-						blankNode.type = nodeType;
+						blankNode.x = newRect.attr("x");
+						blankNode.y = newRect.attr("y");
+						switch("nodeType"){
+							case 0:
+								alert("To nie może być controlNode!");
+								break;							
+							case 1:
+								blankNode.type = "service";
+								visualiser.draw_serviceNode(blankNode);
+								break;							
+							case 2:
+								blankNode.type = "functionality";
+								visualiser.draw_functionalityNode(blankNode);
+								break;					
+							case 3:
+								blankNode.type = "mediator";
+								visualiser.draw_unknownNode(blankNode);
+								break;
+							default:
+								visualiser.draw_unknownNode(blankNode);
+								break;					
+						}
+						gui.view.graph_view.nodes.push(blankNode);
+						newRect.remove();
 						// wywołaj funkcję draw_odpowiednityp(node)
 						//(visualiser["draw_"+nodeType+"Node"] || visualiser.draw_unknownNode )(blankNode)
 						// otworz formularz edycji bloczka
@@ -139,6 +161,15 @@ function View(id, width, height, gui){
 						// 		widok boczka do gui.view.graph_view.nodes
 						//		dane bloczka do gui.controler.graphData
 						//		gui.view.graph_view.nodes.push(newRect);			
+					}
+					else if(newCirc && newCirc.attr("opacity")>0){
+						blankNode = visualiser.getBlankNode();
+						blankNode.x = newCirc.attr("cx");
+						blankNode.y = newCirc.attr("cy");
+						blankNode.type = "control";
+						visualiser.draw_controlNode(blankNode);
+						gui.view.graph_view.nodes.push(blankNode);
+						newCirc.remove();
 					}
 				};
 
@@ -206,7 +237,7 @@ function View(id, width, height, gui){
 							// console.log(evt);
 							// console.log(x+":"+y);
 							// (event.clientX-ofsetX, event.clientY-ofsetY);
-						// var targetNode = ();
+							// var targetNode = ();
 
 							var b = that.bar.getBBox();
 							// console.log(b.x+"-"+b.x2+"::::"+b.y+"-"+b.y2);
@@ -235,30 +266,35 @@ function View(id, width, height, gui){
 					return tr;
 				},
 				createButton: function createButton(text, mult){
-					var glow;
+					var glow, tLength = text.length;
 					var that = this;
 					var temp1 = paper
-							.rect(parseInt(width/2+(40*mult)), paper.height*.89, 60, 40, 5)
+							.rect(parseInt(width/2+(40*mult)), paper.height*.88, 40+((tLength > 4) ? 18*tLength : 10*tLength), 50, 5)
 							.attr({fill:"ivory", opacity:invisible});
-					var temp2 = paper.text(temp1.attr("x")+30, temp1.attr("y")+20, text)
+					var temp2 = paper.text(temp1.attr("x")+temp1.attr("width")/2, temp1.attr("y")+temp1.attr("height")/2, text)
 						.attr({
 							"font-size":40,
-							"stroke-width":"4",
+							"font-weight":"bold",
+							"stroke-width":"1",
 							"stroke-linejoin":"round",
 							"stroke-linecap":"butt",
-							stroke:"gray",
-							fill:"red",
+							stroke:"grey",
+							fill:"black",//"#5C2E00",
 							opacity:invisible
 						});
 					var cover = paper.
-							rect(parseInt(width/2+(40*mult)), paper.height*.89, 60, 40, 5).
+							rect(parseInt(width/2+(40*mult)), paper.height*.88, 40+((tLength > 2) ? 18*tLength : 10*tLength), 50, 5).
 							attr({"cursor": "pointer", "stroke-width": 1, fill: "red", opacity: 0.0}).
-							mouseover(function(){
-								// alert("")
-							}).
-							mouseout(function(){
-
-							});
+							mouseover(function(txt){
+								return (function(){
+									txt.attr("stroke", "blue");
+								});
+							}(temp2)).
+							mouseout(function(txt){
+								return (function(){
+									txt.attr("stroke", "gray");
+								});
+							}(temp2)).hide();
 
 					if(text === "SS"){
 						cover.click(function(){
@@ -292,9 +328,9 @@ function View(id, width, height, gui){
 		);
 		//chwilowa partyzantka
 		result.invisibleBar = result.createBar(left, top, width, height);
-		result.button1 = result.createButton("CF", -1);
-		result.button2 = result.createButton("DF", 1);
-		result.button3 = result.createButton("SS", -8);
+		result.button1 = result.createButton("CF", 1);
+		result.button2 = result.createButton("DF", 3.5);
+		result.button3 = result.createButton("StartStop", -5);
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
 		return result;
@@ -311,6 +347,7 @@ function View(id, width, height, gui){
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
 					type : "", //inputNode.nodeType,
+					description: "",
 					mainShape: undefined,
 					inputs : [],
 					outputs : [],
@@ -350,6 +387,52 @@ function View(id, width, height, gui){
 					switchToHybrydMode : function switchToHybrydMode(){
 					},
 					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
+					prepareNodeDescription : function prepareNodeDescription(){
+						//serviceDescription i nonFunctionalDescription
+						var data = gui.controler.getNodeById(this.id);
+						var result = "<b>Service description:</b><br/> serviceName: " + data.physicalDescription.serviceName + 
+							"<br/>serviceGlobalId: " +  data.physicalDescription.serviceGlobalId + 
+							"<br/>address: " + data.physicalDescription.address + 
+							"<br/>operation: " + data.physicalDescription.operation +
+							"<br/><b>Non functional properties:</b><br/>"; 
+						for(var i = 0; i < data.nonFunctionalDescription.length; i++) 
+							result += "non functional property #" + i +
+								":<br/>weight: " + data.nonFunctionalDescription[i].weight + 
+								"<br/>name: " +  data.nonFunctionalDescription[i].name + 
+								"<br/>relation: " + data.nonFunctionalDescription[i].relation + 
+								"<br/>unit: " + data.nonFunctionalDescription[i].unit + 
+								"<br/>value: " + data.nonFunctionalDescription[i].value;
+						return result;
+					},
+					prepareDescriptionForInput : function prepareDescriptionForInput(inputId){
+						var inputToDescribe = (typeof inputId === "string") ? this.getInputById(inputId) : inputId;
+						var result = "";
+						if(inputToDescribe){
+							result = 
+							"class: " + inputToDescribe.class + 
+							"<br/>id: " + inputToDescribe.id + 
+							"<br/>label: " + inputToDescribe.label + 
+							"<br/>dataType: " + inputToDescribe.dataType + 
+							"<br/>properties: " + inputToDescribe.properties + 
+							"<br/>sources: ";
+							for(var i = 0; i < inputToDescribe.source.length; i++) 
+								result += inputToDescribe.source[i] + ", ";
+						}
+						return result;
+					},
+					prepareDescriptionForOutput : function prepareDescriptionForOutput(outputId){
+						var outputToDescribe = (typeof outputId === "string") ? this.getOutputById(outputId) : outputId;
+						var result = "";
+						if(outputToDescribe){
+							result = 
+								"class: " + outputToDescribe.class + 
+								"<br/>id: " + outputToDescribe.id + 
+								"<br/>label: " + outputToDescribe.label + 
+								"<br/>dataType: " + outputToDescribe.dataType + 
+								"<br/>properties: " + outputToDescribe.properties;
+						}
+						return result;
+					},
 					getInputById : function getInputById(id){
 						var result;
 						$.each(this.inputs, function(){
@@ -484,7 +567,14 @@ function View(id, width, height, gui){
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				newNode.inputs = node.functionalDescription.inputs;
+				for(var i in newNode.inputs) {
+					newNode.inputs[i].description = newNode.prepareDescriptionForInput(newNode.inputs[i].id);
+				}
 				newNode.outputs = node.functionalDescription.outputs;
+				for(var o in newNode.outputs){
+					newNode.outputs[o].description = newNode.prepareDescriptionForOutput(newNode.outputs[o].id);
+				} 
+				newNode.description = newNode.prepareNodeDescription();
 				
 				return ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode);
 			},
@@ -499,7 +589,7 @@ function View(id, width, height, gui){
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
-				//obliczanie punkt�?³w na okrÄ™gu
+				//obliczanie punktów na okręgu
 				x1 = (node.x+node.r) - 10;
 				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
@@ -1443,7 +1533,7 @@ function View(id, width, height, gui){
 				y1+=lastDragY;
 				
 
-			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSP�?“Å?Å»Ä?DNYMI
+			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSP??“Å?Å»Ä?DNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
