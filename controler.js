@@ -620,61 +620,68 @@ function Controler(url, gui){
 			return result;
 		},
 		addStartStop : function addStartStop(){
-			if( this.getNodeById("#Start") || this.getNodeById("#End") )
-			var start = {
-					nodeId : "#Start",
-					nodeLabel : "#Start",
-					nodeType : "Control",
-					controlType : "#start",
-					physicalDescription : {
-						address : "",
-						operation : "",
-						serviceGlobalId : "",
-						serviceName : ""
+			var result = false;
+			if( !(this.getNodeById("#Start") || this.getNodeById("#End")) ){
+				var start = {
+						nodeId : "#Start",
+						nodeLabel : "#Start",
+						nodeType : "Control",
+						controlType : "#start",
+						physicalDescription : {
+							address : "",
+							operation : "",
+							serviceGlobalId : "",
+							serviceName : ""
+						},
+						functionalDescription: {
+							description : "Start node",
+							effects : "",
+							inputs : [],
+							outputs : [],
+							metaKeywords : [],
+							preconditions : "",
+							serviceClasses : []
+						},
+						alternatives : "",
+						condition : "",
+						sources : [],
+						subgraph : {},
+						nonFunctionalDescription : []
 					},
-					functionalDescription: {
-						description : "Start node",
-						effects : "",
-						inputs : [],
-						outputs : [],
-						metaKeywords : [],
-						preconditions : "",
-						serviceClasses : []
-					},
-					alternatives : "",
-					condition : "",
-					sources : [],
-					subgraph : {},
-					nonFunctionalDescription : []
-				},
-				stop = {
-					nodeId : "#End",
-					nodeLabel : "#End",
-					nodeType : "Control",
-					controlType : "#end",
-					physicalDescription : {
-						address : "",
-						operation : "",
-						serviceGlobalId : "",
-						serviceName : ""
-					},
-					functionalDescription: {
-						description : "end node",
-						effects : "",
-						inputs : [],
-						outputs : [],
-						metaKeywords : [],
-						preconditions : "",
-						serviceClasses : []
-					},
-					alternatives : "",
-					condition : "",
-					sources : [],
-					subgraph : {},
-					nonFunctionalDescription : []
-				};
+					stop = {
+						nodeId : "#End",
+						nodeLabel : "#End",
+						nodeType : "Control",
+						controlType : "#end",
+						physicalDescription : {
+							address : "",
+							operation : "",
+							serviceGlobalId : "",
+							serviceName : ""
+						},
+						functionalDescription: {
+							description : "end node",
+							effects : "",
+							inputs : [],
+							outputs : [],
+							metaKeywords : [],
+							preconditions : "",
+							serviceClasses : []
+						},
+						alternatives : "",
+						condition : "",
+						sources : [],
+						subgraph : {},
+						nonFunctionalDescription : []
+					};
 
-				this.graphData.nodes.unshift(start, stop);
+					this.graphData.nodes.unshift(start, stop);
+					
+					result = true;
+				}
+
+				return result;
+
 		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
@@ -693,7 +700,6 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "ADDDFEDGE" : (function(e){
 					var input = gui.controler.getInputById(e.targetId, e.input.id);
-					// a(e.sourceId +":"+ e.output.id);
 					input.source = [e.sourceId, e.output.id];
 					gui.view.addDFEdge(e);
 				})(evtObj); break;
@@ -704,11 +710,9 @@ function Controler(url, gui){
 					gui.view.switchMode(e.mode);
 				})(evtObj); break;
 				case "ADDSTARTSTOPAUTOMATICALLY" : (function(){
-
-					if( this.addStartStop() ){
+					if( that.addStartStop() ){
 						gui.view.addStartStop();
 					}
-
 				})(); break;
 			}
 		},

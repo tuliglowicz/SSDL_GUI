@@ -2,8 +2,176 @@
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
-	var pf = gui.id_postfix;		
-	
+	var pf = gui.id_postfix;
+
+	function tooltipper(title, text, width, height) {
+		var tooltip = {
+			title: String,
+			text: String,
+			width: Number,
+			height: Number,
+			x: 0,
+			y: 0,
+			speed: 10,
+			timer: 30,
+			endalpha: 78,
+			alpha: 0,
+			visible: false,
+
+			tooltipMain: function tooltipMain(title, text, width, height) {
+				this.text = text;
+				this.title = title;
+				this.width = width;
+				this.height = height;
+				var x = this.x,
+					y = this.y;
+
+
+				if ((x + width) > $(window).width()) {
+					x = $(window).width() - 1.1 * width;
+				}
+
+				if ((y + height) > $(window).height()) {
+					y = $(window).height() - height;
+				}
+
+				this.tipTop = jQuery('<div/>', {
+					id: 'tipTop',
+					css: {
+						// top: y,
+						//left: x,      
+						width: width,
+						height: '5px',
+						background: 'url(images/tt_top.gif) top right no-repeat',
+					},
+				});
+
+
+				this.tipBottom = jQuery('<div/>', {
+					id: 'tipBottom',
+					css: {
+						// top: y+left,
+						// height: x, 
+						height: '5px',
+						width: width,
+						background: 'url(images/tt_bottom.gif) top right no-repeat',
+					},
+				});
+
+
+				this.tipContener = jQuery('<div/>', {
+					id: 'test',
+					css: {
+						position: 'absolute',
+						display: 'block',
+						opacity: 0,
+						top: y,
+						left: x,
+						textAlign: 'center',
+						overflow: 'hidden',
+						height: height,					
+						width: width,
+						color: 'black'
+					},
+				});
+
+
+				this.tipTitle = jQuery('<div/>', {
+					id: 'tipTitle',
+					text: title,
+					css: {
+						textAlign: 'center',
+						background: '#666',
+						// overflow: 'hidden',
+						width: width,
+						color: '#fff'
+					},
+				});
+
+				this.tipText = jQuery('<div/>', {
+					id: 'tipText',
+					text: text,
+					css: {
+
+						padding: '10px 5px 5px 5px',
+						width: width,
+						background: '#666',
+						// overflow: 'hidden',
+						textAlign: 'left',
+						color: '#fff'
+					},
+				});
+
+				$(this.tipContener).append(this.tipTop);
+				$(this.tipContener).append(this.tipTitle);
+				$(this.tipContener).append(this.tipText);
+				$(this.tipContener).append(this.tipBottom);
+				$('body').append(this.tipContener);
+				
+				this.tipContener.css("height",this.tipText.height());
+				$(this.tipContener).hide();
+
+			},
+
+			isOpen: function isOpen() {
+				return this.visible;
+			},
+
+			open: function open(x, y) {
+				if (!this.visible) {
+					clearInterval(tooltip.timer);
+					tooltip.timer = setInterval(function() {
+						tooltip.fade(1)
+					}, 20);
+
+					$(this.tipContener).css({
+						top: y,
+						left: x
+					});
+					$(this.tipContener).show();
+
+					this.visible = true;
+				}
+			},
+
+			close: function close() {
+				if (this.visible) {
+					clearInterval(tooltip.timer);
+					tooltip.timer = setInterval(function() {
+						tooltip.fade(-1)
+					}, 20)
+
+					this.visible = false;
+				}
+			},
+
+			fade: function fade(d) {
+				var a = tooltip.alpha;
+				if ((a != tooltip.endalpha && d == 1) || (a != 0 && d == -1)) {
+					var i = tooltip.speed;
+					if (tooltip.endalpha - a < tooltip.speed && d == 1) {
+						i = tooltip.endalpha - a;
+					} else if (tooltip.alpha < tooltip.speed && d == -1) {
+						i = a;
+					}
+					tooltip.alpha = a + (i * d);
+					this.tipContener[0].style.opacity = tooltip.alpha * .01;
+				} else {
+					clearInterval(tooltip.timer);
+					if (d == -1) {
+						$(this.tipContener).hide();
+					}
+
+				}
+			},
+
+		};
+
+		tooltip.tooltipMain(title, text, width, height);
+
+
+		return tooltip;
+	};
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
 			position = $divElem.offset(),
@@ -722,11 +890,18 @@ function View(id, width, height, gui){
 			edgesCF : [],
 			edgesDF : []
 		},
-		addStartStop : function addStartStop(whichOne){
-			var blankNode = this.visualiser.getBlankNode();
-			// console.log( jstr(blankNode))
-			//{"id":"","label":"","type":"","inputs":[],"outputs":[],"connectors":[],"x":-45,"y":-25,"r":15,"width":145,"height":35,"scale":100,"highlighted":false,"highlightColor":"orange","normalColor":"black"}
-			// blankNode.id = 
+		addStartStop : function addStartStop(){
+			var nodes = gui.controler.graphData.nodes,
+				start = nodes[0],
+				stop = nodes[1]
+				;
+
+			start = this.visualiser.visualiseNode(start);
+			stop = this.visualiser.visualiseNode(stop);
+			if(start && stop){
+				this.graph_view.nodes.unshift( start, stop );
+			}
+
 		},
 		switchMode : function switchMode(mode){
 			$.each(this.graph_view.nodes, function(){
@@ -1162,7 +1337,7 @@ function View(id, width, height, gui){
 				visualizedNode,
 				tmp
 			;
-				
+
 			$.each(graph_json.nodes, function(key, val){
 				visualizedNode = that.visualiser.visualiseNode(val);
 				if(visualizedNode)
