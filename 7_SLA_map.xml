@@ -56,7 +56,7 @@
 			<nodeId>#End</nodeId>
 			<nodeType>Control</nodeType>
 			<controlType>#end</controlType>
-			<nodeLabel></nodeLabel>
+			<nodeLabel>#End</nodeLabel>
 			<physicalDescription>
 				<serviceName/>
 				<serviceGlobalId/>

@@ -536,7 +536,7 @@ function Controler(url, gui){
 			
 			tmp.draw();
 			
-			// $("a:first").click(); //od razu wczytanie pierwszego serwisu
+			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
