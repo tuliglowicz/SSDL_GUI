@@ -20,7 +20,7 @@ function Controler(url, gui){
 		*/
 		//-MAIN-FUNCTION--------------------->>>
 		function run(){//deploying main ssdl graph
-			var jnodes = json.nodes,
+			var jnodes = ssdlJson.nodes,
 				nodeArr = getNodes(jnodes);
 			processNodes(nodeArr);
 			var graphMat = postProcessNodes(nodeArr);
@@ -547,17 +547,19 @@ function Controler(url, gui){
 		init: function init(){
 			this.initPlugins();
 		},
-		load : function load(url, fun_success, dataType, fun_error){
-			var that = this;
+		load : function load(sUrl, fun_success, dataType, fun_error){
 			var page = $.ajax({
-				url: url,
+				url: sUrl,
 				type: "GET",
 				dataType : dataType || 'xml',
-				success: fun_success || function(list){
-					//to do 
+				success: fun_success || function(res){
+					console.group("AJAX QUERY RESULTS:");
+					console.info("Loaded XML from "+sUrl);
+					console.log(res);
+					console.groupEnd();
 				},
 				error: fun_error || function(e){
-					console.error("Error while downloading "+url);
+					console.error("Error while downloading from "+sUrl);
 				}
 			});
 		},
