@@ -668,8 +668,8 @@ function View(id, width, height, gui){
 				return visualizedNode;
 			},
 			draw_controlNode : function draw_controlNode(node){
-				node.x = node.x+135/2-node.r;
-				node.y = node.y+15-node.r;
+				node.x = node.x+130/2+node.r/2;
+				node.y = node.y+node.r;
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
 					input_length, output_length, i_tab = [], o_tab = [],
