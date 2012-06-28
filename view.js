@@ -6,10 +6,7 @@ function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 
 	function tooltipper() {
-		var width = 350,
-			height = "auto",
-			time = 2090,
-			opacity = .95,
+		var opacity = .95,
 			tooltip = {
 				tipContener : undefined,
 				tipTitle : undefined,
@@ -59,8 +56,6 @@ function View(id, width, height, gui){
 		;
 
 		tooltip.init();
-		tooltip.open();
-		tooltip.close();
 		tooltip.init = undefined;
 
 		return tooltip;
@@ -1501,6 +1496,7 @@ function View(id, width, height, gui){
 			$.each(this.graph_view.nodes, function(k, v){
 				v.removeHighlight();
 			});
+			this.tooltip.close();
 		},
 		selectAll : function selectAll(){
 			$.each(this.graph_view.nodes, function(k, v){
