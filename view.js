@@ -5,23 +5,20 @@ function View(id, width, height, gui){
 
 	var pf = gui.id_postfix;
 
-	function tooltipper(title, text, width, height) {
+	function tooltipper() {
 		var tooltip = {
-			title: title,
-			text: text,
-			width: width,
-			height: height,
-			x: 10,
-			y: 10,
+			title: "",
+			text: "",
+			width: 1,
+			height: 1,
 			speed: 10,
 			timer: 30,
 			endalpha: 78,
 			alpha: 0,
 			visible: false,
-			tooltipMain: function tooltipMain() {
-
-				var x = this.x,
-					y = this.y;
+			init: function init() {
+				var x = 10,
+					y = 10;
 
 				if ((x + this.width) > $(window).width()) {
 					x = $(window).width() - 1.1 * this.width;
@@ -30,71 +27,43 @@ function View(id, width, height, gui){
 				if ((y + this.height) > $(window).height()) {
 					y = $(window).height() - this.height;
 				}
-
-
-				// console.log( this.width );
-				// console.log( this.height );
-				// console.log( this.title );
-				// console.log( this.text );
-				// console.log( x +":"+ y );
-				// console.log( "------------------------------" );
-
-
-				this.tipTop = $("<div id='tipTop' style='width: "+this.width+"; height: 5px;'> </div>");
-				this.tipBottom =  $("<div id='tipBottom' style='width: "+this.width+"; height: 5px; '> </div>");
-				this.tipContener= $("<div id='divContener' style='position: absolute; display: block; opacity:0; top:" + y + "; left:"+ x +"; width: "+this.width+"; height:"+ this.height +"; color: black; text-align: center; overflow: hidden;> </div>");
-				this.tipTitle = $("<div id='tipTitle style='width: "+this.width+"; text-align: center; background: #666; color: #fff>"+this.title+"</div>");
-				this.tipText = $("<div id='tipText' style='padding: 10px 5px 5px 5px; width: "+this.width+"; height: 5px; background-color: #666; text-align: left; color: white;'>"+this.text+"</div>");
-
-
-				// alert("")
-				// $("<div id='divContener' style='position: absolute; display: block; opacity:0; top:" + y + "; left:"+ x +"; width: "+width+"; height:"+ height +"; color: black; text-align: center; overflow: hidden;> </div>").appendTo("body");
-
-
-				this.tipContener.appendTo("body");
-				this.tipContener.append(this.tipTop);
-				this.tipContener.append(this.tipTitle);
-				this.tipContener.append(this.tipText);
-				this.tipContener.append(this.tipBottom);
 				
-				this.tipContener.css("height",this.tipText.height());
-				this.tipContener.hide();
+				this.tipTop = $("<div id='tipTop' style='width: "+width+"; height: 5px;'> </div>");
+				this.tipBottom =  $("<div id='tipBottom' style='width: "+width+"; height: 5px; '> </div>");
+				this.tipContener= $("<div id='tipContener' style='position: absolute; display: block; opacity:0; top:" + y + "; left:"+ x +"; width: "+width+"; height:"+ height +"; color: black; '> </div>");
+				this.tipTitle = $("<div id='tipTitle' style='width: "+width+"; text-align: center; background: #666; color: #fff; '> </div>");
+				this.tipText = $("<div id='tipText' style='padding: 10px 5px 5px 5px; width: "+width+"; background-color: #666; text-align: left; color: white;'> </div>");
+
+				$(this.tipContener).append(this.tipTop);
+				$(this.tipContener).append(this.tipTitle);
+				$(this.tipContener).append(this.tipText);
+				$(this.tipContener).append(this.tipBottom);
+				$('body').append(this.tipContener);
+
+				$(this.tipContener).css("height", this.tipText.height());
+				$(this.tipContener).hide();
 
 			},
-
 			isOpen: function isOpen() {
 				return this.visible;
 			},
-
 			open: function open(title, text, x, y) {
+				this.tipTitle.html(title);
+				this.tipText.html(text);
+
 				if (!this.visible) {
-					clearInterval(tooltip.timer);
-					tooltip.timer = setInterval(function() {
-						tooltip.fade(1)
-					}, 20);
-
-					$(this.tipTop).text(title);
-					$(this.tipContener).css({
-						top: y,
-						left: x
-					}).text(text);
-					$(this.tipContener).show();
-
 					this.visible = true;
+					this.tipContener.myShow(200);
 				}
-			},
 
+				alert(this.tipContener.css("top"))
+			},
 			close: function close() {
 				if (this.visible) {
-					clearInterval(tooltip.timer);
-					tooltip.timer = setInterval(function() {
-						tooltip.fade(-1)
-					}, 20)
-
+					this.tipContener.myHide(200);
 					this.visible = false;
 				}
 			},
-
 			fade: function fade(d) {
 				var a = tooltip.alpha;
 				if ((a != tooltip.endalpha && d == 1) || (a != 0 && d == -1)) {
@@ -105,7 +74,7 @@ function View(id, width, height, gui){
 						i = a;
 					}
 					tooltip.alpha = a + (i * d);
-					$("#divContener")[0].style.opacity = tooltip.alpha * .01;
+					$("#divContener").css("opacity", tooltip.alpha * .01);
 				} else {
 					clearInterval(tooltip.timer);
 					if (d == -1) {
@@ -114,14 +83,13 @@ function View(id, width, height, gui){
 
 				}
 			}
-
 		};
-		// alert(title+":"+text+":"+width+":"+height);
-		tooltip.tooltipMain(title, text, width, height);
+
+		tooltip.init();
+		tooltip.init = undefined;
 
 		return tooltip;
 	};
-
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -162,7 +130,7 @@ function View(id, width, height, gui){
 
 		temp.init();
 		return temp;
-	}
+	};
 	function blankNode(paper, mainCanvas, visualiser){
 		var tmp = {
 			name: "blankNode",
@@ -302,7 +270,7 @@ function View(id, width, height, gui){
 		tmp.draw();
 		
 		return tmp;
-	}
+	};
 	function drawBottomBar(paper){
 		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
 		//		removeElem: function (){ ... }	// 
@@ -454,14 +422,13 @@ function View(id, width, height, gui){
 
 		return result;
 	};
-
 	function nodeVisualizator(view){
 		var outputObject = {
 			color : {
 				service : "#fbec88",
 				functionality: "#fbec88"
 			},
-			getBlankNode : function getBlankNode(){
+			getBlankNode : function getBlankNode(x, y){
 				var blankNode = {
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
@@ -471,8 +438,8 @@ function View(id, width, height, gui){
 					inputs : [],
 					outputs : [],
 					connectors : [],
-					x : rozmieszczenie[2*c] || 10+55*c,
-					y : rozmieszczenie[2*c+1] || 10+35*c,
+					x : x || rozmieszczenie[2*c] || 10+55*c,
+					y : y || rozmieszczenie[2*c+1] || 10+35*c,
 					r : 15,
 					width : 145,
 					height : 35,
@@ -674,11 +641,13 @@ function View(id, width, height, gui){
 			},
 			draw_unknownNode : function draw_unknownNode(node){
 			},
-			visualiseNode : function visualiseNode(node){
+			visualiseNode : function visualiseNode(node, x, y){
 				++c;
 				var that = this,
-					newNode = this.getBlankNode(),
-					nodeType = node.nodeType.toLowerCase();
+					newNode = this.getBlankNode(x, y),
+					nodeType = node.nodeType.toLowerCase(),
+					visualizedNode
+					;
 
 				newNode.id = node.nodeId;
 				newNode.label = node.nodeLabel;
@@ -695,19 +664,31 @@ function View(id, width, height, gui){
 				}
 				newNode.description = newNode.prepareNodeDescription();
 
-				newNode.tooltip = tooltipper(newNode.label, newNode.description, 200, 10);
-				newNode.tooltip.open("LOL", "rtfcvghbjnkml;mkbhuvgcfxtcygvhb", 200, 200)
-				var visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode);
-				visualizedNode.mainShape.mouseover(function(e, x, y){
-					var that = gui.view.getNodeById(this.node.classList[0]);
-					visualizedNode.tooltip.open(that.label, that.description, x, y);
-				}).mouseover(function(){
-					visualizedNode.tooltip.close();	
-				});
+				// this.tooltip.open("LOL", "rtfcvghbjnkml;mkbhuvgcfxtcygvhb", 200, 200);
+				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode, x, y) ;
+
+				// alert( jstr(that.tooltip) );
+
+				visualizedNode.mainShape.mouseover(
+					(function(that){
+						return function(e, x, y){
+							that.tooltip.open(that.label, that.description, x, y);
+						};
+					})(that)
+				).mouseover(
+					(function(that){
+						return function(){
+							that.tooltip.close();
+						};
+					})(that)
+				)
+				;
 
 				return visualizedNode;
 			},
 			draw_controlNode : function draw_controlNode(node){
+				node.x = node.x+135/2-node.r;
+				node.y = node.y+15-node.r;
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
 					input_length, output_length, i_tab = [], o_tab = [],
@@ -812,14 +793,18 @@ function View(id, width, height, gui){
 					input_length, output_length,
 					iDist, oDist,
 					serviceName = node.serviceName,
-					maxLength = 25,
-					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
-					serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
-					;
+					shortenServiceName,
+					serviceNameShown,
+					maxLength = 25
+				;
 				node.mainShape = rect;
 
-				serviceNameShown.node.setAttribute("class", name);
-				serviceNameShown.attr({title: serviceName, cursor: "default"});
+				if(serviceName){
+					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
+					serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
+					serviceNameShown.node.setAttribute("class", name);
+					serviceNameShown.attr({title: serviceName, cursor: "default"});
+				}
 								
 				img_gear.node.setAttribute("class", id+" gear");
 				
@@ -1388,8 +1373,19 @@ function View(id, width, height, gui){
 				tmp
 			;
 
+			// tutaj Błażej na podstawie graph_json.nodes, p.canvas.width
+			// generuje rozmieszczenie
+			// alert(p.width);
+			var deployerOutput = gui.controler.deploy(graph_json, p.width);
+
+			var tmpCoords, x, y;
 			$.each(graph_json.nodes, function(key, val){
-				visualizedNode = that.visualiser.visualiseNode(val);
+				tmpCoords = deployerOutput.getCoords(val.nodeId);
+				if(tmpCoords){
+					x = tmpCoords[0];
+					y = tmpCoords[1];
+				}
+				visualizedNode = that.visualiser.visualiseNode( val, x, y );
 				if(visualizedNode)
 					that.graph_view.nodes.push( visualizedNode );
 			});
@@ -1610,6 +1606,7 @@ function View(id, width, height, gui){
 		}
 	}
 	outputView.init();
+	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);

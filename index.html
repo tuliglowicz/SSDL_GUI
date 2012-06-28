@@ -48,12 +48,25 @@
 		});
 		return this;
 	};
+	jQuery.fn.myShow = function (time) {
+		time = time || 250;
+		this.show().animate({opacity: 1}, time);
+		return this;
+	};
+	jQuery.fn.myHide = function (time) {
+		time = time || 250;
+		this.animate({opacity: 0}, time, function(){
+			$(this).hide();
+		});
+		return this;
+	};
 	Object.prototype.getType = function getType(){
 		var tmp = Object.prototype.toString.call(this);
 
 		return tmp.substring(8, tmp.length-1);
 	};
 	// pomocnicze skróty
+	// alert("<div id='divContener' style='position: absolute; display: block; opacity:0; top:" + 10 + "; left:"+ 200 +"; width: "+411+"; height:"+ 432 +"; color: black; text-align: center; overflow: hidden;'> </div>")
 	var a = alert;
 	var jstr = JSON.stringify;
 	// eof pomocnicze skróty

@@ -382,16 +382,10 @@ function Controler(url, gui){
 			var w = canvasW;
 			var width, height, spacing, hSpacing;
 			//check if node properties are defined. if not assign default
-			if(startY==undefined){
-				startY = 15;
-			}
-			if(nodeW!=undefined&&nodeH!=undefined){
-				width = nodeW;
-				height = nodeH;
-			}else{
-				width = 145;
-				height = 30;
-			}
+			
+			startY = startY || 15;
+			width = nodeW || 135;
+			height = nodeH || 30;
 			if(nodeVSpacing!=undefined){
 				spacing = nodeVSpacing;
 			}else{
@@ -553,7 +547,7 @@ function Controler(url, gui){
 			
 			tmp.draw();
 			
-			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
+			 //$("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
