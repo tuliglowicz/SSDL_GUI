@@ -42,7 +42,18 @@ function Controler(url, gui){
 			console.log("DEPLOYMENT: ");
 			console.log(out);
 			console.groupEnd();
-			return out;
+			outObj = {
+				coords: out,
+				getCoords: function(id){
+					var len = this.coords.length;
+					for(var i = 0; i<len; i++){
+						if(this.coords[i][0]==id){
+							return [this.coords[i][1], this.coords[i][2]];
+						}
+					}
+				}
+			}
+			return outObj;
 		}
 		//-PARSING-FUNCTIONS----------------->>>
 		function node(id, sources) {//NODE OBJECT
