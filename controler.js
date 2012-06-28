@@ -547,21 +547,49 @@ function Controler(url, gui){
 		init: function init(){
 			this.initPlugins();
 		},
-		load : function load(sUrl, fun_success, dataType, fun_error){
-			var page = $.ajax({
+		load: function load(sUrl, fun_success, dataType, fun_error){
+			$.ajax({
 				url: sUrl,
 				type: "GET",
 				dataType : dataType || 'xml',
-				success: fun_success || function(res){
+				success: fun_success || function(res, status, jqXHR){
 					console.group("AJAX QUERY RESULTS:");
-					console.info("Loaded XML from "+sUrl);
+					console.info("Loaded data from "+sUrl+" with status: "+status);
 					console.log(res);
 					console.groupEnd();
 				},
-				error: fun_error || function(e){
-					console.error("Error while downloading from "+sUrl);
+				error: fun_error || function(jqXHR, status, e){
+					console.group("AJAX QUERY RESULTS:");
+					console.error("Error while downloading data from "+sUrl);
+					console.log(status+": "+e);
+					console.groupEnd();
 				}
 			});
+		},
+		save: function save(sUrl, data, fun_success, dataType, fun_error){
+			res = xmlToString(data);
+			res = "ssdl=" + res;
+			$.ajax({
+				url: sUrl,
+				type: "POST",
+				dataType : dataType || 'text',
+				data: res,
+				success: fun_success || function(res, status, jqXHR){
+					console.group("AJAX QUERY RESULTS:");
+					console.info("Send data to "+sUrl+" with status: "+status);
+					console.log(res);
+					console.groupEnd();
+				},
+				error: fun_error || function(jqXHR, status, e){
+					console.group("AJAX QUERY RESULTS:");
+					console.error("Error while sending data to "+sUrl);
+					console.log(status+": "+e);
+					console.groupEnd();
+				}
+			});
+		},
+		xmlToString: function xmlToString(xml){
+		      return (new XMLSerializer()).serializeToString(xml);
 		},
 		loadSSDL : function loadSSDL(url){ 
 			var that = this;
