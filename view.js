@@ -6,86 +6,61 @@ function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 
 	function tooltipper() {
-		var tooltip = {
-			title: "",
-			text: "",
-			width: 1,
-			height: 1,
-			speed: 10,
-			timer: 30,
-			endalpha: 78,
-			alpha: 0,
-			visible: false,
-			init: function init() {
-				var x = 10,
-					y = 10;
+		var width = 350,
+			height = "auto",
+			time = 2090,
+			opacity = .95,
+			tooltip = {
+				tipContener : undefined,
+				tipTitle : undefined,
+				tipText : undefined,
+				visible: false,
+				init: function init() {
+					var x = 10,
+						y = 10
+						;
 
-				if ((x + this.width) > $(window).width()) {
-					x = $(window).width() - 1.1 * this.width;
-				}
+					x = ( x + this.width > $(window).width() ? $(window).width() - 1.1 * this.width : x );
+					y = ( y + this.height > $(window).height() ? $(window).height() - 1.1 * this.height : y );
+					
+					$("<div id='tipContener' style='opacity:"+opacity+";position: absolute; top:" + y + "px; left:"+ x +"px; width:auto;height:auto; background-color: #666; color: black; '> </div>").appendTo("body");
+					$("<div id='tipTitle' style='font-size: 14px;padding:5px 5px 5px 5px;opacity:"+opacity+";border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gray;border-radius: 5px 5px 0px 0px; text-align: center; background-color: #666; color: #fff; font-weight: bold;'> </div>").appendTo("#tipContener");
+					$("<div id='tipText' style='font-size: 12px;opacity:"+opacity+";border-radius: 0px 0px 5px 5px; padding: 5px 5px 15px 5px; background-color: #666; font-weight: normal; text-align: left; color: white;'> </div>").appendTo("#tipContener");
 
-				if ((y + this.height) > $(window).height()) {
-					y = $(window).height() - this.height;
-				}
-				
-				this.tipTop = $("<div id='tipTop' style='width: "+width+"; height: 5px;'> </div>");
-				this.tipBottom =  $("<div id='tipBottom' style='width: "+width+"; height: 5px; '> </div>");
-				this.tipContener= $("<div id='tipContener' style='position: absolute; display: block; opacity:0; top:" + y + "; left:"+ x +"; width: "+width+"; height:"+ height +"; color: black; '> </div>");
-				this.tipTitle = $("<div id='tipTitle' style='width: "+width+"; text-align: center; background: #666; color: #fff; '> </div>");
-				this.tipText = $("<div id='tipText' style='padding: 10px 5px 5px 5px; width: "+width+"; background-color: #666; text-align: left; color: white;'> </div>");
+					this.tipContener = $("#tipContener");
+					this.tipTitle = $("#tipTitle");
+					this.tipText = $("#tipText");
 
-				$(this.tipContener).append(this.tipTop);
-				$(this.tipContener).append(this.tipTitle);
-				$(this.tipContener).append(this.tipText);
-				$(this.tipContener).append(this.tipBottom);
-				$('body').append(this.tipContener);
+					this.tipContener.hide();
+				},
+				isOpen: function isOpen() {
+					return this.visible;
+				},
+				open: function open(title, text, x, y) {
+					if(title && text){
+						this.tipTitle.html(title);
+						this.tipText.html(text);
+					}
 
-				$(this.tipContener).css("height", this.tipText.height());
-				$(this.tipContener).hide();
+					if(x) this.tipContener.css("left", x);
+					if(y) this.tipContener.css("top", y);
 
-			},
-			isOpen: function isOpen() {
-				return this.visible;
-			},
-			open: function open(title, text, x, y) {
-				this.tipTitle.html(title);
-				this.tipText.html(text);
+					this.tipContener.css("height", (this.tipTitle.height()+this.tipText.height())+"px")
 
-				if (!this.visible) {
+					this.tipContener.show();
 					this.visible = true;
-					this.tipContener.myShow(200);
-				}
 
-				alert(this.tipContener.css("top"))
-			},
-			close: function close() {
-				if (this.visible) {
-					this.tipContener.myHide(200);
+				},
+				close: function close() {
+					this.tipContener.hide();
 					this.visible = false;
 				}
-			},
-			fade: function fade(d) {
-				var a = tooltip.alpha;
-				if ((a != tooltip.endalpha && d == 1) || (a != 0 && d == -1)) {
-					var i = tooltip.speed;
-					if (tooltip.endalpha - a < tooltip.speed && d == 1) {
-						i = tooltip.endalpha - a;
-					} else if (tooltip.alpha < tooltip.speed && d == -1) {
-						i = a;
-					}
-					tooltip.alpha = a + (i * d);
-					$("#divContener").css("opacity", tooltip.alpha * .01);
-				} else {
-					clearInterval(tooltip.timer);
-					if (d == -1) {
-						$(this.tipContener).hide();
-					}
-
-				}
 			}
-		};
+		;
 
 		tooltip.init();
+		tooltip.open();
+		tooltip.close();
 		tooltip.init = undefined;
 
 		return tooltip;
@@ -667,20 +642,26 @@ function View(id, width, height, gui){
 				// this.tooltip.open("LOL", "rtfcvghbjnkml;mkbhuvgcfxtcygvhb", 200, 200);
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode, x, y) ;
 
-				// alert( jstr(that.tooltip) );
-
-				visualizedNode.mainShape.mouseover(
+				visualizedNode.set.mouseover(
 					(function(that){
 						return function(e, x, y){
-							that.tooltip.open(that.label, that.description, x, y);
+							view.tooltip.open(that.type+":"+that.label, that.description, x, y);
+							console.log(view.tooltip.isOpen()+":over")
 						};
-					})(that)
-				).mouseover(
+					})(visualizedNode)
+				).mouseout(
 					(function(that){
-						return function(){
-							that.tooltip.close();
+						return function(evt, x, y){
+							// var canvas = $(view.paper.canvas),
+							// 	ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
+							// 	ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"))
+							// 	;
+							// if(! that.mainShape.isPointInside(x-ofsetX, y - ofsetY))
+								view.tooltip.close();
+							
+							console.log(view.tooltip.isOpen()+":out")
 						};
-					})(that)
+					})(visualizedNode)
 				)
 				;
 
@@ -1710,38 +1691,3 @@ function View(id, width, height, gui){
 
 	return outputView;
 };
-
-/*
-function prepereDeliciousBroccoliCreamInLessThan20Minutes(){
-  var timeAtStart = ( new Date() ).getTime(),
-    ingredients = {
-      0: {name: "brokuł", weight: "500", unit:"gram", strip: function strip(){...}},
-      1: {name: "woda", amount: .5, unit:"litr", isBoiling: false},
-      2: {name: "śmietana"},
-      3: {name: "kostka bulionowa cielęca", quantity: 1},
-      4: {name: "sól i pieprz", description: "do smaku"},
-      5: {name: "migdały w płatkach", hasGoldColor: false}
-    },
-    tools = {
-      0: {name: "blender"},
-      1: {name: "garczek", capacity: "1", unit:"litr"},
-      2: {name: "kuchenka gazowa", quantity: 1, lightFire: function(){...}},
-      3: {name: "patelnia", quantity: 1}
-    },
-    place = function place(what, inOrOnWhat){...},
-    blend = function blend(what, withWhat){...}
-  ;
-
-place( [
-      ingredients[1],
-      ingredients[3]
-    ],
-    tools[1]
-  );
-  place(tools[1], tools[2]);
-  tools[2].lightFire();
-  ingredients[0]
-  
-  return ;
-}
-*/

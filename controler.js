@@ -438,7 +438,6 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
-
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
@@ -524,7 +523,7 @@ function Controler(url, gui){
 						name,
 						url,
 						that = this;
-					
+
 					if( $("#repository_"+pf).length === 0 ){
 						$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"'> </div>");
 						//this.paper = Raphael("repository_"+pf, canvas_width, h);
@@ -542,12 +541,14 @@ function Controler(url, gui){
 						that.parent.loadSSDL(this.href);
 						return false;
 					});
+
 				}
 			}
+
 			
 			tmp.draw();
 			
-			 //$("a:first").click(); //od razu wczytanie pierwszego serwisu
+			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
