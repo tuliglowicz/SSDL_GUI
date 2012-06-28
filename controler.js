@@ -382,20 +382,11 @@ function Controler(url, gui){
 			var w = canvasW;
 			var width, height, spacing, hSpacing;
 			//check if node properties are defined. if not assign default
-			
 			startY = startY || 15;
 			width = nodeW || 135;
 			height = nodeH || 30;
-			if(nodeVSpacing!=undefined){
-				spacing = nodeVSpacing;
-			}else{
-				spacing = 30;
-			}
-			if(nodeHSpacing!=undefined){
-				hSpacing = nodeHSpacing;
-			}else{
-				hSpacing = 30;
-			}
+			spacing = nodeVSpacing || 30;
+			hSpacing = nodeHSpacing || 30;
 			var dMatrix = bestInd.deploymentMatrix,
 				len = dMatrix.length,
 				maxWidth = 1,
