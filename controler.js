@@ -33,7 +33,7 @@ function Controler(url, gui){
 				console.info("BruteForce Alghoritm in use");
 				var bestI = bruteForce(graphMat);
 			}
-			out = generateCoords(graphMat, bestI);
+			var out = generateCoords(graphMat, bestI);
 			console.log("ALGHORITM PERFORMANCE: ");
 			console.timeEnd("Deploying Time");
 			console.info("Best deployment rating: " + bestI.rating);
@@ -46,11 +46,15 @@ function Controler(url, gui){
 				coords: out,
 				getCoords: function(id){
 					var len = this.coords.length;
+					var outputCoordsTab;
 					for(var i = 0; i<len; i++){
-						if(this.coords[i][0]==id){
-							return [this.coords[i][1], this.coords[i][2]];
+						if(this.coords[i][0]===id){
+							outputCoordsTab = [this.coords[i][1], this.coords[i][2]];
+							break;
 						}
 					}
+
+					return outputCoordsTab;
 				}
 			}
 			return outObj;
@@ -558,6 +562,7 @@ function Controler(url, gui){
 		init: function init(){
 			this.initPlugins();
 		},
+		deploy : deploy,
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
