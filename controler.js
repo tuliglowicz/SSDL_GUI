@@ -42,7 +42,7 @@ function Controler(url, gui){
 			console.log("DEPLOYMENT: ");
 			console.log(out);
 			console.groupEnd();
-			outObj = {
+			var outObj = {
 				coords: out,
 				getCoords: function(id){
 					var len = this.coords.length;
@@ -138,15 +138,18 @@ function Controler(url, gui){
 			return graphMatrix;
 		}
 		//-AUXILIARY-FUNCTIONS--------------->>>
-		function clone(tab){//array cloning function
+		function clone(tab){//array shallow cloning function
 			var result = [];
 			$.each(tab, function(i, v){
 				result.push(v);
 			});
 			return result;
 		}
-		function cloneObj(obj){//object cloning function
-			var result = jQuery.extend(true, {}, obj);
+		function cloneObj(obj){//object deep cloning function
+			var object = {};
+			object.o = obj;
+			var clone = jQuery.extend(true, {}, object);
+			var result = clone.o;
 			return result;
 		}
 		//-DEPLOYMENT-ALGORITHM-FUNCTIONS---->>>
@@ -278,8 +281,7 @@ function Controler(url, gui){
 				ind = new individual(deploymentMatrix);
 				if(rate(ind, graphMatrix) < bestRating) {//rating random individual / if it's best then save it as best
 					bestRating = ind.rating;
-					bestIndividual = jQuery.extend(true, {}, ind);
-					// console.log("0 - New best (r): " + bestIndividual.rating);
+					bestIndividual = cloneObj(ind);
 				}
 				individuals.push(ind);
 			}
@@ -305,7 +307,6 @@ function Controler(url, gui){
 							bestRating = individual2.rating;
 							bestIndividual = cloneObj(individual2);
 							bestGen = i;
-							// console.log(i + " - New best (h): " + bestIndividual.rating);
 						}
 						j++;
 					}
@@ -313,7 +314,6 @@ function Controler(url, gui){
 						bestRating = individual1.rating;
 						bestIndividual = cloneObj(individual1);
 						bestGen = i;
-						// console.log(i + " - New best (m): " + bestIndividual.rating);
 					}
 					individuals[j] = individual1;
 				}
@@ -379,7 +379,8 @@ function Controler(url, gui){
 		}
 		//-COMMON-FINISH--------------------->>>
 		function generateCoords(graphMatrix, bestInd) {//generating ID's -> coordinates table
-			w = canvasW;
+			var w = canvasW;
+			var width, height, spacing, hSpacing;
 			//check if node properties are defined. if not assign default
 			if(startY==undefined){
 				startY = 15;
@@ -401,12 +402,12 @@ function Controler(url, gui){
 			}else{
 				hSpacing = 30;
 			}
-			dMatrix = bestInd.deploymentMatrix;
-			len = dMatrix.length;
-			maxWidth = 1;
-			rowLength = [];
-			rowElWidth = [];
-			columnPadding = [];
+			var dMatrix = bestInd.deploymentMatrix,
+				len = dMatrix.length,
+				maxWidth = 1,
+				rowLength = [],
+				rowElWidth = [],
+				columnPadding = [];
 			//searching for longest row
 			for(var i = 0; i < len; i++) {
 				rowLength[i] = dMatrix[i].length;
@@ -423,15 +424,15 @@ function Controler(url, gui){
 					columnPadding[i] = 0;
 				}
 			}
-			dTab = [];
+			var dTab = [];
 			//assigning x & y to nodes
 			for(var i = 0; i < len; i++) {
-				len2 = dMatrix[i].length;
+				var len2 = dMatrix[i].length;
 				for(var j = 0; j < len2; j++) {
-					id = graphMatrix[i][dMatrix[i][j]].id;
-					y = i * (height + spacing) + startY;
-					x = Math.floor(columnPadding[i] + j * rowElWidth[i] + (rowElWidth[i] - width) / 2);
-					tab = new Array;
+					var id = graphMatrix[i][dMatrix[i][j]].id,
+						y = i * (height + spacing) + startY,
+						x = Math.floor(columnPadding[i] + j * rowElWidth[i] + (rowElWidth[i] - width) / 2),
+						tab = [];
 					tab[0] = id;
 					tab[1] = x;
 					tab[2] = y;
@@ -443,6 +444,7 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
+
 	function subgraphTree(){
 		var tmp = {
 			name: "subgraphTree",
