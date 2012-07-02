@@ -65,6 +65,10 @@
 
 		return tmp.substring(8, tmp.length-1);
 	};
+	function raport(arg){
+		arg = arg.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>").replace(/\t/g, "&nbsp; &nbsp;");
+		document.getElementById("raport").innerHTML +=arg; //+ "----"+ typeof(arg)
+	}
 	// pomocnicze skróty
 	// alert("<div id='divContener' style='position: absolute; display: block; opacity:0; top:" + 10 + "; left:"+ 200 +"; width: "+411+"; height:"+ 432 +"; color: black; text-align: center; overflow: hidden;'> </div>")
 	var a = alert;
@@ -91,6 +95,8 @@
 
 		return r;
 	}
+
+	setTimeout("raport(A.view.convertGraphViewToXML(true))", 100)
 
 	// A.view.tooltip.open("Title", "<b>Service description:</b><br/> serviceName: StreamingWorkflowEnigne<br/>serviceGlobalId: www.platel.pl/streamingworkflowengine<br/>address: www.platel.pl/streamingworkflowengine<br/>operation: execute<br/><b>Non functional properties:</b><br/>non functional property #0:<br/>weight: 1<br/>name: location<br/>relation: eq<br/>unit: district<br/>value: srodmiescie", 100, 100)
 

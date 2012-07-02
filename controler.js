@@ -845,7 +845,7 @@ function Controler(url, gui){
 				}
 				node.controlType = _this.find("controlType:last").text();
 				node.condition = _this.find("condition:last").text();
-				node.sources = []
+				node.sources = [];
 				_this.find("sources:last source").each(function(){
 					var txt = $(this).text();
 					if(txt.length > 0 && node.nodeId)

@@ -2,9 +2,75 @@
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
-
 	var pf = gui.id_postfix;
+	function repoNodes(paper, mainCanvas, visualiser){
+		var tmp = {
+						
+			draw: function draw(nodeArray){
+				var myNodes = [], move, start, stop, generateData, tempNode, n = 0;
 
+				generateData = function generateData(node, n){
+					var result = visualiser.getBlankNode();
+					result.x = 10;
+					result.y = 10 + (80 * n);
+					result.id = node.nodeId;
+					result.label = node.nodeLabel;
+					result.type = node.nodeType;
+					result.serviceName = node.physicalDescription.serviceName;
+					result.set = [];
+					$.each(node.functionalDescription.inputs, function(){
+						var temp = {};
+						for(var i = 0; i < this.length; i++) temp.push(this[i]);
+						result.inputs.push(temp);
+					});
+					for(var i in result.inputs) {
+						result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
+					}
+					$.each(node.functionalDescription.outputs, function(){
+						var temp = {};
+						for(var i = 0; i < this.length; i++) temp.push(this[i]);
+						result.outputs.push(temp);
+					});
+					for(var o in result.outputs){
+						result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
+					}
+					result.description = result.prepareNodeDescription();
+					return result;
+				}
+
+				move = function move(dx,dy){
+					clone.attr({x:this.ox + dx, y:this.oy+dy});
+					newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
+					if(clone.attr("x") < 1) newRect.attr({opacity:1});
+					else newRect.attr({opacity:0});
+				};
+				start = function start(x,y,evt){
+					clone = this.clone();
+					fillColor = clone.attr("fill");
+					this.ox = this.attr("x");
+					this.oy = this.attr("y");
+					x2 = clone.attr("x");
+					newRect = mainCanvas.rect(mainCanvas.width, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
+					newRect.ox = newRect.attr("x");
+					newRect.oy = newRect.attr("y");
+				};
+				stop = function stop(x,y,evt){
+					clone.remove();
+				};
+
+
+				$.each(nodeArray, function(){
+					if(this.nodeType.toLowerCase() !== "control" && this.nodeType.toLowerCase() !== "functionality"){
+						tempNode = generateData(this, n);
+						myNodes.push(visualiser.draw_serviceNode(tempNode, paper).switchToDFMode());
+						n++;
+					}
+				});
+			}
+		}
+
+		return tmp;
+	}
 	function tooltipper() {
 		var opacity = .95,
 			tooltip = {
@@ -252,10 +318,11 @@ function View(id, width, height, gui){
 			canvas = $(paper.canvas),
 			ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
 			ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
-
+			fontSize = 20,
 			offset = 20,
 			visible = .2,
 			invisible = 0,
+			
 			result = {
 				top: top,
 				left: left,
@@ -301,7 +368,7 @@ function View(id, width, height, gui){
 							// console.log((x-ofsetX + window.scrollX)+":"+( y - ofsetY + window.scrollY));
 							// console.log("---------------------------------------");
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
-								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+								that.bar.stop().animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 								that.triangle1.animate({opacity: visible}, that.animationTime);
 								that.triangle2.animate({opacity: visible}, that.animationTime);
 								that.button1[0].hide().animate({opacity: invisible}, that.animationTime);
@@ -325,12 +392,13 @@ function View(id, width, height, gui){
 				createButton: function createButton(text, mult){
 					var glow, tLength = text.length;
 					var that = this;
+
 					var temp1 = paper
 							.rect(parseInt(width/2+(40*mult)), paper.height*.88, 40+((tLength > 4) ? 18*tLength : 10*tLength), 50, 5)
 							.attr({fill:"ivory", opacity:invisible});
 					var temp2 = paper.text(temp1.attr("x")+temp1.attr("width")/2, temp1.attr("y")+temp1.attr("height")/2, text)
 						.attr({
-							"font-size":40,
+							"font-size": fontSize+"px",
 							"font-weight":"bold",
 							"stroke-width":"1",
 							"stroke-linejoin":"round",
@@ -625,23 +693,51 @@ function View(id, width, height, gui){
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				newNode.inputs = node.functionalDescription.inputs;
-				for(var i in newNode.inputs) {
-					newNode.inputs[i].description = newNode.prepareDescriptionForInput(newNode.inputs[i].id);
-				}
 				newNode.outputs = node.functionalDescription.outputs;
-				for(var o in newNode.outputs){
-					newNode.outputs[o].description = newNode.prepareDescriptionForOutput(newNode.outputs[o].id);
-				}
-				newNode.description = newNode.prepareNodeDescription();
 
-				// this.tooltip.open("LOL", "rtfcvghbjnkml;mkbhuvgcfxtcygvhb", 200, 200);
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode, x, y) ;
 
-				visualizedNode.set.mouseover(
+				$.each(visualizedNode.inputs, function(){
+					this.description = visualizedNode.prepareDescriptionForInput(this.id);
+					this.node.mouseover(
+						(function(that){
+							return function(e, x, y){
+								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y);
+							};
+						})(this)
+					).mouseout(
+						(function(){
+							return function(evt, x, y){
+								view.tooltip.close();
+							};
+						})()
+					)
+					;
+				});
+				$.each(visualizedNode.outputs, function(){
+					this.description = visualizedNode.prepareDescriptionForInput(this.id);
+					this.node.mouseover(
+						(function(that){
+							return function(e, x, y){
+								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y);
+							};
+						})(this)
+					).mouseout(
+						(function(){
+							return function(evt, x, y){
+								view.tooltip.close();
+							};
+						})()
+					)
+					;
+				});
+
+				visualizedNode.description = visualizedNode.prepareNodeDescription();
+
+				visualizedNode.mainShape.mouseover(
 					(function(that){
 						return function(e, x, y){
 							view.tooltip.open(that.type+":"+that.label, that.description, x, y);
-							console.log(view.tooltip.isOpen()+":over")
 						};
 					})(visualizedNode)
 				).mouseout(
@@ -888,9 +984,12 @@ function View(id, width, height, gui){
 		id : id,
 		width : width,
 		height : height,
-		mode : "CF",
+		mode : undefined,
 		controler : gui.controler,
 		bgSelectionHelper : null,
+		scale : 100,
+		xPos : 0,
+		yPos : 0,
 		columnParams : {
 			top_nav : {},
 			leftCol : {},
@@ -915,17 +1014,55 @@ function View(id, width, height, gui){
 			}
 		},
 		switchMode : function switchMode(mode){
-			$.each(this.graph_view.nodes, function(){
-				this.switchMode(mode);
-			});
+			if(this.mode != mode){
+				$.each(this.graph_view.nodes, function(){
+					this.switchMode(mode);
+				});
 
-			$.each(this.graph_view.edgesCF, function(){
-				this.switchMode(mode);
-			});
-			$.each(this.graph_view.edgesDF, function(){
-				this.switchMode(mode);
-			});
-			this.mode = mode;
+				$.each(this.graph_view.edgesCF, function(){
+					this.switchMode(mode);
+				});
+				$.each(this.graph_view.edgesDF, function(){
+					this.switchMode(mode);
+				});
+				this.mode = mode;
+			}
+		},
+		convertGraphViewToXML : function convertGraphViewToXML(humanFriendly){
+			var n = this.graph_view.nodes,
+				id = "testowe_id",
+				tab_XML = [],
+				stringXML
+				;
+
+			if(n && n.length > 0){
+				tab_XML.push( "<graphView>\n" );
+					tab_XML.push( "\t<graph_id>"+id+"</graph_id>\n" );
+					tab_XML.push( "\t<graphView_properties>\n");
+						tab_XML.push( "\t\t<scale>"+this.scale+"</scale>\n");
+						tab_XML.push( "\t\t<xPos>"+this.xPos+"</xPos>\n");
+						tab_XML.push( "\t\t<yPos>"+this.yPos+"</yPos>\n");
+						tab_XML.push( "\t\t<view_mode>"+this.mode+"</view_mode>\n");
+					tab_XML.push( "\t</graphView_properties>\n" );
+					tab_XML.push( "\t<nodes>\n" );
+					$.each(n, function(){
+						tab_XML.push( "\t\t<node>\n" );
+							tab_XML.push("\t\t\t<nodeId>"+this.id+"</nodeId>\n");
+							tab_XML.push("\t\t\t<xPos>"+this.x+"</xPos>\n");
+							tab_XML.push("\t\t\t<yPos>"+this.y+"</yPos>\n");
+							tab_XML.push("\t\t\t<width>"+this.width+"</width>\n");
+							tab_XML.push("\t\t\t<height>"+this.height+"</height>\n");
+						tab_XML.push( "\t\t</node>\n" );
+					});
+					tab_XML.push("\t</nodes>\n")
+				tab_XML.push( "<graphView>\n" );
+			}
+
+			stringXML = tab_XML.join("")
+			if(!humanFriendly)
+				stringXML = stringXML.replace(/\t/g, "").replace(/\n/g, "");
+
+			return stringXML;
 		},
 		getNodeById : function getNodeById(id){
 			var result;
