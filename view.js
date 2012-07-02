@@ -3,74 +3,7 @@ var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
-	function repoNodes(paper, mainCanvas, visualiser){
-		var tmp = {
-						
-			draw: function draw(nodeArray){
-				var myNodes = [], move, start, stop, generateData, tempNode, n = 0;
-
-				generateData = function generateData(node, n){
-					var result = visualiser.getBlankNode();
-					result.x = 10;
-					result.y = 10 + (80 * n);
-					result.id = node.nodeId;
-					result.label = node.nodeLabel;
-					result.type = node.nodeType;
-					result.serviceName = node.physicalDescription.serviceName;
-					result.set = [];
-					$.each(node.functionalDescription.inputs, function(){
-						var temp = {};
-						for(var i = 0; i < this.length; i++) temp.push(this[i]);
-						result.inputs.push(temp);
-					});
-					for(var i in result.inputs) {
-						result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
-					}
-					$.each(node.functionalDescription.outputs, function(){
-						var temp = {};
-						for(var i = 0; i < this.length; i++) temp.push(this[i]);
-						result.outputs.push(temp);
-					});
-					for(var o in result.outputs){
-						result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
-					}
-					result.description = result.prepareNodeDescription();
-					return result;
-				}
-
-				move = function move(dx,dy){
-					clone.attr({x:this.ox + dx, y:this.oy+dy});
-					newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
-					if(clone.attr("x") < 1) newRect.attr({opacity:1});
-					else newRect.attr({opacity:0});
-				};
-				start = function start(x,y,evt){
-					clone = this.clone();
-					fillColor = clone.attr("fill");
-					this.ox = this.attr("x");
-					this.oy = this.attr("y");
-					x2 = clone.attr("x");
-					newRect = mainCanvas.rect(mainCanvas.width, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
-					newRect.ox = newRect.attr("x");
-					newRect.oy = newRect.attr("y");
-				};
-				stop = function stop(x,y,evt){
-					clone.remove();
-				};
-
-
-				$.each(nodeArray, function(){
-					if(this.nodeType.toLowerCase() !== "control" && this.nodeType.toLowerCase() !== "functionality"){
-						tempNode = generateData(this, n);
-						myNodes.push(visualiser.draw_serviceNode(tempNode, paper).switchToDFMode());
-						n++;
-					}
-				});
-			}
-		}
-
-		return tmp;
-	}
+	
 	function tooltipper() {
 		var opacity = .95,
 			tooltip = {
@@ -99,22 +32,29 @@ function View(id, width, height, gui){
 				isOpen: function isOpen() {
 					return this.visible;
 				},
-				open: function open(title, text, x, y) {
-					if(title && text){
+				open2: function open2(title, text, x, y) {
+					this.tipContener.show();
+					this.visible = true;
+				},
+				open: function open(title, text, x, y, evt) {
+					if (title && text) {
 						this.tipTitle.html(title);
 						this.tipText.html(text);
 					}
 
-					if(x) this.tipContener.css("left", x);
-					if(y) this.tipContener.css("top", y);
+					if (x) this.tipContener.css("left", x);
+					if (y) this.tipContener.css("top", y);
 
-					this.tipContener.css("height", (this.tipTitle.height()+this.tipText.height())+"px")
+					this.tipContener.css("height", (this.tipTitle.height() + this.tipText.height()) + "px");
 
-					this.tipContener.show();
-					this.visible = true;
+					if (evt.shiftKey) this.open2(this.title, this.text, this.x, this.y);
+					else 
+						this.tOut = setTimeout((function() { this.open2(this.title, this.text, this.x, this.y); }).bind(this), 500);
+							//A.view.tooltip.open2("+this.title+", "+this.text+", "+this.x+", "+this.y+")", 500);
 
 				},
 				close: function close() {
+					clearTimeout(this.tOut);
 					this.tipContener.hide();
 					this.visible = false;
 				}
@@ -701,8 +641,8 @@ function View(id, width, height, gui){
 					this.description = visualizedNode.prepareDescriptionForInput(this.id);
 					this.node.mouseover(
 						(function(that){
-							return function(e, x, y){
-								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y);
+							return function(evt, x, y){
+								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y, evt);
 							};
 						})(this)
 					).mouseout(
@@ -718,8 +658,8 @@ function View(id, width, height, gui){
 					this.description = visualizedNode.prepareDescriptionForInput(this.id);
 					this.node.mouseover(
 						(function(that){
-							return function(e, x, y){
-								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y);
+							return function(evt, x, y){
+								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y, evt);
 							};
 						})(this)
 					).mouseout(
@@ -736,8 +676,8 @@ function View(id, width, height, gui){
 
 				visualizedNode.mainShape.mouseover(
 					(function(that){
-						return function(e, x, y){
-							view.tooltip.open(that.type+":"+that.label, that.description, x, y);
+						return function(evt, x, y){
+							view.tooltip.open(that.type+":"+that.label, that.description, x, y, evt);
 						};
 					})(visualizedNode)
 				).mouseout(

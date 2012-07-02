@@ -3,6 +3,73 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
+	function repoNodes(paper, mainCanvas, visualiser){
+		var resultObject = {						
+			draw: function draw(nodeArray){
+				var myNodes = [], move, start, stop, generateData, tempNode, n = 0;
+
+				generateData = function generateData(node, n){
+					var result = visualiser.getBlankNode();
+					result.x = 10;
+					result.y = 10 + (80 * n);
+					result.id = node.nodeId;
+					result.label = node.nodeLabel;
+					result.type = node.nodeType;
+					result.serviceName = node.physicalDescription.serviceName;
+					result.set = [];
+					$.each(node.functionalDescription.inputs, function(){
+						var temp = {};
+						for(var i = 0; i < this.length; i++) temp.push(this[i]);
+						result.inputs.push(temp);
+					});
+					for(var i in result.inputs) {
+						result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
+					}
+					$.each(node.functionalDescription.outputs, function(){
+						var temp = {};
+						for(var i = 0; i < this.length; i++) temp.push(this[i]);
+						result.outputs.push(temp);
+					});
+					for(var o in result.outputs){
+						result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
+					}
+					result.description = result.prepareNodeDescription();
+					return result;
+				}
+
+				move = function move(dx,dy){
+					clone.attr({x:this.ox + dx, y:this.oy+dy});
+					newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
+					if(clone.attr("x") < 1) newRect.attr({opacity:1});
+					else newRect.attr({opacity:0});
+				};
+				start = function start(x,y,evt){
+					clone = this.clone();
+					fillColor = clone.attr("fill");
+					this.ox = this.attr("x");
+					this.oy = this.attr("y");
+					x2 = clone.attr("x");
+					newRect = mainCanvas.rect(mainCanvas.width, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
+					newRect.ox = newRect.attr("x");
+					newRect.oy = newRect.attr("y");
+				};
+				stop = function stop(x,y,evt){
+					clone.remove();
+				};
+
+
+				$.each(nodeArray, function(){
+					if(this.nodeType.toLowerCase() !== "control" && this.nodeType.toLowerCase() !== "functionality"){
+						tempNode = generateData(this, n);
+						myNodes.push(visualiser.draw_serviceNode(tempNode, paper).switchToDFMode());
+						n++;
+					}
+				});
+			}
+		}
+
+		return resultObject;
+	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -617,12 +684,18 @@ function Controler(url, gui){
 		initPlugins : function initPlugins(){
 			var that = this,
 				subGraph = subgraphTree(),
-				repo
+				repo,
+				sdb
 				;
 
 			this.load(url, function fun_success(list){
 				repo = repository(list, gui.view.columnParams.rightCol.width);
 				that.plugins.push(repo);
+			});
+
+			this.load("get_all_atomic_service.xml", function fun_success(sdb){
+				alert(sdb)
+				alert( that.parseSDBetaArray(sdb) );
 			});
 		},
 		getNodeById : function getNodeById(id){
@@ -719,7 +792,6 @@ function Controler(url, gui){
 				}
 
 				return result;
-
 		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
@@ -753,6 +825,102 @@ function Controler(url, gui){
 					}
 				})(); break;
 			}
+		},
+		parseSDBetaArray : function parseSDBetaArray(sdb){
+			var tab = [],
+				node,
+				$sdbArray,
+				$sdb,
+				$physicalDescription,
+				$functionalDescription,
+				$functionalDescriptionServiceClasses,
+				$functionalDescriptionMetaKeywords,
+				$functionalDescriptionInputs,
+				$functionalDescriptionOutputs,
+				$nonfunctionalDescription
+			;
+
+			$sdbArray = $(sdb).find("ServiceDescriptionArray ns2\\:serviceDescription");
+			$sdbArray.each(function(){
+				node = {};
+				$sdb = $(this);
+				$physicalDescription = $sdb.find("serviceDescription ns2\\:physicalDescription");
+				$functionalDescription = $sdb.find("serviceDescription ns2\\:functionalDescription");
+				$functionalDescriptionServiceClasses = $functionalDescription.find("ns2\\:serviceClasses ns2\\:serviceClass");
+				$functionalDescriptionMetaKeywords = $functionalDescription.find("ns2\\:metaKeywords ns2\\:metaKeyword");
+				$functionalDescriptionInputs = $functionalDescription.find("ns2\\:inputs ns2\\:input");
+				$functionalDescriptionOutputs = $functionalDescription.find("ns2\\:outputs ns2\\:output");
+				$nonfunctionalDescription = $sdb.find("serviceDescription ns2\\:nonfunctionalDescription  ns2\\:nonFunctionaleProperty");
+
+				node.label = $physicalDescription.find("ns2\\:serviceName").text();
+				node.nodeType = "Service";
+				node.physicalDescription = {
+					seviceName: $physicalDescription.find("ns2\\:serviceName").text(),
+					serviceGlobalID: $physicalDescription.find("ns2\\:serviceGlobalID").text(),
+					adress: $physicalDescription.find("ns2\\:address").text(),
+					operation: $physicalDescription.find("ns2\\:operation").text()
+				}
+				node.functionalDescription = {
+					serviceClasses: [],
+					description: $functionalDescription.find("ns2\\:description").text(),
+					metaKeywords: [],
+					inputs: [],
+					outputs: [],
+					preconditions: [],
+					effects:  []
+				}
+
+				node.nonfunctionalDescription = [];
+
+
+				$functionalDescriptionServiceClasses.each(function() {
+					node.functionalDescription.serviceClasses.push(this.textContent);
+				});
+
+				$functionalDescriptionMetaKeywords.each(function() {
+					node.functionalDescription.metaKeywords.push(this.textContent);
+				});
+
+				$functionalDescriptionInputs.each(function() {
+					var input = {};
+					input.class = $(this).find("ns2\\:class").text();
+					input.id = $(this).find("ns2\\:id").text();
+					input.label = $(this).find("ns2\\:label").text();
+					input.dataType = $(this).find("ns2\\:dataType").text();
+					input.properties = $(this).find("ns2\\:properties").text();
+
+					node.functionalDescription.inputs.push(input);
+
+				});
+
+				$functionalDescriptionOutputs.each(function() {
+					var output = {};
+					output.class = $(this).find("ns2\\:class").text();
+					output.id = $(this).find("ns2\\:id").text();
+					output.label = $(this).find("ns2\\:label").text();
+					output.dataType = $(this).find("ns2\\:dataType").text();
+					output.properties = $(this).find("ns2\\:properties").text();
+
+					node.functionalDescription.outputs.push(output);
+
+				});
+
+				$nonfunctionalDescription.each(function(){
+					var nonFunctionaleProperty = {};
+					nonFunctionaleProperty.unit = $(this).find("ns2\\:unit").text();
+					nonFunctionaleProperty.value = $(this).find("ns2\\:value").text();
+					nonFunctionaleProperty.relation = $(this).find("ns2\\:relation").text();
+					nonFunctionaleProperty.name =  $(this).find("ns2\\:name").text();
+
+					node.nonfunctionalDescription.push(nonFunctionaleProperty);
+				});
+
+				tab.push(node);
+			});
+
+			// console.log(tab)
+
+			return tab;
 		},
 		convert : function convert(ssdl, id){ // converst ssdl into json
 			//alert("convert"+":"+ssdl);
