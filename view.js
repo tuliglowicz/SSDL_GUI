@@ -75,12 +75,14 @@ function View(id, width, height, gui){
 			slide : function slide(){
 				if(this.opened){
 					$(this.lId).animate({
-						height: 22
+						height: 20,
+						overflow : 'hidden'
 					});
 					this.opened = false;
 				}else{
 					$(this.lId).animate({
-						height: h
+						height: h,
+						overflow : 'scroll'
 					});
 					this.opened = true;
 				}
