@@ -854,7 +854,7 @@ function Controler(url, gui){
 				})(); break;
 				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
 					e.nodeId = gui.controler.generateId();
-					alert(e.nodeId)
+					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
 					that.graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);

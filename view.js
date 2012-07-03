@@ -66,6 +66,33 @@ function View(id, width, height, gui){
 
 		return tooltip;
 	};
+	//KONSOLA
+	function initLogger(h){
+		var dId = "#console_" + pf;
+		var obj = {
+			lId : dId,
+			opened : false,
+			slide : function slide(){
+				if(this.opened){
+					$(this.lId).animate({
+						height: 20,
+						overflow : 'hidden'
+					});
+					this.opened = false;
+				}else{
+					$(this.lId).animate({
+						height: h,
+						overflow : 'scroll'
+					});
+					this.opened = true;
+				}
+			}
+		};
+		$(dId).click(function(){
+			obj.slide();
+		});
+		return obj;
+	}
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -1523,13 +1550,15 @@ function View(id, width, height, gui){
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt;</div>");
-			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:" + h + "px; float:left;border:1px solid black;'></div>");
-			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:" + h + "px; float:left;border:1px solid black; '> </div>");
+			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
+			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
+			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height:" + 20 + "px; float:left;border:1px solid #EEEEEE; '> </div>");
+			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:" + (h - 22) + "px; float:left; '> </div> </div>");
 			html.push("<div id='right_plugins_"+pf+"' style='width:"+(this.width-6-canvas_width-left_plugins_width)+"px; height:" + h + "px; float:left;border:1px solid black; '></div>");
 
 			$elem.html(html.join(""));
 
-			this.paper = Raphael("canvas_holder_"+pf, canvas_width, h);
+			this.paper = Raphael("canvas_"+pf, canvas_width, h - 22);
 			this.leftPlugins = Raphael("left_plugins_"+pf, left_plugins_width, h);
 			this.bgSelectionHelper = this.paper.rect(0,0,width,height).attr({fill : "#DEDEDE", stroke: "none"}).toBack();
 	
@@ -1672,6 +1701,7 @@ function View(id, width, height, gui){
 		}
 	}
 	outputView.init();
+	outputView.logger = initLogger(outputView.height);
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
