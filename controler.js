@@ -3,68 +3,68 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
-	function repoNodes(paper, mainCanvas, visualiser){
-		var resultObject = {						
-			draw: function draw(nodeArray){
-				var myNodes = [], move, start, stop, generateData, tempNode, n = 0;
+	function repoNodes(visualiser){
+		var resultObject = {
+			currNodes : [],
+			paper : undefined,
+			require: "sdb_json_array div raphael_x_500".split(" "),
+			generateData : function generateData(node, n){
+				var result = visualiser.getBlankNode();
+				result.id = node.nodeId;
+				result.label = node.nodeLabel;
+				result.type = node.nodeType;
+				result.x = 10;
+				result.y = 15 + (45 * n);
+				result.height = 20;
+				result.serviceName = node.physicalDescription.serviceName;
+				result.set = this.paper.set();
 
-				generateData = function generateData(node, n){
-					var result = visualiser.getBlankNode();
-					result.x = 10;
-					result.y = 10 + (80 * n);
-					result.id = node.nodeId;
-					result.label = node.nodeLabel;
-					result.type = node.nodeType;
-					result.serviceName = node.physicalDescription.serviceName;
-					result.set = [];
-					$.each(node.functionalDescription.inputs, function(){
-						var temp = {};
-						for(var i = 0; i < this.length; i++) temp.push(this[i]);
-						result.inputs.push(temp);
-					});
-					for(var i in result.inputs) {
-						result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
-					}
-					$.each(node.functionalDescription.outputs, function(){
-						var temp = {};
-						for(var i = 0; i < this.length; i++) temp.push(this[i]);
-						result.outputs.push(temp);
-					});
-					for(var o in result.outputs){
-						result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
-					}
-					result.description = result.prepareNodeDescription();
-					return result;
+				result.inputs = node.functionalDescription.inputs;
+				for(var i in result.inputs) {
+					result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
+					result.inputs[i].source = [];
+				}
+				
+				result.outputs = node.functionalDescription.outputs;
+				for(var o in result.outputs){
+					result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
 				}
 
-				move = function move(dx,dy){
-					clone.attr({x:this.ox + dx, y:this.oy+dy});
-					newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
-					if(clone.attr("x") < 1) newRect.attr({opacity:1});
-					else newRect.attr({opacity:0});
-				};
-				start = function start(x,y,evt){
-					clone = this.clone();
-					fillColor = clone.attr("fill");
-					this.ox = this.attr("x");
-					this.oy = this.attr("y");
-					x2 = clone.attr("x");
-					newRect = mainCanvas.rect(mainCanvas.width, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
-					newRect.ox = newRect.attr("x");
-					newRect.oy = newRect.attr("y");
-				};
-				stop = function stop(x,y,evt){
-					clone.remove();
-				};
+				result.description = result.prepareNodeDescription();
 
+				return result;
+			},
+			draw: function draw(nodeArray){
+				var tempNode,
+					that = this,
+					tmp,
+					n = -1
+				;
 
-				$.each(nodeArray, function(){
-					if(this.nodeType.toLowerCase() !== "control" && this.nodeType.toLowerCase() !== "functionality"){
-						tempNode = generateData(this, n);
-						myNodes.push(visualiser.draw_serviceNode(tempNode, paper).switchToDFMode());
-						n++;
-					}
+				if( $("#repoNodes_"+pf).length === 0 ){
+					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
+					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+				}
+				
+				this.clear();
+
+				$.each(nodeArray, function(k, v){
+					tempNode = that.generateData(v, ++n);
+					tmp = visualiser.draw_serviceNode(tempNode, that.paper, true).switchToDFMode();
+					tmp.raph_label.attr({cursor: "pointer"}).dblclick(function(){
+						gui.controler.reactOnEvent("AddServiceFromRepoToCanvas", v);
+					});
+					$.each(tmp.outputs, function(){
+						this.node.attr({cursor: "default"});
+					});
+					that.currNodes.push(tmp);
 				});
+			},
+			clear: function clear(){
+				if(this.paper){
+					this.paper.clear();
+					this.currNodes.length = 0;
+				}
 			}
 		}
 
@@ -91,24 +91,24 @@ function Controler(url, gui){
 				nodeArr = getNodes(jnodes);
 			processNodes(nodeArr);
 			var graphMat = postProcessNodes(nodeArr);
-			console.time("Deploying Time");
-			console.group("DEPLOYMENT RESULTS:");
+			// console.time("Deploying Time");
+			// console.group("DEPLOYMENT RESULTS:");
 			if(nodeArr.length>18){//CHOICE TIME
-				console.info("Genetic Alghoritm in use");
+				// console.info("Genetic Alghoritm in use");
 				var bestI = genetic(graphMat, 200, 250, 20, 25, 50);
 			}else{
-				console.info("BruteForce Alghoritm in use");
+				// console.info("BruteForce Alghoritm in use");
 				var bestI = bruteForce(graphMat);
 			}
 			var out = generateCoords(graphMat, bestI);
-			console.log("ALGHORITM PERFORMANCE: ");
-			console.timeEnd("Deploying Time");
-			console.info("Best deployment rating: " + bestI.rating);
-			console.log("GRAPH MATRIX: ");
-			console.log(graphMat);
-			console.log("DEPLOYMENT: ");
-			console.log(out);
-			console.groupEnd();
+			// console.log("ALGHORITM PERFORMANCE: ");
+			// console.timeEnd("Deploying Time");
+			// console.info("Best deployment rating: " + bestI.rating);
+			// console.log("GRAPH MATRIX: ");
+			// console.log(graphMat);
+			// console.log("DEPLOYMENT: ");
+			// console.log(out);
+			// console.groupEnd();
 			var outObj = {
 				coords: out,
 				getCoords: function(id){
@@ -163,7 +163,7 @@ function Controler(url, gui){
 						tempObj.parents.push(temp);
 						temp.children.push(tempObj);
 					} else {
-						console.error("getNodeByID(" + this + ") returned NULL!!!");
+						// console.error("getNodeByID(" + this + ") returned NULL!!!");
 					}
 				});
 			});
@@ -215,6 +215,10 @@ function Controler(url, gui){
 		function cloneObj(obj){//object deep cloning function
 			var object = {};
 			object.o = obj;
+
+			// try  jQuery.extend(true, [], object);
+			// roznica: {} -> [];
+
 			var clone = jQuery.extend(true, {}, object);
 			var result = clone.o;
 			return result;
@@ -385,7 +389,7 @@ function Controler(url, gui){
 					individuals[j] = individual1;
 				}
 			}
-			console.info("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
+			// console.info("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
 			return bestIndividual;
 		}
 		function select(individuals, indAm, rivalsAmount) {//selection by tournament
@@ -613,6 +617,7 @@ function Controler(url, gui){
 	}
 	var controlerObject = {
 		plugins : [],
+		idCounter : 0,
 		graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
@@ -664,7 +669,7 @@ function Controler(url, gui){
 			});
 		},
 		xmlToString: function xmlToString(xml){
-		      return (new XMLSerializer()).serializeToString(xml);
+			return (new XMLSerializer()).serializeToString(xml);
 		},
 		loadSSDL : function loadSSDL(url){ 
 			var that = this;
@@ -693,9 +698,12 @@ function Controler(url, gui){
 				that.plugins.push(repo);
 			});
 
+
+			this.repoNodes = repoNodes(gui.view.visualiser);
+
 			this.load("get_all_atomic_service.xml", function fun_success(sdb){
-				alert(sdb)
-				alert( that.parseSDBetaArray(sdb) );
+				var parsedSDB = that.parseSDBetaArray(sdb);
+				that.repoNodes.draw( parsedSDB );
 			});
 		},
 		getNodeById : function getNodeById(id){
@@ -793,6 +801,21 @@ function Controler(url, gui){
 
 				return result;
 		},
+		generateId : function generateId(){
+			this.idCounter++;
+			var num = this.graphData.nodes.length + this.idCounter,
+				tab = ["node---"],
+				digitMax = 6,
+				digits = Math.ceil( Math.log(num) / Math.log(10) ),
+				digitMax = (digitMax - digits >= 0 ? digitMax : digits)
+				;
+
+				for(var i = 0; i<digitMax-digits; i++)
+					tab.push("0");
+				tab.push(num);
+
+			return tab.join("")
+		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
@@ -805,12 +828,17 @@ function Controler(url, gui){
 				})(); break;
 				case "ADDCFEDGE" : (function(e){
 					var target = gui.controler.getNodeById(e.target.id);
+					// alert(e.target.id)
 					target.sources.push( e.source.id );
 					gui.view.addCFEdge(e);
 				})(evtObj); break;
 				case "ADDDFEDGE" : (function(e){
 					var input = gui.controler.getInputById(e.targetId, e.input.id);
-					input.source = [e.sourceId, e.output.id];
+					if(input){
+						input.source = [e.sourceId, e.output.id];
+					} else {
+						a(e.targetId+":"+e.input.id);
+					}
 					gui.view.addDFEdge(e);
 				})(evtObj); break;
 				case "NODEMOVED" : (function(){
@@ -824,10 +852,18 @@ function Controler(url, gui){
 						gui.view.addStartStop();
 					}
 				})(); break;
+				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
+					e.nodeId = gui.controler.generateId();
+					alert(e.nodeId)
+					e = $.extend(true, {}, e);
+					that.graphData.nodes.push(e)
+					gui.view.addNodeFromRepo(e);
+				})(evtObj); break;
 			}
 		},
 		parseSDBetaArray : function parseSDBetaArray(sdb){
 			var tab = [],
+				that = this,
 				node,
 				$sdbArray,
 				$sdb,
@@ -844,22 +880,23 @@ function Controler(url, gui){
 			$sdbArray.each(function(){
 				node = {};
 				$sdb = $(this);
-				$physicalDescription = $sdb.find("serviceDescription ns2\\:physicalDescription");
-				$functionalDescription = $sdb.find("serviceDescription ns2\\:functionalDescription");
+				$physicalDescription = $sdb.find("ns2\\:physicalDescription");
+				$functionalDescription = $sdb.find("ns2\\:functionalDescription");
 				$functionalDescriptionServiceClasses = $functionalDescription.find("ns2\\:serviceClasses ns2\\:serviceClass");
 				$functionalDescriptionMetaKeywords = $functionalDescription.find("ns2\\:metaKeywords ns2\\:metaKeyword");
 				$functionalDescriptionInputs = $functionalDescription.find("ns2\\:inputs ns2\\:input");
 				$functionalDescriptionOutputs = $functionalDescription.find("ns2\\:outputs ns2\\:output");
-				$nonfunctionalDescription = $sdb.find("serviceDescription ns2\\:nonfunctionalDescription  ns2\\:nonFunctionaleProperty");
+				$nonfunctionalDescription = $sdb.find("ns2\\:nonfunctionalDescription  ns2\\:nonFunctionaleProperty");
 
-				node.label = $physicalDescription.find("ns2\\:serviceName").text();
+				node.nodeLabel = $physicalDescription.find("ns2\\:serviceName").text();
 				node.nodeType = "Service";
 				node.physicalDescription = {
-					seviceName: $physicalDescription.find("ns2\\:serviceName").text(),
+					serviceName: node.nodeLabel,
 					serviceGlobalID: $physicalDescription.find("ns2\\:serviceGlobalID").text(),
 					adress: $physicalDescription.find("ns2\\:address").text(),
 					operation: $physicalDescription.find("ns2\\:operation").text()
-				}
+				};
+
 				node.functionalDescription = {
 					serviceClasses: [],
 					description: $functionalDescription.find("ns2\\:description").text(),
@@ -872,15 +909,12 @@ function Controler(url, gui){
 
 				node.nonfunctionalDescription = [];
 
-
 				$functionalDescriptionServiceClasses.each(function() {
 					node.functionalDescription.serviceClasses.push(this.textContent);
 				});
-
 				$functionalDescriptionMetaKeywords.each(function() {
 					node.functionalDescription.metaKeywords.push(this.textContent);
 				});
-
 				$functionalDescriptionInputs.each(function() {
 					var input = {};
 					input.class = $(this).find("ns2\\:class").text();
@@ -892,7 +926,6 @@ function Controler(url, gui){
 					node.functionalDescription.inputs.push(input);
 
 				});
-
 				$functionalDescriptionOutputs.each(function() {
 					var output = {};
 					output.class = $(this).find("ns2\\:class").text();
@@ -904,7 +937,6 @@ function Controler(url, gui){
 					node.functionalDescription.outputs.push(output);
 
 				});
-
 				$nonfunctionalDescription.each(function(){
 					var nonFunctionaleProperty = {};
 					nonFunctionaleProperty.unit = $(this).find("ns2\\:unit").text();
@@ -915,10 +947,14 @@ function Controler(url, gui){
 					node.nonfunctionalDescription.push(nonFunctionaleProperty);
 				});
 
+				node.sources = [];
+
 				tab.push(node);
+				// console.log( jstr(node) )
+				// console.log("++++++++")
 			});
 
-			// console.log(tab)
+			 // console.log(jstr(tab))
 
 			return tab;
 		},
@@ -1057,8 +1093,7 @@ function Controler(url, gui){
 			// console.log(Graph)
 			return Graph;
 		}
-	}	
+	}
+
 	return controlerObject;
 }
-
-//Czy mogę założyć, że 

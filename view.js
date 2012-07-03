@@ -427,9 +427,11 @@ function View(id, width, height, gui){
 					normalColor : "black",
 					show : function show(i, v){
 						(v.node.animate ? v.node : v).myShow(250);
+						return this;
 					},
 					hide : function hide(i, v){
 						(v.node.animate ? v.node : v).myHide(250);
+						return this;
 					},
 					switchMode : function switchMode(newMode){
 						switch(newMode){
@@ -437,36 +439,50 @@ function View(id, width, height, gui){
 							case "DF" : this.switchToDFMode(); break;
 							case "H" : this.switchToHybrydMode(); break;
 						}
+						return this;
 					},
 					switchToCFMode : function switchToCFMode(){
 						$.each(this.inputs, this.hide);
 						$.each(this.outputs, this.hide);
 						$.each(this.connectors, this.show);
+						return this;
 					},
 					switchToDFMode : function switchToDFMode(){
 						$.each(this.inputs, this.show);
 						$.each(this.outputs, this.show);
 						$.each(this.connectors, this.hide);
+
+						return this;
 					},
 					switchToHybrydMode : function switchToHybrydMode(){
 					},
 					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
 					prepareNodeDescription : function prepareNodeDescription(){
-						//serviceDescription i nonFunctionalDescription
-						var data = gui.controler.getNodeById(this.id);
-						var result = "<b>Service description:</b><br/> serviceName: " + data.physicalDescription.serviceName + 
-							"<br/>serviceGlobalId: " +  data.physicalDescription.serviceGlobalId + 
-							"<br/>address: " + data.physicalDescription.address + 
-							"<br/>operation: " + data.physicalDescription.operation +
-							"<br/><b>Non functional properties:</b><br/>"; 
-						for(var i = 0; i < data.nonFunctionalDescription.length; i++) 
-							result += "non functional property #" + i +
-								":<br/>weight: " + data.nonFunctionalDescription[i].weight + 
-								"<br/>name: " +  data.nonFunctionalDescription[i].name + 
-								"<br/>relation: " + data.nonFunctionalDescription[i].relation + 
-								"<br/>unit: " + data.nonFunctionalDescription[i].unit + 
-								"<br/>value: " + data.nonFunctionalDescription[i].value;
-						return result;
+						var data = gui.controler.getNodeById(this.id),
+							result
+							;
+
+						if(data){
+							if(data.physicalDescription){
+								result = "<b>Service description:</b><br/> serviceName: " + data.physicalDescription.serviceName + 
+									"<br/>serviceGlobalId: " +  data.physicalDescription.serviceGlobalId + 
+									"<br/>address: " + data.physicalDescription.address + 
+									"<br/>operation: " + data.physicalDescription.operation +
+									"<br/><b>Non functional properties:</b><br/>"; 
+							}
+							if(data.nonFunctionalDescription){
+								for(var i = 0; i < data.nonFunctionalDescription.length; i++) 
+									result += "non functional property #" + i +
+										":<br/>weight: " + data.nonFunctionalDescription[i].weight + 
+										"<br/>name: " +  data.nonFunctionalDescription[i].name + 
+										"<br/>relation: " + data.nonFunctionalDescription[i].relation + 
+										"<br/>unit: " + data.nonFunctionalDescription[i].unit + 
+										"<br/>value: " + data.nonFunctionalDescription[i].value;
+							}
+						}
+
+						this.description = result;
+						return this;
 					},
 					prepareDescriptionForInput : function prepareDescriptionForInput(inputId){
 						var inputToDescribe = (typeof inputId === "string") ? this.getInputById(inputId) : inputId;
@@ -477,10 +493,10 @@ function View(id, width, height, gui){
 							"<br/>id: " + inputToDescribe.id + 
 							"<br/>label: " + inputToDescribe.label + 
 							"<br/>dataType: " + inputToDescribe.dataType + 
-							"<br/>properties: " + inputToDescribe.properties + 
-							"<br/>sources: ";
-							for(var i = 0; i < inputToDescribe.source.length; i++) 
-								result += inputToDescribe.source[i] + ", ";
+							"<br/>properties: " + inputToDescribe.properties;
+							if(inputToDescribe.source && inputToDescribe.source.length === 2){
+								result += "<br/>sources: "+inputToDescribe.source[0]+"-"+inputToDescribe.source[1];
+							}
 						}
 						return result;
 					},
@@ -632,26 +648,29 @@ function View(id, width, height, gui){
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
-				newNode.inputs = node.functionalDescription.inputs;
-				newNode.outputs = node.functionalDescription.outputs;
+				newNode.inputs = [];
+				$.each(node.functionalDescription.inputs, function(){
+					newNode.inputs.push( $.extend(true, {}, this) );
+				});
+				newNode.outputs = [];
+				$.each(node.functionalDescription.outputs, function(){
+					newNode.outputs.push( $.extend(true, {}, this) );
+				});
 
-				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode, x, y) ;
+				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
+				function close(){
+					view.tooltip.close();
+				}
 				$.each(visualizedNode.inputs, function(){
 					this.description = visualizedNode.prepareDescriptionForInput(this.id);
 					this.node.mouseover(
 						(function(that){
 							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y, evt);
+								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
 							};
 						})(this)
-					).mouseout(
-						(function(){
-							return function(evt, x, y){
-								view.tooltip.close();
-							};
-						})()
-					)
+					).mouseout(close)
 					;
 				});
 				$.each(visualizedNode.outputs, function(){
@@ -659,19 +678,13 @@ function View(id, width, height, gui){
 					this.node.mouseover(
 						(function(that){
 							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.id+": "+that.id, that.description, x, y, evt);
+								// alert(visualizedNode.label)
+								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
 							};
 						})(this)
-					).mouseout(
-						(function(){
-							return function(evt, x, y){
-								view.tooltip.close();
-							};
-						})()
-					)
+					).mouseout(close)
 					;
 				});
-
 				visualizedNode.description = visualizedNode.prepareNodeDescription();
 
 				visualizedNode.mainShape.mouseover(
@@ -680,20 +693,7 @@ function View(id, width, height, gui){
 							view.tooltip.open(that.type+":"+that.label, that.description, x, y, evt);
 						};
 					})(visualizedNode)
-				).mouseout(
-					(function(that){
-						return function(evt, x, y){
-							// var canvas = $(view.paper.canvas),
-							// 	ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
-							// 	ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"))
-							// 	;
-							// if(! that.mainShape.isPointInside(x-ofsetX, y - ofsetY))
-								view.tooltip.close();
-							
-							console.log(view.tooltip.isOpen()+":out")
-						};
-					})(visualizedNode)
-				)
+				).mouseout(close)
 				;
 
 				return visualizedNode;
@@ -707,6 +707,7 @@ function View(id, width, height, gui){
 					multX = 1, multY = 1, x1, y1, x2, y2
 					;
 				node.mainShape = c;
+				node.raph_label = label;
 
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
@@ -791,16 +792,13 @@ function View(id, width, height, gui){
 
 				return node;
 			},
-			draw_serviceNode : function draw_serviceNode(node){
+			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
 				var id = node.id,
 					radius = 4,
-					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#fbec88"),
-					label = view.paper.text(node.x + node.width/2, node.y + 10, node.label),
-					img_gear = view.paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
-					c1 = view.paper.circle(node.x+node.width/2, node.y, radius),
-					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, radius),
-					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, radius),
-					c4 = view.paper.circle(node.x, node.y + node.height/2, radius),
+					paper = paper || view.paper,
+					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#fbec88"),
+					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
+					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
 					i, j, k, l,
 					input_length, output_length,
 					iDist, oDist,
@@ -810,13 +808,7 @@ function View(id, width, height, gui){
 					maxLength = 25
 				;
 				node.mainShape = rect;
-
-				if(serviceName){
-					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
-					serviceNameShown = view.paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
-					serviceNameShown.node.setAttribute("class", name);
-					serviceNameShown.attr({title: serviceName, cursor: "default"});
-				}
+				node.raph_label = label;
 								
 				img_gear.node.setAttribute("class", id+" gear");
 				
@@ -833,26 +825,39 @@ function View(id, width, height, gui){
 				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"});
-					node.inputs[k].node.node.setAttribute("class", node.id+" input" + node.inputs[k].id);
+					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"});
+					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
 				}
 				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"});
+					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"});
 					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
-				node.connectors.push(c1, c2, c3, c4);
-				for(i=0, j=node.connectors.length; i<j; i++)
-					node.connectors[i].node.setAttribute("class", id+" connector");
-				
-				node.set.push(rect, label, img_gear);
-				node.set.push(serviceNameShown);
+				if(!drawNotForRepo){
+					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
+						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
+						c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
+						c4 = paper.circle(node.x, node.y + node.height/2, radius)
+					;
 
-				view.dragNodes(label, node);
-				view.dragCFArrow(node.connectors, node);
+					if(serviceName){
+						shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
+						serviceNameShown = paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
+						serviceNameShown.node.setAttribute("class", name);
+						serviceNameShown.attr({title: serviceName, cursor: "default"});
+					}
+					node.connectors.push(c1, c2, c3, c4);
+					for(i=0, j=node.connectors.length; i<j; i++)
+						node.connectors[i].node.setAttribute("class", id+" connector");
+					
+					view.dragNodes(label, node);
+					view.dragCFArrow(node.connectors, node);
 
-				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+					// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
+					view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				}
+
+				node.set.push(rect, label, img_gear, serviceNameShown);
 				
 				return node;
 			},
@@ -870,6 +875,7 @@ function View(id, width, height, gui){
 					iDist, oDist
 					;
 				node.mainShape = rect;
+				node.raph_label = label;
 
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
@@ -952,6 +958,12 @@ function View(id, width, height, gui){
 			if(start && stop){
 				this.graph_view.nodes.unshift( start, stop );
 			}
+		},
+		addNodeFromRepo : function addNodeFromRepo(node){
+			//dodać lepiej dobierane parametry x, y
+			var visualizedNode = this.visualiser.visualiseNode( node );
+			if(visualizedNode)
+				this.graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
