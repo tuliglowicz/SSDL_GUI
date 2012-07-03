@@ -66,6 +66,31 @@ function View(id, width, height, gui){
 
 		return tooltip;
 	};
+	//KONSOLA
+	function initLogger(h){
+		var dId = "#console_" + pf;
+		var obj = {
+			lId : dId,
+			opened : false,
+			slide : function slide(){
+				if(this.opened){
+					$(this.lId).animate({
+						height: 22
+					});
+					this.opened = false;
+				}else{
+					$(this.lId).animate({
+						height: h
+					});
+					this.opened = true;
+				}
+			}
+		};
+		$(dId).click(function(){
+			obj.slide();
+		});
+		return obj;
+	}
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -1662,6 +1687,7 @@ function View(id, width, height, gui){
 		}
 	}
 	outputView.init();
+	outputView.logger = initLogger(outputView.height);
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
