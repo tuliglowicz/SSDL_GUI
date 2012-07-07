@@ -306,8 +306,9 @@ function View(id, width, height, gui){
 					var that = this;
 					
 					this.bar = paper.rect(x, y, width, height).
-						attr({fill:"grey", opacity: this.invisible}).
-						mouseover(function(){
+						attr({fill:"grey", opacity: this.invisible})
+						.mouseover(function(){
+							console.log("over");
 							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
@@ -326,8 +327,10 @@ function View(id, width, height, gui){
 							$.each(that.separators, function(){
 								this.show().animate({opacity: visible}, that.animationTime);
 							});
-						}).
-						mouseout(function(evt,x,y){
+							return this;
+						})
+						.mouseout(function(evt,x,y){
+							console.log("over");
 							var b = that.bar.getBBox();
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
 								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
@@ -345,8 +348,10 @@ function View(id, width, height, gui){
 								this.animate({opacity: invisible}, that.animationTime).hide();
 							});
 							}
+							return this;
 						})
 						;
+
 				},
 				createTriangle: function createTriangle(path){
 					var tr = paper.path(path);
@@ -1361,7 +1366,7 @@ function View(id, width, height, gui){
 					}
 				}
 
-				if(element.getType() === "Array"){
+				if(getType(element) === "Array"){
 					$.each(element, function(){
 						this.drag(move, start, stop);
 					})
@@ -1425,7 +1430,7 @@ function View(id, width, height, gui){
 				;
 
 				// alert(element+":"+element.getType())
-			if(element.getType() === "Array"){
+			if(getType(element) === "Array"){
 				$.each(element, function(){
 					// alert(this +":"+ this.getType());
 					// console.log( this );
@@ -1508,7 +1513,7 @@ function View(id, width, height, gui){
 				;
 
 				// alert(element+":"+element.getType())
-			if(element.getType() === "Array"){
+			if(getType(element) === "Array"){
 				$.each(element, function(){
 					// alert(this +":"+ this.getType());
 					// console.log( this );

@@ -521,7 +521,7 @@ function Controler(url, gui){
 				}
 				if(this.parent.graphData){
 					this.data = this.convert(this.parent.graphData);
-					console.log(this.data);
+					// console.log(this.data);
 
 					this.tree = $("#subgraphTree_"+pf)
 						.jstree({
@@ -641,18 +641,18 @@ function Controler(url, gui){
 				type: "GET",
 				dataType : dataType || 'xml',
 				success: fun_success || function(res, status, jqXHR){
-					console.group("AJAX QUERY RESULTS:");
-					console.info("Loaded data from "+sUrl+" with status: "+status);
-					console.group("Response:");
-					console.log(res);
-					console.groupEnd();
-					console.groupEnd();
+					// console.group("AJAX QUERY RESULTS:");
+					// console.info("Loaded data from "+sUrl+" with status: "+status);
+					// console.group("Response:");
+					// console.log(res);
+					// console.groupEnd();
+					// console.groupEnd();
 				},
 				error: fun_error || function(jqXHR, status, e){
-					console.group("AJAX QUERY RESULTS:");
-					console.error("Error while downloading data from "+sUrl);
-					console.log(status+": "+e);
-					console.groupEnd();
+					// console.group("AJAX QUERY RESULTS:");
+					// console.error("Error while downloading data from "+sUrl);
+					// console.log(status+": "+e);
+					// console.groupEnd();
 				}
 			});
 		},
@@ -665,18 +665,18 @@ function Controler(url, gui){
 				dataType : dataType || 'text',
 				data: res,
 				success: fun_success || function(res, status, jqXHR){
-					console.group("AJAX QUERY RESULTS:");
-					console.info("Send data to "+sUrl+" with status: "+status);
-					console.group("Response:");
-					console.log(res);
-					console.groupEnd();
-					console.groupEnd();
+					// console.group("AJAX QUERY RESULTS:");
+					// console.info("Send data to "+sUrl+" with status: "+status);
+					// console.group("Response:");
+					// console.log(res);
+					// console.groupEnd();
+					// console.groupEnd();
 				},
 				error: fun_error || function(jqXHR, status, e){
-					console.group("AJAX QUERY RESULTS:");
-					console.error("Error while sending data to "+sUrl);
-					console.log(status+": "+e);
-					console.groupEnd();
+					// console.group("AJAX QUERY RESULTS:");
+					// console.error("Error while sending data to "+sUrl);
+					// console.log(status+": "+e);
+					// console.groupEnd();
 				}
 			});
 		},
