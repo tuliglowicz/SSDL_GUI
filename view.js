@@ -736,6 +736,11 @@ function View(id, width, height, gui){
 				node.mainShape = c;
 				node.raph_label = label;
 
+
+				node.raph_label.dblclick(function(){
+					gui.controler.reactOnEvent("EditNode", {nodeId: node.id});
+				})
+
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
@@ -838,6 +843,9 @@ function View(id, width, height, gui){
 				node.raph_label = label;
 								
 				img_gear.node.setAttribute("class", id+" gear");
+				img_gear.click(function(){
+					gui.controler.reactOnEvent("EditNode", {nodeId: id});
+				})
 				
 				node.mainShape.node.setAttribute("class", id);
 				
@@ -920,6 +928,9 @@ function View(id, width, height, gui){
 				}
 
 				img_gear.node.setAttribute("class", id+" gear");
+				img_gear.click(function(){
+					gui.controler.reactOnEvent("EditNode", {nodeId: id});
+				})
 				
 				node.mainShape.node.setAttribute("class", id);
 				
@@ -973,6 +984,10 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		editNode : function editNode(node){
+			console.log(node);
+			alert("inside editNode");
 		},
 		addStartStop : function addStartStop(){
 			var nodes = gui.controler.graphData.nodes,

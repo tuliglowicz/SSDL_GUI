@@ -873,6 +873,16 @@ function Controler(url, gui){
 					that.graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
+				case "EDITNODE" : (function(e){
+					if(e && e.nodeId){
+						// alert(e.nodeId)
+						var node = that.getNodeById(e.nodeId);
+						gui.view.editNode(node);
+					}
+				})(evtObj); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					alert("inside try to save...");
+				})(evtObj); break;
 			}
 		},
 		parseSDBetaArray : function parseSDBetaArray(sdb){
