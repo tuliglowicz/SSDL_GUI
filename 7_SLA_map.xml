@@ -245,6 +245,7 @@
 				<nodes>
 					<node>
 						<nodeId>#Start</nodeId>
+						<nodeLabel>#Start</nodeLabel>
 						<nodeType>Control</nodeType>
 						<controlType>#start</controlType>
 						<physicalDescription>
@@ -261,30 +262,7 @@
 							<serviceClasses/>
 							<description>Start node</description>
 							<metaKeywords/>
-							<inputs>
-								<input>
-									<class>VideoSensor</class>
-									<id>VideoSensor</id>
-									<label>VideoSensor</label>
-									<dataType>Sensor</dataType>
-									<properties/>
-									<source>
-										<nodeId>CCTVStartMonitoring</nodeId>
-										<outputId>VideoSensor</outputId>
-									</source>						
-								</input>
-								<input>
-									<class>MotionSensor</class>
-									<id>MotionSensor</id>
-									<label>MotionSensor</label>
-									<dataType>Sensor</dataType>
-									<properties/>
-									<source>
-										<nodeId>CCTVStartMonitoring</nodeId>
-										<outputId>MotionSensor</outputId>
-									</source>
-								</input>
-							</inputs>
+							<inputs/>
 							<outputs>
 								<output>
 									<class>VideoSensor</class>
@@ -318,6 +296,7 @@
 					</node>
 					<node>
 						<nodeId>#End</nodeId>
+						<nodeLabel>#End</nodeLabel>
 						<nodeType>Control</nodeType>
 						<controlType>#end</controlType>
 						<physicalDescription>
@@ -347,15 +326,7 @@
 									</source>
 								</input>
 							</inputs>
-							<outputs>
-								<output>
-									<class>Video</class>
-									<id>OutputVideo</id>
-									<label>OutputVideo</label>
-									<dataType>VideoData</dataType>
-									<properties/>
-								</output>
-							</outputs>
+							<outputs/>
 							<preconditions/>
 							<effects/>
 						</functionalDescription>
@@ -373,6 +344,7 @@
 					</node>
 					<node>
 						<nodeId>CodingStart</nodeId>
+						<nodeLabel>CodingStart</nodeLabel>
 						<nodeType>Service</nodeType>
 						<physicalDescription>
 							<serviceName>PAL to MPEG-1 (25fps 1.5 Mb/s BW) Video coding</serviceName>
@@ -451,6 +423,7 @@
 					<!-- VIDEO (coded) ENCRYPTION -->
 					<node>
 						<nodeId>EncryptionStart</nodeId>
+						<nodeLabel>EncryptionStart</nodeLabel>
 						<nodeType>Service</nodeType>
 						<physicalDescription>
 							<serviceName>RSA Encryption Service</serviceName>
@@ -518,6 +491,7 @@
 					<!--VIDEO (coded, encrypted) TRANSMISSION -->
 					<node>
 						<nodeId>TransmissionStart</nodeId>
+						<nodeLabel>TransmissionStart</nodeLabel>
 						<nodeType>Service</nodeType>
 						<physicalDescription>
 							<serviceName>Transmission Ethernet 100Mb</serviceName>
@@ -584,6 +558,7 @@
 					<!--VIDEO DECRYPTION -->
 					<node>
 						<nodeId>DecryptionStart</nodeId>
+						<nodeLabel>DecryptionStart</nodeLabel>
 						<nodeType>Service</nodeType>
 						<physicalDescription>
 							<serviceName>RSA decryption</serviceName>

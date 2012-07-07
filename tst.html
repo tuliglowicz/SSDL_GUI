@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="utf-8">
+        <title>Test env</title>
+</head>
+<body>
+        <div id="countdown"></div>
+        <div id="countdown2"></div>
+        <div id="countdown3"></div>
+        <p>
+                <button id="stop">stop</button> <button id="start">start</button>
+        </p>
+<script type="text/javascript;version=1.8">
+    var b = [1, 2, 3, 4],
+        b_i = 0;
+ 
+    for(; b_i < b.length; ++b_i) {
+        let i = b_i;
+        b[b_i] = function () { return i; };
+    }
+    console.log(b[2]()); // -> 2
+    console.log(i); // -> ReferenceError
+</script>
+        <script>
+
+(function () {
+        'use strict';
+
+        var $ = function (id) {
+                return document.getElementById(id);
+        };
+
+        var Counter = function Counter(id, time) {
+                var countdown_el,
+                        interval = null,
+                        that = {
+                                start: function start() {
+                                        loop();
+                                        interval = setInterval(loop, 1000);
+                                },
+
+                                stop: function stop() {
+                                        interval && clearInterval(interval);
+                                        interval = null;
+                                }
+                        };
+                that.constructor = Counter;
+
+                var loop = function loop() {
+                        countdown_el.innerHTML = time;
+                        time--;
+
+                        if (time < 0) {
+                                that.stop();
+                                console.log('Tadam!');
+                        }
+                };
+
+                countdown_el = typeof id === 'string' ? $(id) : id;
+
+                return that;
+        };
+
+        var c = Counter('countdown', 10);
+        var c1 = Counter('countdown2', 10);
+        var c2 = Counter('countdown3', 10);
+
+        $('start').addEventListener('click', c.start, false);
+        $('stop').addEventListener('click', c.stop, false);
+})();
+
+
+        </script>
+</body>
+</html>

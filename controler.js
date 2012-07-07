@@ -512,50 +512,62 @@ function Controler(url, gui){
 			globalEvents: ["load"],
 			localEvents: ["select"],
 			require: "ssdl_JSON div jsTreePlugin".split(" "),
+			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
 			draw: function draw(){
 				var that = this;
-				//raport(jstr(this.parent.data));
-				if( $("#subgraphTree_"+pf).length === 0 )
+				// raport(jstr(this.parent.graphData));
+				if( $("#subgraphTree_"+pf).length === 0 ){
 						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
-				if(this.parent.data){
+				}
+				if(this.parent.graphData){
 					this.data = this.convert(this.parent.graphData);
-					
-					this.tree = $("#subgraphTree_"+pf).jstree({
-						"json_data" : {
-							"data" : this.data
-						},
-						"ui" : {
-							"select_limit" : 9
-						},
-						"themes" : {
-							"theme" : "default",
-							"dots" : true,
-							"icons" : false
-						},
-						"plugins" : [ "themes", "json_data", "ui" ] //,  "contextmenu""crrm",
-					}).delegate("a", "click", function (event, data) {
-						alert("");
-					});
+					console.log(this.data);
+
+					this.tree = $("#subgraphTree_"+pf)
+						.jstree({
+							"json_data" : {
+								"data" : this.data
+							},
+							"ui" : {
+								"select_limit" : 9
+							},
+							"themes" : {
+								"theme" : "default",
+								"dots" : true,
+								"icons" : false
+							},
+							"plugins" : [ "themes", "json_data", "ui" ] //,  "contextmenu""crrm",
+						})
+						.delegate("a", "click", function (event) {
+							// Poniższe dwie linijki ze względu na dziwactwo wtyczki jsTree
+							that.counter += 1;
+							if( that.counter % 2 == 0){
+								a($("a.jstree-clicked").text().substring(1))
+								//a(event)
+							}
+
+							return false;
+						});
 				}
 			},
-			convert: function convert(json, id){
+			convert: function convert(json, id, str){
 				var n = json.nodes;
 				var output_json = {
 					data: (id ? id : "root"), 
-					attr: {id: (id ? "subgraphTree_"+pf+"_"+id : "subgraphTree_"+pf+"_root")},
-					state : "open",
+					attr: {id: (id ? id : "root") },
+					state: "open",
 					children: []
 				};
+				str = ((str ? str : "") + (id ? id : "root"))
 				$.each(n, function(){
-					var currNode = {};
-					currNode.data = this.nodeId;
-					currNode.attr = { id: "subgraphTree_"+pf+"_"+this.nodeId};
-					currNode.state = "open";
-					currNode.children = [];
-					if(this.subgraph.nodes && this.subgraph.nodes.length > 0){
+					if(this.subgraph && this.subgraph.nodes && this.subgraph.nodes.length > 0){						
+						var currNode = {};
+						currNode.data = this.nodeId;
+						currNode.attr = { id: "subgraphTree_"+pf+"_"+this.nodeId};
+						currNode.state = "open";
 						currNode.children = convert(this.subgraph).children;
 						output_json.children.push(currNode);
-					}		
+					}
 				});
 				
 				return output_json;
@@ -677,18 +689,19 @@ function Controler(url, gui){
 				var ssdl_json = that.convert(ssdl);
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.graphData = ssdl_json;
+					that.graphData = ssdl_json;//.nodes[3].subgraph;
 					gui.view.drawGraph(gui.controler.graphData);
 					
 				// alert(that.plugins)
 				$.each(that.plugins, function(){
 					this.draw();
 				});
+
+				that.reactOnEvent("SSDLLoaded");
 			});
 		},
 		initPlugins : function initPlugins(){
 			var that = this,
-				subGraph = subgraphTree(),
 				repo,
 				sdb
 				;
@@ -696,6 +709,7 @@ function Controler(url, gui){
 			this.load(url, function fun_success(list){
 				repo = repository(list, gui.view.columnParams.rightCol.width);
 				that.plugins.push(repo);
+				that.plugins.push( subgraphTree() );
 			});
 
 

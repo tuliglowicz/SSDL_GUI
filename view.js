@@ -569,7 +569,7 @@ function View(id, width, height, gui){
 							this.set[0].attr("stroke-width", "1px");
 					},
 					highlight : function highlight(ctrl){
-						console.trace();
+						// console.trace();
 						if(ctrl){
 							this.highlighted ? this.removeHighlight() : this.highlight2();
 						} else {
@@ -1458,53 +1458,55 @@ function View(id, width, height, gui){
 			if(!this.paper){
 				console.error("you have to run init() function first");
 			}
-			var p = this.paper,
-				that = this,
-				type,
-				visualizedNode,
-				tmp
-			;
+			else {
+				var p = this.paper,
+					that = this,
+					type,
+					visualizedNode,
+					tmp
+				;
+				// this.paper.clear();
+				// this.graph_json = {};
 
-			// tutaj Błażej na podstawie graph_json.nodes, p.canvas.width
-			// generuje rozmieszczenie
-			// alert(p.width);
-			var deployerOutput = gui.controler.deploy(graph_json, p.width);
+				var deployerOutput = gui.controler.deploy(graph_json, p.width);
 
-			var tmpCoords, x, y;
-			$.each(graph_json.nodes, function(key, val){
-				tmpCoords = deployerOutput.getCoords(val.nodeId);
-				if(tmpCoords){
-					x = tmpCoords[0];
-					y = tmpCoords[1];
-				}
-				visualizedNode = that.visualiser.visualiseNode( val, x, y );
-				if(visualizedNode)
-					that.graph_view.nodes.push( visualizedNode );
-			});
+				var tmpCoords, x, y;
+				$.each(graph_json.nodes, function(key, val){
+					tmpCoords = deployerOutput.getCoords(val.nodeId);
+					if(tmpCoords){
+						x = tmpCoords[0];
+						y = tmpCoords[1];
+					}
+					visualizedNode = that.visualiser.visualiseNode( val, x, y );
+					if(visualizedNode)
+						that.graph_view.nodes.push( visualizedNode );
+				});
 
-			$.each(graph_json.nodes, function(key, val){	
-				$.each(val.sources, function(){
-					that.addCFEdge({
-						source: that.getNodeById(this),
-						target: that.getNodeById(val.nodeId)
+				$.each(graph_json.nodes, function(key, val){
+
+					// alert(val.nodeId)
+					$.each(val.sources, function(){
+						that.addCFEdge({
+							source: that.getNodeById(this),
+							target: that.getNodeById(val.nodeId)
+						});
+					});
+					$.each(val.functionalDescription.inputs, function(){
+						if(this && this.source && this.source.length == 2){
+							// alert(val.nodeId+":"+this.source);
+							// alert(this.source[1]);
+							that.addDFEdge({
+								sourceId : this.source[0],
+								targetId : val.nodeId,
+								input : that.getNodeById(val.nodeId).getInputById(this.id),
+								output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
+							});
+						}
 					});
 				});
-				$.each(val.functionalDescription.inputs, function(){
-					if(this && this.source && this.source.length == 2){
-						// alert(val.nodeId+":"+this.source);
-						// alert(this.source[1]);
-						that.addDFEdge({
-							sourceId : this.source[0],
-							targetId : val.nodeId,
-							input : that.getNodeById(val.nodeId).getInputById(this.id),
-							output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
-						});
-					}
-				});
-			});
 
-			this.switchMode("CF");
-			//dataType equal
+				this.switchMode("CF");
+			}
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
 			var minOdl=Infinity,
@@ -1559,7 +1561,7 @@ function View(id, width, height, gui){
 			$elem.html(html.join(""));
 
 			this.paper = Raphael("canvas_"+pf, canvas_width, h - 22);
-			this.leftPlugins = Raphael("left_plugins_"+pf, left_plugins_width, h);
+			// this.leftPlugins = Raphael("left_plugins_"+pf, left_plugins_width, h);
 			this.bgSelectionHelper = this.paper.rect(0,0,width,height).attr({fill : "#DEDEDE", stroke: "none"}).toBack();
 	
 			$elem.css("width", this.width);
@@ -1705,7 +1707,7 @@ function View(id, width, height, gui){
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
-	outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
+	// outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
 
 	var	lastDragX,
 		lastDragY,
