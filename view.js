@@ -37,21 +37,21 @@ function View(id, width, height, gui){
 					this.visible = true;
 				},
 				open: function open(title, text, x, y, evt) {
+					// console.log(title, text, x, y, evt)
 					if (title && text) {
 						this.tipTitle.html(title);
 						this.tipText.html(text);
+
+						if (x) this.tipContener.css("left", x);
+						if (y) this.tipContener.css("top", y);
+
+						this.tipContener.css("height", (this.tipTitle.height() + this.tipText.height()) + "px");
+
+						if (evt.shiftKey)
+							this.open2(this.title, this.text, this.x, this.y);
+						else 
+							this.tOut = setTimeout((function() { this.open2(this.title, this.text, this.x, this.y); }).bind(this), 500);
 					}
-
-					if (x) this.tipContener.css("left", x);
-					if (y) this.tipContener.css("top", y);
-
-					this.tipContener.css("height", (this.tipTitle.height() + this.tipText.height()) + "px");
-
-					if (evt.shiftKey) this.open2(this.title, this.text, this.x, this.y);
-					else 
-						this.tOut = setTimeout((function() { this.open2(this.title, this.text, this.x, this.y); }).bind(this), 500);
-							//A.view.tooltip.open2("+this.title+", "+this.text+", "+this.x+", "+this.y+")", 500);
-
 				},
 				close: function close() {
 					clearTimeout(this.tOut);
@@ -920,18 +920,18 @@ function View(id, width, height, gui){
 					;
 				});
 				$.each(visualizedNode.outputs, function(){
-					this.description = visualizedNode.prepareDescriptionForInput(this.id);
+					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
 					this.node.mouseover(
 						(function(that){
 							return function(evt, x, y){
-								// alert(visualizedNode.label)
+								// alert(visualizedNode.label);
 								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
 							};
 						})(this)
 					).mouseout(close)
 					;
 				});
-				visualizedNode.description = visualizedNode.prepareNodeDescription();
+				visualizedNode.prepareNodeDescription();
 
 				visualizedNode.mainShape.mouseover(
 					(function(that){
@@ -1739,7 +1739,7 @@ function View(id, width, height, gui){
 					});
 				});
 
-				this.switchMode("CF");
+				this.switchMode("DF");
 			}
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
