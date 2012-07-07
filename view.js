@@ -275,9 +275,6 @@ function View(id, width, height, gui){
 		return tmp;
 	};
 	function drawBottomBar(paper){
-		//		addElem: function (){ ... }		// tutaj chodzi o możliwość dodania czegoś...
-		//		removeElem: function (){ ... }	// 
-
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -285,11 +282,10 @@ function View(id, width, height, gui){
 			canvas = $(paper.canvas),
 			ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
 			ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
-			fontSize = 20,
+
 			offset = 20,
 			visible = .2,
 			invisible = 0,
-			
 			result = {
 				top: top,
 				left: left,
@@ -300,53 +296,54 @@ function View(id, width, height, gui){
 				visible: visible,
 				invisible: invisible,
 				animationTime: 200,
+				groups: [],
+				separators: [],
 				set: [],
 				pathString: function pathString(x, y){
 					return("M " + x + " " + y + " l 20 0 l -10 -10 z");
 				},
 				createBar: function createBar(x, y, width, height){
 					var that = this;
-
+					
 					this.bar = paper.rect(x, y, width, height).
 						attr({fill:"grey", opacity: this.invisible}).
 						mouseover(function(){
 							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
-							that.button1[0].show().animate({opacity: visible}, that.animationTime);
-							that.button1[1].show().animate({opacity: visible}, that.animationTime);
-							that.button1[2].show();
-							that.button2[0].show().animate({opacity: visible}, that.animationTime);
-							that.button2[1].show().animate({opacity: visible}, that.animationTime);
-							that.button2[2].show();
-							that.button3[0].show().animate({opacity: visible}, that.animationTime);
-							that.button3[1].show().animate({opacity: visible}, that.animationTime);
-							that.button3[2].show();
-							that.click = true;
+							$.each(that.groups, function(){
+								if(this.isVisible){
+									this.graphic.show().animate({opacity: visible}, that.animationTime);
+									$.each(this.buttons, function(){
+										if(this.isVisible){
+											this.graphic[0].show().animate({opacity: visible}, that.animationTime);
+											this.graphic[1].show().animate({opacity: visible}, that.animationTime);
+											this.graphic[2].show();
+										}
+									});
+								}
+							});
+							$.each(that.separators, function(){
+								this.show().animate({opacity: visible}, that.animationTime);
+							});
 						}).
 						mouseout(function(evt,x,y){
-							// console.log(evt);
-							// console.log(x+":"+y);
-							// (event.clientX-ofsetX, event.clientY-ofsetY);
-							// var targetNode = ();
-
 							var b = that.bar.getBBox();
-							// console.log(b.x+"-"+b.x2+"::::"+b.y+"-"+b.y2);
-							// console.log((x-ofsetX + window.scrollX)+":"+( y - ofsetY + window.scrollY));
-							// console.log("---------------------------------------");
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
-								that.bar.stop().animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 								that.triangle1.animate({opacity: visible}, that.animationTime);
 								that.triangle2.animate({opacity: visible}, that.animationTime);
-								that.button1[0].hide().animate({opacity: invisible}, that.animationTime);
-								that.button1[1].hide().animate({opacity: invisible}, that.animationTime);
-								that.button1[2].hide();
-								that.button2[0].hide().animate({opacity: invisible}, that.animationTime);
-								that.button2[1].hide().animate({opacity: invisible}, that.animationTime);
-								that.button2[2].hide();
-								that.button3[0].hide().animate({opacity: invisible}, that.animationTime);
-								that.button3[1].hide().animate({opacity: invisible}, that.animationTime);
-								that.button3[2].hide();
+								$.each(that.groups, function(){
+									this.graphic.animate({opacity: that.invisible}, that.animationTime).hide();
+									$.each(this.buttons, function(){
+										this.graphic[0].animate({opacity: invisible}, that.animationTime).hide();
+										this.graphic[1].animate({opacity: invisible}, that.animationTime).hide();
+										this.graphic[2].hide();
+									});
+								});
+								$.each(that.separators, function(){
+								this.animate({opacity: invisible}, that.animationTime).hide();
+							});
 							}
 						})
 						;
@@ -356,53 +353,241 @@ function View(id, width, height, gui){
 					tr.attr({fill:"grey", opacity: visible});
 					return tr;
 				},
-				createButton: function createButton(text, mult){
-					var glow, tLength = text.length;
-					var that = this;
+				addGroup: function addGroup(label){
+					var that = this,
+						margin = 10,
+						result = {
+						label: label,
+						buttons: [],
+						margin: margin,
+						x: 10, y: paper.height*.85 + margin,
+						width: 25, 
+						height: this.height - 2*margin,
+						isVisible: true,
+						addButton: function addButton(button){
+							this.buttons.push(button);
+							this.resizeAndRelocate();
+							that.relocate();
+						},
+						hideButton: function hideButton(label){
+							$.each(this.buttons, function(){
+								//nie będę w buttonie dodawać hide() i show(), bo tutaj to jedna linijka
+								if(this.label===label) this.isVisible = false;
+							});
+							that.massReset();
+							this.resizeAndRelocate();
+							that.relocate();
+						},
+						showButton: function showButton(label){
+							$.each(this.buttons, function(){
+								if(this.label===label) this.isVisible = true;
+							});
+							this.resizeAndRelocate();
+							that.relocate();
+						},
+						hideGroup: function hideGroup(){
+							this.isVisible = false;
+							that.massReset();
+						},
+						showGroup: function showGroup(){
+							this.isVisible = true;
+							that.massReset();
+						},
+						createGraphic: function createGraphic(){
+							var temp, bbox;
+							temp = paper.text(0, this.y+5, this.label)
+							.attr({"font-size":10, fill:"black", opacity: 0});
+							bbox = temp.getBBox();
+							temp.attr("x", this.x+bbox.width/2+this.margin);
+							return temp;
+						},
+						moveGroupToX: function moveGroupToX(x){
+							//przesunięcie do punktu (x, y), nie o wektor [x, y], y = const.
+							var dx = x - this.x, ox;
+							this.x = x;
+							ox = this.graphic.attr("x");
+							this.graphic.attr({"x": ox+dx});
+							$.each(this.buttons, function(){
+								this.moveButtonByX(dx);
+							});
+						},
+						resizeAndRelocate: function resizeAndRelocate(){
+							var sum = margin, groupX = this.x;
+							$.each(this.buttons, function(){
+								if(this.isVisible===true){
+									this.moveButtonToX(sum + groupX);
+									sum += this.width + margin;
+								}
+							});
+							this.width = sum;
+						}
+					};
+					result.graphic = result.createGraphic();
+					this.groups.push(result);
+					this.addSeparator(result.x+result.width, result.y, result.height);
+					this.relocate();
+					return result;
+				},
+				getGroup: function getGroup(groupLabel){
+					var result = false;
+					$.each(this.groups, function(){
+						if(this.label===groupLabel) {
+							result = this;
+						}
+					});
+					return result;
+				},
+				addOption: function addOption(groupLabel, label, click, description){
+					var result = {
+						label: label,
+						groupLabel: groupLabel,
+						description: description,
+						fontsize: 25,
+						x: 0, y: paper.height*.85 + 15,
+						width: 0, height: 0,
+						isVisible: true,
+						moveButtonToX: function moveButtonToX(x){
+							var ox, dx = x - this.x;
+							this.x = x;
+							$.each(this.graphic, function(){
+								ox = this.attr("x");
+								this.attr({"x": ox+dx});
+							});
+						},
+						moveButtonByX: function moveButtonByX(x){
+							var ox;
+							this.x += x;
+							$.each(this.graphic, function(){
+								ox = this.attr("x");
+								this.attr({"x": ox+x});
+							});
+						},
+						moveButtonByY: function moveButtonByY(y){
+							var oy;
+							this.y += y;
+							$.each(this.graphic, function(){
+								oy = this.attr("y");
+								this.attr({"y": oy+y});
+							});
+						},
+						resize: function resize(w, h){
+							this.width = w;
+							this.height = h;
+							this.graphic[0].attr({"width": w, "height": h});
+							this.graphic[2].attr({"width": w, "height": h});
+						},
+						fontsizeChange: function fontsizeChange(arg){
+							//arg nieobowiązkowy, jeśli nie zostanie podany, czcionka zmniejszy się o 2px 
+							this.fontsize += (arg) ? arg : -2;
+							this.recreateGraphic();
+						},
+						fontsizeReset: function fontsizeReset(){
+							this.fontsize = 25;
+							this.recreateGraphic();
+						},
+						createGraphic: function createGraphic(){
+							var temp1, temp2, cover, bbox, set, labelX, labelY;
+							temp1 = paper.text(0, 0, this.label)
+							.attr({
+								"font-size" : this.fontsize+"px",
+								"font-weight" : "bold",
+								"stroke-width" : "1px",
+								"stroke-linejoin" : "round",
+								"stroke-linecap" : "butt",
+								stroke : "grey",
+								fill : "black",
+								opacity : invisible
+							});
+							bbox = temp1.getBBox();
+							this.width = bbox.width + 10;
+							this.height = bbox.height + 10;
+							temp2 = paper.rect(this.x, this.y, this.width, this.height, 3).attr({fill:"ivory", opacity:invisible});
+							labelX = this.x + this.width/2; labelY = this.y + this.height/2;
+							temp1.attr({"x": labelX, "y": labelY});
+							cover = paper.rect(this.x, this.y, this.width, this.height, 3)
+								.attr({"cursor": "pointer", fill: "red", opacity: 0.0})
+								.mouseover(function(txt){
+									return (function(){
+										txt.attr("stroke", "blue");
+									});
+								}(temp1))
+								.mouseout(function(txt){
+									return (function(){
+										txt.attr("stroke", "gray");
+									});
+								}(temp1))
+								.toFront()
+								.hide();
+							set = [];
+							set.push(temp2, temp1, cover);
+							return set;
+						},
+						recreateGraphic: function recreateGraphic(){
+							var bbox, labelX, labelY;
+							this.graphic[1].attr({"font-size": this.fontsize+"px"});
+							bbox = this.graphic[1].getBBox();
+							this.width = bbox.width + 10;
+							this.height = bbox.height + 10;
+							this.graphic[0].attr({"width": this.width, "height": this.height});
+							this.graphic[2].attr({"width": this.width, "height": this.height});
+							labelX = this.x + this.width/2; labelY = this.y + this.height/2;
+							this.graphic[1].attr({"x": labelX, "y": labelY});
+						}
+					};
+					result.graphic = result.createGraphic();
+					result.graphic[2].click(click);
+					var group = this.getGroup(result.groupLabel);
+					result.moveButtonByY(result.height/4);
+					group.addButton(result);
+					return result;
+				},
+				addSeparator: function addSeparator(x, y, h){
+					var sep = paper.rect(x, y, 1, h).attr({"stroke-width":"0", fill:"gray", opacity:invisible});
+					this.separators.push(sep);
+					return sep;
+				},
+				relocate: function relocate(){
+					var sum = 10, that = this;
+					//fix dla buga powodującego powstawanie niezniszczalnych separatorów, jeżeli
+					//użytkownik ma otwarty pasek podczas hide'owania czegoś
+					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystąpić?
+					$.each(this.separators, function(){
+						this.hide();
+					});
 
-					var temp1 = paper
-							.rect(parseInt(width/2+(40*mult)), paper.height*.88, 40+((tLength > 4) ? 18*tLength : 10*tLength), 50, 5)
-							.attr({fill:"ivory", opacity:invisible});
-					var temp2 = paper.text(temp1.attr("x")+temp1.attr("width")/2, temp1.attr("y")+temp1.attr("height")/2, text)
-						.attr({
-							"font-size": fontSize+"px",
-							"font-weight":"bold",
-							"stroke-width":"1",
-							"stroke-linejoin":"round",
-							"stroke-linecap":"butt",
-							stroke:"grey",
-							fill:"black",//"#5C2E00",
-							opacity:invisible
-						});
-					var cover = paper.
-							rect(parseInt(width/2+(40*mult)), paper.height*.88, 40+((tLength > 2) ? 18*tLength : 10*tLength), 50, 5).
-							attr({"cursor": "pointer", "stroke-width": 1, fill: "red", opacity: 0.0}).
-							mouseover(function(txt){
-								return (function(){
-									txt.attr("stroke", "blue");
-								});
-							}(temp2)).
-							mouseout(function(txt){
-								return (function(){
-									txt.attr("stroke", "gray");
-								});
-							}(temp2)).hide();
-
-					if(text === "StartStop"){
-						cover.click(function(){
-							gui.controler.reactOnEvent("AddStartStopAutomatically");
-						})
-						;
-					} else {
-						cover.click(function(){
-							gui.controler.reactOnEvent("SwitchMode", {mode: text})
-								// txt.attr("fill", "white");
-						})
-						;
+					this.separators = [];
+					$.each(this.groups, function(){
+						if(this.isVisible){
+							this.moveGroupToX(sum);
+							//to jest ciut partyzanckie, ale jak inaczej ominąć pierwszy separator?
+							//czy też może chcemy pierwszy lub ostatni separator? ale po co?
+							if(sum>10)
+								that.addSeparator(this.x, this.y, this.height);
+							sum += this.width;
+						}
+					});
+					if(sum >= paper.width){
+						this.massResize();
 					}
-					var set = paper.set(temp1, temp2, cover);
-
-					return set;
+				},
+				massResize: function massResize(arg){
+					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w label buttonów, non-obligatory
+					$.each(this.groups, function(){
+						$.each(this.buttons, function(){
+							this.fontsizeChange(arg);
+						});
+						this.resizeAndRelocate();
+					});
+					this.relocate();
+				},
+				massReset: function massReset(){
+					$.each(this.groups, function(){
+						$.each(this.buttons, function(){
+							this.fontsizeReset();
+						});
+						this.resizeAndRelocate();
+					});
+					this.relocate();
 				}
 			};
 
@@ -418,12 +603,41 @@ function View(id, width, height, gui){
 				parseInt(top+offset)
 			)
 		);
-		//chwilowa partyzantka
+		
+		var switchMode = function(arg){
+			return (function(){
+				gui.controler.reactOnEvent("SwitchMode", {mode: arg})
+			});
+		};
+		var startStop = function(){
+			gui.controler.reactOnEvent("AddStartStopAutomatically");
+		};
+		var f3 = function(){alert("this is just for debugging")};
+
 		result.invisibleBar = result.createBar(left, top, width, height);
-		result.button1 = result.createButton("CF", 1);
-		result.button2 = result.createButton("DF", 3.5);
-		result.button3 = result.createButton("StartStop", -5);
+		result.addGroup("Views");
+		result.addOption("Views", "CF", switchMode("CF"), "ControlFlow");
+		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
+		result.addGroup("Edit");
+		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
+		result.addGroup("Tester group");
+		result.addOption("Tester group", "Test1", f3, "Test if works");
+		result.addOption("Tester group", "TestTWO", f3, "Test if works");
+		result.addOption("Tester group", "AnotherTest", f3, "Test if works");
+		result.addOption("Tester group", "Test4", f3, "Test if works");
+		result.addOption("Views", "SS", f3, "Test if works");
+		result.addOption("Views", "Test", f3, "Test if works");
+
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
+
+		//UŻYCIE WTYCZKI:
+		//ma defaultowo zdefiniowane buttony CF, DF i SS
+		//addGroup(label) dodaje grupę o zadanym labelu
+		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
+		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
+		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
+		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
+		//Analogicznie pokazywanie elementu
 
 		return result;
 	};
