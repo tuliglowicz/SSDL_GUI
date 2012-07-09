@@ -64,29 +64,38 @@ function Controler(url, gui){
 		return resultObject;
 	}
 
-	function initLogger(h){
+	function initLogger(paper){
 		/* user console
 		* REQUIRED PARAMS: 
-		* - h (height of containing div)
+		* - paper (on which we will draw button opening the console)
 		*/
+		var h = paper.height;
 		var dId = "#console_" + pf;
 		var obj = {
 			lId : dId,
+			button : paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+				fill : "#222",
+				"fill-opacity": .6
+			}),
+			bGlow : null
 		};
 		$(dId).click(function(){
-			var height = $(dId).css('height');
-			console.log(height);
-			if(height!='20px'){
-				$(dId).animate({
-					height: 20,
-					overflow : 'hidden'
-				});
-			}else{
-				$(dId).animate({
-					height: h,
-					overflow : 'scroll'
-				});
-			}
+			$(dId).animate({
+				height: 0,
+				overflow : 'hidden'
+			});
+		});
+		obj.button.click(function(){
+			$(dId).animate({
+				height: h,
+				overflow : 'scroll'
+			});
+		});
+		obj.button.mouseover(function(){
+			obj.bGlow = obj.button.glow();
+		});
+		obj.button.mouseout(function(){
+			obj.bGlow.remove();
 		});
 		return obj;
 	}
