@@ -38,6 +38,7 @@ function View(id, width, height, gui){
 				},
 				open: function open(title, text, x, y, evt) {
 					// console.log(title, text, x, y, evt)
+					// console.log("open")
 					if (title && text) {
 						this.tipTitle.html(title);
 						this.tipText.html(text);
@@ -54,6 +55,7 @@ function View(id, width, height, gui){
 					}
 				},
 				close: function close() {
+					// console.log("close")
 					clearTimeout(this.tOut);
 					this.tipContener.hide();
 					this.visible = false;
@@ -242,15 +244,15 @@ function View(id, width, height, gui){
 								visualiser.draw_unknownNode(blankNode);
 								break;					
 						}
-						gui.view.graph_view.nodes.push(blankNode);
+						gui.view.current_graph_view.nodes.push(blankNode);
 						newRect.remove();
 						// wywołaj funkcję draw_odpowiednityp(node)
 						//(visualiser["draw_"+nodeType+"Node"] || visualiser.draw_unknownNode )(blankNode)
 						// otworz formularz edycji bloczka
 						// jesli walidacja puszcz, to zapisz:
-						// 		widok boczka do gui.view.graph_view.nodes
+						// 		widok boczka do gui.view.current_graph_view.nodes
 						//		dane bloczka do gui.controler.graphData
-						//		gui.view.graph_view.nodes.push(newRect);			
+						//		gui.view.current_graph_view.nodes.push(newRect);			
 					}
 					else if(newCirc && newCirc.attr("opacity")>0){
 						blankNode = visualiser.getBlankNode();
@@ -258,7 +260,7 @@ function View(id, width, height, gui){
 						blankNode.y = newCirc.attr("cy");
 						blankNode.type = "control";
 						visualiser.draw_controlNode(blankNode);
-						gui.view.graph_view.nodes.push(blankNode);
+						gui.view.current_graph_view.nodes.push(blankNode);
 						newCirc.remove();
 					}
 				};
@@ -702,7 +704,6 @@ function View(id, width, height, gui){
 					},
 					switchToHybrydMode : function switchToHybrydMode(){
 					},
-					// {"class":"VideoSensor","id":"VideoSensor","label":"VideoSensor","dataType":"Sensor","properties":"","source":["CCTVStartMonitoring","VideoSensor"]}
 					prepareNodeDescription : function prepareNodeDescription(){
 						var data = gui.controler.getNodeById(this.id),
 							result
@@ -905,42 +906,7 @@ function View(id, width, height, gui){
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
-				function close(){
-					view.tooltip.close();
-				}
-				$.each(visualizedNode.inputs, function(){
-					this.description = visualizedNode.prepareDescriptionForInput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-				$.each(visualizedNode.outputs, function(){
-					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								// alert(visualizedNode.label);
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-				visualizedNode.prepareNodeDescription();
-
-				visualizedNode.mainShape.mouseover(
-					(function(that){
-						return function(evt, x, y){
-							view.tooltip.open(that.type+":"+that.label, that.description, x, y, evt);
-						};
-					})(visualizedNode)
-				).mouseout(close)
-				;
+				this.addTooltips(visualizedNode);
 
 				return visualizedNode;
 			},
@@ -1175,6 +1141,44 @@ function View(id, width, height, gui){
 				//c - coords
 				var size = 4;
 				return view.paper.arrow(c.x1, c.y1, c.x2, c.y2, size);
+			},
+			addTooltips : function addTooltips(visualizedNode){
+				function close(){
+					view.tooltip.close();
+				}
+				$.each(visualizedNode.inputs, function(){
+					this.description = visualizedNode.prepareDescriptionForInput(this.id);
+					this.node.mouseover(
+						(function(that){
+							return function(evt, x, y){
+								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
+							};
+						})(this)
+					).mouseout(close)
+					;
+				});
+				$.each(visualizedNode.outputs, function(){
+					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
+					this.node.mouseover(
+						(function(that){
+							return function(evt, x, y){
+								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
+							};
+						})(this)
+					).mouseout(close)
+					;
+				});
+
+				visualizedNode
+				.prepareNodeDescription()
+				.mainShape.mouseover(
+					(function(that){
+						return function(evt, x, y){
+							view.tooltip.open(that.type+":"+that.label, that.description, x, y, evt);
+						};
+					})(visualizedNode)
+				).mouseout(close)
+				;
 			}
 		};
 
@@ -1199,10 +1203,23 @@ function View(id, width, height, gui){
 			centerCol : {},
 			rightCol : {}
 		},
-		graph_view: {
+		graph_views_tab : [],
+		current_graph_view: {
+			id : "new",
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		changeCurrentGraphView : function changeCurrentGraphView(id){
+			var result;
+			$.each(this.graph_views_tab, function(){
+				if(this.id === id){
+					result = this;
+					return false;
+				}
+			});
+
+			this.current_graph_view = result;
 		},
 		editNode : function editNode(node){
 			console.log(node);
@@ -1217,32 +1234,32 @@ function View(id, width, height, gui){
 			start = this.visualiser.visualiseNode(start);
 			stop = this.visualiser.visualiseNode(stop);
 			if(start && stop){
-				this.graph_view.nodes.unshift( start, stop );
+				this.current_graph_view.nodes.unshift( start, stop );
 			}
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
 			//dodać lepiej dobierane parametry x, y
 			var visualizedNode = this.visualiser.visualiseNode( node );
 			if(visualizedNode)
-				this.graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
+				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
-				$.each(this.graph_view.nodes, function(){
+				$.each(this.current_graph_view.nodes, function(){
 					this.switchMode(mode);
 				});
 
-				$.each(this.graph_view.edgesCF, function(){
+				$.each(this.current_graph_view.edgesCF, function(){
 					this.switchMode(mode);
 				});
-				$.each(this.graph_view.edgesDF, function(){
+				$.each(this.current_graph_view.edgesDF, function(){
 					this.switchMode(mode);
 				});
 				this.mode = mode;
 			}
 		},
 		convertGraphViewToXML : function convertGraphViewToXML(humanFriendly){
-			var n = this.graph_view.nodes,
+			var n = this.current_graph_view.nodes,
 				id = "testowe_id",
 				tab_XML = [],
 				stringXML
@@ -1280,7 +1297,7 @@ function View(id, width, height, gui){
 		getNodeById : function getNodeById(id){
 			var result;
 
-			$.each(this.graph_view.nodes, function(){
+			$.each(this.current_graph_view.nodes, function(){
 				if( this.id === id ){
 					result = this;
 					return false;
@@ -1314,7 +1331,7 @@ function View(id, width, height, gui){
 	
 						// console.log(transX+":"+transY)
 						if(transX != 0 || transY != 0){
-					  		$.each(gui.view.graph_view.nodes, function(i, val){
+					  		$.each(gui.view.current_graph_view.nodes, function(i, val){
 								if(val.highlighted){
 									val.translate(transX, transY);
 								}
@@ -1461,7 +1478,7 @@ function View(id, width, height, gui){
 					sourceNode = outputView.getNodeById(this.node.classList[0]);
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
-					$.each(gui.view.graph_view.nodes, function(i, v){
+					$.each(gui.view.current_graph_view.nodes, function(i, v){
 						$.each(v.inputs, function(){
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "red"}) );
@@ -1571,7 +1588,7 @@ function View(id, width, height, gui){
 				}
 				;
 				edgeObject.update();
-				this.graph_view.edgesCF.push( edgeObject );
+				this.current_graph_view.edgesCF.push( edgeObject );
 			}
 		},
 		addDFEdge : function addCFEdge(data){
@@ -1636,24 +1653,24 @@ function View(id, width, height, gui){
 					}
 				;
 				edgeObject.update();
-				this.graph_view.edgesDF.push( edgeObject );
+				this.current_graph_view.edgesDF.push( edgeObject );
 			}
 		},
 		updateEdges : function updateEdges(){
 			if(this.mode === "CF"){
-				$.each(this.graph_view.edgesCF, function(){
+				$.each(this.current_graph_view.edgesCF, function(){
 					this.update();
 				});
 			}
 			else if(this.mode === "DF"){
-				$.each(this.graph_view.edgesDF, function(){
+				$.each(this.current_graph_view.edgesDF, function(){
 					this.update();
 				});
 			}
 		},
 		getCFEdge : function getEdge(sourceId, targetId){
 			var foundedCFEdge;
-			$.each(this.graph_view.edgesCF, function(){
+			$.each(this.current_graph_view.edgesCF, function(){
 				if(this.source.id === sourceId && this.target.id === targetId){
 					foundedCFEdge = this;
 					return false;
@@ -1664,7 +1681,7 @@ function View(id, width, height, gui){
 		},
 		getDFEdge : function getEdge(sourceId, targetId, outputId, inputId){
 			var foundedDFEdge;
-			$.each(this.graph_view.edgesDF, function(){
+			$.each(this.current_graph_view.edgesDF, function(){
 				if( this.sourceId === sourceId && this.targetId === targetId &&
 					this.input.id === inputId && this.output.id === inputId ) {
 
@@ -1677,7 +1694,7 @@ function View(id, width, height, gui){
 		},
 		isInputConnected: function isInputConnected(nodeId, inputId){
 			var result = false;
-			$.each(this.graph_view.edgesDF, function(){
+			$.each(this.current_graph_view.edgesDF, function(){
 				if(this.targetId === nodeId && this.input.id === inputId){
 					result = true;
 					return false;
@@ -1713,7 +1730,7 @@ function View(id, width, height, gui){
 					}
 					visualizedNode = that.visualiser.visualiseNode( val, x, y );
 					if(visualizedNode)
-						that.graph_view.nodes.push( visualizedNode );
+						that.current_graph_view.nodes.push( visualizedNode );
 				});
 
 				$.each(graph_json.nodes, function(key, val){
@@ -1839,7 +1856,7 @@ function View(id, width, height, gui){
 			};
 		},
 		setBold : function setBold(x1, y1, x2, y2){
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				if( v.isInside(x1, y1, x2, y2) )
 					v.setBold(true);
 				else 
@@ -1847,19 +1864,19 @@ function View(id, width, height, gui){
 			});
 		},
 		deselectAll : function deselectAll(){
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				v.removeHighlight();
 			});
 			this.tooltip.close();
 		},
 		selectAll : function selectAll(){
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				v.highlight2();
 			});
 		},
 		selectNodesInsideRect : function selectNodesInsideRect(x1,y1,x2,y2, ctrl){
 			//alert(x1+":"+x2+":"+ctrl)
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				if( v.isInside(x1, y1, x2, y2) )
 					v.highlight(ctrl);
 				else if(!ctrl){
@@ -1869,7 +1886,7 @@ function View(id, width, height, gui){
 			});	
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				if( v.isInside(x1, y1, x2, y2) )
 					v.setBold(true);
 				else
@@ -1884,7 +1901,7 @@ function View(id, width, height, gui){
 				y2 = (typeof y2 === 'number' ? y2 : y1);
 				count = (typeof count === 'number' ? count : 1);
 
-				$.each(this.graph_view.nodes, function(){
+				$.each(this.current_graph_view.nodes, function(){
 					//a(x1+":"+y1+":"+x2+":"+y2+":"+count);
 					if( this.isInside(x1, y1, x2, y2) ){
 						resultTab.push(this);
@@ -1905,7 +1922,7 @@ function View(id, width, height, gui){
 			var result,
 				bbox,
 				loopControler = true;
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				$.each(v.inputs, function(){
 					bbox = this.node.getBBox();
 					if ( bbox.x+bbox.width > x &&
@@ -1928,7 +1945,7 @@ function View(id, width, height, gui){
 			return result;
 		},
 		removeNode : function removeNode(id){
-			$.each(this.graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(k, v){
 				if(v.id === id){
 					v.remove();
 					return false;
@@ -2028,7 +2045,7 @@ function View(id, width, height, gui){
 					ctrl : evt.ctrlKey
 				});
 				
-				$.each(outputView.graph_view.nodes, function(i, val){
+				$.each(outputView.current_graph_view.nodes, function(i, val){
 					val.setBold(false);
 				});
 			}

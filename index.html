@@ -9,6 +9,8 @@
 	<script src="javascripts/jquery.jstree.js"></script>
 	<script src="javascripts/raphael.js"></script>
 	<script src="javascripts/shortcut.js"></script>
+	<script src="javascripts/ontology.js"></script>
+	<script src="library.js"></script>
 	<script src="controler.js"></script>
 	<script src="view.js"></script>
 	<link href="stylesheets/my_style.css" rel="stylesheet">
@@ -19,62 +21,8 @@
 
 <script>
 	"use strict";
-	// Object.prototype.getType = function getType(){
-	// 	var tmp = Object.prototype.toString.call(this);
-
-	// 	return tmp.substring(8, tmp.length-1);
-	// };
-	// Object.prototype.extend = function () {
-	// 	var tempObj;
-	// 	for (var i in arguments) {
-	// 		tempObj = arguments[i];
-	// 		for (var property in tempObj) {
-	// 			this[property] = (this[property] === undefined ? tempObj[property] : this[property]);
-	// 		}
-	// 	}
-	// };
-	Raphael.fn.arrow = function (x1, y1, x2, y2, size) {
-	    var angle = (Math.atan2(x1-x2,y2-y1) / Math.PI) * 180,
-	    	arrowPath = this.path("M" + x2 + " " + y2 + " L" + (x2 - size) + " " + (y2 - size) + " L" + (x2 - size) + " " + (y2 + size) + " L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle),x2,y2),
-	    	linePath = this.path("M" + x1 + " " + y1 + " L" + x2 + " " + y2);
-
-	    return [linePath, arrowPath];
-	};
-	Raphael.el.myShow = function (time) {
-		time = time || 250;
-		this.show().animate({opacity: 1}, time);
-		return this;
-	};
-	Raphael.el.myHide = function (time) {
-		time = time || 250;
-		this.animate({opacity: 0}, time, function(){
-			this.hide();
-		});
-		return this;
-	};
-	jQuery.fn.myShow = function (time) {
-		time = time || 250;
-		this.animate({opacity: 1}, time);
-		return this;
-	};
-	jQuery.fn.myHide = function (time) {
-		time = time || 250;
-		this.animate({opacity: 0}, time, function(){
-			$(this).hide();
-		});
-		return this;
-	};
-	function raport(arg){
-		arg = arg.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>").replace(/\t/g, "&nbsp; &nbsp;");
-		document.getElementById("raport").innerHTML +=arg; //+ "----"+ typeof(arg)
-	}
-	function getType(arg){
-		var tmp = Object.prototype.toString.call(arg);
-
-		return tmp.substring(8, tmp.length-1);
-	}
+	
 	// pomocnicze skróty
-	// alert("<div id='divContener' style='position: absolute; display: block; opacity:0; top:" + 10 + "; left:"+ 200 +"; width: "+411+"; height:"+ 432 +"; color: black; text-align: center; overflow: hidden;'> </div>")
 	var a = alert;
 	var jstr = JSON.stringify;
 	// eof pomocnicze skróty
@@ -98,15 +46,7 @@
 		return r;
 	}
 
-
-	// setTimeout("raport(A.view.convertGraphViewToXML(false))", 100)
-
-	// A.view.tooltip.open("Title", "<b>Service description:</b><br/> serviceName: StreamingWorkflowEnigne<br/>serviceGlobalId: www.platel.pl/streamingworkflowengine<br/>address: www.platel.pl/streamingworkflowengine<br/>operation: execute<br/><b>Non functional properties:</b><br/>non functional property #0:<br/>weight: 1<br/>name: location<br/>relation: eq<br/>unit: district<br/>value: srodmiescie", 100, 100)
-
 	var G = A.view.graph_view;
-
-	// $(document).ready(function(){
-	// });
 
 	var ontology_json = {data:'Thing', children: [{data:'_Communication', children: [{data:'Algorithm', children: [{data:'Amplification', children: []}, {data:'Authentication', children: []}, {data:'ChangeDetection', children: []}, {data:'Compression', children: []}, {data:'DecisionMaking', children: []}, {data:'Decoding', children: []}, {data:'Decryption', children: []}, {data:'DeNoising', children: []}, {data:'Encoding', children: []}, {data:'Encryption', children: []}, {data:'Merging', children: []}, {data:'Splitting', children: []}]}, {data:'AudioBitrate', children: []}, {data:'AudioBitrateType', children: [{data:'CBR', children: []}, {data:'VBR', children: [{data:'AverageBR', children: []}, {data:'OnOffBR', children: []}]}]}, {data:'AudioBitrateValue', children: [{data:'1100kb/s', children: []}, {data:'125kb/s', children: []}, {data:'690kb/s', children: []}]}, {data:'AudioType', children: [{data:'Monophonic', children: []}, {data:'Stereophonic', children: []}]}, {data:'Codec', children: [{data:'AudioCodec', children: [{data:'FLAC', children: []}, {data:'MP3', children: []}, {data:'PCM', children: []}]}, {data:'VideoCodec', children: [{data:'MPEG-1', children: []}, {data:'MPEG-2', children: []}, {data:'MPEG-4', children: [{data:'4K', children: []}, {data:'HighDefinition', children: []}, {data:'StandardDefinition', children: []}]}]}]}, {data:'ColorScheme', children: [{data:'BlackAndWhite', children: []}, {data:'RGB', children: []}]}, {data:'Data', children: [{data:'Message', children: [{data:'Character', children: []}, {data:'Image', children: []}, {data:'Number', children: []}]}, {data:'Stream', children: [{data:'Audio', children: []}, {data:'Video', children: []}]}]}, {data:'EncodingType', children: [{data:'Lossless', children: []}, {data:'Lossy', children: []}]}, {data:'ImageCompression', children: [{data:'ImageCompressionLossless', children: [{data:'BMP', children: []}, {data:'GIF', children: []}, {data:'PNG', children: []}, {data:'TIFF', children: []}]}, {data:'ImageCompressionLossy', children: [{data:'DCT', children: []}, {data:'JPEG', children: []}]}]}, {data:'MessageFormat', children: [{data:'CSV', children: []}, {data:'RTF', children: []}, {data:'TXT', children: []}, {data:'XLS', children: []}, {data:'XML', children: []}]}, {data:'Processing', children: [{data:'AudioProcessing', children: [{data:'SoundAnalysis', children: []}, {data:'SpeechReccognition', children: []}]}, {data:'DataProcessing', children: [{data:'Filtering', children: []}, {data:'StatisticalProcessing', children: []}]}, {data:'VideoProcessing', children: [{data:'BackgroundRecognition', children: []}, {data:'ColorsChange', children: []}, {data:'EdgeProcessing', children: []}, {data:'MotionTracking', children: []}]}]}, {data:'SamplingRate', children: []}, {data:'Sensor', children: [{data:'AnalogSensor', children: [{data:'HumiditySensor', children: []}, {data:'InsolationSensor', children: []}, {data:'TemperatureSensor', children: []}]}, {data:'AudioSensor', children: [{data:'Microphone', children: []}]}, {data:'DigitalSensor', children: [{data:'ChemicalSensor', children: []}, {data:'CO2Sensor', children: []}, {data:'MotionSensor', children: []}, {data:'NoiseSensor', children: []}, {data:'SmokeSensor', children: []}]}, {data:'VideoSensor', children: [{data:'Camcoder', children: []}]}]}, {data:'SensorOutput', children: []}, {data:'SensorStatus', children: [{data:'SensorError', children: []}, {data:'SensorOK', children: []}]}, {data:'Size', children: []}, {data:'VideoBitrate', children: []}, {data:'VideoBitrateValue', children: [{data:'1.5Mb/s', children: []}, {data:'100Mb/s', children: []}, {data:'15Mb/s', children: []}, {data:'16Mb/s', children: []}, {data:'200Mb/s', children: []}, {data:'40Mb/s', children: []}, {data:'4Mb/s', children: []}, {data:'56Mb/s', children: []}, {data:'60Mb/s', children: []}, {data:'768kb/s', children: []}, {data:'90Mb/s', children: []}]}]}, {data:'_Process', children: [{data:'Alert', children: [{data:'AlertAction', children: [{data:'InitiateAlert', children: []}, {data:'SendAlert', children: []}, {data:'SetAlertStatus', children: []}, {data:'SetAlertType', children: []}]}, {data:'AlertData', children: [{data:'AlertDataActions', children: [{data:'Aggregate', children: []}, {data:'Compress', children: []}, {data:'Convert', children: []}, {data:'Decompress', children: []}, {data:'Process', children: []}, {data:'Send', children: []}, {data:'SetParameters', children: []}, {data:'Store', children: []}]}, {data:'AlertID', children: []}, {data:'AlertObject', children: []}, {data:'AlertStatus', children: [{data:'AlertError', children: []}, {data:'AlertOK', children: []}, {data:'AlertProcessing', children: []}, {data:'ClientNotified', children: []}, {data:'MonitoringNotified', children: []}]}, {data:'AlertType', children: [{data:'High', children: []}, {data:'Low', children: []}]}, {data:'Timing', children: [{data:'Hrs18_6', children: []}, {data:'Hrs24', children: []}, {data:'Hrs6_18', children: []}]}]}]}, {data:'Client', children: [{data:'ClientData', children: [{data:'Firstname', children: []}, {data:'Phone', children: []}, {data:'Surname', children: []}]}]}, {data:'Object', children: [{data:'ObjectID', children: []}, {data:'ObjectLocation', children: [{data:'Address', children: []}, {data:'Area', children: []}, {data:'GPS', children: [{data:'EW', children: []}, {data:'NS', children: []}]}]}, {data:'ObjectOwner', children: []}, {data:'ObjectType', children: [{data:'Building', children: [{data:'House', children: []}, {data:'Laboratory', children: []}]}, {data:'Room', children: []}]}]}, {data:'Person', children: [{data:'PersonID', children: []}]}, {data:'Service', children: [{data:'ServiceLocation', children: [{data:'IP', children: []}, {data:'Port', children: []}]}]}]}]};
 

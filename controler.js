@@ -19,18 +19,8 @@ function Controler(url, gui){
 				result.serviceName = node.physicalDescription.serviceName;
 				result.set = this.paper.set();
 
-				result.inputs = node.functionalDescription.inputs;
-				for(var i in result.inputs) {
-					result.inputs[i].description = result.prepareDescriptionForInput(result.inputs[i].id);
-					result.inputs[i].source = [];
-				}
-				
+				result.inputs = node.functionalDescription.inputs;				
 				result.outputs = node.functionalDescription.outputs;
-				for(var o in result.outputs){
-					result.outputs[o].description = result.prepareDescriptionForOutput(result.outputs[o].id);
-				}
-
-				result.description = result.prepareNodeDescription();
 
 				return result;
 			},
@@ -57,6 +47,9 @@ function Controler(url, gui){
 					$.each(tmp.outputs, function(){
 						this.node.attr({cursor: "default"});
 					});
+
+					gui.view.visualiser.addTooltips(tmp);
+
 					that.currNodes.push(tmp);
 				});
 			},
@@ -587,7 +580,6 @@ function Controler(url, gui){
 				author: "Author",
 				dataType: 'xml',
 				data: data,
-				parent: gui.controler,
 				paper: undefined,
 				globalEvents: ["load"],
 				require: "div canvas".split(" "),
@@ -834,6 +826,9 @@ function Controler(url, gui){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 			switch(evtType.toUpperCase()){
+				case "LOADSSDL" : (function (e) {
+					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
+				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
