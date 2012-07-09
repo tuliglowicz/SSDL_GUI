@@ -63,6 +63,49 @@ function Controler(url, gui){
 
 		return resultObject;
 	}
+
+	function initLogger(paper){
+		/* user console
+		* REQUIRED PARAMS: 
+		* - paper (on which we will draw button opening the console)
+		*/
+		var h = paper.height;
+		var dId = "#console_" + pf;
+		var obj = {
+			lId : dId,
+			button : paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+				fill : "#222",
+				"fill-opacity": .6
+			}),
+			bGlow : null
+		};
+		//images
+		paper.image('images/info.png', paper.width - 152, 2, 15, 15);
+		paper.image('images/warning.png', paper.width - 112, 2, 15, 15);
+		paper.image('images/error.png', paper.width - 72, 2, 15, 15);
+		//event handling
+		$(dId).click(function(){
+			$(dId).animate({
+				height: 0,
+				overflow : 'hidden'
+			});
+		});
+		obj.button.click(function(){
+			$(dId).animate({
+				height: h,
+				overflow : 'scroll'
+			});
+		});
+		obj.button.mouseover(function(){
+			if(obj.bGlow) obj.bGlow.remove();
+			obj.bGlow = obj.button.glow();
+		});
+		obj.button.mouseout(function(){
+			obj.bGlow.remove();
+		});
+		return obj;
+	}
+
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -628,6 +671,7 @@ function Controler(url, gui){
 			this.initPlugins();
 		},
 		deploy : deploy,
+		initLogger : initLogger,
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
