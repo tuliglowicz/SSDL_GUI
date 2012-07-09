@@ -38,6 +38,7 @@
 		r.controler = Controler(url, r);
 		r.library = {gui: r};		
 		r.controler.init();
+		r.logger = r.controler.initLogger(r.view.paper);
 
 		$(function(){
 			$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")
