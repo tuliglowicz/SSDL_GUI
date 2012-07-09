@@ -79,6 +79,11 @@ function Controler(url, gui){
 			}),
 			bGlow : null
 		};
+		//images
+		paper.image('images/info.png', paper.width - 152, 2, 15, 15);
+		paper.image('images/warning.png', paper.width - 112, 2, 15, 15);
+		paper.image('images/error.png', paper.width - 72, 2, 15, 15);
+		//event handling
 		$(dId).click(function(){
 			$(dId).animate({
 				height: 0,
@@ -92,6 +97,7 @@ function Controler(url, gui){
 			});
 		});
 		obj.button.mouseover(function(){
+			if(obj.bGlow) obj.bGlow.remove();
 			obj.bGlow = obj.button.glow();
 		});
 		obj.button.mouseout(function(){
