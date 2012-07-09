@@ -63,6 +63,34 @@ function Controler(url, gui){
 
 		return resultObject;
 	}
+
+	function initLogger(h){
+		/* user console
+		* REQUIRED PARAMS: 
+		* - h (height of containing div)
+		*/
+		var dId = "#console_" + pf;
+		var obj = {
+			lId : dId,
+		};
+		$(dId).click(function(){
+			var height = $(dId).css('height');
+			console.log(height);
+			if(height!='20px'){
+				$(dId).animate({
+					height: 20,
+					overflow : 'hidden'
+				});
+			}else{
+				$(dId).animate({
+					height: h,
+					overflow : 'scroll'
+				});
+			}
+		});
+		return obj;
+	}
+
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -627,6 +655,7 @@ function Controler(url, gui){
 			this.initPlugins();
 		},
 		deploy : deploy,
+		initLogger : initLogger,
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
