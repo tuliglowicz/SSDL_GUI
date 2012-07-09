@@ -73,25 +73,21 @@ function View(id, width, height, gui){
 		var dId = "#console_" + pf;
 		var obj = {
 			lId : dId,
-			opened : false,
-			slide : function slide(){
-				if(this.opened){
-					$(this.lId).animate({
-						height: 20,
-						overflow : 'hidden'
-					});
-					this.opened = false;
-				}else{
-					$(this.lId).animate({
-						height: h,
-						overflow : 'scroll'
-					});
-					this.opened = true;
-				}
-			}
 		};
 		$(dId).click(function(){
-			obj.slide();
+			var height = $(dId).css('height');
+			console.log(height);
+			if(height!='20px'){
+				$(dId).animate({
+					height: 20,
+					overflow : 'hidden'
+				});
+			}else{
+				$(dId).animate({
+					height: h,
+					overflow : 'scroll'
+				});
+			}
 		});
 		return obj;
 	}
