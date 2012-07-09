@@ -78,26 +78,27 @@ function Controler(url, gui){
 			});
 		button.push(buttonBG);
 		//images
-		var bImages = paper.set(),
-			iImg = paper.image('images/info.png', paper.width - 152, 3, 15, 15),
+		var iImg = paper.image('images/info.png', paper.width - 152, 3, 15, 15),
 			wImg = paper.image('images/warning.png', paper.width - 112, 3, 15, 15),
 			eImg = paper.image('images/error.png', paper.width - 72, 3, 15, 15);
-		bImages.push(iImg);
-		bImages.push(wImg);
-		bImages.push(eImg);
-		button.push(bImages);
+		button.push(iImg);
+		button.push(wImg);
+		button.push(eImg);
 		//counters
-		var bCounters = paper.set(),
-			iCounter = paper.text(paper.width - 125, 11, "0").attr({fill: "white"}),
+		var iCounter = paper.text(paper.width - 125, 11, "0").attr({fill: "white"}),
 			wCounter = paper.text(paper.width - 85, 11, "0").attr({fill: "yellow"}),
 			eCounter = paper.text(paper.width - 45, 11, "0").attr({fill: "orange"});
-		bCounters.push(iCounter);
-		bCounters.push(wCounter);
-		bCounters.push(eCounter);
-		button.push(bCounters);
+		button.push(iCounter);
+		button.push(wCounter);
+		button.push(eCounter);
+		var buttonMask = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			fill : "#222",
+			"fill-opacity": 0.0
+		});
 		//console object
 		var obj = {
 			lId : dId,
+			mask : buttonMask,
 			button : button,
 			bImgs : [iImg, wImg, eImg],
 			bCount : [iCounter, wCounter, eCounter],
@@ -110,6 +111,7 @@ function Controler(url, gui){
 				this.bCount[0].remove();
 				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
 				this.button.push(this.bCount[0]);
+				this.mask.toFront();
 				//here adding to div
 			},
 			warning : function(w){
@@ -119,6 +121,7 @@ function Controler(url, gui){
 				this.button.push(this.bCount[1]);
 				if(this.bGlow) this.bGlow.remove();
 				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
+				this.mask.toFront();
 				//here adding to div
 			},
 			error : function(e){
@@ -128,6 +131,7 @@ function Controler(url, gui){
 				this.button.push(this.bCount[2]);
 				if(this.bGlow) this.bGlow.remove();
 				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF2900"});
+				this.mask.toFront();
 				//here adding to div
 				var fade = function(o){
 					if(o.buttonBG.attr("fill-opacity")==1){
@@ -150,19 +154,19 @@ function Controler(url, gui){
 				overflow : 'hidden'
 			});
 		});
-		obj.button.click(function(){
+		obj.mask.click(function(){
 			$(dId).animate({
 				height: h,
 				overflow : 'scroll'
 			});
 		});
-		obj.button.mouseover(function(){
+		obj.mask.mouseover(function(){
 			if(obj.bGlow) obj.bGlow.remove();
 			if(obj.animation) clearInterval(obj.animation);
 			obj.buttonBG.animate({"fill-opacity": 0.75}, 500);
 			obj.bGlow = obj.buttonBG.glow();
 		});
-		obj.button.mouseout(function(){
+		obj.mask.mouseout(function(){
 			obj.bGlow.remove();
 		});
 		return obj;
