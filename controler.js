@@ -613,12 +613,12 @@ function Controler(url, gui){
 			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
 			draw: function draw(){
 				var that = this;
-				// raport(jstr(this.parent.graphData));
+				// raport(jstr(this.parent.current_graphData));
 				if( $("#subgraphTree_"+pf).length === 0 ){
 						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
 				}
-				if(this.parent.graphData){
-					this.data = this.convert(this.parent.graphData);
+				if(this.parent.current_graphData){
+					this.data = this.convert(this.parent.current_graphData);
 					// console.log(this.data);
 
 					this.tree = $("#subgraphTree_"+pf)
@@ -709,16 +709,16 @@ function Controler(url, gui){
 					$("#repository_"+pf).html(html.join(""));
 					
 					$(".repository_link_"+pf).click(function(){
-						that.parent.loadSSDL(this.href);
+						gui.controler.reactOnEvent("EditService", {url: this.href});
+
 						return false;
 					});
 
 				}
 			}
 
-			
 			tmp.draw();
-			
+
 			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
@@ -727,7 +727,8 @@ function Controler(url, gui){
 	var controlerObject = {
 		plugins : [],
 		idCounter : 0,
-		graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
+		graphDaata_tab : [],
+		current_graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
 		},
@@ -787,8 +788,8 @@ function Controler(url, gui){
 				var ssdl_json = that.convert(ssdl);
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.graphData = ssdl_json;//.nodes[3].subgraph;
-					gui.view.drawGraph(gui.controler.graphData);
+					that.current_graphData = ssdl_json;//.nodes[3].subgraph;
+					gui.view.drawGraph(gui.controler.current_graphData);
 					
 				// alert(that.plugins)
 				$.each(that.plugins, function(){
@@ -820,8 +821,8 @@ function Controler(url, gui){
 		},
 		getNodeById : function getNodeById(id){
 			var result;
-			if(gui.controler.graphData.nodes){
-				$.each(gui.controler.graphData.nodes, function(){
+			if(gui.controler.current_graphData.nodes){
+				$.each(gui.controler.current_graphData.nodes, function(){
 					if( this.nodeId === id ){
 						result = this;
 						return false;
@@ -834,8 +835,8 @@ function Controler(url, gui){
 		getInputById : function getInputById(nodeId, inputId){
 			var result;
 
-			if(gui.controler.graphData.nodes){
-				$.each(gui.controler.graphData.nodes, function(){
+			if(gui.controler.current_graphData.nodes){
+				$.each(gui.controler.current_graphData.nodes, function(){
 					if( this.nodeId === nodeId ){
 						$.each(this.functionalDescription.inputs, function(){
 							if( this.id === inputId ){
@@ -906,7 +907,7 @@ function Controler(url, gui){
 						nonFunctionalDescription : []
 					};
 
-					this.graphData.nodes.unshift(start, stop);
+					this.current_graphData.nodes.unshift(start, stop);
 					
 					result = true;
 				}
@@ -915,7 +916,7 @@ function Controler(url, gui){
 		},
 		generateId : function generateId(){
 			this.idCounter++;
-			var num = this.graphData.nodes.length + this.idCounter,
+			var num = this.current_graphData.nodes.length + this.idCounter,
 				tab = ["node---"],
 				digitMax = 6,
 				digits = Math.ceil( Math.log(num) / Math.log(10) ),
@@ -932,8 +933,10 @@ function Controler(url, gui){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 			switch(evtType.toUpperCase()){
-				case "LOADSSDL" : (function (e) {
-					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
+				case "EDITSERVICE" : (function (e) {
+					if(e && e.url){
+						that.loadSSDL(e.url);
+					}
 				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
@@ -971,7 +974,7 @@ function Controler(url, gui){
 					e.nodeId = gui.controler.generateId();
 					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
-					that.graphData.nodes.push(e)
+					that.current_graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
 				case "EDITNODE" : (function(e){
