@@ -284,7 +284,6 @@ function View(id, width, height, gui){
 					this.bar = paper.rect(x, y, width, height).
 						attr({fill:"grey", opacity: this.invisible})
 						.mouseover(function(){
-							console.log("over");
 							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
@@ -306,7 +305,6 @@ function View(id, width, height, gui){
 							return this;
 						})
 						.mouseout(function(evt,x,y){
-							console.log("over");
 							var b = that.bar.getBBox();
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
 								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
@@ -808,6 +806,15 @@ function View(id, width, height, gui){
 						$.each(this.set, function(){
 							this.remove();	
 						});
+						$.each(this.inputs, function(){
+							this.node.remove();	
+						});
+						$.each(this.outputs, function(){
+							this.node.remove();	
+						});
+						$.each(this.connectors, function(){
+							this.remove();	
+						});
 					},
 					getCoords : function getCoords(){
 						return {	x : this.x,
@@ -848,7 +855,7 @@ function View(id, width, height, gui){
 							;
 					},
 					deleteNode : function deleteNode(){
-						
+
 					}
 				}
 				

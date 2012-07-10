@@ -36,8 +36,9 @@
 		r.id_postfix = Math.round( Math.random() * 10e5 );
 		r.view = View(id, width, height, r);
 		r.controler = Controler(url, r);
-		r.library = {gui: r};		
+		r.library = {gui: r};
 		r.controler.init();
+		r.logger = r.controler.initLogger(r.view.paper);
 
 		$(function(){
 			$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")
