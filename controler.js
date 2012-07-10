@@ -109,6 +109,7 @@ function Controler(url, gui){
 			dIds : [],
 			dTypes : [],
 			curElCount : 0,
+			actionTaken : false,
 			info : function(i){
 				this.counter[0]++;
 				this.bCount[0].remove();
@@ -170,37 +171,46 @@ function Controler(url, gui){
 				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
 				divString.push("<img src='images/");
 				divString.push(imgNames[priority]);
-				divString.push(".png' style='padding-left: 2px; padding-top: 2px;'/></td>");
+				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><form><input type='checkbox' name='cCheck_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
 				divString.push(this.curElCount);
-				divString.push("'/></form></td><td valign='top' style='width: 20px;'><img id='cCancel_");
+				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(this.curElCount);
-				divString.push("' src='images/cancel.png' style='padding-left: 2px; padding-top: 2px;'/></td></tr></table>");
+				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
 				$(divString).prependTo($(this.lId));
-				var checkId = "cCheck_"+this.curElCount;
-				$(checkId).click(function(){
-					alert("checkbox");
-				});
-				var delId = "cCancel_"+this.curElCount;
-				$(delId).click(function(){
-					alert("delete");
-				});
+				var checkId = "#cCheck_"+this.curElCount;
+				var that = this;
+				$(checkId).click((function(that){
+					return function(){
+						that.actionTaken = true;
+					}
+				})(this));
+				var delId = "#cCancel_"+this.curElCount;
+				$(delId).click((function(that){
+					return function(){
+						that.actionTaken = true;
+						delId = "#console_row_" + delId.charAt(delId.length-1);
+						$(delId).remove();
+					}
+				})(this));
 			}
 		};
 		//event handling
 		$(dId).click(function(){
-			$(dId).animate({
-				height: 0,
-				overflow : 'hidden'
-			});
+			if(obj.actionTaken){
+				obj.actionTaken = false;
+			}else{
+				$(dId).animate({
+					height: 0
+				});
+			}
 		});
 		obj.mask.click(function(){
 			$(dId).animate({
-				height: h,
-				overflow : 'scroll'
+				height: h
 			});
 		});
 		obj.mask.mouseover(function(){

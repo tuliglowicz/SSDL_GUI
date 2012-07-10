@@ -2359,7 +2359,7 @@ function View(id, width, height, gui){
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
-			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left;'> </div>");
+			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left; overflow-y: scroll;'> </div>");
 			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left; '> </div> </div>");
 			html.push("<div id='right_plugins_"+pf+"' style='width:"+(this.width-6-canvas_width-left_plugins_width)+"px; height:" + h + "px; float:left;border:1px solid black; '></div>");
 
