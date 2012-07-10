@@ -78,9 +78,9 @@ function Controler(url, gui){
 			});
 		button.push(buttonBG);
 		//images
-		var iImg = paper.image('images/info.png', paper.width - 152, 3, 15, 15),
-			wImg = paper.image('images/warning.png', paper.width - 112, 3, 15, 15),
-			eImg = paper.image('images/error.png', paper.width - 72, 3, 15, 15);
+		var iImg = paper.image('images/info.png', paper.width - 152, 4, 15, 15),
+			wImg = paper.image('images/warning.png', paper.width - 112, 4, 15, 15),
+			eImg = paper.image('images/error.png', paper.width - 72, 4, 15, 15);
 		button.push(iImg);
 		button.push(wImg);
 		button.push(eImg);
@@ -106,13 +106,17 @@ function Controler(url, gui){
 			bGlow : null,
 			counter : [0, 0, 0],
 			animation : null,
+			dIds : [],
+			dTypes : [],
+			curElCount : 0,
 			info : function(i){
 				this.counter[0]++;
 				this.bCount[0].remove();
 				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
 				this.button.push(this.bCount[0]);
 				this.mask.toFront();
-				//here adding to div
+				//here adding to div and dTabs
+				this.addMessage(i, 0);
 			},
 			warning : function(w){
 				this.counter[1]++;
@@ -122,7 +126,8 @@ function Controler(url, gui){
 				if(this.bGlow) this.bGlow.remove();
 				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
 				this.mask.toFront();
-				//here adding to div
+				//here adding to div and dTabs
+				this.addMessage(w, 1);
 			},
 			error : function(e){
 				this.counter[2]++;
@@ -132,7 +137,9 @@ function Controler(url, gui){
 				if(this.bGlow) this.bGlow.remove();
 				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF0000"});
 				this.mask.toFront();
-				//here adding to div
+				//here adding to div and dTabs
+				this.addMessage(e, 2);
+				//pulse
 				var fade = function(o){
 					if(o.buttonBG.attr("fill-opacity")==1){
 						o.buttonBG.animate({"fill-opacity": 0.4}, 700);
@@ -146,6 +153,41 @@ function Controler(url, gui){
 						fade(that);
 					}
 				})(this),750);
+			},
+			addMessage : function(message, priority){
+				this.curElCount++;
+				var divId = "console_row_" + this.curElCount;
+				var colors = ['#FAFAFF','#FFFFE0','#FFFAFA'];
+				var imgNames = ['info','warning','error'];
+				this.dIds.push(divId);
+				this.dTypes.push(priority);
+				var divString = [];
+				divString.push("<div id='");
+				divString.push(divId);
+				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
+				divString.push(colors[priority]);
+				divString.push("; padding: 2px;'>");
+				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
+				divString.push("<img src='images/");
+				divString.push(imgNames[priority]);
+				divString.push(".png' style='padding-left: 2px; padding-top: 2px;'/></td>");
+				divString.push("<td valign='top' style='float: left;'>");
+				divString.push(message);
+				divString.push("</td><td valign='top' style='width: 20px;'><form><input type='checkbox' name='cCheck_");
+				divString.push(this.curElCount);
+				divString.push("'/></form></td><td valign='top' style='width: 20px;'><img id='cCancel_");
+				divString.push(this.curElCount);
+				divString.push("' src='images/cancel.png' style='padding-left: 2px; padding-top: 2px;'/></td></tr></table>");
+				divString = divString.join("");
+				$(divString).prependTo($(this.lId));
+				var checkId = "cCheck_"+this.curElCount;
+				$(checkId).click(function(){
+					alert("checkbox");
+				});
+				var delId = "cCancel_"+this.curElCount;
+				$(delId).click(function(){
+					alert("delete");
+				});
 			}
 		};
 		//event handling
