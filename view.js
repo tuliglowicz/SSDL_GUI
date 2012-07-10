@@ -110,7 +110,7 @@ function View(id, width, height, gui){
 		temp.init();
 		return temp;
 	};
-	function blankNode(paper, mainCanvas, visualiser){
+	function blankNode(mainCanvas, visualiser){
 		var tmp = {
 			name: "blankNode",
 			version: "1.0",
@@ -123,103 +123,64 @@ function View(id, width, height, gui){
 			
 			draw: function draw(){
 				var clone, newRect, newCirc;
+				if( $("#blankNodes_"+pf).length === 0 ){
+					$("#left_plugins_"+pf).append("<div id='blankNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
+					this.paper = Raphael("blankNodes_"+pf, $("#left_plugins_"+pf).width(), 500);
+				}
 				var nodeLength = 135,
 					nodeHeight = 35,
-					nodeHorizontalPosition = paper.width/2 - nodeLength/2, 
-					textHorizontalPosition = paper.width/2,
+					nodeHorizontalPosition = this.paper.width/2 - nodeLength/2, 
+					textHorizontalPosition = this.paper.width/2,
 					move, start, stop, x2, fillColor,
 					nodeType, blankNode;
-				//nodeType: 0 = Control, 1 = Service, 2 = Functionality, 3 = Mediator
-
-				paper.text(textHorizontalPosition,10,"Start/Stop")
+				
+				this.paper.text(textHorizontalPosition,10,"Service")
 					.node.setAttribute("class","repository_text");
-				var repo_circle = paper.circle(textHorizontalPosition,35,15)
-					.attr({"opacity": "1", "fill":"white"});
-				repo_circle.node.setAttribute("class","repository_element");
-				paper.text(textHorizontalPosition,70,"Service")
-					.node.setAttribute("class","repository_text");
-				var repo_service = paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
-					.attr({fill:"#fbec88"});
+				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
+					.attr({fill:"#fbec88"}).dblclick(function(){
+						gui.controler.reactOnEvent("AddBlankNode");
+					});
 				repo_service.node.setAttribute("class","repository_element");
-				paper.text(textHorizontalPosition,140,"Functionality")
+				this.paper.text(textHorizontalPosition,80,"Functionality")
 					.node.setAttribute("class","repository_text");
-				var repo_functionality = paper.rect(nodeHorizontalPosition,150,nodeLength,nodeHeight,5)
-					.attr({fill:"#a6c9e2"});
+				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
+					.attr({fill:"#a6c9e2"}).dblclick(function(){
+						gui.controler.reactOnEvent("AddBlankNode");
+					});
 				repo_functionality.node.setAttribute("class","repository_element");
-				paper.text(textHorizontalPosition,210,"Mediator")
+				this.paper.text(textHorizontalPosition,150,"Mediator")
 					.node.setAttribute("class","repository_text");
-				var repo_mediator = paper.rect(nodeHorizontalPosition,220,nodeLength,nodeHeight,5)
-					.attr({fill:"white"});
+				var repo_mediator = this.paper.rect(nodeHorizontalPosition,160,nodeLength,nodeHeight,5)
+					.attr({fill:"white"}).dblclick(function(){
+						gui.controler.reactOnEvent("AddBlankNode");
+					});
 				repo_mediator.node.setAttribute("class","repository_element");
 				
-				move = function move(dx,dy){
-					if(clone.attr("x")){
-						clone.attr({x:this.ox + dx, y:this.oy+dy});
-						newRect.attr({x:newRect.ox + dx, y:newRect.oy + dy});	
-						if((clone.attr("x") + nodeLength) > paper.width) 
-							newRect.attr({opacity:1});
-						else newRect.attr({opacity:0});
-					}
-					else if(clone.attr("cx")){
-						clone.attr({cx:this.ox + dx, cy:this.oy+dy});
-						newCirc.attr({cx:newCirc.ox + dx, cy:newCirc.oy + dy});
-						if((clone.attr("cx") + clone.attr("r")) > paper.width) 
-							newCirc.attr({opacity:1});
-						else newCirc.attr({opacity:0});
-					}
-				};
-				start = function start(x,y,evt){
-					clone = this.clone();
-					fillColor = clone.attr("fill");
-					if(this.attr("x")){
-						if(this === repo_functionality) nodeType = 2;
-						else if(this === repo_service) nodeType = 1;
-						else if(this === repo_mediator) nodeType = 3;
-						this.ox = this.attr("x");
-						this.oy = this.attr("y");
-						x2 = paper.width - clone.attr("x");
-						newRect = mainCanvas.rect(-1*x2, clone.attr("y"), nodeLength, nodeHeight, 5).attr({fill:fillColor});
-						newRect.ox = newRect.attr("x");
-						newRect.oy = newRect.attr("y");
-					}
-					else if(this.attr("cx")){
-						nodeType = 0;
-						this.ox = this.attr("cx");
-						this.oy = this.attr("cy");
-						x2 = paper.width - clone.attr("cx");
-						newCirc = mainCanvas.circle(-1*x2, clone.attr("cy"), clone.attr("r")).attr({fill:fillColor});
-						newCirc.ox = newCirc.attr("cx");
-						newCirc.oy = newCirc.attr("cy");
-					}
-				};
-				stop = function stop(x,y,evt){
-					clone.remove();
-					if(newRect && newRect.attr("opacity")>0){
-						blankNode = visualiser.getBlankNode();
-						blankNode.x = newRect.attr("x");
-						blankNode.y = newRect.attr("y");
-						switch("nodeType"){
-							case 0:
-								alert("To nie może być controlNode!");
-								break;							
-							case 1:
-								blankNode.type = "service";
-								visualiser.draw_serviceNode(blankNode);
-								break;							
-							case 2:
-								blankNode.type = "functionality";
-								visualiser.draw_functionalityNode(blankNode);
-								break;					
-							case 3:
-								blankNode.type = "mediator";
-								visualiser.draw_unknownNode(blankNode);
-								break;
-							default:
-								visualiser.draw_unknownNode(blankNode);
-								break;					
-						}
-						gui.view.current_graph_view.nodes.push(blankNode);
-						newRect.remove();
+				
+						// blankNode = visualiser.getBlankNode();
+						// blankNode.x = newRect.attr("x");
+						// blankNode.y = newRect.attr("y");
+						// switch(nodeType.toUpperCase()){						
+						// 	case "SERVICE":
+						// 		blankNode.type = "service";
+						// 		visualiser.draw_serviceNode(blankNode);
+						// 		break;							
+						// 	case "FUNCTIONALITY":
+						// 		blankNode.type = "functionality";
+						// 		visualiser.draw_functionalityNode(blankNode);
+						// 		break;					
+						// 	case "MEDIATOR":
+						// 		blankNode.type = "mediator";
+						// 		visualiser.draw_unknownNode(blankNode);
+						// 		break;
+						// 	default:
+						// 		visualiser.draw_unknownNode(blankNode);
+						// 		break;					
+						// }
+						// gui.view.current_graph_view.nodes.push(blankNode);
+						// newRect.remove();
+						
+
 						// wywołaj funkcję draw_odpowiednityp(node)
 						//(visualiser["draw_"+nodeType+"Node"] || visualiser.draw_unknownNode )(blankNode)
 						// otworz formularz edycji bloczka
@@ -227,24 +188,10 @@ function View(id, width, height, gui){
 						// 		widok boczka do gui.view.current_graph_view.nodes
 						//		dane bloczka do gui.controler.graphData
 						//		gui.view.current_graph_view.nodes.push(newRect);			
-					}
-					else if(newCirc && newCirc.attr("opacity")>0){
-						blankNode = visualiser.getBlankNode();
-						blankNode.x = newCirc.attr("cx");
-						blankNode.y = newCirc.attr("cy");
-						blankNode.type = "control";
-						visualiser.draw_controlNode(blankNode);
-						gui.view.current_graph_view.nodes.push(blankNode);
-						newCirc.remove();
-					}
-				};
-
-				repo_service.drag(move, start, stop);
-				repo_functionality.drag(move, start, stop);
-				repo_mediator.drag(move, start, stop);
-				repo_circle.drag(move, start, stop);
+					
+				
 			}
-		}
+		};
 
 		tmp.draw();
 		
@@ -284,7 +231,6 @@ function View(id, width, height, gui){
 					this.bar = paper.rect(x, y, width, height).
 						attr({fill:"grey", opacity: this.invisible})
 						.mouseover(function(){
-							console.log("over");
 							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
@@ -306,7 +252,6 @@ function View(id, width, height, gui){
 							return this;
 						})
 						.mouseout(function(evt,x,y){
-							console.log("over");
 							var b = that.bar.getBBox();
 							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
 								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
@@ -619,6 +564,639 @@ function View(id, width, height, gui){
 		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
 		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
 		//Analogicznie pokazywanie elementu
+
+		return result;
+	};
+	function form() {
+		var resultJSON = {"nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
+		var physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
+		var funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
+
+		var result = {
+			resultJSON: resultJSON,	//czy ja potrzebuję resultJSON, skoro EDYTUJĘ node?
+			physDescJSON: physDescJSON,
+			funcDescJSON: funcDescJSON,
+			inputEdit: false,
+			outputEdit: false,
+			NFedit: false,
+			inputNumber: -1,
+			outputNumber: -1, 
+			NFnumber: -1,
+			inputRow: -1,
+			outputRow: -1, 
+			NFrow: -1,
+
+			initToEdit: function initToEdit(node){
+				var condition = [];
+				this.node = node;
+				this.blank = false;
+				this.clearErrors();
+				this.cleanForm();
+				$( "#label" ).val(node.nodeLabel);
+				$( "#nodeType" ).val(node.nodeType);
+				$( "#controlType" ).val(node.controlType);
+				$( "#alternatives" ).val(node.alternatives);
+				if(node.condition){
+					condition = node.condition.split(" ");
+					$( "#condition" ).val((condition[1]) ? condition[1] : "");
+					$( "#conditionTRUE" ).val((condition[3]) ? condition[3] : "");
+					$( "#conditionFALSE" ).val((condition[5]) ? condition[5] : "");
+				}
+				$( "#source" ).val(node.sources);
+				$( "#subgraph" ).val(node.subgraph);				
+				$( "#serviceName" ).val(node.physicalDescription.serviceName);
+				$( "#serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
+				$( "#address" ).val(node.physicalDescription.address);
+				$( "#operation" ).val(node.physicalDescription.operation);
+				$( "#description" ).val(node.functionalDescription.description);
+				$( "#prec" ).val(node.functionalDescription.preconditions);
+				$( "#effects" ).val(node.functionalDescription.effects);
+				this.appendList(node.sources, "sources");
+				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
+				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
+				this.appendIO(node.functionalDescription.inputs, "inputs");
+				this.appendIO(node.functionalDescription.outputs, "outputs");
+				this.appendNonFuncDesc(node.nonFunctionalDescription);
+				$( "#form" ).dialog( "open" );
+			},
+			//TODO: ustalić, czy tu jednak nie przekazuję argumentu (np. pustego node?)
+			initBlank: function initBlank(){
+				this.blank = true;
+				this.clearErrors();
+				this.cleanForm();
+				$( "#form" ).dialog( "open" );
+			},
+			//funkcje czyszczące elementy formularza
+			clearNF: function clearNF(){
+				$( "#nonFuncDescForm" )[0].reset();
+				this.NFedit = false;
+				this.NFnumber = -1;	
+				this.NFrow = -1;
+			},
+			clearInputs: function clearInputs(){
+				$( "#inputForm" )[0].reset(); 
+				this.inputEdit = false;	
+				this.inputNumber = -1;
+				this.inputRow = -1;
+			},
+			clearOutputs: function clearOutputs(){
+				$( "#outputForm" )[0].reset(); 	
+				this.outputEdit = false;	
+				this.outputNumber = -1;
+				this.outputRow = -1;
+			},
+			handleErrors: function handleErrors(array){
+				var input;
+				$.each(array, function(){
+						input = this;
+					var splitty = input.split("_");
+						$( "#" + splitty[0] ).addClass( "ui-state-error" );
+						$( "#" + splitty[1] ).addClass( "ui-state-error" );
+						$( "#buglist" ).append(splitty[2] + " ");
+				});
+				$( "#buglist" ).append('<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>');
+				$( "#buglist" ).addClass( "ui-state-error ui-corner-all" );
+			},
+			clearErrors: function clearErrors(){
+				$( "#buglist" ).empty();
+				$( "#buglist" ).removeClass( "ui-state-error" );
+				$( "#nodeId" ).removeClass( "ui-state-error" ); 
+				$( "#serviceName" ).removeClass( "ui-state-error" ); 
+				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
+				$( "#address" ).removeClass( "ui-state-error" ); 
+				$( "#operation" ).removeClass( "ui-state-error" ); 
+				$( "#serviceName" ).removeClass( "ui-state-error" ); 
+				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
+				$( "#address" ).removeClass( "ui-state-error" ); 
+				$( "#operation" ).removeClass( "ui-state-error" ); 
+				$( "#nodeId" ).removeClass( "ui-state-error" ); 
+				$( "#nodeType" ).removeClass( "ui-state-error" ); 
+				$( "#source" ).removeClass( "ui-state-error" ); 
+				$( "#sources" ).removeClass( "ui-state-error" ); 
+				$( "#weight" ).removeClass( "ui-state-error" ); 
+				$( "#name" ).removeClass( "ui-state-error" ); 
+				$( "#relation" ).removeClass( "ui-state-error" ); 
+				$( "#unit" ).removeClass( "ui-state-error" );
+				$( "#value" ).removeClass( "ui-state-error" ); 
+				for(var i = 1; i < 5; i++){ $( "#t" + i ).removeClass( "ui-state-error" );  }
+			},
+			cleanForm: function cleanForm(){
+				this.resultJSON = {"nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
+				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
+				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
+				$( "#inputs tbody" ).empty();
+				$( "#outputs tbody" ).empty();
+				$( "#NFProps tbody" ).empty();
+				$( "#sources" ).empty();
+				$( "#sClasses" ).empty();
+				$( "#mKeywords" ).empty();
+				$( "#mainForm" )[0].reset();
+				$( "#physDescForm" )[0].reset(); 
+				$( "#funcDescForm" )[0].reset(); 
+				$( "#inputForm" )[0].reset(); 
+				$( "#outputForm" )[0].reset(); 
+				$( "#nonFuncDescForm" )[0].reset(); 
+			},
+			appendIO: function appendIO(array, type){
+				var input;
+				if(type==="inputs"){
+					var no;
+					for(no in array){
+						input = array[no];
+						var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
+						inputJSON.class = input.class;
+						inputJSON.id = input.id;
+						inputJSON.label = input.label;
+						inputJSON.dataType = input.dataType;
+						inputJSON.properties = input.properties;
+						this.funcDescJSON.inputs.push(inputJSON);
+						
+						this.inputAndOutputAppender(inputJSON, "inputs tbody", no);
+					}
+				}
+				else if(type==="outputs"){
+					var no;
+					for(no in array){
+						input = array[no];
+						var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
+						outputJSON.class = input.class;
+						outputJSON.id = input.id;
+						outputJSON.label = input.label;
+						outputJSON.dataType = input.dataType;
+						outputJSON.properties = input.properties;
+						this.funcDescJSON.outputs.push(outputJSON);
+						
+						this.inputAndOutputAppender(outputJSON, "outputs tbody", no);
+					}
+				}
+			},
+			appendList: function appendList(array, type){
+				var input;
+				if(type === "sources"){
+					$.each(array, function(){
+						input = this;
+						this.resultJSON.sources.push(input); 	
+						$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
+					});
+				}
+				else if(type === "serviceClasses"){
+					$.each(array, function(){
+						input = this;
+						funcDescJSON.serviceClasses.push(input);
+						$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+					});
+				}
+				else if(type === "metaKeywords"){
+					$.each(array, function(){
+						input = this;	
+						funcDescJSON.metaKeywords.push(input);
+						$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+					});
+				}
+			},		
+			appendNonFuncDesc: function appendNonFuncDesc(array){
+				var input, no;
+				for(no in array){
+					input = array[no];
+					var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""};
+					nonFuncDescJSON.weight = input.weight;
+					nonFuncDescJSON.name = input.name;
+					nonFuncDescJSON.relation = input.relation;
+					nonFuncDescJSON.unit = input.unit;
+					nonFuncDescJSON.value = input.value;
+					this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
+					
+					this.NFPropsAppender(nonFuncDescJSON, no);
+				}
+			},
+			//Poniższe funkcje "przyklejają" nowo dodane inputy/outputy/non functional properties
+			//do tabeli w formularzu
+			inputAndOutputAppender: function inputAndOutputAppender(input, id, number){
+				//id = "outputs tbody" || id = "inputs tbody"
+				var tempId = id.split(" ")[0]; // => tempId = "inputs" || tempId = "outputs"
+				$( "#" + id ).append( "<tr>" +
+							"<td>" + input.id + "</td>" + 
+							"<td>" + input.label + "</td>" + 
+							"<td>" + input.class + "</td>" +
+							"<td>" + input.dataType + "</td>" + 
+							"<td>" + input.properties + "</td>" +
+							"<td><button id=\"" + tempId + "edit" + number + "\" class=\"ui-state-default ui-corner-all\">edit</button>" +
+							" <button id=\"" + tempId + "del" + number + "\" class=\"ui-state-default ui-corner-all\">delete</button></td>" +
+						"</tr>" );
+			},
+			NFPropsAppender: function NFPropsAppender(input, number){
+				$( "#NFProps tbody").append( "<tr>" +
+						"<td>" + input.weight + "</td>" + 
+						"<td>" + input.name + "</td>" + 
+						"<td>" + input.relation + "</td>" +
+						"<td>" + input.unit + "</td>" + 
+						"<td>" + input.value + "</td>" +
+						"<td><button id=\"NFedit" + number + "\" class=\"ui-state-default ui-corner-all\">edit</button>" +
+						" <button id=\"NFdel" + number + "\" class=\"ui-state-default ui-corner-all\">delete</button></td>" +
+				"</tr>" );
+			},
+			rowRemover: function rowRemover(tabId, index){
+				$( "#" + tabId + " tr:eq(" + index + ")").remove();
+			},
+			//Poniższe funkcje sprawdzajż, czy string/input/output/non functional property istnieje na zadanej liście
+			stringExists: function stringExists(obj, array){
+				var namey;
+				$.each(array, function(){
+					if (this === obj) return true;
+				});
+				return false;
+			},
+			ioExists: function ioExists(obj, array){
+				var namey;
+				$.each(array, function(){
+					var ob = this;
+					if (ob.id === obj.id) return true;
+				});
+				return false;
+			},
+			nonFuncExists: function nonFuncExists(obj, array){
+				var namey;
+				$.each(array, function(){
+					var ob = this;
+					if (ob.name === obj.name) return true;
+				});
+				return false;
+			},
+			//poniższe funkcje zwracają indeks elementu o zadanym id/name na liście
+			stringExistsIndex: function stringExistsIndex(obj, array){
+				var namey;
+				for(namey in array){
+					if (array[namey] === obj) return namey;
+				}
+				return -1;
+			},
+			ioExistsIndex: function ioExistsIndex(id, array){
+				var namey;
+				for(namey in array){
+					var ob = array[namey];
+					if (id === ob.id) return namey;
+				}
+				return -1;
+			},
+			nonFuncExistsIndex: function nonFuncExists(name, array){
+				var namey;
+				for(namey in array){
+					var ob = array[namey];
+					if (name === ob.name) return namey;
+				}
+				return -1;
+			},
+			/*
+			*	EVENT HANDLERS START HERE
+			*/
+			//submitAll() jest tymczasowy i nieoptymalny - jak będę znać dokładny przepływ danych przy dodawanu blanka
+			//to pomyślę, jak zrobić go porządnie
+			//zakomentowane fragmenty czekają na walidację
+			submitAll: function submitAll(){
+				var testResult;
+
+				this.clearErrors();
+				this.resultJSON.nodeLabel = $( "#label" ).val();
+				this.resultJSON.nodeType = $( "#nodeType" ).val();
+				this.resultJSON.controlType = $( "#controlType" ).val();
+				this.resultJSON.alternatives = $( "#alternatives" ).val();
+				this.resultJSON.condition = "if " + $( "#condition" ).val() + " then " + $( "#conditionTRUE" ).val() + " else " + $( "#conditionFALSE" ).val();
+
+				this.physDescJSON.serviceName = $( "#serviceName" ).val();
+				this.physDescJSON.serviceGlobalId = $( "#serviceGlobalId" ).val();
+				this.physDescJSON.address = $( "#address" ).val();
+				this.physDescJSON.operation = $( "#operation" ).val();
+				this.resultJSON.physicalDescription = this.physDescJSON;
+					
+				this.funcDescJSON.description = $( "#description" ).val();
+				this.funcDescJSON.preconditions = $( "#prec" ).val();
+				this.funcDescJSON.effects = $( "#effects" ).val();
+				this.resultJSON.functionalDescription = this.funcDescJSON;
+			
+				testResult = gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", resultJSON);
+
+				// if(testResult.allOK){
+					this.node.nodeLabel = this.resultJSON.nodeLabel;
+					this.node.nodeType = this.resultJSON.nodeType;
+					this.node.controlType = this.resultJSON.controlType;
+					this.node.alternatives = this.resultJSON.alternatives;
+					this.node.condition = this.resultJSON.condition;
+					this.node.sources = this.resultJSON.sources;
+					this.node.subgraph = this.resultJSON.subgraph;
+					
+					this.node.physicalDescription.serviceName = this.resultJSON.physicalDescription.serviceName;
+					this.node.physicalDescription.serviceGlobalId = this.resultJSON.physicalDescription.serviceGlobalId;
+					this.node.physicalDescription.address = this.resultJSON.physicalDescription.address;
+					this.node.physicalDescription.operation = this.resultJSON.physicalDescription.operation;
+					
+					this.node.functionalDescription.description = this.resultJSON.functionalDescription.description;
+					this.node.functionalDescription.preconditions = this.resultJSON.functionalDescription.preconditions;
+					this.node.functionalDescription.effects  = this.resultJSON.functionalDescription.effects;
+					this.node.functionalDescription.inputs = this.resultJSON.functionalDescription.inputs;
+					this.node.functionalDescription.outputs = this.resultJSON.functionalDescription.outputs;
+					this.node.nonFunctionalDescription = this.resultJSON.nonFunctionalDescription;
+				// }
+				// else { this.handleErrors(testResult.errlist);
+				alert(JSON.stringify(this.node));
+
+				
+
+				$( "#form" ).dialog( "close" );
+				// }
+			},
+			addServiceClass: function addServiceClass(){
+				var input = $("#serviceClass").val();
+				if(!this.stringExists(input, this.funcDescJSON.serviceClasses)){
+					this.funcDescJSON.serviceClasses.push(input);
+					$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+				}
+			},
+			addMetaKeyword: function addMetaKeyword(){
+				var input = $("#metaKeyword").val();
+				if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
+					this.funcDescJSON.metaKeywords.push(input);
+					$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+				}
+			},
+			addSource: function addSource(){
+				$( "#source" ).removeClass( "ui-state-error" ); 
+				var input = $("#source").val();
+				if(!this.stringExists(input, this.resultJSON.sources)){
+					this.resultJSON.sources.push(input);
+					$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
+				}
+			},
+			addInput: function addInput(){
+				if(this.inputEdit){
+					this.funcDescJSON.inputs[this.inputNumber].class = $( "#inputClass" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].id = $( "#inputNodeId" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].label = $( "#inputLabel" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#inputDataType" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].properties = $( "#iProperties" ).val();
+					alert("Changes to input " + this.inputNumber + " were saved successfully.");
+					
+					this.rowRemover("inputs", this.inputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "inputs tbody", this.inputNumber);
+				}
+				else{
+					var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
+					inputJSON.class = $( "#inputClass" ).val();
+					inputJSON.id = $( "#inputNodeId" ).val();
+					inputJSON.label = $( "#inputLabel" ).val();
+					inputJSON.dataType = $( "#inputDataType" ).val();
+					inputJSON.properties = $( "#iProperties" ).val();
+			
+					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
+						this.funcDescJSON.inputs.push(inputJSON);
+						this.inputAndOutputAppender(inputJSON, "inputs tbody", this.funcDescJSON.inputs.length);
+					}
+				}
+				this.clearInputs();
+			},
+			addOutput: function addOutput(){
+				if(this.outputEdit){
+					this.funcDescJSON.outputs[this.outputNumber].class = $( "#outputClass" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].id = $( "#outputNodeId" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].label = $( "#outputLabel" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#outputDataType" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].properties = $( "#oProperties" ).val();
+					alert("Changes to output " + this.outputNumber + " were saved successfully.");
+					
+					this.rowRemover("outputs", this.outputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "outputs tbody", this.outputNumber);
+				}
+				else{
+					var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
+					outputJSON.class = $( "#outputClass" ).val();
+					outputJSON.id = $( "#outputNodeId" ).val();
+					outputJSON.label = $( "#outputLabel" ).val();
+					outputJSON.dataType = $( "#outputDataType" ).val();
+					outputJSON.properties = $( "#oProperties" ).val();
+					
+					if(!this.ioExists(outputJSON, this.funcDescJSON.outputs)){
+						this.funcDescJSON.outputs.push(outputJSON);
+						this.inputAndOutputAppender(outputJSON, "outputs tbody", this.funcDescJSON.outputs.length);
+					}
+				}
+				this.clearOutputs();
+			},
+			addNonFunctional: function addNonFunctional(){
+				if(this.NFedit){
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#weight" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#name" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#relation" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#unit" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#value" ).val();
+					alert("Changes to nonfunctional property " + this.NFnumber + " were saved successfully.");
+					
+					this.rowRemover("NFProps", this.NFrow+1);
+					this.NFPropsAppender(this.resultJSON.nonFunctionalDescription[this.NFnumber], this.NFnumber);
+				}
+				else{
+					var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""};
+					nonFuncDescJSON.weight = $( "#weight" ).val();
+					nonFuncDescJSON.name = $( "#name" ).val();
+					nonFuncDescJSON.relation = $( "#relation" ).val();
+					nonFuncDescJSON.unit = $( "#unit" ).val();
+					nonFuncDescJSON.value = $( "#value" ).val();
+					
+					if(!this.nonFuncExists(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription)){
+						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
+						this.NFPropsAppender(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription.length);
+					}
+				}
+				this.clearNF();
+			},
+			resetAll: function resetAll(){
+				this.cleanForm();
+				this.clearNF();
+				this.clearInputs();
+				this.clearOutputs();
+			},
+			//TO NIE PARTYZANTKA, TO PARTYZANA!
+			editInput: function editInput(input){
+				$( "#iProperties" ).val(input.parent().prev().text());
+				$( "#inputDataType" ).val(input.parent().prev().prev().text());
+				$( "#inputClass" ).val(input.parent().prev().prev().prev().text());
+				$( "#inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
+				$( "#inputNodeId" ).val(input.parent().prev().prev().prev().prev().prev().text());
+				this.inputNumber = this.ioExistsIndex($( "#inputNodeId" ).val(), this.funcDescJSON.inputs);
+				this.inputEdit = true;
+				this.inputRow = input.parent().parent().parent().children().index(input.parent().parent());
+			},
+			editOutput: function editOutput(output){
+				$( "#oProperties" ).val(output.parent().prev().text());
+				$( "#outputDataType" ).val(output.parent().prev().prev().text());
+				$( "#outputClass" ).val(output.parent().prev().prev().prev().text());
+				$( "#outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
+				$( "#outputNodeId" ).val(output.parent().prev().prev().prev().prev().prev().text());
+				this.outputNumber = this.ioExistsIndex($( "#outputNodeId" ).val(), this.funcDescJSON.outputs);
+				this.outputEdit = true;
+				this.outputRow = output.parent().parent().parent().children().index(output.parent().parent());
+			},
+			editNonFunc: function editNonFunc(nfProp){
+				$( "#weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
+				$( "#name" ).val(nfProp.parent().prev().prev().prev().prev().text());
+				$( "#relation" ).val(nfProp.parent().prev().prev().prev().text());
+				$( "#unit" ).val(nfProp.parent().prev().prev().text());
+				$( "#value" ).val(nfProp.parent().prev().text());
+				this.NFnumber = this.nonFuncExistsIndex($( "#name" ).val(), this.resultJSON.nonFunctionalDescription);
+				this.NFedit = true;
+				this.NFrow = nfProp.parent().parent().parent().children().index(nfProp.parent().parent());
+			},
+			removeInput: function removeInput(input){
+				var index = this.ioExistsIndex(input.parent().prev().prev().prev().prev().prev().text(), this.funcDescJSON.inputs);
+				this.funcDescJSON.inputs.splice(index, 1);
+				input.parent().parent().remove();
+			},
+			removeOutput: function removeOutput(output){
+				var index = this.ioExistsIndex(output.parent().prev().prev().prev().prev().prev().text(), this.funcDescJSON.outputs);
+				this.funcDescJSON.outputs.splice(index, 1);
+				output.parent().parent().remove();
+			},
+			removeNonFunc: function removeNonFunc(nfProp){
+				var index = this.nonFuncExistsIndex(nfProp.parent().prev().prev().prev().prev().text(), this.resultJSON.nonFunctionalDescription);
+				this.resultJSON.nonFunctionalDescription.splice(index, 1);
+				nfProp.parent().parent().remove();
+			},
+			removeServiceClass: function removeServiceClass(serviceClass){
+				var id = serviceClass.attr("id").split("_").pop();
+				var index = this.stringExistsIndex(id, this.funcDescJSON.serviceClasses);
+				this.funcDescJSON.serviceClasses.splice(index, 1);
+				serviceClass.remove();
+			},
+			removeMetaKeyword: function removeMetaKeyword(metaKeyword){
+				var id = metaKeyword.attr("id").split("_").pop();
+				var index = this.stringExistsIndex(id, funcDescJSON.metaKeywords);
+				funcDescJSON.metaKeywords.splice(index, 1);
+				metaKeyword.remove();
+			},
+			removeSource: function removeSource(source){
+				var id = source.attr("id").split("_").pop();
+				var index = this.stringExistsIndex(id, this.resultJSON.sources);
+				this.resultJSON.sources.splice(index, 1);
+				source.remove();
+			}
+			/*
+			* EVENT HANDLERS END HERE
+			*/
+		};
+
+		//SUBMITY			
+		$("#sumbitAllButton").button().click(function() {
+			result.submitAll();
+		});
+		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
+		$("#addServiceClass").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addServiceClass();
+			}
+		);
+		$("#addMetaKeyword").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addMetaKeyword();
+			}
+		);
+		$("#addSource").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addSource();
+			}
+		);
+		$("#addInputButton").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addInput();
+			}
+		);
+		$("#addOutputButton").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addOutput();		
+			}
+		);
+		$("#addNonFunctional").button().click(
+			function(event) {
+				event.preventDefault();
+				result.addNonFunctional();
+			}
+		);
+		//RESETY
+		$("#resetAllButton").button().click(
+			function(event) {
+				event.preventDefault();
+				result.resetAll();
+			}
+		);
+		$("#clearNonFunctional").button().click(
+			function(event) {
+				event.preventDefault();
+				result.clearNF();
+			}
+		);
+		
+		$("#clearInputButton").button().click(
+			function(event) {
+				event.preventDefault();
+				result.clearInputs();
+			}
+		);
+		
+		$("#clearOutputButton").button().click(
+			function(event) {
+				event.preventDefault();
+				result.clearOutputs();
+			}
+		);
+		//EDITY i DELETY w tabelkach z i/o oraz non func
+		$('button[id^="NFedit"]').live("click", function(form){
+			return (function(){
+				form.editNonFunc($(this));
+			});
+		}(result));
+		$('button[id^="NFdel"]').live("click", function(form){
+			return (function(){
+				form.removeNonFunc($(this));
+			});
+		}(result));
+		$('button[id^="inputsedit"]').live("click", function(form){
+			return (function(){
+				form.editInput($(this));
+			});
+		}(result));
+		$('button[id^="inputsdel"]').live("click", function(form){
+			return (function(){
+				form.removeInput($(this));
+			});
+		}(result));
+		$('button[id^="outputsedit"]').live("click", function(form){
+			return (function(){
+				form.editOutput($(this));
+			});
+		}(result));
+		$('button[id^="outputsdel"]').live("click", function(form){
+			return (function(){
+				form.removeOutput($(this));
+			});
+		}(result));
+		//spany z source'ami, service classes i meta keywords
+		$('span[id^="src_"]').live("click", function(form){
+			return (function(){
+				form.removeSource($(this));
+			});
+		}(result));
+		$('span[id^="sc_"]').live("click", function(form){
+			return (function(){
+				form.removeSource($(this));
+			});
+		}(result));
+		$('span[id^="mk_"]').live("click", function(form){
+			return (function(){
+				form.removeMetaKeyword($(this));
+			});
+		}(result));
 
 		return result;
 	};
@@ -1199,8 +1777,7 @@ function View(id, width, height, gui){
 			this.current_graph_view = result;
 		},
 		editNode : function editNode(node){
-			console.log(node);
-			alert("inside editNode");
+			this.form.initToEdit(node);
 		},
 		addStartStop : function addStartStop(){
 			var nodes = gui.controler.graphData.nodes,
@@ -1218,7 +1795,7 @@ function View(id, width, height, gui){
 			//dodać lepiej dobierane parametry x, y
 			var visualizedNode = this.visualiser.visualiseNode( node );
 			if(visualizedNode)
-				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
+				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode || "DF") );
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
@@ -1795,7 +2372,7 @@ function View(id, width, height, gui){
 			$elem.css("width", this.width);
 			$elem.css("height", this.height);
 
-			//zbieranie danych o poÅ‚oÅ¼eniu
+			//zbieranie danych o położeniu
 			var $column = $("#canvas_holder_"+pf),
 				position = $column.position();
 			this.columnParams.centerCol = {
@@ -1831,6 +2408,25 @@ function View(id, width, height, gui){
 				width : $column.width(),
 				height : $column.height(),
 			};
+	
+			//obsługa formularza, rzeczy z JQuery UI - to tutaj??? czy w controler.js???
+			$("#form").dialog({
+				autoOpen: false,
+				modal: true,
+				height: 500,
+				width: 800
+			});
+			$( "#tabs" ).tabs();
+			$("#functional1")
+				.accordion({ 
+					collapsible: true,
+					header: "h3" 
+			});
+			$("#functional2")
+				.accordion({ 
+					collapsible: true,
+					header: "h3" 
+			});
 		},
 		setBold : function setBold(x1, y1, x2, y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
@@ -1934,7 +2530,8 @@ function View(id, width, height, gui){
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
-	// outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
+	outputView.form = form();
+	outputView.blankNodes = blankNode(outputView.paper, outputView.visualiser);
 
 	var	lastDragX,
 		lastDragY,

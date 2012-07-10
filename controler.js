@@ -997,7 +997,7 @@ function Controler(url, gui){
 					tab.push("0");
 				tab.push(num);
 
-			return tab.join("")
+			return tab.join("");
 		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
@@ -1077,6 +1077,9 @@ function Controler(url, gui){
 					that.current_graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
+				case "ADDBLANKNODE" : (function(e){
+					alert("inside add blank node");
+				})(evtObj); break;
 				case "EDITNODE" : (function(e){
 					if(e && e.nodeId){
 						// alert(e.nodeId)
@@ -1085,6 +1088,8 @@ function Controler(url, gui){
 					}
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					//TUTAJ JACKOWA WALIDACJA
+					//return { allOK: boolean, errlist:[]}
 					alert("inside try to save...");
 				})(evtObj); break;
 			}
