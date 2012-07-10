@@ -68,29 +68,7 @@ function View(id, width, height, gui){
 
 		return tooltip;
 	};
-	//KONSOLA
-	function initLogger(h){
-		var dId = "#console_" + pf;
-		var obj = {
-			lId : dId,
-		};
-		$(dId).click(function(){
-			var height = $(dId).css('height');
-			console.log(height);
-			if(height!='20px'){
-				$(dId).animate({
-					height: 20,
-					overflow : 'hidden'
-				});
-			}else{
-				$(dId).animate({
-					height: h,
-					overflow : 'scroll'
-				});
-			}
-		});
-		return obj;
-	}
+	
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -1446,6 +1424,9 @@ function View(id, width, height, gui){
 							[this.x, this.y + this.height/2]
 							]
 							;
+					},
+					deleteNode : function deleteNode(){
+						
 					}
 				}
 				
@@ -1759,13 +1740,13 @@ function View(id, width, height, gui){
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 
 		return outputObject;
-	}
+	};
 	
 	var outputView = {
 		id : id,
 		width : width,
 		height : height,
-		mode : undefined,
+		mode : "DF",
 		controler : gui.controler,
 		bgSelectionHelper : null,
 		scale : 100,
@@ -1779,7 +1760,7 @@ function View(id, width, height, gui){
 		},
 		graph_views_tab : [],
 		current_graph_view: {
-			id : "new",
+			id : "root",
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
@@ -2164,7 +2145,7 @@ function View(id, width, height, gui){
 				this.current_graph_view.edgesCF.push( edgeObject );
 			}
 		},
-		addDFEdge : function addCFEdge(data){
+		addDFEdge : function addDFEdge(data){
 			//source, sourceOutputId
 			//target, targetInputId
 			// console.log(data)
@@ -2375,16 +2356,16 @@ function View(id, width, height, gui){
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt;</div>");
+			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
-			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height:" + 20 + "px; float:left;border:1px solid #EEEEEE; '> </div>");
-			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:" + (h - 22) + "px; float:left; '> </div> </div>");
+			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left;'> </div>");
+			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left; '> </div> </div>");
 			html.push("<div id='right_plugins_"+pf+"' style='width:"+(this.width-6-canvas_width-left_plugins_width)+"px; height:" + h + "px; float:left;border:1px solid black; '></div>");
 
 			$elem.html(html.join(""));
 
-			this.paper = Raphael("canvas_"+pf, canvas_width, h - 22);
+			this.paper = Raphael("canvas_"+pf, canvas_width, h);
 			// this.leftPlugins = Raphael("left_plugins_"+pf, left_plugins_width, h);
 			this.bgSelectionHelper = this.paper.rect(0,0,width,height).attr({fill : "#DEDEDE", stroke: "none"}).toBack();
 	
@@ -2546,7 +2527,6 @@ function View(id, width, height, gui){
 		}
 	}
 	outputView.init();
-	outputView.logger = initLogger(outputView.height);
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);

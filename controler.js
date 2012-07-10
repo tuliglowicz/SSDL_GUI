@@ -63,6 +63,116 @@ function Controler(url, gui){
 
 		return resultObject;
 	}
+
+	function initLogger(paper){
+		/* user console
+		* REQUIRED PARAMS: 
+		* - paper (on which we will draw button opening the console)
+		*/
+		var h = paper.height,
+			dId = "#console_" + pf,
+			button = paper.set(),
+			buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+				fill : "#222",
+				"fill-opacity": .75
+			});
+		button.push(buttonBG);
+		//images
+		var iImg = paper.image('images/info.png', paper.width - 152, 3, 15, 15),
+			wImg = paper.image('images/warning.png', paper.width - 112, 3, 15, 15),
+			eImg = paper.image('images/error.png', paper.width - 72, 3, 15, 15);
+		button.push(iImg);
+		button.push(wImg);
+		button.push(eImg);
+		//counters
+		var iCounter = paper.text(paper.width - 125, 11, "0").attr({fill: "white"}),
+			wCounter = paper.text(paper.width - 85, 11, "0").attr({fill: "yellow"}),
+			eCounter = paper.text(paper.width - 45, 11, "0").attr({fill: "orange"});
+		button.push(iCounter);
+		button.push(wCounter);
+		button.push(eCounter);
+		var buttonMask = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			fill : "#222",
+			"fill-opacity": 0.0
+		});
+		//console object
+		var obj = {
+			lId : dId,
+			mask : buttonMask,
+			button : button,
+			bImgs : [iImg, wImg, eImg],
+			bCount : [iCounter, wCounter, eCounter],
+			buttonBG : buttonBG,
+			bGlow : null,
+			counter : [0, 0, 0],
+			animation : null,
+			info : function(i){
+				this.counter[0]++;
+				this.bCount[0].remove();
+				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
+				this.button.push(this.bCount[0]);
+				this.mask.toFront();
+				//here adding to div
+			},
+			warning : function(w){
+				this.counter[1]++;
+				this.bCount[1].remove();
+				this.bCount[1] = paper.text(paper.width - 85, 11, this.counter[1]).attr({fill: "yellow"});
+				this.button.push(this.bCount[1]);
+				if(this.bGlow) this.bGlow.remove();
+				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
+				this.mask.toFront();
+				//here adding to div
+			},
+			error : function(e){
+				this.counter[2]++;
+				this.bCount[2].remove();
+				this.bCount[2] = paper.text(paper.width - 45, 11, this.counter[2]).attr({fill: "orange"});
+				this.button.push(this.bCount[2]);
+				if(this.bGlow) this.bGlow.remove();
+				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF0000"});
+				this.mask.toFront();
+				//here adding to div
+				var fade = function(o){
+					if(o.buttonBG.attr("fill-opacity")==1){
+						o.buttonBG.animate({"fill-opacity": 0.4}, 700);
+					}else{
+						o.buttonBG.animate({"fill-opacity": 1}, 700);
+					}
+				};
+				if(this.animation) clearInterval(this.animation);
+				this.animation = setInterval((function(that){
+					return function(){
+						fade(that);
+					}
+				})(this),750);
+			}
+		};
+		//event handling
+		$(dId).click(function(){
+			$(dId).animate({
+				height: 0,
+				overflow : 'hidden'
+			});
+		});
+		obj.mask.click(function(){
+			$(dId).animate({
+				height: h,
+				overflow : 'scroll'
+			});
+		});
+		obj.mask.mouseover(function(){
+			if(obj.bGlow) obj.bGlow.remove();
+			if(obj.animation) clearInterval(obj.animation);
+			obj.buttonBG.animate({"fill-opacity": 0.75}, 500);
+			obj.bGlow = obj.buttonBG.glow();
+		});
+		obj.mask.mouseout(function(){
+			obj.bGlow.remove();
+		});
+		return obj;
+	}
+
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -504,43 +614,65 @@ function Controler(url, gui){
 			parent: gui.controler,
 			globalEvents: ["load"],
 			localEvents: ["select"],
-			require: "ssdl_JSON div jsTreePlugin".split(" "),
+			require: "ssdl_JSON div".split(" "),
 			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
 			draw: function draw(){
 				var that = this;
-				// raport(jstr(this.parent.graphData));
+
 				if( $("#subgraphTree_"+pf).length === 0 ){
 						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
 				}
-				if(this.parent.graphData){
-					this.data = this.convert(this.parent.graphData);
-					// console.log(this.data);
 
-					this.tree = $("#subgraphTree_"+pf)
-						.jstree({
-							"json_data" : {
-								"data" : this.data
-							},
-							"ui" : {
-								"select_limit" : 9
-							},
-							"themes" : {
-								"theme" : "default",
-								"dots" : true,
-								"icons" : false
-							},
-							"plugins" : [ "themes", "json_data", "ui" ] //,  "contextmenu""crrm",
-						})
-						.delegate("a", "click", function (event) {
-							// Poniższe dwie linijki ze względu na dziwactwo wtyczki jsTree
-							that.counter += 1;
-							if( that.counter % 2 == 0){
-								a($("a.jstree-clicked").text().substring(1))
-								//a(event)
-							}
+				if(this.parent.current_graphData){
+					this.data = this.convert(this.parent.current_graphData);
+					// console.log(this.data)
+					// if(this.data.children.length > 0)
+					// this.data.children[0].children.push( {data:"BUM"} );
+					
+						var out = (function(data){
+						var tab = [];
+
+						tab.push("<ul id='navigator'>");
+							tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+data.data+"</span></li>");
+
+							(function inner(data, id){
+								tab.push("<ul id='"+id+"'>");
+									$.each(data.children, function(){
+										if(this.children && this.children.length > 0){
+											tab.push("<li class='navigatorElement'><img id='img_"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+this.data+"</span></li>");
+												inner(this, id+"_"+this.data);
+										}
+										else {
+											tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span>"+this.data+"</span></li>");
+										}
+									});
+								tab.push("</ul>");
+							})(data, 'navigator_root');
+						tab.push("</ul>");
+
+						return tab.join("");
+						})(this.data);
+
+						$("#left_plugins_"+pf).html(out);
+
+						$("img.img_hasChildren").click(function(){
+							var $ul = $(this).parent().next();
+							$ul.toggle( 150 );
 
 							return false;
 						});
+
+						$("li.navigatorElement").click(function(){
+							if(! $(this).find("span").hasClass("selectedLI") ){
+								$("li.navigatorElement span").removeClass("selectedLI");
+								$(this).find("span").addClass("selectedLI");
+
+								gui.controler.reactOnEvent("SwitchCurrentView", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
+							}
+							return false;
+						});
+
+						$("li.navigatorElement:first").click();
 				}
 			},
 			convert: function convert(json, id, str){
@@ -604,17 +736,17 @@ function Controler(url, gui){
 					$("#repository_"+pf).html(html.join(""));
 					
 					$(".repository_link_"+pf).click(function(){
-						that.parent.loadSSDL(this.href);
+						gui.controler.reactOnEvent("EditService", {url: this.href});
+
 						return false;
 					});
 
 				}
 			}
 
-			
 			tmp.draw();
-			
-			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
+
+			 // $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
@@ -622,11 +754,13 @@ function Controler(url, gui){
 	var controlerObject = {
 		plugins : [],
 		idCounter : 0,
-		graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
+		graphData_tab : [],
+		current_graphData : {id: "root", nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
 		},
 		deploy : deploy,
+		initLogger : initLogger,
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
@@ -681,8 +815,8 @@ function Controler(url, gui){
 				var ssdl_json = that.convert(ssdl);
 				//raport(JSON.stringify(ssdl_json));
 				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.graphData = ssdl_json;//.nodes[3].subgraph;
-					gui.view.drawGraph(gui.controler.graphData);
+					that.current_graphData = ssdl_json;//.nodes[3].subgraph;
+					gui.view.drawGraph(gui.controler.current_graphData);
 					
 				// alert(that.plugins)
 				$.each(that.plugins, function(){
@@ -712,10 +846,11 @@ function Controler(url, gui){
 				that.repoNodes.draw( parsedSDB );
 			});
 		},
-		getNodeById : function getNodeById(id){
+		getNodeById : function getNodeById(id, graph){
 			var result;
-			if(gui.controler.graphData.nodes){
-				$.each(gui.controler.graphData.nodes, function(){
+				graph = graph || gui.controler.current_graphData;
+			if(graph.nodes){
+				$.each(graph.nodes, function(){
 					if( this.nodeId === id ){
 						result = this;
 						return false;
@@ -728,8 +863,8 @@ function Controler(url, gui){
 		getInputById : function getInputById(nodeId, inputId){
 			var result;
 
-			if(gui.controler.graphData.nodes){
-				$.each(gui.controler.graphData.nodes, function(){
+			if(gui.controler.current_graphData.nodes){
+				$.each(gui.controler.current_graphData.nodes, function(){
 					if( this.nodeId === nodeId ){
 						$.each(this.functionalDescription.inputs, function(){
 							if( this.id === inputId ){
@@ -800,7 +935,7 @@ function Controler(url, gui){
 						nonFunctionalDescription : []
 					};
 
-					this.graphData.nodes.unshift(start, stop);
+					this.current_graphData.nodes.unshift(start, stop);
 					
 					result = true;
 				}
@@ -809,7 +944,7 @@ function Controler(url, gui){
 		},
 		generateId : function generateId(){
 			this.idCounter++;
-			var num = this.graphData.nodes.length + this.idCounter,
+			var num = this.current_graphData.nodes.length + this.idCounter,
 				tab = ["node---"],
 				digitMax = 6,
 				digits = Math.ceil( Math.log(num) / Math.log(10) ),
@@ -826,8 +961,40 @@ function Controler(url, gui){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 			switch(evtType.toUpperCase()){
-				case "LOADSSDL" : (function (e) {
-					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
+				case "EDITSERVICE" : (function (e) {
+					if(e && e.url){
+						that.loadSSDL(e.url);
+					}
+				})(evtObj); break;
+				case "SWITCHCURRENTVIEW" : (function (e) {
+					var tab_nav = e.parent_id.split("_");
+						tab_nav.splice(0, 1);
+						tab_nav.push(e.id);
+					var tab_copy = $.extend(true, [], tab_nav);
+						$.each(tab_nav, function(k, v){
+							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+e.parent_id+"'>"+v+"</a>";
+						});
+						tab_nav = tab_nav.join(" \\ ");
+
+					$("div#top_nav_"+pf+" span").html(tab_nav);
+
+					if(e.id !== "root"){
+						// get the proper subgraph
+						var tmp,
+							result,
+							currentGraph = that.current_graphData;
+						$.each(tab_copy, function(i, v){
+							if(i===0) return true;
+							tmp = that.getNodeById(this, currentGraph);
+							currentGraph = tmp;
+							if(!tmp)
+								return false;
+						});
+
+						console.log(currentGraph.subgraph);
+						console.log(e)
+						gui.view.drawGraph(currentGraph.subgraph);
+					}
 				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
@@ -865,7 +1032,7 @@ function Controler(url, gui){
 					e.nodeId = gui.controler.generateId();
 					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
-					that.graphData.nodes.push(e)
+					that.current_graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
 				case "ADDBLANKNODE" : (function(e){

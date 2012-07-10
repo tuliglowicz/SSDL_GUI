@@ -1,0 +1,86 @@
+<head>
+	<style>
+		div#target {
+			width:250px;
+		}
+		ul {
+			list-style-type: none;
+			padding-left: 10px;
+			cursor: pointer;
+		}
+		img {
+			border:0px;
+		}
+		li span.selectedLI {
+			border:1px solid #6B66FF;
+			background-color: #BCBAFF;
+			border-radius: 5px;
+			line-height: 22px;
+		}
+		li span {
+			border: 1px solid white;
+			background-color: white;
+			border-radius: 5px;
+			line-height: 22px;
+		}
+	</style>
+</head>
+<div id="target"> </d>
+<script src="javascripts/jquery-1.7.2.js"> </script>
+<script src="javascripts/ontology.js"> </script>
+<script>
+
+var json = {"data":"root","attr":{"id":"root"},"state":"open","children":[{"data":"CCTVSendStart","attr":{"id":"subgraphTree_605657_CCTVSendStart"},"state":"open","children":[]}]}
+
+	jQuery.fn.myShow = function (time) {
+		time = time || 250;
+		this.animate({opacity: 1}, time);
+		return this;
+	};
+	jQuery.fn.myHide = function (time) {
+		time = time || 250;
+		this.animate({opacity: 0}, time, function(){
+			$(this).hide();
+		});
+		return this;
+	};
+
+
+var out = (function draw(json){
+	var tab = [];
+
+	tab.push("<ul id='navigator'>");
+		tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+json.data+"</span></li>");
+
+		(function inner(json, id){
+			tab.push("<ul id='"+id+"'>");
+				$.each(json.children, function(){
+					if(this.children && this.children.length > 0){
+						tab.push("<li class='navigatorElement'><img id='img_"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+this.data+"</span></li>");
+							inner(this, id+"_"+this.data);
+					}
+					else {
+						tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span>"+this.data+"</span></li>");
+					}
+				});
+			tab.push("</ul>");
+		})(json, 'navigator_root');
+	tab.push("</ul>");
+
+	return tab.join("");
+})(Ontology_JSON)
+
+$("#target").html(out);
+
+$("img.img_hasChildren").click(function(){
+	var $ul = $(this).parent().next();
+	$ul.toggle( 150 );
+	return false;
+});
+
+$("li.navigatorElement").click(function(){
+	$("li.navigatorElement span").removeClass("selectedLI");
+	$(this).find("span").addClass("selectedLI");
+	return false;
+});
+</script>
