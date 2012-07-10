@@ -5,6 +5,9 @@
 		border: 2px solid black;
 		background-color: #eee;	 
 	}
+	a {
+		text-decoration: none;
+	}
 	.connector {
 		fill: silver;
 		cursor:crosshair;
@@ -27,4 +30,26 @@
 
 	path.output {
 		cursor: crosshair;	
+	}
+	ul {
+		list-style-type: none;
+		padding-left: 10px;
+		cursor: pointer;
+		margin-top: 0px;
+		margin-bottom: 0px;
+	}
+	img {
+		border:0px;
+	}
+	li span.selectedLI {
+		border:1px solid #6B66FF;
+		background-color: #BCBAFF;
+		border-radius: 5px;
+		line-height: 22px;
+	}
+	li span {
+		border: 1px solid white;
+		background-color: white;
+		border-radius: 5px;
+		line-height: 22px;
 	}
