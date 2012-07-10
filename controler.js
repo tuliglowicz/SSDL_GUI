@@ -159,6 +159,7 @@ function Controler(url, gui){
 				this.curElCount++;
 				var divId = "console_row_" + this.curElCount;
 				var colors = ['#FAFAFF','#FFFFE0','#FFFAFA'];
+				var txtColors = ['white','yellow','orange'];
 				var imgNames = ['info','warning','error'];
 				this.dIds.push(divId);
 				this.dTypes.push(priority);
@@ -183,6 +184,7 @@ function Controler(url, gui){
 				$(divString).prependTo($(this.lId));
 				var checkId = "#cCheck_"+this.curElCount;
 				var that = this;
+				var nr = this.curElCount;
 				$(checkId).click((function(that){
 					return function(){
 						that.actionTaken = true;
@@ -192,7 +194,13 @@ function Controler(url, gui){
 				$(delId).click((function(that){
 					return function(){
 						that.actionTaken = true;
-						delId = "#console_row_" + delId.charAt(delId.length-1);
+						that.counter[priority]--;
+						that.bCount[priority].remove();
+						that.bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, that.counter[priority]).attr({fill: txtColors[priority]});
+						that.button.push(that.bCount[priority]);
+						that.mask.toFront();
+						delId = "#console_row_" + nr;
+						console.log(delId);
 						$(delId).remove();
 					}
 				})(this));
