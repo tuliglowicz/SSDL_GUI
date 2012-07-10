@@ -846,6 +846,9 @@ function View(id, width, height, gui){
 							[this.x, this.y + this.height/2]
 							]
 							;
+					},
+					deleteNode : function deleteNode(){
+						
 					}
 				}
 				
@@ -1159,13 +1162,13 @@ function View(id, width, height, gui){
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 
 		return outputObject;
-	}
+	};
 	
 	var outputView = {
 		id : id,
 		width : width,
 		height : height,
-		mode : undefined,
+		mode : "DF",
 		controler : gui.controler,
 		bgSelectionHelper : null,
 		scale : 100,
@@ -1179,7 +1182,7 @@ function View(id, width, height, gui){
 		},
 		graph_views_tab : [],
 		current_graph_view: {
-			id : "new",
+			id : "root",
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
@@ -1565,7 +1568,7 @@ function View(id, width, height, gui){
 				this.current_graph_view.edgesCF.push( edgeObject );
 			}
 		},
-		addDFEdge : function addCFEdge(data){
+		addDFEdge : function addDFEdge(data){
 			//source, sourceOutputId
 			//target, targetInputId
 			// console.log(data)
@@ -1776,7 +1779,7 @@ function View(id, width, height, gui){
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt;</div>");
+			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
 			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left;'> </div>");

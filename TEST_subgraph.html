@@ -1,8 +1,8 @@
 <head>
 	<style>
-	div#target {
-		width:250px;
-	}
+		div#target {
+			width:250px;
+		}
 		ul {
 			list-style-type: none;
 			padding-left: 10px;
@@ -30,6 +30,8 @@
 <script src="javascripts/ontology.js"> </script>
 <script>
 
+var json = {"data":"root","attr":{"id":"root"},"state":"open","children":[{"data":"CCTVSendStart","attr":{"id":"subgraphTree_605657_CCTVSendStart"},"state":"open","children":[]}]}
+
 	jQuery.fn.myShow = function (time) {
 		time = time || 250;
 		this.animate({opacity: 1}, time);
@@ -48,7 +50,7 @@ var out = (function draw(json){
 	var tab = [];
 
 	tab.push("<ul id='navigator'>");
-		tab.push("<li class='navigatorElement'>"+json.data+"</li>");
+		tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+json.data+"</span></li>");
 
 		(function inner(json, id){
 			tab.push("<ul id='"+id+"'>");
@@ -70,18 +72,15 @@ var out = (function draw(json){
 
 $("#target").html(out);
 
-$("img.img_hasChildren").live("click", function(){
+$("img.img_hasChildren").click(function(){
 	var $ul = $(this).parent().next();
 	$ul.toggle( 150 );
 	return false;
 });
 
-$("li.navigatorElement").live("click", function(){
-		// alert($("li.navigatorElement span").length)
-		$("li.navigatorElement span").removeClass("selectedLI");
-		$(this).find("span").addClass("selectedLI");
-		// alert($(this).html())
-		// alert($(this).find("span").length)
+$("li.navigatorElement").click(function(){
+	$("li.navigatorElement span").removeClass("selectedLI");
+	$(this).find("span").addClass("selectedLI");
 	return false;
 });
 </script>

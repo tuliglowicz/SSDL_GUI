@@ -614,43 +614,65 @@ function Controler(url, gui){
 			parent: gui.controler,
 			globalEvents: ["load"],
 			localEvents: ["select"],
-			require: "ssdl_JSON div jsTreePlugin".split(" "),
+			require: "ssdl_JSON div".split(" "),
 			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
 			draw: function draw(){
 				var that = this;
-				// raport(jstr(this.parent.current_graphData));
+
 				if( $("#subgraphTree_"+pf).length === 0 ){
 						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
 				}
+
 				if(this.parent.current_graphData){
 					this.data = this.convert(this.parent.current_graphData);
-					// console.log(this.data);
+					// console.log(this.data)
+					// if(this.data.children.length > 0)
+					// this.data.children[0].children.push( {data:"BUM"} );
+					
+						var out = (function(data){
+						var tab = [];
 
-					this.tree = $("#subgraphTree_"+pf)
-						.jstree({
-							"json_data" : {
-								"data" : this.data
-							},
-							"ui" : {
-								"select_limit" : 9
-							},
-							"themes" : {
-								"theme" : "default",
-								"dots" : true,
-								"icons" : false
-							},
-							"plugins" : [ "themes", "json_data", "ui" ] //,  "contextmenu""crrm",
-						})
-						.delegate("a", "click", function (event) {
-							// Poniższe dwie linijki ze względu na dziwactwo wtyczki jsTree
-							that.counter += 1;
-							if( that.counter % 2 == 0){
-								a($("a.jstree-clicked").text().substring(1))
-								//a(event)
-							}
+						tab.push("<ul id='navigator'>");
+							tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+data.data+"</span></li>");
+
+							(function inner(data, id){
+								tab.push("<ul id='"+id+"'>");
+									$.each(data.children, function(){
+										if(this.children && this.children.length > 0){
+											tab.push("<li class='navigatorElement'><img id='img_"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+this.data+"</span></li>");
+												inner(this, id+"_"+this.data);
+										}
+										else {
+											tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span>"+this.data+"</span></li>");
+										}
+									});
+								tab.push("</ul>");
+							})(data, 'navigator_root');
+						tab.push("</ul>");
+
+						return tab.join("");
+						})(this.data);
+
+						$("#left_plugins_"+pf).html(out);
+
+						$("img.img_hasChildren").click(function(){
+							var $ul = $(this).parent().next();
+							$ul.toggle( 150 );
 
 							return false;
 						});
+
+						$("li.navigatorElement").click(function(){
+							if(! $(this).find("span").hasClass("selectedLI") ){
+								$("li.navigatorElement span").removeClass("selectedLI");
+								$(this).find("span").addClass("selectedLI");
+
+								gui.controler.reactOnEvent("SwitchCurrentView", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
+							}
+							return false;
+						});
+
+						$("li.navigatorElement:first").click();
 				}
 			},
 			convert: function convert(json, id, str){
@@ -724,7 +746,7 @@ function Controler(url, gui){
 
 			tmp.draw();
 
-			 $("a:first").click(); //od razu wczytanie pierwszego serwisu
+			 // $("a:first").click(); //od razu wczytanie pierwszego serwisu
 			
 			return tmp;
 		}
@@ -732,8 +754,8 @@ function Controler(url, gui){
 	var controlerObject = {
 		plugins : [],
 		idCounter : 0,
-		graphDaata_tab : [],
-		current_graphData : {nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
+		graphData_tab : [],
+		current_graphData : {id: "root", nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
 		},
@@ -824,10 +846,11 @@ function Controler(url, gui){
 				that.repoNodes.draw( parsedSDB );
 			});
 		},
-		getNodeById : function getNodeById(id){
+		getNodeById : function getNodeById(id, graph){
 			var result;
-			if(gui.controler.current_graphData.nodes){
-				$.each(gui.controler.current_graphData.nodes, function(){
+				graph = graph || gui.controler.current_graphData;
+			if(graph.nodes){
+				$.each(graph.nodes, function(){
 					if( this.nodeId === id ){
 						result = this;
 						return false;
@@ -941,6 +964,36 @@ function Controler(url, gui){
 				case "EDITSERVICE" : (function (e) {
 					if(e && e.url){
 						that.loadSSDL(e.url);
+					}
+				})(evtObj); break;
+				case "SWITCHCURRENTVIEW" : (function (e) {
+					var tab_nav = e.parent_id.split("_");
+						tab_nav.splice(0, 1);
+						tab_nav.push(e.id);
+					var tab_copy = $.extend(true, [], tab_nav);
+						$.each(tab_nav, function(k, v){
+							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+e.parent_id+"'>"+v+"</a>";
+						});
+						tab_nav = tab_nav.join(" \\ ");
+
+					$("div#top_nav_"+pf+" span").html(tab_nav);
+
+					if(e.id !== "root"){
+						// get the proper subgraph
+						var tmp,
+							result,
+							currentGraph = that.current_graphData;
+						$.each(tab_copy, function(i, v){
+							if(i===0) return true;
+							tmp = that.getNodeById(this, currentGraph);
+							currentGraph = tmp;
+							if(!tmp)
+								return false;
+						});
+
+						console.log(currentGraph.subgraph);
+						console.log(e)
+						gui.view.drawGraph(currentGraph.subgraph);
 					}
 				})(evtObj); break;
 				case "SELECT" : (function (e) {
