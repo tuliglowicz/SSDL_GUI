@@ -620,7 +620,8 @@ function Controler(url, gui){
 				var that = this;
 
 				if( $("#subgraphTree_"+pf).length === 0 ){
-						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
+						$("#left_plugins_"+pf).prepend("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
+						// alert($("#left_plugins_"+pf+" div").length)
 				}
 
 				if(this.parent.current_graphData){
@@ -653,7 +654,7 @@ function Controler(url, gui){
 						return tab.join("");
 						})(this.data);
 
-						$("#left_plugins_"+pf).html(out);
+						$("#subgraphTree_"+pf).html(out);
 
 						$("img.img_hasChildren").click(function(){
 							var $ul = $(this).parent().next();
@@ -1030,25 +1031,34 @@ function Controler(url, gui){
 				})(); break;
 				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
 					e.nodeId = gui.controler.generateId();
-					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
 					that.current_graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
 				case "ADDBLANKNODE" : (function(e){
-					alert("inside add blank node");
+					gui.view.addBlankNode(e);
 				})(evtObj); break;
 				case "EDITNODE" : (function(e){
 					if(e && e.nodeId){
-						// alert(e.nodeId)
 						var node = that.getNodeById(e.nodeId);
 						gui.view.editNode(node);
 					}
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
-					//TUTAJ JACKOWA WALIDACJA
-					//return { allOK: boolean, errlist:[]}
-					alert("inside try to save...");
+					//e = zwrócony JSONek
+					//TUTAJ JACKOWA WALIDACJA i,jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
+					if(e.nodeId==="") { //to jest blank
+						e.generateId();
+						//x, y -> skąd?
+						var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100);
+						gui.view.current_graph_view.nodes.push(graphNode);
+						that.current_graphData.nodes.push(e);
+					}
+					else{ //to nie jest blank
+						//node = getNodeById(e.nodeId)
+						//update danych w node z e
+						//update widoku
+					}
 				})(evtObj); break;
 			}
 		},
