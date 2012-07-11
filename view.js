@@ -68,7 +68,6 @@ function View(id, width, height, gui){
 
 		return tooltip;
 	};
-	
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -256,8 +255,8 @@ function View(id, width, height, gui){
 			width = paper.width,
 			height = paper.height*.15,
 			canvas = $(paper.canvas),
-			ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
-			ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
+			offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
+			offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
 
 			offset = 20,
 			visible = .2,
@@ -306,7 +305,7 @@ function View(id, width, height, gui){
 						})
 						.mouseout(function(evt,x,y){
 							var b = that.bar.getBBox();
-							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
+							if(! that.bar.isPointInside(x-offsetX, y - offsetY)){
 								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 								that.triangle1.animate({opacity: visible}, that.animationTime);
 								that.triangle2.animate({opacity: visible}, that.animationTime);
@@ -646,11 +645,13 @@ function View(id, width, height, gui){
 					highlightColor : "orange",
 					normalColor : "black",
 					show : function show(i, v){
-						(v.node.animate ? v.node : v).myShow(250);
+						var objToAnimate = (v.node.animate ? v.node : v);
+						objToAnimate.stop().myShow(250);
 						return this;
 					},
 					hide : function hide(i, v){
-						(v.node.animate ? v.node : v).myHide(250);
+						var objToAnimate = (v.node.animate ? v.node : v);
+						objToAnimate.stop().myHide(250);
 						return this;
 					},
 					switchMode : function switchMode(newMode){
@@ -854,8 +855,19 @@ function View(id, width, height, gui){
 							]
 							;
 					},
-					deleteNode : function deleteNode(){
-
+					hideNode : function deleteNode(){
+						$.each(this.set, function(){
+							this.hide();
+						});
+						$.each(this.inputs, function(){
+							this.node.hide();
+						});
+						$.each(this.outputs, function(){
+							this.node.hide();
+						});
+						$.each(this.connectors, function(){
+							this.hide();
+						});
 					}
 				}
 				
@@ -1176,7 +1188,6 @@ function View(id, width, height, gui){
 		width : width,
 		height : height,
 		mode : "DF",
-		controler : gui.controler,
 		bgSelectionHelper : null,
 		scale : 100,
 		xPos : 0,
@@ -1209,10 +1220,9 @@ function View(id, width, height, gui){
 			console.log(node);
 			alert("inside editNode");
 		},
-		addStartStop : function addStartStop(){
-			var nodes = gui.controler.graphData.nodes,
-				start = nodes[0],
-				stop = nodes[1]
+		addStartStop : function addStartStop(obj){
+			var start = obj.start,
+				stop = obj.stop
 				;
 
 			start = this.visualiser.visualiseNode(start);
@@ -1229,6 +1239,7 @@ function View(id, width, height, gui){
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
+				mode = mode || this.mode;
 				$.each(this.current_graph_view.nodes, function(){
 					this.switchMode(mode);
 				});
@@ -1378,15 +1389,15 @@ function View(id, width, height, gui){
 			var arrow,
 				cx,
 				cy,
-				ofsetX,
-				ofsetY,
+				offsetX,
+				offsetY,
 				sourceNode,
 				bbox,
 				start = function start(){
 					if(gui.view.mode === "CF"){
 						var canvas = $(gui.view.paper.canvas);
-						ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-						ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
 						bbox = this.getBBox();
 						cx = (bbox.x + bbox.x2) / 2;
 						cy = (bbox.y + bbox.y2) / 2;
@@ -1405,7 +1416,7 @@ function View(id, width, height, gui){
 							console.log(e);
 						}
 						
-						arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
 				},
@@ -1418,7 +1429,7 @@ function View(id, width, height, gui){
 							console.log(e);
 						}
 
-						var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
+						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
 							gui.controler.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
@@ -1444,8 +1455,8 @@ function View(id, width, height, gui){
 			var arrow,
 				cx,
 				cy,
-				ofsetX,
-				ofsetY,
+				offsetX,
+				offsetY,
 				sourceNode,
 				targetId,
 				output,
@@ -1454,8 +1465,8 @@ function View(id, width, height, gui){
 				paper = gui.view.paper,
 				canvas = $(paper.canvas),
 				start = function start(){
-					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+					offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+					offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
 					bbox = this.getBBox();
 					cx = (bbox.x + bbox.x2) / 2;
 					cy = (bbox.y + bbox.y2) / 2;
@@ -1480,7 +1491,10 @@ function View(id, width, height, gui){
 					} catch(e){
 						// console.log(e);
 					}
-					arrow = paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+					// console.clear()
+					// console.log(event.clientX, event.clientY);
+					// paper.rect(event.clientX-offsetX, event.clientY-offsetY, 1, 1);
+					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
 					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},
 				stop = function stop(event){
@@ -1491,7 +1505,7 @@ function View(id, width, height, gui){
 						// console.log(e);
 					}
 
-					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
+					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 					// alert(resultObj)
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
 						if(resultObj.input.dataType === output.dataType){
@@ -1688,6 +1702,7 @@ function View(id, width, height, gui){
 			return result;
 		},
 		drawGraph : function drawGraph(graph_json){
+			// alert(graph_json.nodes)
 			var that = this;
 			// console.log(graph_json);
 			if(!this.paper){
@@ -1703,7 +1718,11 @@ function View(id, width, height, gui){
 				// this.paper.clear();
 				// this.graph_json = {};
 
-				var deployerOutput = gui.controler.deploy(graph_json, p.width);
+				try{
+					var deployerOutput = gui.controler.deploy(graph_json, p.width);
+				} catch(e){
+					console.error();
+				}
 
 				var tmpCoords, x, y;
 				$.each(graph_json.nodes, function(key, val){
@@ -1718,7 +1737,6 @@ function View(id, width, height, gui){
 				});
 
 				$.each(graph_json.nodes, function(key, val){
-
 					// alert(val.nodeId)
 					$.each(val.sources, function(){
 						that.addCFEdge({
@@ -1740,7 +1758,11 @@ function View(id, width, height, gui){
 					});
 				});
 
-				this.switchMode("DF");
+				// gui.view.mode = undefined;
+				gui.view.switchMode();
+				// gui.view.switchMode("DF");
+				// gui.view.switchMode("CF");
+
 			}
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
@@ -1935,6 +1957,14 @@ function View(id, width, height, gui){
 					return false;
 				}
 			});
+		},
+		reset : function reset(){
+			// $.each(this.gr)
+		},
+		hideGraph : function hideGraph(){
+			$.each(this.current_graph_view.nodes, function(){
+				this.hide();
+			});
 		}
 	}
 	outputView.init();
@@ -1942,6 +1972,7 @@ function View(id, width, height, gui){
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	// outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
+	// alert(gui)
 
 	var	lastDragX,
 		lastDragY,
