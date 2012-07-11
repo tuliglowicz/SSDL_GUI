@@ -13,19 +13,296 @@
 	<script src="controler.js"></script>
 	<script src="view.js"></script>
 	<link href="stylesheets/my_style.css" rel="stylesheet">
+	<link type="text/css" href="stylesheets/form/overcast/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+	<style>
+		#acc_inside{
+			height: 200px;
+		}
+	</style>
 </head>
 <body>
 	
 <div id="sandbox" style="background-color:ivory;"> </div>
 <div id="raport" style='clear: both; display:block;'> </div>
+<div id="form" class="ui-dialog-content ui-widget-content" title="New SSDL node">
+	<div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+		<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+			<li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active" id="t1"><a href="#tabs-1">Main</a></li>
+			<li id="t2"><a href="#tabs-2">Physical description</a></li>
+			<li id="t3"><a href="#tabs-3">Functional description</a></li>
+			<li id="t4"><a href="#tabs-4">Non-functional description</a></li>
+		</ul>
+		<div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+			<p>
+				<form id="mainForm">
+					<table>
+						<tr>
+							<td><label for="label">Label: </label></td>
+							<td><input type="text" name="label" id="label" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="nodeType">NodeType: </label></td>
+							<td><select style="width: 135px;" id="nodeType" class="ui-widget-content ui-corner-all ui-combobox">
+								<option class="ui-widget ui-state-default" selected="selected">  </option>
+								<option class="ui-widget ui-state-default" value="Control">Control</option>
+								<option class="ui-widget ui-state-default" value="Functionality">Functionality</option>
+								<option class="ui-widget ui-state-default" value="Mediator">Mediator</option>
+								<option class="ui-widget ui-state-default" value="Service">Service</option>
+							</select></td>
+								
+							<td><label for="controlType">ControlType: </label></td>
+							<td><input type="text" name="controlType" id="controlType" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="condition">Condition: if </label></td>
+							<td><input type="text" name="condition" id="condition" value="" class="text ui-widget-content ui-corner-all"/></td>
+							<td><label for="conditionTRUE">then </label></td>
+							<td><input type="text" name="conditionTRUE" id="conditionTRUE" value="" class="text ui-widget-content ui-corner-all"/></td>
+							<td><label for="conditionFALSE">else </label></td>
+							<td><input type="text" name="conditionFALSE" id="conditionFALSE" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<!-- Alternatives, subgraph - jak to potraktowaÄ‡??? Feedback needed! -->
+						<tr>
+							</br></br><td><label for="alternatives">Alternatives: </label></td>
+							<td><input type="text" name="alternatives" id="alternatives" value="" class="text ui-widget-content ui-corner-all"/></td>
+						
+							<!-- <td><label for="subgraph">Subgraph: </label></td>
+							<td><input type="text" name="subgraph" id="subgraph" value="" class="text ui-widget-content ui-corner-all"/></td> -->
+						</tr>
+						<tr>
+							<td><label for="source">Sources: </label></td>
+							<td><input type="text" name="source" id="source" value="" class="text ui-widget-content ui-corner-all"/></td>
+							<td><input type="submit" name="addSource" id="addSource" value="Add Source"/></td>
+							<td><small>click on a source to delete it</small></td>
+						</tr>
+					</table>
+					<span id="sources"></span>
+				</form>
+			</p>
+		</div>
+		<div id="tabs-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+			<p>
+				<form id="physDescForm">
+					<table>
+						<tr>
+							<td><label for="serviceName">ServiceName: </label></td>
+							<td><input type="text" name="serviceName" id="serviceName" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="serviceGlobalId">ServiceGlobalId: </label></td>
+							<td><input type="text" name="serviceGlobalId" id="serviceGlobalId" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="address">Address: </label></td>
+							<td><input type="text" name="address" id="address" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="operation">Operation: </label></td>
+							<td><input type="text" name="operation" id="operation" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+					</table>
+				</form>
+			</p>
+		</div>
+		<div id="tabs-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+			<p>
+				<form id="funcDescForm">
+					<table>
+						<tr>
+							<td><label for="description">Description: </label></td>
+							<td><input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all"/></td>
+						</tr>
+						<tr>
+							<td><label for="serviceClass">Service Classes: </label></td>
+							<td><input type="text" name="serviceClass" id="serviceClass" value="" class="text ui-widget-content ui-corner-all"/></td>
+							<td><input type="submit" name="addServiceClass" id="addServiceClass" value="Add Service Class"/></td>
+							<td><small>click on a service class to delete it</small></td>
+						</tr>
+					</table>
+					<span id="sClasses"></span>
+					<table>
+						<tr>
+							<td><label for="metaKeyword">Meta Keywords: </label></td>
+							<td><input type="text" name="metaKeyword" id="metaKeyword" value="" class="text ui-widget-content ui-corner-all"/></td>
+							<td><input type="submit" name="addMetaKeyword" id="addMetaKeyword" value="Add Meta Keyword"/></td>
+							<td><small>click on a meta keyword to delete it</small></td>
+						</tr>							
+					</table>
+				</form>
+				<span id="mKeywords"></span>
+				<div id="functional1">
+					<h3><a href="#">Inputs</a></h3>
+					<div id="acc_inside">
+						<form id="inputForm">
+							<table>
+								<tr>
+									<td><label for="inputNodeId">NodeId: </label></td>
+									<td><input type="text" name="inputNodeId" id="inputNodeId" value="" class="text ui-widget-content ui-corner-all"/></td>
+								
+									<td><label for="inputLabel">Label: </label></td>
+									<td><input type="text" name="inputLabel" id="inputLabel" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><label for="inputClass">Class: </label></td>
+									<td><input type="text" name="inputClass" id="inputClass" value="" class="text ui-widget-content ui-corner-all"/></td>
+									
+									<td><label for="inputDataType">DataType: </label></td>
+									<td><input type="text" name="inputDataType" id="inputDataType" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><label for="iProperties">Properties: </label></td>
+									<td><input type="text" name="iProperties" id="iProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><input type="submit" name="addInputButton" id="addInputButton" value="Add input"/></td>
+									<td><input type="reset" name="clearInputButton" id="clearInputButton" value="Reset"/></td>
+								</tr>
+							</table>
+						</form>
+						<div id="inputs-content" class="ui-widget">
+							<p>Defined inputs:</p>
+							<table id="inputs" class="text ui-widget-content ui-corner-all">
+								<thead>
+									<tr class="ui-widget-header ">
+										<th>NodeId</th>
+										<th>Label</th>
+										<th>Class</th>
+										<th>DataType</th>
+										<th>Properties</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div id="functional2">
+					<h3><a href="#">Outputs</a></h3>
+					<div id="acc_inside">
+						<form id="outputForm">
+							<table>
+								<tr>
+									<td><label for="outputNodeId">NodeId: </label></td>
+									<td><input type="text" name="outputNodeId" id="outputNodeId" value="" class="text ui-widget-content ui-corner-all"/></td>
+										
+									<td><label for="outputLabel">Label: </label></td>
+									<td><input type="text" name="outputLabel" id="outputLabel" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><label for="outputClass">Class: </label></td>
+									<td><input type="text" name="outputClass" id="outputClass" value="" class="text ui-widget-content ui-corner-all"/></td>
+								
+									<td><label for="outputDataType">DataType: </label></td>
+									<td><input type="text" name="outputDataType" id="outputDataType" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><label for="oProperties">Properties: </label></td>
+									<td><input type="text" name="oProperties" id="oProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
+								</tr>
+								<tr>
+									<td><input type="submit" name="addInputButton" id="addOutputButton" value="Add output"/></td>
+									<td><input type="reset" name="clearOutputButton" id="clearOutputButton" value="Reset"/></td>
+								</tr>
+							</table>
+						</form>		
+						<div id="outputs-content" class="ui-widget">
+							<p>Defined outputs:</p>
+							<table id="outputs" class="text ui-widget-content ui-corner-all">
+								<thead>
+									<tr class="ui-widget-header ">
+										<th>NodeId</th>
+										<th>Label</th>
+										<th>Class</th>
+										<th>DataType</th>
+										<th>Properties</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>	
+				<table>
+					<tr>
+						<td><label for="prec">Preconditions: </label></td>
+						<td><input type="text" name="prec" id="prec" value="" class="text ui-widget-content ui-corner-all"/></td>
+							
+						<td><label for="effects">Effects: </label></td>
+						<td><input type="text" name="effects" id="effects" value="" class="text ui-widget-content ui-corner-all"/></td>
+					</tr>
+				</table>
+			</p>
+		</div>
+		<div id="tabs-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+			<form id="nonFuncDescForm">
+				<table>
+					<tr>
+						<td><label for="weight">Weight:</label></td>
+						<td><input type="text" name="weight" id="weight" value="" class="text ui-widget-content ui-corner-all"/></td>
+					
+						<td><label for="name">Name: </label></td>
+						<td><input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all"/></td>
+					</tr>
+					<tr>
+						<td><label for="relation">Relation: </label></td>
+						<td><input type="text" name="relation" id="relation" value="" class="text ui-widget-content ui-corner-all"/></td>
+							
+						<td><label for="unit">Unit: </label></td>
+						<td><input type="text" name="unit" id="unit" value="" class="text ui-widget-content ui-corner-all"/></td>
+					</tr>
+					<tr>
+						<td><label for="value">Value: </label></td>
+						<td><input type="text" name="value" id="value" value="" class="text ui-widget-content ui-corner-all"/></td>
+					</tr>
+				</table>
+				<table>
+					<tr>
+						<td><input type="submit" name="addNonFunctional" id="addNonFunctional" value="Add nonfunctional property"/></td>
+						<td><input type="reset" name="clearNonFunctional" id="clearNonFunctional" value="Reset"/></td>
+					</tr>
+				</table>
+			</form>
+			<div id="nonFunctionalProperties-content" class="ui-widget">
+			<p>Defined Non Functional Properties:</p>
+				<table id="NFProps" class="text ui-widget-content ui-corner-all">
+					<thead>
+						<tr class="ui-widget-header ">
+							<th>Weight</th>
+							<th>Name</th>
+							<th>Relation</th>
+							<th>Unit</th>
+							<th>Value</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>	
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<input type="submit" name="sumbitAllButton" id="sumbitAllButton" value="Submit all"/>
+	<input type="reset" name="resetAllButton" id="resetAllButton" value="Reset all"/>
+	<p id="buglist" color="red"><p/>
+</div>
 
 <script>
 	"use strict";
 	
-	// pomocnicze skróty
+	// pomocnicze skrĂłty
 	var a = alert;
 	var jstr = JSON.stringify;
-	// eof pomocnicze skróty
+	// eof pomocnicze skrĂłty
 
 	var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
 	var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
@@ -35,6 +312,7 @@
 		
 		r.id_postfix = Math.round( Math.random() * 10e5 );
 		r.view = View(id, width, height, r);
+		r.view.blankNodes.draw();
 		r.controler = Controler(url, r);
 		r.library = {gui: r};
 		r.controler.init();
