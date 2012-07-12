@@ -77,23 +77,21 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* user console
+		/* LOGGER v0.666
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
-
-		//
-		// BŁAŻEJ: w definicji buttonBG i buttonMask zmieniłem wartość y z -25 na 0. Inaczej się wywala strzałkowanie.
-		// Wydaje mi się, że będziesz musiał zrobić ten kształt path-em
-		//
 		var h = paper.height,
 			dId = "#console_" + pf,
 			button = paper.set(),
-			buttonBG = paper.rect(paper.width - 170, 0, 150, 50, 25).attr({
+			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
+			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
+			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
+			//buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			buttonBG = paper.path(bPath).attr({
 				fill : "#222",
 				"fill-opacity": .75
 			});
-
 		button.push(buttonBG);
 		//images
 		var iImg = paper.image('images/info.png', paper.width - 152, 4, 15, 15),
@@ -109,35 +107,37 @@ function Controler(url, gui){
 		button.push(iCounter);
 		button.push(wCounter);
 		button.push(eCounter);
-		var buttonMask = paper.rect(paper.width - 170, 0, 150, 50, 25).attr({
+		var buttonMask = paper.path(bPath).attr({
 			fill : "#222",
 			"fill-opacity": 0.0
 		});
 		//console object
 		var obj = {
 			lId : dId,
+			counter : [0, 0, 0],
 			mask : buttonMask,
 			button : button,
 			bImgs : [iImg, wImg, eImg],
 			bCount : [iCounter, wCounter, eCounter],
 			buttonBG : buttonBG,
 			bGlow : null,
-			counter : [0, 0, 0],
 			animation : null,
-			dIds : [],
-			dTypes : [],
 			curElCount : 0,
 			actionTaken : false,
-			info : function(i){
+			info : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[0]++;
 				this.bCount[0].remove();
 				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
 				this.button.push(this.bCount[0]);
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(i, 0);
+				this.addMessage(text, 0);
 			},
-			warning : function(w){
+			warning : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[1]++;
 				this.bCount[1].remove();
 				this.bCount[1] = paper.text(paper.width - 85, 11, this.counter[1]).attr({fill: "yellow"});
@@ -146,18 +146,20 @@ function Controler(url, gui){
 				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(w, 1);
+				this.addMessage(text, 1);
 			},
-			error : function(e){
+			error : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[2]++;
 				this.bCount[2].remove();
 				this.bCount[2] = paper.text(paper.width - 45, 11, this.counter[2]).attr({fill: "orange"});
 				this.button.push(this.bCount[2]);
 				if(this.bGlow) this.bGlow.remove();
-				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF0000"});
+				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FFFF00"});
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(e, 2);
+				this.addMessage(text, 2);
 				//pulse
 				var fade = function(o){
 					if(o.buttonBG.attr("fill-opacity")==1){
@@ -179,8 +181,6 @@ function Controler(url, gui){
 				var colors = ['#FAFAFF','#FFFFE0','#FFFAFA'];
 				var txtColors = ['white','yellow','orange'];
 				var imgNames = ['info','warning','error'];
-				this.dIds.push(divId);
-				this.dTypes.push(priority);
 				var divString = [];
 				divString.push("<div id='");
 				divString.push(divId);
@@ -193,21 +193,13 @@ function Controler(url, gui){
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
-				divString.push(this.curElCount);
-				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(this.curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
 				$(divString).prependTo($(this.lId));
-				var checkId = "#cCheck_"+this.curElCount;
 				var that = this;
 				var nr = this.curElCount;
-				$(checkId).click((function(that){
-					return function(){
-						that.actionTaken = true;
-					}
-				})(this));
 				var delId = "#cCancel_"+this.curElCount;
 				$(delId).click((function(that){
 					return function(){
@@ -218,7 +210,6 @@ function Controler(url, gui){
 						that.button.push(that.bCount[priority]);
 						that.mask.toFront();
 						delId = "#console_row_" + nr;
-						console.log(delId);
 						$(delId).remove();
 					}
 				})(this));
