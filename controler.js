@@ -117,37 +117,44 @@ function Controler(url, gui){
 			imgNames = ['info','warning','error'];
 		//private functions
 		var addMessage = function(message, priority){
-			curElCount++;
-			var divId = "console_row_" + curElCount;
-			var divString = [];
-			divString.push("<div id='");
-			divString.push(divId);
-			divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
-			divString.push(colors[priority]);
-			divString.push("; padding: 2px;'>");
-			divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
-			divString.push("<img src='images/");
-			divString.push(imgNames[priority]);
-			divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
-			divString.push("<td valign='top' style='float: left;'>");
-			divString.push(message);
-			divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
-			divString.push(curElCount);
-			divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
-			divString = divString.join("");
-			$(divString).prependTo($(lId));
-			var nr = curElCount;
-			var delId = "#cCancel_"+curElCount;
-			$(delId).click(function(){
-				actionTaken = true;
-				counter[priority]--;
-				bCount[priority].remove();
-				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
-				mask.toFront();
-				delId = "#console_row_" + nr;
-				$(delId).remove();
-			});
-		};
+				curElCount++;
+				var divId = "console_row_" + curElCount;
+				var divString = [];
+				divString.push("<div id='");
+				divString.push(divId);
+				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
+				divString.push(colors[priority]);
+				divString.push("; padding: 2px;'>");
+				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
+				divString.push("<img src='images/");
+				divString.push(imgNames[priority]);
+				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
+				divString.push("<td valign='top' style='float: left;'>");
+				divString.push(message);
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push(curElCount);
+				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+				divString = divString.join("");
+				$(divString).prependTo($(lId));
+				var nr = curElCount;
+				var delId = "#cCancel_"+curElCount;
+				$(delId).click(function(){
+					actionTaken = true;
+					counter[priority]--;
+					bCount[priority].remove();
+					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
+					mask.toFront();
+					delId = "#console_row_" + nr;
+					$(delId).remove();
+				});
+			},
+			fade = function(){
+				if(buttonBG.attr("fill-opacity")==1){
+					buttonBG.animate({"fill-opacity": 0.4}, 700);
+				}else{
+					buttonBG.animate({"fill-opacity": 1}, 700);
+				}
+			};
 		//console object
 		var obj = {
 			info : function(text, title){
@@ -184,13 +191,6 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 2);
 				//pulse
-				var fade = function(){
-					if(buttonBG.attr("fill-opacity")==1){
-						buttonBG.animate({"fill-opacity": 0.4}, 700);
-					}else{
-						buttonBG.animate({"fill-opacity": 1}, 700);
-					}
-				};
 				if(animation) clearInterval(animation);
 				animation = setInterval(fade, 750);
 			}
