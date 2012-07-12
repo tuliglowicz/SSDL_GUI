@@ -65,7 +65,7 @@ function Controler(url, gui){
 	}
 
 	function initLogger(paper){
-		/* user console
+		/* LOGGER v0.666
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
@@ -95,19 +95,38 @@ function Controler(url, gui){
 			fill : "#222",
 			"fill-opacity": 0.0
 		});
+		//auxiliary functions
+		var contains = function(tab, el){
+			var ret = false;
+			$.each(tab, function() {
+				if(this == el){
+					ret = true;
+				}
+			});
+			return ret;
+		}
+		var removeEl = function(tab, el){
+			var len = tab.length;
+			var tab2 = [];
+			for(var i = 0; i<len; i++){
+				if(tab[i] != el){
+					tab2.push(tab[i]);
+				}
+			}
+			return tab2;
+		}
 		//console object
 		var obj = {
 			lId : dId,
+			counter : [0, 0, 0],
 			mask : buttonMask,
 			button : button,
 			bImgs : [iImg, wImg, eImg],
 			bCount : [iCounter, wCounter, eCounter],
 			buttonBG : buttonBG,
 			bGlow : null,
-			counter : [0, 0, 0],
 			animation : null,
 			dIds : [],
-			dTypes : [],
 			curElCount : 0,
 			actionTaken : false,
 			info : function(i){
@@ -136,7 +155,7 @@ function Controler(url, gui){
 				this.bCount[2] = paper.text(paper.width - 45, 11, this.counter[2]).attr({fill: "orange"});
 				this.button.push(this.bCount[2]);
 				if(this.bGlow) this.bGlow.remove();
-				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF0000"});
+				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FFFF00"});
 				this.mask.toFront();
 				//here adding to div and dTabs
 				this.addMessage(e, 2);
@@ -161,8 +180,6 @@ function Controler(url, gui){
 				var colors = ['#FAFAFF','#FFFFE0','#FFFAFA'];
 				var txtColors = ['white','yellow','orange'];
 				var imgNames = ['info','warning','error'];
-				this.dIds.push(divId);
-				this.dTypes.push(priority);
 				var divString = [];
 				divString.push("<div id='");
 				divString.push(divId);
@@ -188,6 +205,12 @@ function Controler(url, gui){
 				$(checkId).click((function(that){
 					return function(){
 						that.actionTaken = true;
+						/*
+						if(contains(that.dIds, divId)){
+							that.dIds = removeEl(that.dIds, divId);
+						}else{
+							that.dIds.push(divId);
+						}*/
 					}
 				})(this));
 				var delId = "#cCancel_"+this.curElCount;
@@ -200,7 +223,6 @@ function Controler(url, gui){
 						that.button.push(that.bCount[priority]);
 						that.mask.toFront();
 						delId = "#console_row_" + nr;
-						console.log(delId);
 						$(delId).remove();
 					}
 				})(this));
