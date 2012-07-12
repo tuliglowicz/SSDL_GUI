@@ -84,7 +84,11 @@ function Controler(url, gui){
 		var h = paper.height,
 			dId = "#console_" + pf,
 			button = paper.set(),
-			buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
+			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
+			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
+			//buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			buttonBG = paper.path(bPath).attr({
 				fill : "#222",
 				"fill-opacity": .75
 			});
@@ -103,30 +107,10 @@ function Controler(url, gui){
 		button.push(iCounter);
 		button.push(wCounter);
 		button.push(eCounter);
-		var buttonMask = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+		var buttonMask = paper.path(bPath).attr({
 			fill : "#222",
 			"fill-opacity": 0.0
 		});
-		//auxiliary functions
-		var contains = function(tab, el){
-			var ret = false;
-			$.each(tab, function() {
-				if(this == el){
-					ret = true;
-				}
-			});
-			return ret;
-		}
-		var removeEl = function(tab, el){
-			var len = tab.length;
-			var tab2 = [];
-			for(var i = 0; i<len; i++){
-				if(tab[i] != el){
-					tab2.push(tab[i]);
-				}
-			}
-			return tab2;
-		}
 		//console object
 		var obj = {
 			lId : dId,
@@ -138,19 +122,22 @@ function Controler(url, gui){
 			buttonBG : buttonBG,
 			bGlow : null,
 			animation : null,
-			dIds : [],
 			curElCount : 0,
 			actionTaken : false,
-			info : function(i){
+			info : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[0]++;
 				this.bCount[0].remove();
 				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
 				this.button.push(this.bCount[0]);
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(i, 0);
+				this.addMessage(text, 0);
 			},
-			warning : function(w){
+			warning : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[1]++;
 				this.bCount[1].remove();
 				this.bCount[1] = paper.text(paper.width - 85, 11, this.counter[1]).attr({fill: "yellow"});
@@ -159,9 +146,11 @@ function Controler(url, gui){
 				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(w, 1);
+				this.addMessage(text, 1);
 			},
-			error : function(e){
+			error : function(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
 				this.counter[2]++;
 				this.bCount[2].remove();
 				this.bCount[2] = paper.text(paper.width - 45, 11, this.counter[2]).attr({fill: "orange"});
@@ -170,7 +159,7 @@ function Controler(url, gui){
 				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FFFF00"});
 				this.mask.toFront();
 				//here adding to div and dTabs
-				this.addMessage(e, 2);
+				this.addMessage(text, 2);
 				//pulse
 				var fade = function(o){
 					if(o.buttonBG.attr("fill-opacity")==1){
@@ -204,27 +193,13 @@ function Controler(url, gui){
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
-				divString.push(this.curElCount);
-				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(this.curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
 				$(divString).prependTo($(this.lId));
-				var checkId = "#cCheck_"+this.curElCount;
 				var that = this;
 				var nr = this.curElCount;
-				$(checkId).click((function(that){
-					return function(){
-						that.actionTaken = true;
-						/*
-						if(contains(that.dIds, divId)){
-							that.dIds = removeEl(that.dIds, divId);
-						}else{
-							that.dIds.push(divId);
-						}*/
-					}
-				})(this));
 				var delId = "#cCancel_"+this.curElCount;
 				$(delId).click((function(that){
 					return function(){

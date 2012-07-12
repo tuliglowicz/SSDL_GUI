@@ -227,7 +227,7 @@ function View(id, width, height, gui){
 
 								that.isVisible = true;
 
-								if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
+								if(! that.bar.isPointInside(x-offsetX, y - offsetY)){
 
 									that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 									that.triangle1.animate({opacity: visible}, that.animationTime);
