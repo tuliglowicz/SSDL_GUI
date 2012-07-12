@@ -68,7 +68,6 @@ function View(id, width, height, gui){
 
 		return tooltip;
 	};
-	
 	//UWAGA, PARTYZANTKA PRZY TWORZENIU NODE'A (DESCRIPTION, I/O)
 	function preloader(divId){
 		var $divElem = $("#"+divId+"_"+pf),
@@ -125,76 +124,43 @@ function View(id, width, height, gui){
 				var clone, newRect, newCirc;
 				if( $("#blankNodes_"+pf).length === 0 ){
 					$("#left_plugins_"+pf).append("<div id='blankNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
-					this.paper = Raphael("blankNodes_"+pf, $("#left_plugins_"+pf).width(), 500);
+					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
 				}
 				var nodeLength = 135,
 					nodeHeight = 35,
 					nodeHorizontalPosition = this.paper.width/2 - nodeLength/2, 
 					textHorizontalPosition = this.paper.width/2,
-					move, start, stop, x2, fillColor,
-					nodeType, blankNode;
+					fillColor, blankNode;
 				
+				var onDblClick = function onDblClick(nodeType){
+					return function(){
+						if(gui.controler)
+							gui.controler.reactOnEvent("AddBlankNode", nodeType);
+					}
+				}
+
 				this.paper.text(textHorizontalPosition,10,"Service")
 					.node.setAttribute("class","repository_text");
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
-					.attr({fill:"#fbec88"}).dblclick(function(){
-						gui.controler.reactOnEvent("AddBlankNode");
-					});
+					.attr({fill:"#fbec88"})
+					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.paper.text(textHorizontalPosition,80,"Functionality")
 					.node.setAttribute("class","repository_text");
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
-					.attr({fill:"#a6c9e2"}).dblclick(function(){
-						gui.controler.reactOnEvent("AddBlankNode");
-					});
+					.attr({fill:"#a6c9e2"})
+					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.paper.text(textHorizontalPosition,150,"Mediator")
-					.node.setAttribute("class","repository_text");
+					.hide();
+					// .node.setAttribute("class","repository_text");
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,160,nodeLength,nodeHeight,5)
-					.attr({fill:"white"}).dblclick(function(){
-						gui.controler.reactOnEvent("AddBlankNode");
-					});
-				repo_mediator.node.setAttribute("class","repository_element");
-				
-				
-						// blankNode = visualiser.getBlankNode();
-						// blankNode.x = newRect.attr("x");
-						// blankNode.y = newRect.attr("y");
-						// switch(nodeType.toUpperCase()){						
-						// 	case "SERVICE":
-						// 		blankNode.type = "service";
-						// 		visualiser.draw_serviceNode(blankNode);
-						// 		break;							
-						// 	case "FUNCTIONALITY":
-						// 		blankNode.type = "functionality";
-						// 		visualiser.draw_functionalityNode(blankNode);
-						// 		break;					
-						// 	case "MEDIATOR":
-						// 		blankNode.type = "mediator";
-						// 		visualiser.draw_unknownNode(blankNode);
-						// 		break;
-						// 	default:
-						// 		visualiser.draw_unknownNode(blankNode);
-						// 		break;					
-						// }
-						// gui.view.current_graph_view.nodes.push(blankNode);
-						// newRect.remove();
-						
-
-						// wywołaj funkcję draw_odpowiednityp(node)
-						//(visualiser["draw_"+nodeType+"Node"] || visualiser.draw_unknownNode )(blankNode)
-						// otworz formularz edycji bloczka
-						// jesli walidacja puszcz, to zapisz:
-						// 		widok boczka do gui.view.current_graph_view.nodes
-						//		dane bloczka do gui.controler.graphData
-						//		gui.view.current_graph_view.nodes.push(newRect);			
-					
-				
+					.attr({fill:"white"})
+					.dblclick(onDblClick("Mediator"))
+					.hide();
+				repo_mediator.node.setAttribute("class","repository_element");				
 			}
 		};
-
-		tmp.draw();
-		
 		return tmp;
 	};
 	function drawBottomBar(paper){
@@ -203,8 +169,8 @@ function View(id, width, height, gui){
 			width = paper.width,
 			height = paper.height*.15,
 			canvas = $(paper.canvas),
-			ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
-			ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
+			offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width")),
+			offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width")),
 
 			offset = 20,
 			visible = .2,
@@ -218,6 +184,7 @@ function View(id, width, height, gui){
 				offset: offset,
 				visible: visible,
 				invisible: invisible,
+				isVisible: false,
 				animationTime: 200,
 				groups: [],
 				separators: [],
@@ -231,6 +198,8 @@ function View(id, width, height, gui){
 					this.bar = paper.rect(x, y, width, height).
 						attr({fill:"grey", opacity: this.invisible})
 						.mouseover(function(){
+							that.isVisible = true;
+
 							that.bar.animate({y: paper.height*.85, opacity: visible},that.animationTime);
 							that.triangle1.animate({opacity: invisible}, that.animationTime);
 							that.triangle2.animate({opacity: invisible}, that.animationTime);
@@ -253,25 +222,31 @@ function View(id, width, height, gui){
 						})
 						.mouseout(function(evt,x,y){
 							var b = that.bar.getBBox();
-							if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
-								that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
-								that.triangle1.animate({opacity: visible}, that.animationTime);
-								that.triangle2.animate({opacity: visible}, that.animationTime);
-								$.each(that.groups, function(){
-									this.graphic.animate({opacity: that.invisible}, that.animationTime).hide();
-									$.each(this.buttons, function(){
-										this.graphic[0].animate({opacity: invisible}, that.animationTime).hide();
-										this.graphic[1].animate({opacity: invisible}, that.animationTime).hide();
-										this.graphic[2].hide();
+
+							if(! that.bar.isPointInside(x-offsetX, y - offsetY)){
+
+								that.isVisible = true;
+
+								if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
+
+									that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
+									that.triangle1.animate({opacity: visible}, that.animationTime);
+									that.triangle2.animate({opacity: visible}, that.animationTime);
+									$.each(that.groups, function(){
+										this.graphic.animate({opacity: that.invisible}, that.animationTime).hide();
+										$.each(this.buttons, function(){
+											this.graphic[0].animate({opacity: invisible}, that.animationTime).hide();
+											this.graphic[1].animate({opacity: invisible}, that.animationTime).hide();
+											this.graphic[2].hide();
+										});
 									});
-								});
-								$.each(that.separators, function(){
-								this.animate({opacity: invisible}, that.animationTime).hide();
-							});
+									$.each(that.separators, function(){
+										this.animate({opacity: invisible}, that.animationTime).hide();
+									});
+								}
+								return this;
 							}
-							return this;
-						})
-						;
+						});
 
 				},
 				createTriangle: function createTriangle(path){
@@ -297,27 +272,36 @@ function View(id, width, height, gui){
 						},
 						hideButton: function hideButton(label){
 							$.each(this.buttons, function(){
-								//nie będę w buttonie dodawać hide() i show(), bo tutaj to jedna linijka
-								if(this.label===label) this.isVisible = false;
+								if(this.label.toUpperCase()===label.toUpperCase()) 
+									this.hideThisButton();
 							});
-							that.massReset();
+							that.generalFontReset();
 							this.resizeAndRelocate();
 							that.relocate();
 						},
 						showButton: function showButton(label){
 							$.each(this.buttons, function(){
-								if(this.label===label) this.isVisible = true;
+								if(this.label.toUpperCase()===label.toUpperCase()) 
+									this.showThisButton();
 							});
 							this.resizeAndRelocate();
 							that.relocate();
 						},
 						hideGroup: function hideGroup(){
 							this.isVisible = false;
-							that.massReset();
+							this.graphic.hide();
+							$.each(this.buttons, function(){
+								this.hideThisButton();
+							});
+							that.generalFontReset();
 						},
 						showGroup: function showGroup(){
 							this.isVisible = true;
-							that.massReset();
+							this.graphic.show();
+							$.each(this.buttons, function(){
+								this.showThisButton();
+							});
+							that.generalFontReset();
 						},
 						createGraphic: function createGraphic(){
 							var temp, bbox;
@@ -357,7 +341,7 @@ function View(id, width, height, gui){
 				getGroup: function getGroup(groupLabel){
 					var result = false;
 					$.each(this.groups, function(){
-						if(this.label===groupLabel) {
+						if(this.label.toUpperCase()===groupLabel.toUpperCase()) {
 							result = this;
 						}
 					});
@@ -394,6 +378,18 @@ function View(id, width, height, gui){
 							$.each(this.graphic, function(){
 								oy = this.attr("y");
 								this.attr({"y": oy+y});
+							});
+						},
+						hideThisButton: function hideThisButton(){
+							this.isVisible = false;
+							$.each(this.graphic, function(){
+								this.hide();
+							});
+						},
+						showThisButton: function showThisButton(){
+							this.isVisible = true;
+							$.each(this.graphic, function(){
+								this.show();
 							});
 						},
 						resize: function resize(w, h){
@@ -492,11 +488,17 @@ function View(id, width, height, gui){
 							sum += this.width;
 						}
 					});
+
 					if(sum >= paper.width){
-						this.massResize();
+						this.generalResize();
 					}
+
+					if(this.isVisible)
+						$.each(this.separators, function(){
+							this.show().animate({opacity: visible}, that.animationTime);
+						});
 				},
-				massResize: function massResize(arg){
+				generalResize: function generalResize(arg){
 					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w label buttonów, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
@@ -506,7 +508,7 @@ function View(id, width, height, gui){
 					});
 					this.relocate();
 				},
-				massReset: function massReset(){
+				generalFontReset: function generalFontReset(){
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeReset();
@@ -568,12 +570,37 @@ function View(id, width, height, gui){
 		return result;
 	};
 	function form() {
-		var resultJSON = {"nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
-		var physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
-		var funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
+		var resultJSON = {
+			"nodeId":"",
+			"nodeLabel":"",
+			"nodeType":"",
+			"physicalDescription":{},
+			"functionalDescription":{},
+			"nonFunctionalDescription":[],
+			"alternatives":"",
+			"subgraph":{},
+			"controlType":"",
+			"condition":"",
+			"sources":[]
+		};
+		var physDescJSON = {
+			"serviceName":"",
+			"serviceGlobalId":"",
+			"address":"",
+			"operation":""
+		};
+		var funcDescJSON = {
+			"description":"",
+			"serviceClasses":[],
+			"metaKeywords":[],
+			"inputs":[],
+			"outputs":[],
+			"preconditions":"",
+			"effects":""
+		};
 
 		var result = {
-			resultJSON: resultJSON,	//czy ja potrzebuję resultJSON, skoro EDYTUJĘ node?
+			resultJSON: resultJSON,
 			physDescJSON: physDescJSON,
 			funcDescJSON: funcDescJSON,
 			inputEdit: false,
@@ -588,8 +615,7 @@ function View(id, width, height, gui){
 
 			initToEdit: function initToEdit(node){
 				var condition = [];
-				this.node = node;
-				this.blank = false;
+				// this.node = node;
 				this.clearErrors();
 				this.cleanForm();
 				$( "#label" ).val(node.nodeLabel);
@@ -602,7 +628,6 @@ function View(id, width, height, gui){
 					$( "#conditionTRUE" ).val((condition[3]) ? condition[3] : "");
 					$( "#conditionFALSE" ).val((condition[5]) ? condition[5] : "");
 				}
-				$( "#source" ).val(node.sources);
 				$( "#subgraph" ).val(node.subgraph);				
 				$( "#serviceName" ).val(node.physicalDescription.serviceName);
 				$( "#serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
@@ -617,13 +642,14 @@ function View(id, width, height, gui){
 				this.appendIO(node.functionalDescription.inputs, "inputs");
 				this.appendIO(node.functionalDescription.outputs, "outputs");
 				this.appendNonFuncDesc(node.nonFunctionalDescription);
+				this.resultJSON.nodeId = node.nodeId;
 				$( "#form" ).dialog( "open" );
 			},
-			//TODO: ustalić, czy tu jednak nie przekazuję argumentu (np. pustego node?)
-			initBlank: function initBlank(){
-				this.blank = true;
+			initBlank: function initBlank(nodeType){
 				this.clearErrors();
 				this.cleanForm();
+				this.resultJSON.nodeType = nodeType;
+				$( "#nodeType" ).val(nodeType);
 				$( "#form" ).dialog( "open" );
 			},
 			//funkcje czyszczące elementy formularza
@@ -681,12 +707,13 @@ function View(id, width, height, gui){
 				for(var i = 1; i < 5; i++){ $( "#t" + i ).removeClass( "ui-state-error" );  }
 			},
 			cleanForm: function cleanForm(){
-				this.resultJSON = {"nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
+				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
 				$( "#inputs tbody" ).empty();
 				$( "#outputs tbody" ).empty();
 				$( "#NFProps tbody" ).empty();
+				$( "#source" ).val("");
 				$( "#sources" ).empty();
 				$( "#sClasses" ).empty();
 				$( "#mKeywords" ).empty();
@@ -731,25 +758,25 @@ function View(id, width, height, gui){
 				}
 			},
 			appendList: function appendList(array, type){
-				var input;
+				var input, that = this;
 				if(type === "sources"){
 					$.each(array, function(){
 						input = this;
-						this.resultJSON.sources.push(input); 	
+						that.resultJSON.sources.push(input); 	
 						$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
 					});
 				}
 				else if(type === "serviceClasses"){
 					$.each(array, function(){
 						input = this;
-						funcDescJSON.serviceClasses.push(input);
+						that.funcDescJSON.serviceClasses.push(input);
 						$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
 					});
 				}
 				else if(type === "metaKeywords"){
 					$.each(array, function(){
 						input = this;	
-						funcDescJSON.metaKeywords.push(input);
+						that.funcDescJSON.metaKeywords.push(input);
 						$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
 					});
 				}
@@ -849,18 +876,20 @@ function View(id, width, height, gui){
 			/*
 			*	EVENT HANDLERS START HERE
 			*/
-			//submitAll() jest tymczasowy i nieoptymalny - jak będę znać dokładny przepływ danych przy dodawanu blanka
-			//to pomyślę, jak zrobić go porządnie
-			//zakomentowane fragmenty czekają na walidację
 			submitAll: function submitAll(){
-				var testResult;
+				var condition;
 
 				this.clearErrors();
+				
 				this.resultJSON.nodeLabel = $( "#label" ).val();
 				this.resultJSON.nodeType = $( "#nodeType" ).val();
 				this.resultJSON.controlType = $( "#controlType" ).val();
 				this.resultJSON.alternatives = $( "#alternatives" ).val();
-				this.resultJSON.condition = "if " + $( "#condition" ).val() + " then " + $( "#conditionTRUE" ).val() + " else " + $( "#conditionFALSE" ).val();
+				
+				condition = $( "#condition" ).val();
+				if(condition)
+					this.resultJSON.condition = "if " + $( "#condition" ).val() + " then " + $( "#conditionTRUE" ).val() + " else " + $( "#conditionFALSE" ).val();
+				else this.resultJSON.condition = "";
 
 				this.physDescJSON.serviceName = $( "#serviceName" ).val();
 				this.physDescJSON.serviceGlobalId = $( "#serviceGlobalId" ).val();
@@ -873,36 +902,12 @@ function View(id, width, height, gui){
 				this.funcDescJSON.effects = $( "#effects" ).val();
 				this.resultJSON.functionalDescription = this.funcDescJSON;
 			
-				testResult = gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", resultJSON);
+				alert(JSON.stringify(resultJSON));
 
-				// if(testResult.allOK){
-					this.node.nodeLabel = this.resultJSON.nodeLabel;
-					this.node.nodeType = this.resultJSON.nodeType;
-					this.node.controlType = this.resultJSON.controlType;
-					this.node.alternatives = this.resultJSON.alternatives;
-					this.node.condition = this.resultJSON.condition;
-					this.node.sources = this.resultJSON.sources;
-					this.node.subgraph = this.resultJSON.subgraph;
-					
-					this.node.physicalDescription.serviceName = this.resultJSON.physicalDescription.serviceName;
-					this.node.physicalDescription.serviceGlobalId = this.resultJSON.physicalDescription.serviceGlobalId;
-					this.node.physicalDescription.address = this.resultJSON.physicalDescription.address;
-					this.node.physicalDescription.operation = this.resultJSON.physicalDescription.operation;
-					
-					this.node.functionalDescription.description = this.resultJSON.functionalDescription.description;
-					this.node.functionalDescription.preconditions = this.resultJSON.functionalDescription.preconditions;
-					this.node.functionalDescription.effects  = this.resultJSON.functionalDescription.effects;
-					this.node.functionalDescription.inputs = this.resultJSON.functionalDescription.inputs;
-					this.node.functionalDescription.outputs = this.resultJSON.functionalDescription.outputs;
-					this.node.nonFunctionalDescription = this.resultJSON.nonFunctionalDescription;
-				// }
-				// else { this.handleErrors(testResult.errlist);
-				alert(JSON.stringify(this.node));
-
+				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 				
-
+				//TO MOŻE NASTĄPIĆ TYLKO, KIEDY WALIDACJA JEST OK; ale ona jest w kontrolerze, więc have fun
 				$( "#form" ).dialog( "close" );
-				// }
 			},
 			addServiceClass: function addServiceClass(){
 				var input = $("#serviceClass").val();
@@ -910,6 +915,7 @@ function View(id, width, height, gui){
 					this.funcDescJSON.serviceClasses.push(input);
 					$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
 				}
+				$("#serviceClass").val("");
 			},
 			addMetaKeyword: function addMetaKeyword(){
 				var input = $("#metaKeyword").val();
@@ -917,6 +923,7 @@ function View(id, width, height, gui){
 					this.funcDescJSON.metaKeywords.push(input);
 					$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
 				}
+				$("#metaKeyword").val("");
 			},
 			addSource: function addSource(){
 				$( "#source" ).removeClass( "ui-state-error" ); 
@@ -925,6 +932,7 @@ function View(id, width, height, gui){
 					this.resultJSON.sources.push(input);
 					$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
 				}
+				$( "#source" ).val(""); 
 			},
 			addInput: function addInput(){
 				if(this.inputEdit){
@@ -1135,15 +1143,13 @@ function View(id, width, height, gui){
 				event.preventDefault();
 				result.clearNF();
 			}
-		);
-		
+		);		
 		$("#clearInputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearInputs();
 			}
-		);
-		
+		);		
 		$("#clearOutputButton").button().click(
 			function(event) {
 				event.preventDefault();
@@ -1226,11 +1232,13 @@ function View(id, width, height, gui){
 					highlightColor : "orange",
 					normalColor : "black",
 					show : function show(i, v){
-						(v.node.animate ? v.node : v).myShow(250);
+						var objToAnimate = (v.node.animate ? v.node : v);
+						objToAnimate.stop().myShow(250);
 						return this;
 					},
 					hide : function hide(i, v){
-						(v.node.animate ? v.node : v).myHide(250);
+						var objToAnimate = (v.node.animate ? v.node : v);
+						objToAnimate.stop().myHide(250);
 						return this;
 					},
 					switchMode : function switchMode(newMode){
@@ -1386,6 +1394,15 @@ function View(id, width, height, gui){
 						$.each(this.set, function(){
 							this.remove();	
 						});
+						$.each(this.inputs, function(){
+							this.node.remove();	
+						});
+						$.each(this.outputs, function(){
+							this.node.remove();	
+						});
+						$.each(this.connectors, function(){
+							this.remove();	
+						});
 					},
 					getCoords : function getCoords(){
 						return {	x : this.x,
@@ -1425,8 +1442,19 @@ function View(id, width, height, gui){
 							]
 							;
 					},
-					deleteNode : function deleteNode(){
-						
+					hideNode : function deleteNode(){
+						$.each(this.set, function(){
+							this.hide();
+						});
+						$.each(this.inputs, function(){
+							this.node.hide();
+						});
+						$.each(this.outputs, function(){
+							this.node.hide();
+						});
+						$.each(this.connectors, function(){
+							this.hide();
+						});
 					}
 				}
 				
@@ -1747,7 +1775,6 @@ function View(id, width, height, gui){
 		width : width,
 		height : height,
 		mode : "DF",
-		controler : gui.controler,
 		bgSelectionHelper : null,
 		scale : 100,
 		xPos : 0,
@@ -1779,10 +1806,9 @@ function View(id, width, height, gui){
 		editNode : function editNode(node){
 			this.form.initToEdit(node);
 		},
-		addStartStop : function addStartStop(){
-			var nodes = gui.controler.graphData.nodes,
-				start = nodes[0],
-				stop = nodes[1]
+		addStartStop : function addStartStop(obj){
+			var start = obj.start,
+				stop = obj.stop
 				;
 
 			start = this.visualiser.visualiseNode(start);
@@ -1790,6 +1816,9 @@ function View(id, width, height, gui){
 			if(start && stop){
 				this.current_graph_view.nodes.unshift( start, stop );
 			}
+		},
+		addBlankNode : function addBlankNode(nodeType){
+			this.form.initBlank(nodeType);
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
 			//dodać lepiej dobierane parametry x, y
@@ -1799,6 +1828,7 @@ function View(id, width, height, gui){
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
+				mode = mode || this.mode;
 				$.each(this.current_graph_view.nodes, function(){
 					this.switchMode(mode);
 				});
@@ -1948,15 +1978,15 @@ function View(id, width, height, gui){
 			var arrow,
 				cx,
 				cy,
-				ofsetX,
-				ofsetY,
+				offsetX,
+				offsetY,
 				sourceNode,
 				bbox,
 				start = function start(){
 					if(gui.view.mode === "CF"){
 						var canvas = $(gui.view.paper.canvas);
-						ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-						ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
 						bbox = this.getBBox();
 						cx = (bbox.x + bbox.x2) / 2;
 						cy = (bbox.y + bbox.y2) / 2;
@@ -1975,7 +2005,7 @@ function View(id, width, height, gui){
 							console.log(e);
 						}
 						
-						arrow = gui.view.paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
 				},
@@ -1988,7 +2018,7 @@ function View(id, width, height, gui){
 							console.log(e);
 						}
 
-						var targetNode = gui.view.getNodesInsideRect(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
+						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
 							gui.controler.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
@@ -2014,8 +2044,8 @@ function View(id, width, height, gui){
 			var arrow,
 				cx,
 				cy,
-				ofsetX,
-				ofsetY,
+				offsetX,
+				offsetY,
 				sourceNode,
 				targetId,
 				output,
@@ -2024,8 +2054,8 @@ function View(id, width, height, gui){
 				paper = gui.view.paper,
 				canvas = $(paper.canvas),
 				start = function start(){
-					ofsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-					ofsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+					offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+					offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
 					bbox = this.getBBox();
 					cx = (bbox.x + bbox.x2) / 2;
 					cy = (bbox.y + bbox.y2) / 2;
@@ -2050,7 +2080,10 @@ function View(id, width, height, gui){
 					} catch(e){
 						// console.log(e);
 					}
-					arrow = paper.arrow(cx, cy, event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY, 4);
+					// console.clear()
+					// console.log(event.clientX, event.clientY);
+					// paper.rect(event.clientX-offsetX, event.clientY-offsetY, 1, 1);
+					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
 					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},
 				stop = function stop(event){
@@ -2061,7 +2094,7 @@ function View(id, width, height, gui){
 						// console.log(e);
 					}
 
-					var resultObj = gui.view.getInputByPosition(event.clientX-ofsetX + window.scrollX, event.clientY - ofsetY + window.scrollY);
+					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 					// alert(resultObj)
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
 						if(resultObj.input.dataType === output.dataType){
@@ -2258,6 +2291,7 @@ function View(id, width, height, gui){
 			return result;
 		},
 		drawGraph : function drawGraph(graph_json){
+			// alert(graph_json.nodes)
 			var that = this;
 			// console.log(graph_json);
 			if(!this.paper){
@@ -2273,7 +2307,11 @@ function View(id, width, height, gui){
 				// this.paper.clear();
 				// this.graph_json = {};
 
-				var deployerOutput = gui.controler.deploy(graph_json, p.width);
+				try{
+					var deployerOutput = gui.controler.deploy(graph_json, p.width);
+				} catch(e){
+					console.error();
+				}
 
 				var tmpCoords, x, y;
 				$.each(graph_json.nodes, function(key, val){
@@ -2288,7 +2326,6 @@ function View(id, width, height, gui){
 				});
 
 				$.each(graph_json.nodes, function(key, val){
-
 					// alert(val.nodeId)
 					$.each(val.sources, function(){
 						that.addCFEdge({
@@ -2310,7 +2347,11 @@ function View(id, width, height, gui){
 					});
 				});
 
-				this.switchMode("DF");
+				// gui.view.mode = undefined;
+				gui.view.switchMode();
+				// gui.view.switchMode("DF");
+				// gui.view.switchMode("CF");
+
 			}
 		},
 		getBestConnectors : function getBestConnectors(sourceConnectors, targetConnectors){
@@ -2524,14 +2565,27 @@ function View(id, width, height, gui){
 					return false;
 				}
 			});
+		},
+		reset : function reset(){
+			// $.each(this.gr)
+		},
+		hideGraph : function hideGraph(){
+			$.each(this.current_graph_view.nodes, function(){
+				this.hide();
+			});
 		}
 	}
 	outputView.init();
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
+
+	// outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
+	// alert(gui)
+
 	outputView.form = form();
 	outputView.blankNodes = blankNode(outputView.paper, outputView.visualiser);
+
 
 	var	lastDragX,
 		lastDragY,

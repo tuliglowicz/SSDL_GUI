@@ -6,7 +6,6 @@
 	<title>Interface</title>
 	<script src="javascripts/jquery-1.7.2.js"></script>
 	<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
-	<script src="javascripts/jquery.jstree.js"></script>
 	<script src="javascripts/raphael.js"></script>
 	<script src="javascripts/shortcut.js"></script>
 	<script src="javascripts/ontology.js"></script>
@@ -22,6 +21,7 @@
 	</style>
 </head>
 <body>
+	
 <div id="sandbox" style="background-color:ivory;"> </div>
 <div id="raport" style='clear: both; display:block;'> </div>
 <div id="form" class="ui-dialog-content ui-widget-content" title="New SSDL node">
@@ -61,7 +61,7 @@
 							<td><label for="conditionFALSE">else </label></td>
 							<td><input type="text" name="conditionFALSE" id="conditionFALSE" value="" class="text ui-widget-content ui-corner-all"/></td>
 						</tr>
-						<!-- Alternatives, subgraph - jak to potraktować??? Feedback needed! -->
+						<!-- Alternatives, subgraph - jak to potraktowaÄ‡??? Feedback needed! -->
 						<tr>
 							</br></br><td><label for="alternatives">Alternatives: </label></td>
 							<td><input type="text" name="alternatives" id="alternatives" value="" class="text ui-widget-content ui-corner-all"/></td>
@@ -299,10 +299,10 @@
 <script>
 	"use strict";
 	
-	// pomocnicze skróty
+	// pomocnicze skrĂłty
 	var a = alert;
 	var jstr = JSON.stringify;
-	// eof pomocnicze skróty
+	// eof pomocnicze skrĂłty
 
 	var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
 	var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
@@ -312,8 +312,9 @@
 		
 		r.id_postfix = Math.round( Math.random() * 10e5 );
 		r.view = View(id, width, height, r);
+		r.view.blankNodes.draw();
 		r.controler = Controler(url, r);
-		r.library = {gui: r};		
+		r.library = {gui: r};
 		r.controler.init();
 		r.logger = r.controler.initLogger(r.view.paper);
 

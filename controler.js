@@ -7,7 +7,14 @@ function Controler(url, gui){
 		var resultObject = {
 			currNodes : [],
 			paper : undefined,
+			data : undefined,
 			require: "sdb_json_array div raphael_x_500".split(" "),
+			init: function init(){
+				if( $("#repoNodes_"+pf).length === 0 ){
+					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
+					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+				}
+			},
 			generateData : function generateData(node, n){
 				var result = visualiser.getBlankNode();
 				result.id = node.nodeId;
@@ -24,21 +31,23 @@ function Controler(url, gui){
 
 				return result;
 			},
-			draw: function draw(nodeArray){
+			setData : function setData(data){
+				if(data){
+					this.data = data;
+				}
+
+				return this;
+			},
+			draw: function draw(){
 				var tempNode,
 					that = this,
 					tmp,
 					n = -1
 				;
-
-				if( $("#repoNodes_"+pf).length === 0 ){
-					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
-					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
-				}
 				
 				this.clear();
 
-				$.each(nodeArray, function(k, v){
+				$.each(this.data, function(k, v){
 					tempNode = that.generateData(v, ++n);
 					tmp = visualiser.draw_serviceNode(tempNode, that.paper, true).switchToDFMode();
 					tmp.raph_label.attr({cursor: "pointer"}).dblclick(function(){
@@ -52,18 +61,21 @@ function Controler(url, gui){
 
 					that.currNodes.push(tmp);
 				});
+
+				return this;
 			},
 			clear: function clear(){
 				if(this.paper){
 					this.paper.clear();
 					this.currNodes.length = 0;
 				}
+
+				return this;
 			}
 		}
 
 		return resultObject;
 	}
-
 	function initLogger(paper){
 		/* LOGGER v0.666
 		* REQUIRED PARAMS: 
@@ -254,7 +266,6 @@ function Controler(url, gui){
 		});
 		return obj;
 	}
-
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -685,33 +696,35 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
-	function subgraphTree(){
+	function navigator(){
 		var tmp = {
-			name: "subgraphTree",
+			name: "navigator",
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
 			data: null,
 			tree: null,
-			parent: gui.controler,
 			globalEvents: ["load"],
 			localEvents: ["select"],
 			require: "ssdl_JSON div".split(" "),
-			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
-			draw: function draw(){
-				var that = this;
-
-				if( $("#subgraphTree_"+pf).length === 0 ){
-						$("#left_plugins_"+pf).append("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
+			init : function init(){
+				if( $("#navigator_"+pf).length === 0 ){
+					$("#left_plugins_"+pf).append("<div id='navigator_"+pf+"' class='plugin_"+pf+"'> </div>");
 				}
-
-				if(this.parent.current_graphData){
-					this.data = this.convert(this.parent.current_graphData);
+			},
+			setData : function setData(data){
+				if(data){
+					this.data =  this.convert(data)
+				}
+			},
+			draw: function draw(){
+				if(this.data){
+					var that = this;
 					// console.log(this.data)
 					// if(this.data.children.length > 0)
 					// this.data.children[0].children.push( {data:"BUM"} );
 					
-						var out = (function(data){
+					var out = (function(data){
 						var tab = [];
 
 						tab.push("<ul id='navigator'>");
@@ -729,53 +742,56 @@ function Controler(url, gui){
 										}
 									});
 								tab.push("</ul>");
-							})(data, 'navigator_root');
+							})(data, 'navigator|'+data.data);
 						tab.push("</ul>");
 
 						return tab.join("");
-						})(this.data);
+					})(this.data);
 
-						$("#left_plugins_"+pf).html(out);
 
-						$("img.img_hasChildren").click(function(){
-							var $ul = $(this).parent().next();
-							$ul.toggle( 150 );
+					$("#navigator_"+pf).html(out);
 
-							return false;
-						});
+						$("#subgraphTree_"+pf).html(out);
 
-						$("li.navigatorElement").click(function(){
-							if(! $(this).find("span").hasClass("selectedLI") ){
-								$("li.navigatorElement span").removeClass("selectedLI");
-								$(this).find("span").addClass("selectedLI");
 
-								gui.controler.reactOnEvent("SwitchCurrentView", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
-							}
-							return false;
-						});
+					$("img.img_hasChildren").click(function(){
+						var $ul = $(this).parent().next();
+						$ul.toggle( 150 );
 
-						$("li.navigatorElement:first").click();
+						return false;
+					});
+
+					$("li.navigatorElement").click(function(){
+						if(! $(this).find("span").hasClass("selectedLI") ){
+							$("li.navigatorElement span").removeClass("selectedLI");
+							$(this).find("span").addClass("selectedLI");
+
+							gui.controler.reactOnEvent("SwitchCurrentGraph", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
+						}
+						return false;
+					});
+
+					$("li.navigatorElement:first").click();
 				}
 			},
 			convert: function convert(json, id, str){
-				var n = json.nodes;
-				var output_json = {
-					data: (id ? id : "root"), 
-					attr: {id: (id ? id : "root") },
-					state: "open",
-					children: []
-				};
+				// alert(json.id)
+				var n = json.nodes,
+					id = json.id,
+					output_json = {
+						data: (id ? id : "root"), 
+						children: []
+					};
 				str = ((str ? str : "") + (id ? id : "root"))
 				$.each(n, function(){
 					if(this.subgraph && this.subgraph.nodes && this.subgraph.nodes.length > 0){						
 						var currNode = {};
 						currNode.data = this.nodeId;
-						currNode.attr = { id: "subgraphTree_"+pf+"_"+this.nodeId};
-						currNode.state = "open";
 						currNode.children = convert(this.subgraph).children;
 						output_json.children.push(currNode);
 					}
 				});
+				// console.log(output_json);
 				
 				return output_json;
 			}	
@@ -784,54 +800,58 @@ function Controler(url, gui){
 		
 		return tmp;
 	}
-	function repository(data){
-		if(data.constructor != "[object XMLDocument]")
-			return false;
-		else {
-			var tmp = {
-				name: "repository",
-				version: "1.0",
-				author: "Author",
-				dataType: 'xml',
-				data: data,
-				paper: undefined,
-				globalEvents: ["load"],
-				require: "div canvas".split(" "),
-				localEvents: ["select"],
-				draw : function draw(){
+	function repository(){
+		var tmp = {
+			name: "repository",
+			version: "1.0",
+			author: "Author",
+			dataType: 'xml',
+			data: undefined,
+			globalEvents: ["load"],
+			require: "div canvas".split(" "),
+			localEvents: ["select"],
+			init: function init(){
+				if( $("#repository_"+pf).length === 0 ){
+					$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"'> </div>");
+				}
+			},
+			setData : function setData(data){
+				//na przyszłość wymagane więcej walidacji
+				if(data && data.constructor == "[object XMLDocument]"){
+					this.data = data;
+				}
+
+				return this;
+			},
+			draw : function draw(){
+				if(this.data){
 					var html = [],
 						name,
 						url,
 						that = this;
+					;
+					// alert(this.data)
 
-					if( $("#repository_"+pf).length === 0 ){
-						$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"'> </div>");
-						//this.paper = Raphael("repository_"+pf, canvas_width, h);
-					}
-
-					$(data).find("list element").each(function(){
+					$(this.data).find("list element").each(function(){
 						name = $(this).find("name").text();
 						url = $(this).find("url").text();
 						html.push("<a href='"+url+"' class='repository_link_"+pf+"'>"+name+"</a><br/>");
 					});
 					
-					$("#repository_"+pf).html(html.join(""));
+					$("#repository_"+pf).html( html.join("") );
 					
 					$(".repository_link_"+pf).click(function(){
-						gui.controler.reactOnEvent("EditService", {url: this.href});
-
+						// alert(this.textContent)
+						gui.controler.reactOnEvent("LoadAndEditCompoundService", {url: this.href, title: this.textContent});
 						return false;
 					});
-
 				}
+
+				return this;
 			}
-
-			tmp.draw();
-
-			 // $("a:first").click(); //od razu wczytanie pierwszego serwisu
-			
-			return tmp;
 		}
+
+		return tmp;
 	}
 	var controlerObject = {
 		plugins : [],
@@ -841,8 +861,153 @@ function Controler(url, gui){
 		init: function init(){
 			this.initPlugins();
 		},
+		getGraphById : function getGraphById(id){
+			var result;
+			$.each(this.graphData_tab, function(){
+
+			});
+		},
 		deploy : deploy,
 		initLogger : initLogger,
+		reactOnEvent : function reactOnEvent(evtType, evtObj){
+			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
+			var that = this;
+			switch(evtType.toUpperCase()){
+				case "EDITSERVICE" : (function (e) {
+					if(e && e.url){
+						that.loadSSDL(e.url);
+					}
+				})(evtObj); break;
+				case "SWITCHCURRENTGRAPH" : (function (e) {
+					var tab_nav = e.parent_id.split("|");
+						tab_nav.splice(0, 1);
+						tab_nav.push(e.id);
+					var tab_copy = $.extend(true, [], tab_nav);
+						$.each(tab_nav, function(k, v){
+							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+e.parent_id+"'>"+v+"</a>";
+						});
+						tab_nav = tab_nav.join(" \\ ");
+
+					$("div#top_nav_"+pf+" span").html(tab_nav);
+
+					if(e.id !== "root"){
+						// get the proper subgraph
+						var tmp,
+							result,
+							currentGraph = that.current_graphData;
+						$.each(tab_copy, function(i, v){
+							if(i===0) return true;
+							tmp = that.getNodeById(this, currentGraph);
+							currentGraph = tmp;
+							if(!tmp)
+								return false;
+						});
+
+						// console.log(currentGraph.subgraph);
+						// console.log(e);
+						// gui.view.drawGraph(currentGraph.subgraph);
+					}
+				})(evtObj); break;
+				case "SELECT" : (function (e) {
+					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
+				})(evtObj); break;
+				case "DESELECT" : (function () {
+					gui.view.deselectAll();
+				})(); break;
+				case "ADDCFEDGE" : (function(e){
+					var target = gui.controler.getNodeById(e.target.id);
+					// alert(e.target.id)
+					target.sources.push( e.source.id );
+					gui.view.addCFEdge(e);
+				})(evtObj); break;
+				case "ADDDFEDGE" : (function(e){
+					var input = gui.controler.getInputById(e.targetId, e.input.id);
+					if(input){
+						input.source = [e.sourceId, e.output.id];
+					} else {
+						a(e.targetId+":"+e.input.id);
+					}
+					gui.view.addDFEdge(e);
+				})(evtObj); break;
+				case "NODEMOVED" : (function(){
+					gui.view.updateEdges();
+				})(); break;
+				case "SWITCHMODE" : (function(e){
+					gui.view.switchMode(e.mode);
+				})(evtObj); break;
+				case "ADDSTARTSTOPAUTOMATICALLY" : (function(){
+					var result = that.addStartStop();
+					if( result ){
+						gui.view.addStartStop(result);
+					}
+				})(); break;
+				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
+					e.nodeId = gui.controler.generateId();
+					// alert(e.nodeId)
+					e = $.extend(true, {}, e);
+					that.current_graphData.nodes.push(e)
+					gui.view.addNodeFromRepo(e);
+				})(evtObj); break;
+				case "EDITNODE" : (function(e){
+					if(e && e.nodeId){
+						// alert(e.nodeId)
+						var node = that.getNodeById(e.nodeId);
+						gui.view.editNode(node);
+					}
+				})(evtObj); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					alert("inside try to save...");
+				})(evtObj); break;
+				case "START" : (function(){
+					that.load(url, function fun_success(list){
+						that.repository.setData(list).draw();
+					});
+					that.load("get_all_atomic_service.xml", function fun_success(sdb){
+						var parsedSDB = that.parseSDBetaArray(sdb);
+						that.repoNodes.setData(parsedSDB).draw();
+					});
+				})(); break;
+				case "LOADANDEDITCOMPOUNDSERVICE" : (function(e){
+					that.load(e.url, (function(ssdl){
+						var tab = [],
+							ssdl_json = this.convert(ssdl, e.title);
+
+
+						if( true )
+							this.current_graphData = ssdl_json;//.nodes[3].subgraph;
+
+						// rozwal na tablice
+						(function splitOnSubgraph(graph, id){
+							$.each(graph.nodes, function(){
+								if(this.subgraph.nodes){
+									splitOnSubgraph(this.subgraph, this.nodeId);
+								}
+							});
+							graph.id = (id || graph.id);
+							// delete graph.subgraph;
+							tab.push(graph);
+
+							console.log(graph);
+
+						})(ssdl_json);
+
+						console.log( jstr( tab ) )
+
+						this.graphData_tab = tab;
+						this.current_graphData = tab[ tab.length-1 ];
+						gui.view.drawGraph(this.current_graphData);
+
+						this.reactOnEvent("SSDLLoaded", ssdl);
+					}).bind(that) );
+				})(evtObj); break;
+				case "SSDLLOADED" : (function(e){
+					that.navigator.setData(that.current_graphData)
+					that.navigator.draw();					
+				})(evtObj); break;
+
+
+			}
+		},
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
@@ -891,42 +1056,13 @@ function Controler(url, gui){
 		xmlToString: function xmlToString(xml){
 			return (new XMLSerializer()).serializeToString(xml);
 		},
-		loadSSDL : function loadSSDL(url){ 
-			var that = this;
-			this.load(url, function(ssdl){
-				var ssdl_json = that.convert(ssdl);
-				//raport(JSON.stringify(ssdl_json));
-				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.current_graphData = ssdl_json;//.nodes[3].subgraph;
-					gui.view.drawGraph(gui.controler.current_graphData);
-					
-				// alert(that.plugins)
-				$.each(that.plugins, function(){
-					this.draw();
-				});
-
-				that.reactOnEvent("SSDLLoaded");
-			});
-		},
 		initPlugins : function initPlugins(){
-			var that = this,
-				repo,
-				sdb
-				;
-
-			this.load(url, function fun_success(list){
-				repo = repository(list, gui.view.columnParams.rightCol.width);
-				that.plugins.push(repo);
-				that.plugins.push( subgraphTree() );
-			});
-
-
-			this.repoNodes = repoNodes(gui.view.visualiser);
-
-			this.load("get_all_atomic_service.xml", function fun_success(sdb){
-				var parsedSDB = that.parseSDBetaArray(sdb);
-				that.repoNodes.draw( parsedSDB );
-			});
+			this.repository = repository(gui.view.columnParams.rightCol.width);
+			this.repository.init();
+			this.repoNodes = repoNodes( gui.view.visualiser );
+			this.repoNodes.init();
+			this.navigator = navigator();
+			this.navigator.init();
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;
@@ -1019,7 +1155,7 @@ function Controler(url, gui){
 
 					this.current_graphData.nodes.unshift(start, stop);
 					
-					result = true;
+					result = {start: start, stop: stop};
 				}
 
 				return result;
@@ -1037,102 +1173,8 @@ function Controler(url, gui){
 					tab.push("0");
 				tab.push(num);
 
+			var outputId = tab.join("");
 			return tab.join("");
-		},
-		reactOnEvent : function reactOnEvent(evtType, evtObj){
-			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
-			var that = this;
-			switch(evtType.toUpperCase()){
-				case "EDITSERVICE" : (function (e) {
-					if(e && e.url){
-						that.loadSSDL(e.url);
-					}
-				})(evtObj); break;
-				case "SWITCHCURRENTVIEW" : (function (e) {
-					var tab_nav = e.parent_id.split("_");
-						tab_nav.splice(0, 1);
-						tab_nav.push(e.id);
-					var tab_copy = $.extend(true, [], tab_nav);
-						$.each(tab_nav, function(k, v){
-							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+e.parent_id+"'>"+v+"</a>";
-						});
-						tab_nav = tab_nav.join(" \\ ");
-
-					$("div#top_nav_"+pf+" span").html(tab_nav);
-
-					if(e.id !== "root"){
-						// get the proper subgraph
-						var tmp,
-							result,
-							currentGraph = that.current_graphData;
-						$.each(tab_copy, function(i, v){
-							if(i===0) return true;
-							tmp = that.getNodeById(this, currentGraph);
-							currentGraph = tmp;
-							if(!tmp)
-								return false;
-						});
-
-						console.log(currentGraph.subgraph);
-						console.log(e)
-						gui.view.drawGraph(currentGraph.subgraph);
-					}
-				})(evtObj); break;
-				case "SELECT" : (function (e) {
-					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
-				})(evtObj); break;
-				case "DESELECT" : (function () {
-					gui.view.deselectAll();
-				})(); break;
-				case "ADDCFEDGE" : (function(e){
-					var target = gui.controler.getNodeById(e.target.id);
-					// alert(e.target.id)
-					target.sources.push( e.source.id );
-					gui.view.addCFEdge(e);
-				})(evtObj); break;
-				case "ADDDFEDGE" : (function(e){
-					var input = gui.controler.getInputById(e.targetId, e.input.id);
-					if(input){
-						input.source = [e.sourceId, e.output.id];
-					} else {
-						a(e.targetId+":"+e.input.id);
-					}
-					gui.view.addDFEdge(e);
-				})(evtObj); break;
-				case "NODEMOVED" : (function(){
-					gui.view.updateEdges();
-				})(); break;
-				case "SWITCHMODE" : (function(e){
-					gui.view.switchMode(e.mode);
-				})(evtObj); break;
-				case "ADDSTARTSTOPAUTOMATICALLY" : (function(){
-					if( that.addStartStop() ){
-						gui.view.addStartStop();
-					}
-				})(); break;
-				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
-					e.nodeId = gui.controler.generateId();
-					// alert(e.nodeId)
-					e = $.extend(true, {}, e);
-					that.current_graphData.nodes.push(e)
-					gui.view.addNodeFromRepo(e);
-				})(evtObj); break;
-				case "ADDBLANKNODE" : (function(e){
-					alert("inside add blank node");
-				})(evtObj); break;
-				case "EDITNODE" : (function(e){
-					if(e && e.nodeId){
-						// alert(e.nodeId)
-						var node = that.getNodeById(e.nodeId);
-						gui.view.editNode(node);
-					}
-				})(evtObj); break;
-				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
-					//TUTAJ JACKOWA WALIDACJA
-					//return { allOK: boolean, errlist:[]}
-					alert("inside try to save...");
-				})(evtObj); break;
-			}
 		},
 		parseSDBetaArray : function parseSDBetaArray(sdb){
 			var tab = [],
@@ -1237,9 +1279,9 @@ function Controler(url, gui){
 			Graph.id = id ? id : "root";
 			Graph.nodes = [];
 			
-			(id ? ssdl : $(ssdl)).
-			find("nodes node:first, nodes node:first ~ node").
-			each(function(){
+			$(ssdl)
+			.find("nodes node:first, nodes node:first ~ node")
+			.each(function(){
 				var _this = $(this);
 				var node = {};
 				node.nodeId = _this.find("nodeId:first").text();
@@ -1311,9 +1353,9 @@ function Controler(url, gui){
 					node.subgraph = {};
 				
 				if(_this.find("subGraph:first nodes").length > 0){
-					var tmp = _this.find("subGraph:first");			
+					var tmp = _this.find("subGraph:first");
 					node.subgraph = {};
-					var t = convert(tmp, node.nodeId);			
+					var t = convert(tmp[0], node.nodeId);			
 					node.subgraph.nodes = t.nodes;
 					node.subgraph.inputVariables = t.inputVariables;
 					node.subgraph.nonFunctionalParameters = t.nonFunctionalParameters;
@@ -1368,5 +1410,9 @@ function Controler(url, gui){
 		}
 	}
 
+	controlerObject.reactOnEvent("START");
+
 	return controlerObject;
 }
+
+// 605307704
