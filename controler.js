@@ -77,16 +77,15 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* LOGGER v0.666
+		/* juniLOGGER v1.0
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
 		var h = paper.height,
-			dId = "#console_" + pf,
+			lId = "#console_" + pf,
 			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
 			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
 			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
-			//buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
 			buttonBG = paper.path(bPath).attr({
 				fill : "#222",
 				"fill-opacity": .75
@@ -99,14 +98,13 @@ function Controler(url, gui){
 		var iCounter = paper.text(paper.width - 125, 11, "0").attr({fill: "white"}),
 			wCounter = paper.text(paper.width - 85, 11, "0").attr({fill: "yellow"}),
 			eCounter = paper.text(paper.width - 45, 11, "0").attr({fill: "orange"});
-		var buttonMask = paper.path(bPath).attr({
+		//button mask
+		var mask = paper.path(bPath).attr({
 			fill : "#222",
 			"fill-opacity": 0.0
 		});
 		//private variables
-		var lId = dId,
-			counter = [0, 0, 0],
-			mask = buttonMask,
+		var counter = [0, 0, 0],
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
 			buttonBG = buttonBG,
@@ -198,17 +196,17 @@ function Controler(url, gui){
 			}
 		};
 		//event handling
-		$(dId).click(function(){
+		$(lId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
-				$(dId).animate({
+				$(lId).animate({
 					height: 0
 				});
 			}
 		});
 		mask.click(function(){
-			$(dId).animate({
+			$(lId).animate({
 				height: h
 			});
 		});
