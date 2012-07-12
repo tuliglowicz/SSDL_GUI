@@ -227,7 +227,7 @@ function View(id, width, height, gui){
 
 								that.isVisible = true;
 
-								if(! that.bar.isPointInside(x-ofsetX, y - ofsetY)){
+								if(! that.bar.isPointInside(x-offsetX, y - offsetY)){
 
 									that.bar.animate({y: paper.height*.95, opacity: invisible}, that.animationTime);
 									that.triangle1.animate({opacity: visible}, that.animationTime);
@@ -1232,13 +1232,18 @@ function View(id, width, height, gui){
 					highlightColor : "orange",
 					normalColor : "black",
 					show : function show(i, v){
-						var objToAnimate = (v.node.animate ? v.node : v);
-						objToAnimate.stop().myShow(250);
+						if(v && v.node){
+							var objToAnimate = (v.node.animate ? v.node : v);
+							objToAnimate.stop().myShow(250);
+						}
+
 						return this;
 					},
 					hide : function hide(i, v){
-						var objToAnimate = (v.node.animate ? v.node : v);
-						objToAnimate.stop().myHide(250);
+						if(v && v.node){
+							var objToAnimate = (v.node.animate ? v.node : v);
+							objToAnimate.stop().myHide(250);
+						}
 						return this;
 					},
 					switchMode : function switchMode(newMode){
@@ -1390,7 +1395,7 @@ function View(id, width, height, gui){
 								this.x < x2 &&
 								this.y < y2
 					},
-					remove : function remove(){
+					removeNode : function remove(){
 						$.each(this.set, function(){
 							this.remove();	
 						});
@@ -1413,7 +1418,7 @@ function View(id, width, height, gui){
 						this.y = newCoords.y;
 					},
 					toString : function toString(){
-						return "SSDLNode Object";
+						return "SSDLNode object";
 					},
 					translate : function translate(transX, transY){
 						$.each(this.set, function(i, v){
@@ -1442,7 +1447,7 @@ function View(id, width, height, gui){
 							]
 							;
 					},
-					hideNode : function deleteNode(){
+					hideNode : function hideNode(){
 						$.each(this.set, function(){
 							this.hide();
 						});
@@ -1454,6 +1459,20 @@ function View(id, width, height, gui){
 						});
 						$.each(this.connectors, function(){
 							this.hide();
+						});
+					},
+					showNode : function showNode(){
+						$.each(this.set, function(){
+							this.show();
+						});
+						$.each(this.inputs, function(){
+							this.node.show();
+						});
+						$.each(this.outputs, function(){
+							this.node.show();
+						});
+						$.each(this.connectors, function(){
+							this.show();
 						});
 					}
 				}
@@ -1474,7 +1493,7 @@ function View(id, width, height, gui){
 					;
 
 				newNode.id = node.nodeId;
-				newNode.label = node.nodeLabel;
+				newNode.label = node.nodeLabel || node.nodeId;
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
@@ -1593,6 +1612,8 @@ function View(id, width, height, gui){
 				return node;
 			},
 			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
+				// if(!drawNotForRepo)
+				// 	a(node.id)
 				var id = node.id,
 					radius = 4,
 					paper = paper || view.paper,
@@ -1613,7 +1634,7 @@ function View(id, width, height, gui){
 				img_gear.node.setAttribute("class", id+" gear");
 				img_gear.click(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: id});
-				})
+				});
 				
 				node.mainShape.node.setAttribute("class", id);
 				
@@ -1640,8 +1661,15 @@ function View(id, width, height, gui){
 					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
 						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
 						c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
-						c4 = paper.circle(node.x, node.y + node.height/2, radius)
+						c4 = paper.circle(node.x, node.y + node.height/2, radius),
+						img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20)
 					;
+
+					img_subgraph.node.setAttribute("class", id+" subgraph");
+					img_subgraph.dblclick(function(){
+						a("subgraph")
+						gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
+					});
 
 					if(serviceName){
 						shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
@@ -1660,7 +1688,7 @@ function View(id, width, height, gui){
 					view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 				}
 
-				node.set.push(rect, label, img_gear, serviceNameShown);
+				node.set.push(rect, label, img_gear, img_subgraph, serviceNameShown);
 				
 				return node;
 			},
@@ -1792,6 +1820,19 @@ function View(id, width, height, gui){
 			edgesCF : [],
 			edgesDF : []
 		},
+		setCurrentGraph : function setCurrentGraph(id){
+			var currGraph = this.getGraphById(id);
+			if(currGraph){
+				this.hideCurrentGraph();
+				this.current_graph_view = currGraph;
+				this.showCurrentGraph();
+			}
+
+			return this;
+		},
+		updateGraph : function updateGraph(){
+
+		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
 			var result;
 			$.each(this.graph_views_tab, function(){
@@ -1800,8 +1841,12 @@ function View(id, width, height, gui){
 					return false;
 				}
 			});
-
-			this.current_graph_view = result;
+			if(result){
+				this.hideCurrentGraph();
+				this.current_graph_view = result;
+				this.showCurrentGraph();
+				this.switchMode();
+			}
 		},
 		editNode : function editNode(node){
 			this.form.initToEdit(node);
@@ -1824,7 +1869,18 @@ function View(id, width, height, gui){
 			//dodać lepiej dobierane parametry x, y
 			var visualizedNode = this.visualiser.visualiseNode( node );
 			if(visualizedNode)
-				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode || "DF") );
+				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
+		},
+		getGraphById : function getGraphById(id){
+			var result;
+			$.each(this.graph_views_tab, function(){
+				if(id === this.id){
+					result = this;
+					return false;
+				}
+			});
+
+			return result;
 		},
 		switchMode : function switchMode(mode){
 			if(this.mode != mode){
@@ -1878,11 +1934,12 @@ function View(id, width, height, gui){
 
 			return stringXML;
 		},
-		getNodeById : function getNodeById(id){
+		getNodeById : function getNodeById(id, tab){
 			var result;
-
-			$.each(this.current_graph_view.nodes, function(){
-				if( this.id === id ){
+			var nodes = tab || this.current_graph_view.nodes;
+			// console.log(id, tab);
+			$.each(nodes, function(){
+				if( this.id == id){
 					result = this;
 					return false;
 				}
@@ -2004,8 +2061,8 @@ function View(id, width, height, gui){
 						} catch(e){
 							console.log(e);
 						}
-						
-						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
+						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
+						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
 				},
@@ -2083,7 +2140,8 @@ function View(id, width, height, gui){
 					// console.clear()
 					// console.log(event.clientX, event.clientY);
 					// paper.rect(event.clientX-offsetX, event.clientY-offsetY, 1, 1);
-					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY, 4);
+					// to  to jest dopuki błażej nie poprawi czegośtam u siebie
+					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},
 				stop = function stop(event){
@@ -2094,7 +2152,7 @@ function View(id, width, height, gui){
 						// console.log(e);
 					}
 
-					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
+					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
 					// alert(resultObj)
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
 						if(resultObj.input.dataType === output.dataType){
@@ -2126,10 +2184,11 @@ function View(id, width, height, gui){
 			} else
 				element.drag(move, start, stop);
 		},
-		addCFEdge : function addCFEdge(data){
-			var foundedEdge = this.getCFEdge(data.source.id, data.target.id);
+		addCFEdge : function addCFEdge(data, firstLoad){
+			// console.log(data)
+			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(foundedEdge){
-				gui.controler.reactOnEvent(""); //err msg
+				gui.controler.reactOnEvent("error", "Prubujesz dodać krawędź, króta już istnieje.");
 			}
 			else {
 				var edgeObject = {
@@ -2146,6 +2205,10 @@ function View(id, width, height, gui){
 					show: function show(){
 						this.arrow[0].myShow(300);
 						this.arrow[1].myShow(300);
+					},
+					remove : function remove(){
+						this.arrow[0].remove();
+						this.arrow[1].remove();
 					},
 					switchMode: function switchMode(mode){
 						if(mode === "CF"){
@@ -2175,14 +2238,14 @@ function View(id, width, height, gui){
 				}
 				;
 				edgeObject.update();
-				this.current_graph_view.edgesCF.push( edgeObject );
+				return edgeObject;
 			}
 		},
-		addDFEdge : function addDFEdge(data){
+		addDFEdge : function addDFEdge(data, firstLoad){
 			//source, sourceOutputId
 			//target, targetInputId
 			// console.log(data)
-			var foundedDFEdge = this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id);
+			var foundedDFEdge = (firstLoad ? false : this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id));
 			if(foundedDFEdge){
 				gui.controler.reactOnEvent(""); //err msg
 			}
@@ -2203,6 +2266,10 @@ function View(id, width, height, gui){
 						show: function show(){
 							this.arrow[0].myShow(300);
 							this.arrow[1].myShow(300);
+						},
+						remove : function remove(){
+							this.arrow[0].remove();
+							this.arrow[1].remove();
 						},
 						switchMode: function switchMode(mode){
 							if(mode === "CF"){
@@ -2240,7 +2307,7 @@ function View(id, width, height, gui){
 					}
 				;
 				edgeObject.update();
-				this.current_graph_view.edgesDF.push( edgeObject );
+				return edgeObject;
 			}
 		},
 		updateEdges : function updateEdges(){
@@ -2290,30 +2357,52 @@ function View(id, width, height, gui){
 
 			return result;
 		},
+		parseAndSetDataModelToView : function parseAndSetDataModelToView(modelData){
+			var tab = [],
+				tmp,
+				that = this,
+				bool = true;
+			;
+
+			$.each(modelData, function(){
+				tmp = that.drawGraph(this);
+				if(tmp){
+					tab.push( tmp );
+					that.current_graph_view = tmp;
+					that.hideCurrentGraph();
+				}
+			});
+
+			this.graph_views_tab = tab;
+			this.current_graph_view = tab[ tab.length-1 ];
+			this.showCurrentGraph();
+			this.switchMode();
+		},
 		drawGraph : function drawGraph(graph_json){
 			// alert(graph_json.nodes)
-			var that = this;
-			// console.log(graph_json);
+			var that = this,
+				graph_view = this.getBlankGraph();
+			;
+
 			if(!this.paper){
-				console.error("you have to run init() function first");
+				gui.error("you have to run init() function first");
 			}
 			else {
-				var p = this.paper,
+				var paper = this.paper,
 					that = this,
 					type,
 					visualizedNode,
 					tmp
 				;
-				// this.paper.clear();
-				// this.graph_json = {};
 
 				try{
-					var deployerOutput = gui.controler.deploy(graph_json, p.width);
+					var deployerOutput = gui.controler.deploy(graph_json, paper.width);
 				} catch(e){
 					console.error();
 				}
 
 				var tmpCoords, x, y;
+
 				$.each(graph_json.nodes, function(key, val){
 					tmpCoords = deployerOutput.getCoords(val.nodeId);
 					if(tmpCoords){
@@ -2322,35 +2411,38 @@ function View(id, width, height, gui){
 					}
 					visualizedNode = that.visualiser.visualiseNode( val, x, y );
 					if(visualizedNode)
-						that.current_graph_view.nodes.push( visualizedNode );
+						graph_view.nodes.push( visualizedNode );
 				});
 
+				var tmp;
 				$.each(graph_json.nodes, function(key, val){
 					// alert(val.nodeId)
 					$.each(val.sources, function(){
-						that.addCFEdge({
-							source: that.getNodeById(this),
-							target: that.getNodeById(val.nodeId)
+						console.log(this, graph_view.nodes.map(function(o){return o.id}))
+						tmp = that.addCFEdge({
+							source: that.getNodeById(this, graph_view.nodes),
+							target: that.getNodeById(val.nodeId, graph_view.nodes)
 						});
+
+						if(tmp)
+							graph_view.edgesCF.push(tmp);
 					});
 					$.each(val.functionalDescription.inputs, function(){
 						if(this && this.source && this.source.length == 2){
-							// alert(val.nodeId+":"+this.source);
-							// alert(this.source[1]);
-							that.addDFEdge({
-								sourceId : this.source[0],
-								targetId : val.nodeId,
-								input : that.getNodeById(val.nodeId).getInputById(this.id),
-								output : that.getNodeById(this.source[0]).getOutputById(this.source[1])
-							});
+							var tmp = that.addDFEdge({
+									sourceId : this.source[0],
+									targetId : val.nodeId,
+									input : that.getNodeById(val.nodeId, graph_view.nodes).getInputById(this.id),
+									output : that.getNodeById(this.source[0], graph_view.nodes).getOutputById(this.source[1])
+								});
+
+							if(tmp)
+								graph_view.edgesDF.push(tmp);
 						}
 					});
 				});
 
-				// gui.view.mode = undefined;
-				gui.view.switchMode();
-				// gui.view.switchMode("DF");
-				// gui.view.switchMode("CF");
+				return graph_view;
 
 			}
 		},
@@ -2566,23 +2658,76 @@ function View(id, width, height, gui){
 				}
 			});
 		},
-		reset : function reset(){
-			// $.each(this.gr)
-		},
-		hideGraph : function hideGraph(){
+		hideCurrentGraph : function hideCurrentGraph(){
 			$.each(this.current_graph_view.nodes, function(){
+				this.hideNode();
+			});
+			$.each(this.current_graph_view.edgesDF, function(){
 				this.hide();
 			});
+			$.each(this.current_graph_view.edgesCF, function(){
+				this.hide();
+			});
+		},
+		showCurrentGraph : function showCurrentGraph(){
+			$.each(this.current_graph_view.nodes, function(){
+				this.showNode();
+			});
+			$.each(this.current_graph_view.edgesDF, function(){
+				this.show();
+			});
+			$.each(this.current_graph_view.edgesCF, function(){
+				this.show();
+			});
+		},
+		removeCurrentGraph : function showCurrentGraph(){
+			$.each(this.current_graph_view.nodes, function(){
+				this.removeNode();
+			});
+			if(this.mode === "DF")
+				$.each(this.current_graph_view.edgesDF, function(){
+					this.remove();
+				});
+			else if(this.mode === "CF")
+				$.each(this.current_graph_view.edgesCF, function(){
+					this.remove();
+				});
+		},
+		removeAllGraphs : function showCurrentGraph(){
+			var that = this;
+			$.each(this.graph_views_tab, function(){
+				$.each(this.nodes, function(){
+					this.removeNode();
+				});
+				if(that.mode === "DF")
+					$.each(this.edgesDF, function(){
+						this.remove();
+					});
+				else if(that.mode === "CF")
+					$.each(this.edgesCF, function(){
+						this.remove();
+					});
+			});
+
+			this.current_graph_view = undefined;
+			this.graph_views_tab.length = [];
+		},
+		getBlankGraph : function getBlankGraph(){
+			return {
+				id : "",
+				nodes : [],
+				edgesCF : [],
+				edgesDF : []
+			};
+		},
+		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
+			this.current_graph_view = this.getBlankGraph();
 		}
 	}
 	outputView.init();
 	outputView.tooltip = tooltipper();
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
-
-	// outputView.blankNodes = blankNode(outputView.leftPlugins, outputView.paper, outputView.visualiser);
-	// alert(gui)
-
 	outputView.form = form();
 	outputView.blankNodes = blankNode(outputView.paper, outputView.visualiser);
 
