@@ -79,7 +79,7 @@
 						<dataType>VideoData</dataType>
 						<properties/>
 						<source>
-							<nodeId>CCTVSendStart</nodeId>
+							<nodeId>id002</nodeId>
 							<outputId>OutputVideo</outputId>
 						</source>
 					</input>
@@ -211,7 +211,7 @@
 						<dataType>Sensor</dataType>
 						<properties/>
 						<source>
-							<nodeId>CCTVStartMonitoring</nodeId>
+							<nodeId>id001</nodeId>
 							<outputId>VideoSensor</outputId>
 						</source>						
 					</input>
@@ -222,7 +222,7 @@
 						<dataType>Sensor</dataType>
 						<properties/>
 						<source>
-							<nodeId>CCTVStartMonitoring</nodeId>
+							<nodeId>id001</nodeId>
 							<outputId>MotionSensor</outputId>
 						</source>
 					</input>

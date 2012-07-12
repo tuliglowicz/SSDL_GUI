@@ -1,10 +1,30 @@
 <list>
 	<element>
+		<name>1_SLA</name>
+		<url>1_SLA.xml</url>
+	</element>
+	<element>
+		<name>3_mapping</name>
+		<url>3_mapping.xml</url>
+	</element>
+	<element>
+		<name>4_mappingPreparedForComposition</name>
+		<url>4_mappingPreparedForComposition.xml</url>
+	</element>
+	<element>
+		<name>5_mappingAfterComposition</name>
+		<url>5_mappingAfterComposition.xml</url>
+	</element>
+	<element>
+		<name>6_nodeAfterMapping</name>
+		<url>6_nodeAfterMapping.xml</url>
+	</element>	
+	<element>
 		<name>7_SLA_mapped</name>
 		<url>7_SLA_map.xml</url>
 	</element>
 	<element>
-		<name>1_SLA</name>
-		<url>1_SLA.xml</url>
+		<name>CompositeService_srodmiescie</name>
+		<url>_4._ CompositeService_srodmiescie_MAPPED2.ssdl.xml</url>
 	</element>
 </list>

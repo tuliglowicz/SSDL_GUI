@@ -667,7 +667,7 @@ function Controler(url, gui){
 			require: "ssdl_JSON div".split(" "),
 			init : function init(){
 				if( $("#navigator_"+pf).length === 0 ){
-					$("#left_plugins_"+pf).append("<div id='navigator_"+pf+"' class='plugin_"+pf+"'> </div>");
+					$("#left_plugins_"+pf).prepend("<div id='navigator_"+pf+"' class='plugin_"+pf+"'> </div>");
 				}
 			},
 			setData : function setData(data){
@@ -799,10 +799,12 @@ function Controler(url, gui){
 					$("#repository_"+pf).html( html.join("") );
 					
 					$(".repository_link_"+pf).click(function(){
-						// alert(this.textContent)
 						gui.controler.reactOnEvent("LoadAndEditCompoundService", {url: this.href, title: this.textContent});
 						return false;
 					});
+
+					$($("a")[1]).click();
+					// $("a:first").click();
 				}
 
 				return this;
@@ -822,11 +824,28 @@ function Controler(url, gui){
 		getGraphById : function getGraphById(id){
 			var result;
 			$.each(this.graphData_tab, function(){
-
+				if(id === this.id){
+					result = this;
+					return false;
+				}
 			});
+
+			return result;
 		},
 		deploy : deploy,
 		initLogger : initLogger,
+		changeCurrentGraphData : function changeCurrentGraphData(id){
+			var result;
+			$.each(this.graphData_tab, function(){
+				if(this.id === id){
+					result = this;
+					return false;
+				}
+			});
+			if(result){
+				this.current_graphData = result;
+			}
+		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
@@ -837,6 +856,7 @@ function Controler(url, gui){
 					}
 				})(evtObj); break;
 				case "SWITCHCURRENTGRAPH" : (function (e) {
+					// --- kod dla wtyczki navigator
 					var tab_nav = e.parent_id.split("|");
 						tab_nav.splice(0, 1);
 						tab_nav.push(e.id);
@@ -847,24 +867,23 @@ function Controler(url, gui){
 						tab_nav = tab_nav.join(" \\ ");
 
 					$("div#top_nav_"+pf+" span").html(tab_nav);
+					//
 
-					if(e.id !== "root"){
-						// get the proper subgraph
-						var tmp,
-							result,
-							currentGraph = that.current_graphData;
-						$.each(tab_copy, function(i, v){
-							if(i===0) return true;
-							tmp = that.getNodeById(this, currentGraph);
-							currentGraph = tmp;
-							if(!tmp)
-								return false;
-						});
+					// if(e.id !== "root"){
+					// 	// get the proper subgraph
+					// 	var tmp,
+					// 		result,
+					// 		currentGraph = that.current_graphData;
+					// 	$.each(tab_copy, function(i, v){
+					// 		if( i === 0 ) return true;
+					// 		tmp = that.getNodeById(this, currentGraph);
+					// 		currentGraph = tmp;
+					// 		if(!tmp)
+					// 			return false;
+					// 	});
 
-						// console.log(currentGraph.subgraph);
-						// console.log(e);
-						// gui.view.drawGraph(currentGraph.subgraph);
-					}
+					gui.view.changeCurrentGraphView(e.id);
+					that.changeCurrentGraphData(e.id)
 				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
@@ -876,7 +895,8 @@ function Controler(url, gui){
 					var target = gui.controler.getNodeById(e.target.id);
 					// alert(e.target.id)
 					target.sources.push( e.source.id );
-					gui.view.addCFEdge(e);
+					var edge = gui.view.addCFEdge(e);
+					gui.view.current_graph_view.edgesCF.push(edge);
 				})(evtObj); break;
 				case "ADDDFEDGE" : (function(e){
 					var input = gui.controler.getInputById(e.targetId, e.input.id);
@@ -885,7 +905,8 @@ function Controler(url, gui){
 					} else {
 						a(e.targetId+":"+e.input.id);
 					}
-					gui.view.addDFEdge(e);
+					var edge = gui.view.addDFEdge(e);
+					gui.view.current_graph_view.edgesDF.push(edge);					
 				})(evtObj); break;
 				case "NODEMOVED" : (function(){
 					gui.view.updateEdges();
@@ -903,6 +924,9 @@ function Controler(url, gui){
 					e.nodeId = gui.controler.generateId();
 					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
+					e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
+					e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
+
 					that.current_graphData.nodes.push(e)
 					gui.view.addNodeFromRepo(e);
 				})(evtObj); break;
@@ -930,9 +954,8 @@ function Controler(url, gui){
 						var tab = [],
 							ssdl_json = this.convert(ssdl, e.title);
 
-
-						if( true )
-							this.current_graphData = ssdl_json;//.nodes[3].subgraph;
+						// if( true )
+						// 	this.current_graphData = ssdl_json;
 
 						// rozwal na tablice
 						(function splitOnSubgraph(graph, id){
@@ -945,26 +968,54 @@ function Controler(url, gui){
 							// delete graph.subgraph;
 							tab.push(graph);
 
-							console.log(graph);
-
 						})(ssdl_json);
 
-						console.log( jstr( tab ) )
+						//walidacja
+						//save current data, graph_view
+						//delete all graphViews
+
+						// gui.view.
+						gui.view.removeAllGraphs();
+						gui.view.setBlankGraphAsCurrent()
 
 						this.graphData_tab = tab;
 						this.current_graphData = tab[ tab.length-1 ];
-						gui.view.drawGraph(this.current_graphData);
 
+						gui.view.parseAndSetDataModelToView(this.graphData_tab);
+						
 						this.reactOnEvent("SSDLLoaded", ssdl);
+
 					}).bind(that) );
 				})(evtObj); break;
 				case "SSDLLOADED" : (function(e){
 					that.navigator.setData(that.current_graphData)
-					that.navigator.draw();					
+					that.navigator.draw();
+				})(evtObj); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					//e = zwrócony JSONek
+					//TUTAJ JACKOWA WALIDACJA i,jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
+					if(!e.nodeId || e.nodeId==="") { //to jest blank
+						e.generateId();
+						//x, y -> skąd?
+						var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100);
+						gui.view.current_graph_view.nodes.push(graphNode);
+						that.current_graphData.nodes.push(e);
+					}
+					else{ //to nie jest blank
+						//node = getNodeById(e.nodeId)
+						//update danych w node z e
+						//update widoku
+					}
+				})(evtObj); break;
+				case "ADDBLANKNODE" : (function(e){
+					gui.view.addBlankNode(e); //
 				})(evtObj); break;
 
 
 			}
+		},
+		removeAllGraphs : function removeAllGraphs(){
+
 		},
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
