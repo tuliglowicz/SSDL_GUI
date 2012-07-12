@@ -662,9 +662,10 @@ function Controler(url, gui){
 			globalEvents: ["load"],
 			localEvents: ["select"],
 			require: "ssdl_JSON div".split(" "),
+			currentIdsAndLabels: {},
 			init : function init(){
 				if( $("#navigator_"+pf).length === 0 ){
-					$("#left_plugins_"+pf).prepend("<div id='navigator_"+pf+"' class='plugin_"+pf+"'> </div>");
+					$("#left_plugins_"+pf).prepend("<div id='navigator_"+pf+"' class='plugin_"+pf+"'' style='overflow:hidden'> </div>");
 				}
 			},
 			setData : function setData(data){
@@ -672,56 +673,67 @@ function Controler(url, gui){
 					this.data =  this.convert(data)
 				}
 			},
+			setCurrent: function setCurrent(id){
+				var $theOne = $("ul#navigator span#"+ id);
+
+				if($theOne.length === 1){
+					$("li.navigatorElement span").removeClass("selectedLI");
+					$theOne.addClass("selectedLI");
+				}
+			},
 			draw: function draw(){
 				if(this.data){
 					var that = this;
-					// console.log(this.data)
+					// console.log(this.data);
+					currentIdsAndLabels : {};
 					// if(this.data.children.length > 0)
-					// this.data.children[0].children.push( {data:"BUM"} );
+					// 	this.data.children[0].children.push( {id:"BUM", label: "BIMBAM"} );
 					
 					var out = (function(data){
 						var tab = [];
 
 						tab.push("<ul id='navigator'>");
-							tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+data.data+"</span></li>");
+						tab.push("<li class='navigatorElement'><img id='img_navigator|"+data.id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span id='"+data.id+"'>"+data.id+"</span></li>");
 
-							(function inner(data, id){
-								tab.push("<ul id='"+id+"'>");
-									$.each(data.children, function(){
-										if(this.children && this.children.length > 0){
-											tab.push("<li class='navigatorElement'><img id='img_"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+this.data+"</span></li>");
-												inner(this, id+"_"+this.data);
-										}
-										else {
-											tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span>"+this.data+"</span></li>");
-										}
-									});
-								tab.push("</ul>");
-							})(data, 'navigator|'+data.data);
+						that.currentIdsAndLabels[data.id] = data.label || data.id;
+
+						(function inner(data, id){
+							tab.push("<ul id='"+id+"'>");
+								$.each(data.children, function(){
+									if(this.children && this.children.length > 0){
+										tab.push("<li class='navigatorElement'><img id='img|"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span id='"+this.id+"'>"+this.label+"</span></li>");
+											inner(this, id+"|"+this.id);
+									}
+									else {
+										tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span id='"+this.id+"'>"+this.label+"</span></li>");
+									}
+									that.currentIdsAndLabels[this.id] = this.label || this.id;
+								});
+							tab.push("</ul>");
+						})(data, 'navigator|'+data.id);
 						tab.push("</ul>");
 
 						return tab.join("");
 					})(this.data);
 
-
 					$("#navigator_"+pf).html(out);
-
-						$("#subgraphTree_"+pf).html(out);
-
 
 					$("img.img_hasChildren").click(function(){
 						var $ul = $(this).parent().next();
 						$ul.toggle( 150 );
+						// dodać zmianę img
 
 						return false;
 					});
 
 					$("li.navigatorElement").click(function(){
-						if(! $(this).find("span").hasClass("selectedLI") ){
+						var $this = $(this);
+						if(! $this.find("span").hasClass("selectedLI") ){
 							$("li.navigatorElement span").removeClass("selectedLI");
-							$(this).find("span").addClass("selectedLI");
+							$this.find("span").addClass("selectedLI");
 
-							gui.controler.reactOnEvent("SwitchCurrentGraph", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
+							// console.log($(this).parent().find("img").attr("id").split("|")[1]);
+							gui.controler.reactOnEvent("SwitchCurrentGraph", {id: $this.parent().attr("id")+"|"+$this.find("span:first").attr("id")})
 						}
 						return false;
 					});
@@ -734,14 +746,15 @@ function Controler(url, gui){
 				var n = json.nodes,
 					id = json.id,
 					output_json = {
-						data: (id ? id : "root"), 
+						id: (id ? id : "root"), 
 						children: []
 					};
 				str = ((str ? str : "") + (id ? id : "root"))
 				$.each(n, function(){
 					if(this.subgraph && this.subgraph.nodes && this.subgraph.nodes.length > 0){						
 						var currNode = {};
-						currNode.data = this.nodeId;
+						currNode.id = this.nodeId;
+						currNode.label = this.nodeLabel;
 						currNode.children = convert(this.subgraph).children;
 						output_json.children.push(currNode);
 					}
@@ -767,7 +780,7 @@ function Controler(url, gui){
 			localEvents: ["select"],
 			init: function init(){
 				if( $("#repository_"+pf).length === 0 ){
-					$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"'> </div>");
+					$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"' style='overflow:hidden;'> </div>");
 				}
 			},
 			setData : function setData(data){
@@ -785,7 +798,6 @@ function Controler(url, gui){
 						url,
 						that = this;
 					;
-					// alert(this.data)
 
 					$(this.data).find("list element").each(function(){
 						name = $(this).find("name").text();
@@ -795,13 +807,16 @@ function Controler(url, gui){
 					
 					$("#repository_"+pf).html( html.join("") );
 					
-					$(".repository_link_"+pf).click(function(){
+					var $repository_links = $(".repository_link_"+pf);
+					$repository_links.click(function(){
+						$repository_links.removeClass("selectedRepoNodes")
 						gui.controler.reactOnEvent("LoadAndEditCompoundService", {url: this.href, title: this.textContent});
+						$(this).addClass("selectedRepoNodes");
 						return false;
 					});
 
-					$($("a")[1]).click();
-					// $("a:first").click();
+					$($("a")[4]).click();
+					// $("a:last").click();
 				}
 
 				return this;
@@ -851,36 +866,6 @@ function Controler(url, gui){
 					if(e && e.url){
 						that.loadSSDL(e.url);
 					}
-				})(evtObj); break;
-				case "SWITCHCURRENTGRAPH" : (function (e) {
-					// --- kod dla wtyczki navigator
-					var tab_nav = e.parent_id.split("|");
-						tab_nav.splice(0, 1);
-						tab_nav.push(e.id);
-					var tab_copy = $.extend(true, [], tab_nav);
-						$.each(tab_nav, function(k, v){
-							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+e.parent_id+"'>"+v+"</a>";
-						});
-						tab_nav = tab_nav.join(" \\ ");
-
-					$("div#top_nav_"+pf+" span").html(tab_nav);
-					//
-
-					// if(e.id !== "root"){
-					// 	// get the proper subgraph
-					// 	var tmp,
-					// 		result,
-					// 		currentGraph = that.current_graphData;
-					// 	$.each(tab_copy, function(i, v){
-					// 		if( i === 0 ) return true;
-					// 		tmp = that.getNodeById(this, currentGraph);
-					// 		currentGraph = tmp;
-					// 		if(!tmp)
-					// 			return false;
-					// 	});
-
-					gui.view.changeCurrentGraphView(e.id);
-					that.changeCurrentGraphData(e.id)
 				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
@@ -962,10 +947,10 @@ function Controler(url, gui){
 								}
 							});
 							graph.id = (id || graph.id);
-							// delete graph.subgraph;
+							delete graph.subgraph;
 							tab.push(graph);
 
-						})(ssdl_json);
+						})(ssdl_json, e.title);
 
 						//walidacja
 						//save current data, graph_view
@@ -983,6 +968,36 @@ function Controler(url, gui){
 						this.reactOnEvent("SSDLLoaded", ssdl);
 
 					}).bind(that) );
+				})(evtObj); break;
+				case "SWITCHCURRENTGRAPH" : (function (e) {
+					// --- kod dla wtyczki navigator
+					if(e && e.id && (typeof e.id === "string") && e.id.substring(e.id.lastIndexOf("|")+1 !== that.current_graphData.id)){
+						var tab_nav = e.id.split("|");
+							tab_nav.splice(0, 1);
+						var tab_copy = $.extend(true, [], tab_nav),
+							id = tab_nav[ tab_nav.length-1 ],
+							id_string = "",
+							labels = that.navigator.currentIdsAndLabels;
+							$.each(tab_nav, function(k, v){
+								id_string += "|"+v;
+								tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+id_string+"'>"+(labels[v] || v)+"</a>";
+							});
+							tab_nav = tab_nav.join(" \\ ");
+
+						$("div#top_nav_"+pf+" span").html(tab_nav);
+
+						$("a.top_nav_element").click(function(){
+							var lastIndexOf = this.id.lastIndexOf("|"),
+								id = this.id.substring(lastIndexOf+1)
+							;
+							that.reactOnEvent("SWITCHCURRENTGRAPH", {id: this.id});
+							that.navigator.setCurrent(id)
+						});
+
+						gui.view.changeCurrentGraphView(id);
+						that.changeCurrentGraphData(id);
+					}
+
 				})(evtObj); break;
 				case "SSDLLOADED" : (function(e){
 					that.navigator.setData(that.current_graphData)
@@ -1010,9 +1025,6 @@ function Controler(url, gui){
 
 
 			}
-		},
-		removeAllGraphs : function removeAllGraphs(){
-
 		},
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({

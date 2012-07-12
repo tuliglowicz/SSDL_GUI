@@ -1490,10 +1490,10 @@ function View(id, width, height, gui){
 					newNode = this.getBlankNode(x, y),
 					nodeType = node.nodeType.toLowerCase(),
 					visualizedNode
-					;
+				;
 
 				newNode.id = node.nodeId;
-				newNode.label = node.nodeLabel || node.nodeId;
+				newNode.label = node.nodeLabel || newNode.id;
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
@@ -1835,8 +1835,11 @@ function View(id, width, height, gui){
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
 			var result;
+			// console.log(this.graph_views_tab)
+			// console.log(id, this.graph_views_tab.map(function(o){ return o.id;}))
 			$.each(this.graph_views_tab, function(){
 				if(this.id === id){
+					// a(this.id)
 					result = this;
 					return false;
 				}
@@ -2384,6 +2387,8 @@ function View(id, width, height, gui){
 				graph_view = this.getBlankGraph();
 			;
 
+			graph_view.id = graph_json.id;
+
 			if(!this.paper){
 				gui.error("you have to run init() function first");
 			}
@@ -2416,9 +2421,10 @@ function View(id, width, height, gui){
 
 				var tmp;
 				$.each(graph_json.nodes, function(key, val){
-					// alert(val.nodeId)
+					 // alert(val.nodeId)
+					 // console.log( val )
 					$.each(val.sources, function(){
-						console.log(this, graph_view.nodes.map(function(o){return o.id}))
+						// console.log(this, graph_view.nodes.map(function(o){return o.id}))
 						tmp = that.addCFEdge({
 							source: that.getNodeById(this, graph_view.nodes),
 							target: that.getNodeById(val.nodeId, graph_view.nodes)
@@ -2429,6 +2435,7 @@ function View(id, width, height, gui){
 					});
 					$.each(val.functionalDescription.inputs, function(){
 						if(this && this.source && this.source.length == 2){
+							// console.log( val.nodeId, this.source )
 							var tmp = that.addDFEdge({
 									sourceId : this.source[0],
 									targetId : val.nodeId,

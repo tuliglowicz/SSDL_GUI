@@ -16,15 +16,7 @@
 		<url>5_mappingAfterComposition.xml</url>
 	</element>
 	<element>
-		<name>6_nodeAfterMapping</name>
-		<url>6_nodeAfterMapping.xml</url>
-	</element>	
-	<element>
 		<name>7_SLA_mapped</name>
 		<url>7_SLA_map.xml</url>
-	</element>
-	<element>
-		<name>CompositeService_srodmiescie</name>
-		<url>_4._ CompositeService_srodmiescie_MAPPED2.ssdl.xml</url>
 	</element>
 </list>

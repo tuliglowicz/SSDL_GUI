@@ -41,7 +41,7 @@
 	img {
 		border:0px;
 	}
-	li span.selectedLI {
+	li span.selectedLI, a.selectedRepoNodes {
 		border:1px solid #6B66FF;
 		background-color: #BCBAFF;
 		border-radius: 5px;
