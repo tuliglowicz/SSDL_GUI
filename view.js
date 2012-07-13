@@ -1,3 +1,5 @@
+// walidacja, edycja, json2ssdl
+
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
@@ -14,7 +16,7 @@ function View(id, width, height, gui){
 				init: function init() {
 					var x = 10,
 						y = 10
-						;
+					;
 
 					x = ( x + this.width > $(window).width() ? $(window).width() - 1.1 * this.width : x );
 					y = ( y + this.height > $(window).height() ? $(window).height() - 1.1 * this.height : y );
@@ -258,80 +260,84 @@ function View(id, width, height, gui){
 					var that = this,
 						margin = 10,
 						result = {
-						label: label,
-						buttons: [],
-						margin: margin,
-						x: 10, y: paper.height*.85 + margin,
-						width: 25, 
-						height: this.height - 2*margin,
-						isVisible: true,
-						addButton: function addButton(button){
-							this.buttons.push(button);
-							this.resizeAndRelocate();
-							that.relocate();
-						},
-						hideButton: function hideButton(label){
-							$.each(this.buttons, function(){
-								if(this.label.toUpperCase()===label.toUpperCase()) 
+							label: label,
+							buttons: [],
+							margin: margin,
+							x: 10, y: paper.height*.85 + margin,
+							width: 25, 
+							height: this.height - 2*margin,
+							isVisible: true,
+							addButton: function addButton(button){
+								this.buttons.push(button);
+								this.resizeAndRelocate();
+								that.relocate();
+							},
+							toString: function toString(){
+								return "bottomBar_Group object";
+							},
+							hideButton: function hideButton(label){
+								$.each(this.buttons, function(){
+									if(this.label.toUpperCase()===label.toUpperCase()) 
+										this.hideThisButton();
+								});
+								that.generalFontReset();
+								this.resizeAndRelocate();
+								that.relocate();
+							},
+							showButton: function showButton(label){
+								$.each(this.buttons, function(){
+									if(this.label.toUpperCase()===label.toUpperCase()) 
+										this.showThisButton();
+								});
+								this.resizeAndRelocate();
+								that.relocate();
+							},
+							hideGroup: function hideGroup(){
+								this.isVisible = false;
+								this.graphic.hide();
+								$.each(this.buttons, function(){
 									this.hideThisButton();
-							});
-							that.generalFontReset();
-							this.resizeAndRelocate();
-							that.relocate();
-						},
-						showButton: function showButton(label){
-							$.each(this.buttons, function(){
-								if(this.label.toUpperCase()===label.toUpperCase()) 
+								});
+								that.generalFontReset();
+							},
+							showGroup: function showGroup(){
+								this.isVisible = true;
+								this.graphic.show();
+								$.each(this.buttons, function(){
 									this.showThisButton();
-							});
-							this.resizeAndRelocate();
-							that.relocate();
-						},
-						hideGroup: function hideGroup(){
-							this.isVisible = false;
-							this.graphic.hide();
-							$.each(this.buttons, function(){
-								this.hideThisButton();
-							});
-							that.generalFontReset();
-						},
-						showGroup: function showGroup(){
-							this.isVisible = true;
-							this.graphic.show();
-							$.each(this.buttons, function(){
-								this.showThisButton();
-							});
-							that.generalFontReset();
-						},
-						createGraphic: function createGraphic(){
-							var temp, bbox;
-							temp = paper.text(0, this.y+5, this.label)
-							.attr({"font-size":10, fill:"black", opacity: 0});
-							bbox = temp.getBBox();
-							temp.attr("x", this.x+bbox.width/2+this.margin);
-							return temp;
-						},
-						moveGroupToX: function moveGroupToX(x){
-							//przesunięcie do punktu (x, y), nie o wektor [x, y], y = const.
-							var dx = x - this.x, ox;
-							this.x = x;
-							ox = this.graphic.attr("x");
-							this.graphic.attr({"x": ox+dx});
-							$.each(this.buttons, function(){
-								this.moveButtonByX(dx);
-							});
-						},
-						resizeAndRelocate: function resizeAndRelocate(){
-							var sum = margin, groupX = this.x;
-							$.each(this.buttons, function(){
-								if(this.isVisible===true){
-									this.moveButtonToX(sum + groupX);
-									sum += this.width + margin;
-								}
-							});
-							this.width = sum;
-						}
-					};
+								});
+								that.generalFontReset();
+							},
+							createGraphic: function createGraphic(){
+								var temp, bbox;
+								temp = paper.text(0, this.y+5, this.label)
+								.attr({"font-size":10, fill:"black", opacity: 0});
+								bbox = temp.getBBox();
+								temp.attr("x", this.x+bbox.width/2+this.margin);
+								return temp;
+							},
+							moveGroupToX: function moveGroupToX(x){
+								//przesunięcie do punktu (x, y), nie o wektor [x, y], y = const.
+								var dx = x - this.x, ox;
+								this.x = x;
+								ox = this.graphic.attr("x");
+								this.graphic.attr({"x": ox+dx});
+								$.each(this.buttons, function(){
+									this.moveButtonByX(dx);
+								});
+							},
+							resizeAndRelocate: function resizeAndRelocate(){
+								var sum = margin, groupX = this.x;
+								$.each(this.buttons, function(){
+									if(this.isVisible===true){
+										this.moveButtonToX(sum + groupX);
+										sum += this.width + margin;
+									}
+								});
+								this.width = sum;
+							}
+						};
+
 					result.graphic = result.createGraphic();
 					this.groups.push(result);
 					this.addSeparator(result.x+result.width, result.y, result.height);
@@ -363,6 +369,9 @@ function View(id, width, height, gui){
 								ox = this.attr("x");
 								this.attr({"x": ox+dx});
 							});
+						},
+						toString: function toString(){
+							return "bottomBar_Option object";
 						},
 						moveButtonByX: function moveButtonByX(x){
 							var ox;
@@ -1418,7 +1427,7 @@ function View(id, width, height, gui){
 						this.y = newCoords.y;
 					},
 					toString : function toString(){
-						return "SSDLNode object";
+						return "SSDL_Node object";
 					},
 					translate : function translate(transX, transY){
 						$.each(this.set, function(i, v){
@@ -1474,6 +1483,9 @@ function View(id, width, height, gui){
 						$.each(this.connectors, function(){
 							this.show();
 						});
+					},
+					updateNode : function updateNode(){
+
 					}
 				}
 				
@@ -1830,8 +1842,11 @@ function View(id, width, height, gui){
 
 			return this;
 		},
-		updateGraph : function updateGraph(){
-
+		updateGraph : function updateGraph(nodeId){
+			var node = this.getNodeById(nodeId);
+			if(node){
+				node.update();
+			}
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
 			var result;
@@ -2027,7 +2042,7 @@ function View(id, width, height, gui){
 					}
 				}
 
-				if(getType(element) === "Array"){
+				if(getType(element) === "array"){
 					$.each(element, function(){
 						this.drag(move, start, stop);
 					})
@@ -2091,7 +2106,7 @@ function View(id, width, height, gui){
 				;
 
 				// alert(element+":"+element.getType())
-			if(getType(element) === "Array"){
+			if(getType(element) === "array"){
 				$.each(element, function(){
 					// alert(this +":"+ this.getType());
 					// console.log( this );
@@ -2178,7 +2193,7 @@ function View(id, width, height, gui){
 				;
 
 				// alert(element+":"+element.getType())
-			if(getType(element) === "Array"){
+			if(getType(element) === "array"){
 				$.each(element, function(){
 					// alert(this +":"+ this.getType());
 					// console.log( this );
@@ -2200,7 +2215,9 @@ function View(id, width, height, gui){
 					target : data.target,
 					view : this,
 					type: "CF",
-					toString : function toString(){ return "ssdl_CFEdge Object";},
+					toString : function toString(){
+						return "SSDL_CFEdge object";
+					},
 					hide: function hide(){
 						this.arrow[0].hide();
 						this.arrow[1].hide();
@@ -2261,7 +2278,9 @@ function View(id, width, height, gui){
 						input : data.input,
 						view : this,
 						type : "DF",
-						toString : function (){ return "ssdl_DFEdge Object";},
+						toString : function toString(){
+							return "SSDL_CFEdge object";
+						},
 						hide: function hide(){
 							this.arrow[0].hide();
 							this.arrow[1].hide();

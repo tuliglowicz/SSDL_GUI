@@ -15,7 +15,7 @@ function Controler(url, gui){
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
 				}
 			},
-			generateData : function generateData(node, n){
+			convertData : function generateData(node, n){
 				var result = visualiser.getBlankNode();
 				result.id = node.nodeId;
 				result.label = node.nodeLabel;
@@ -48,7 +48,7 @@ function Controler(url, gui){
 				this.clear();
 
 				$.each(this.data, function(k, v){
-					tempNode = that.generateData(v, ++n);
+					tempNode = that.convertData(v, ++n);
 					tmp = visualiser.draw_serviceNode(tempNode, that.paper, true).switchToDFMode();
 					tmp.raph_label.attr({cursor: "pointer"}).dblclick(function(){
 						gui.controler.reactOnEvent("AddServiceFromRepoToCanvas", v);
@@ -157,7 +157,7 @@ function Controler(url, gui){
 			};
 		//console object
 		var obj = {
-			info : function(text, title){
+			info : function info(text, title){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
@@ -167,7 +167,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
-			warning : function(text, title){
+			warning : function warn(text, title){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
@@ -179,7 +179,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
-			error : function(text, title){
+			error : function err(text, title){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
@@ -1425,6 +1425,42 @@ function Controler(url, gui){
 					
 			// console.log(Graph)
 			return Graph;
+		},
+		convertGraphDataToXML : function convertGraphViewToXML(humanFriendly){
+			var n = this.current_graph_view.nodes,
+				id = "testowe_id",
+				tab_XML = [],
+				stringXML
+				;
+
+			if(n && n.length > 0){
+				tab_XML.push( "<graphView>\n" );
+					tab_XML.push( "\t<graph_id>"+id+"</graph_id>\n" );
+					tab_XML.push( "\t<graphView_properties>\n");
+						tab_XML.push( "\t\t<scale>"+this.scale+"</scale>\n");
+						tab_XML.push( "\t\t<xPos>"+this.xPos+"</xPos>\n");
+						tab_XML.push( "\t\t<yPos>"+this.yPos+"</yPos>\n");
+						tab_XML.push( "\t\t<view_mode>"+this.mode+"</view_mode>\n");
+					tab_XML.push( "\t</graphView_properties>\n" );
+					tab_XML.push( "\t<nodes>\n" );
+					$.each(n, function(){
+						tab_XML.push( "\t\t<node>\n" );
+							tab_XML.push("\t\t\t<nodeId>"+this.id+"</nodeId>\n");
+							tab_XML.push("\t\t\t<xPos>"+this.x+"</xPos>\n");
+							tab_XML.push("\t\t\t<yPos>"+this.y+"</yPos>\n");
+							tab_XML.push("\t\t\t<width>"+this.width+"</width>\n");
+							tab_XML.push("\t\t\t<height>"+this.height+"</height>\n");
+						tab_XML.push( "\t\t</node>\n" );
+					});
+					tab_XML.push("\t</nodes>\n")
+				tab_XML.push( "<graphView>\n" );
+			}
+
+			stringXML = tab_XML.join("")
+			if(!humanFriendly)
+				stringXML = stringXML.replace(/\t/g, "").replace(/\n/g, "");
+
+			return stringXML;
 		}
 	}
 
