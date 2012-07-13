@@ -1425,42 +1425,6 @@ function Controler(url, gui){
 					
 			// console.log(Graph)
 			return Graph;
-		},
-		convertGraphDataToXML : function convertGraphViewToXML(humanFriendly){
-			var n = this.current_graph_view.nodes,
-				id = "testowe_id",
-				tab_XML = [],
-				stringXML
-				;
-
-			if(n && n.length > 0){
-				tab_XML.push( "<graphView>\n" );
-					tab_XML.push( "\t<graph_id>"+id+"</graph_id>\n" );
-					tab_XML.push( "\t<graphView_properties>\n");
-						tab_XML.push( "\t\t<scale>"+this.scale+"</scale>\n");
-						tab_XML.push( "\t\t<xPos>"+this.xPos+"</xPos>\n");
-						tab_XML.push( "\t\t<yPos>"+this.yPos+"</yPos>\n");
-						tab_XML.push( "\t\t<view_mode>"+this.mode+"</view_mode>\n");
-					tab_XML.push( "\t</graphView_properties>\n" );
-					tab_XML.push( "\t<nodes>\n" );
-					$.each(n, function(){
-						tab_XML.push( "\t\t<node>\n" );
-							tab_XML.push("\t\t\t<nodeId>"+this.id+"</nodeId>\n");
-							tab_XML.push("\t\t\t<xPos>"+this.x+"</xPos>\n");
-							tab_XML.push("\t\t\t<yPos>"+this.y+"</yPos>\n");
-							tab_XML.push("\t\t\t<width>"+this.width+"</width>\n");
-							tab_XML.push("\t\t\t<height>"+this.height+"</height>\n");
-						tab_XML.push( "\t\t</node>\n" );
-					});
-					tab_XML.push("\t</nodes>\n")
-				tab_XML.push( "<graphView>\n" );
-			}
-
-			stringXML = tab_XML.join("")
-			if(!humanFriendly)
-				stringXML = stringXML.replace(/\t/g, "").replace(/\n/g, "");
-
-			return stringXML;
 		}
 	}
 
