@@ -1,4 +1,5 @@
-// walidacja, edycja, json2ssdl
+//toDo
+// done // walidacja, edycja, json2ssdl, startstop
 
 "use strict";
 var c = -1;
@@ -1670,18 +1671,19 @@ function View(id, width, height, gui){
 				}
 
 				if(!drawNotForRepo){
+					var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
+					img_subgraph.node.setAttribute("class", id+" subgraph");
+					img_subgraph.dblclick(function(){
+						// a("subgraph");
+						gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
+					});
+
 					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
 						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
 						c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
-						c4 = paper.circle(node.x, node.y + node.height/2, radius),
-						img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20)
+						c4 = paper.circle(node.x, node.y + node.height/2, radius)
 					;
 
-					img_subgraph.node.setAttribute("class", id+" subgraph");
-					img_subgraph.dblclick(function(){
-						a("subgraph")
-						gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
-					});
 
 					if(serviceName){
 						shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,

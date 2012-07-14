@@ -1,3 +1,5 @@
+// ocb z exeptions i parameters w graphie ???
+
 "use strict"; 
 //url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
 function Controler(url, gui){
@@ -935,22 +937,24 @@ function Controler(url, gui){
 					that.load(e.url, (function(ssdl){
 						var tab = [],
 							ssdl_json = this.convert(ssdl, e.title);
+							// raport(this.convertJSON2XML(ssdl_json, true));
 
 						// if( true )
 						// 	this.current_graphData = ssdl_json;
 
 						// rozwal na tablice
-						(function splitOnSubgraph(graph, id){
+						(function splitOnSubgraph(graph, id, isRoot){
 							$.each(graph.nodes, function(){
 								if(this.subgraph.nodes){
 									splitOnSubgraph(this.subgraph, this.nodeId);
 								}
 							});
 							graph.id = (id || graph.id);
-							delete graph.subgraph;
+							graph.isRoot = isRoot;
+							//delete graph.subgraph;
 							tab.push(graph);
 
-						})(ssdl_json, e.title);
+						})(ssdl_json, e.title, true);
 
 						//walidacja
 						//save current data, graph_view
@@ -1291,6 +1295,194 @@ function Controler(url, gui){
 
 			return tab;
 		},
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
+			
+			function parseGraph(subgraph, tabulacja){
+				// alert(++i);
+				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
+				if(subgraph.nodes && subgraph.nodes.length > 0){
+					tabOutput.push(tabulacja+"<nodes>\n");
+					$.each(subgraph.nodes, function(key, node){
+						parseNode(key, node, tabulacja);
+					});
+					tabOutput.push(tabulacja+"</nodes>\n"); /* Koniec wierzchołków  w grafie */
+				} else {
+					tabOutput.push(tabulacja+"<nodes/>\n")
+				}
+				parseGraphAtributes(subgraph, tabulacja)
+			}
+			function parseGraphAtributes(graph, tabulacja){
+				/* Dane wejściowe  w grafie */
+				if (graph.inputVariables && graph.inputVariables.length > 0){
+					tabOutput.push(tabulacja+"<inputVariables>\n");
+						$.each(graph.inputVariables, function(key, inputVariable) {
+							tabOutput.push(tabulacja+"\t<inputVariable>\n");
+								tabOutput.push(tabulacja+"\t\t<name>" + (inputVariable.name || "") + "</name>\n");
+								tabOutput.push(tabulacja+"\t\t<value>" + (inputVariable.value || "") + "</value>\n");
+								tabOutput.push(tabulacja+"\t\t<type>" + (inputVariable.type || "") + "</type>\n");
+							tabOutput.push(tabulacja+"\t</inputVariable>\n");
+						});
+					tabOutput.push(tabulacja+"</inputVariables>\n");
+				} else {
+					tabOutput.push(tabulacja+"<inputVariables/>\n");
+				}
+				/* Koniec danych wejściowych  w grafie */
+
+				/* Paramertry niefunkcjonalne w grafie */
+				if (graph.nonFunctionalParameters && graph.nonFunctionalParameters.length > 0){
+					tabOutput.push(tabulacja+"<nonFunctionalParameters>\n");
+						$.each(graph.nonFunctionalParameters, function(key, nonFunctionalProperty) {
+							tabOutput.push(tabulacja+"\t<nonFunctionalProperty>\n");
+								tabOutput.push(tabulacja+"\t\t<weight>" + (nonFunctionalProperty.weight || "") + "</weight>\n");
+								tabOutput.push(tabulacja+"\t\t<unit>" + (nonFunctionalProperty.unit || "") + "</unit>\n");
+								tabOutput.push(tabulacja+"\t\t<value>" + (nonFunctionalProperty.value || "") + "</value>\n");
+								tabOutput.push(tabulacja+"\t\t<relation>" + (nonFunctionalProperty.relation || "") + "</relation>\n");
+								tabOutput.push(tabulacja+"\t\t<name>" + (nonFunctionalProperty.name || "") + "</name>\n");
+							tabOutput.push(tabulacja+"\t</nonFunctionalProperty>\n");
+						});
+					tabOutput.push(tabulacja+"</nonFunctionalParameters>\n");
+				} else {
+					tabOutput.push(tabulacja+"<nonFunctionalParameters/>\n");
+				}
+				/* Koniec parametrów niefunkcjonalnych w grafie */
+			}
+			function parseNode(key, node, tabulacja) {
+				// alert(node.nodeId)
+				/* Wierzchołki  w grafie */
+				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
+				tabOutput.push(tabulacja+"\t<node>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeId>" + (node.nodeId || "") + "</nodeId>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeLabel>" + (node.nodeLabel || "") + "</nodeLabel>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeType>" + (node.nodeType || "") + "</nodeType>\n");
+					tabOutput.push(tabulacja+"\t\t<controlType>" + (node.controlType || "") + "</controlType>\n");
+					if(node.physicalDescription){
+						physicalDescription = node.physicalDescription;
+						tabOutput.push(tabulacja+"\t\t<physicalDescription>\n");
+							tabOutput.push(tabulacja+"\t\t\t<serviceName>" + (physicalDescription.serviceName || "") + "</serviceName>\n");
+							tabOutput.push(tabulacja+"\t\t\t<serviceGlobalId>" + (physicalDescription.serviceGlobalId || "") + "</serviceGlobalId>\n");
+							tabOutput.push(tabulacja+"\t\t\t<address>" + (physicalDescription.address || "") + "</address>\n");
+							tabOutput.push(tabulacja+"\t\t\t<operation>" + (physicalDescription.operation || "") + "</operation>\n");
+						tabOutput.push(tabulacja+"\t\t</physicalDescription>\n");
+					}
+					if(node.functionalDescription){
+						functionalDescription = node.functionalDescription;
+						tabOutput.push(tabulacja+"\t\t<functionalDescription>\n");
+							if (functionalDescription.serviceClasses && functionalDescription.serviceClasses.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<serviceClasses>\n");
+									$.each(functionalDescription.serviceClasses, function(key, serviceClass) {
+										tabOutput.push(tabulacja+"\t\t\t\t<serviceClass>" + (serviceClass || "") + "</serviceClass>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</serviceClasses>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<serviceClasses/>\n");
+							}
+							tabOutput.push(tabulacja+"\t\t\t<description>" + (functionalDescription.description || "") + "</description>\n");
+							if (functionalDescription.metaKeywords && functionalDescription.metaKeywords.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<metaKeywords>\n");
+									$.each(functionalDescription.metaKeywords, function(key, metaKeyword) {
+										tabOutput.push(tabulacja+"\t\t\t\t<metaKeyword>" + (metaKeyword || "") + "</metaKeyword>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</metaKeywords>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<metaKeywords/>\n");
+							}
+							if (functionalDescription.inputs && functionalDescription.inputs.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<inputs>\n");
+									$.each(functionalDescription.inputs, function(key, input) {
+										tabOutput.push(tabulacja+"\t\t\t\t<input>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<class>" + (input.class || "") + "</class>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<id>" + (input.id || "") + "</id>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<label>" + (input.label || "") + "</label>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<dataType>" + (input.dataType || "") + "</dataType>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<properties>" + (input.properties || "") + "</properties>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<source>\n");
+												tabOutput.push(tabulacja+"\t\t\t\t\t\t<nodeId>" + (input.source[0] || "") + "</nodeId>\n");
+												tabOutput.push(tabulacja+"\t\t\t\t\t\t<outputId>" + (input.source[1] || "") + "</outputId>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t</source>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t</input>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</inputs>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<inputs/>\n");
+							}
+							if (functionalDescription.inputs && functionalDescription.outputs.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<outputs>\n");
+									$.each(functionalDescription.outputs, function(key, output) {
+										tabOutput.push(tabulacja+"\t\t\t\t<output>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<class>" + (output.class || "") + "</class>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<id>" + (output.id || "") + "</id>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<label>" + (output.label || "") + "</label>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<dataType>" + (output.dataType || "") + "</dataType>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<properties>" + (output.properties || "") + "</properties>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t</output>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</outputs>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<outputs/>\n");
+							}
+							tabOutput.push(tabulacja+"\t\t\t<preconditions>" + (functionalDescription.preconditions || "") + "</preconditions>\n");
+							tabOutput.push(tabulacja+"\t\t\t<effects>" + (functionalDescription.effects || "") + "</effects>\n");
+						tabOutput.push(tabulacja+"\t\t</functionalDescription>\n");
+					}
+					if(node.nonFunctionalDescription){
+						nonFunctionalDescription = node.nonFunctionalDescription
+						if (nonFunctionalDescription && nonFunctionalDescription.length > 0){
+							tabOutput.push(tabulacja+"\t\t<nonFunctionalDescription>\n");
+								$.each(nonFunctionalDescription, function(key, nonFunctionalProperty) {
+									tabOutput.push(tabulacja+"\t\t\t<nonFunctionalProperty>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<weight>" + (nonFunctionalProperty.weight || "") + "</weight>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<name>" + (nonFunctionalProperty.name || "") + "</name>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<relation>" + (nonFunctionalProperty.relation || "") + "</relation>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<unit>" + (nonFunctionalProperty.unit || "") + "</unit>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<value>" + (nonFunctionalProperty.value || "") + "</value>\n");
+									tabOutput.push(tabulacja+"\t\t\t</nonFunctionalProperty>\n");
+								});
+							tabOutput.push(tabulacja+"\t\t</nonFunctionalDescription>\n");
+						} else {
+							tabOutput.push(tabulacja+"\t\t<nonFunctionalDescription/>\n");
+						}
+					}
+					tabOutput.push(tabulacja+"\t\t<alternatives>" + (node.alternatives || "") + "</alternatives>\n");
+					
+					if(node.subgraph && node.subgraph.nodes){
+						tabOutput.push(tabulacja+"\t\t<subGraph>\n");
+						parseGraph(node.subgraph, tabulacja+"\t\t\t");
+						tabOutput.push(tabulacja+"\t\t</subGraph>\n");
+					}
+					else 
+						tabOutput.push(tabulacja+"\t\t<subGraph>" + (false || "") + "</subGraph>\n");
+
+					tabOutput.push(tabulacja+"\t\t<controlType>" + (false || "") + "</controlType>\n");
+					tabOutput.push(tabulacja+"\t\t<condition>" + (node.condition || "") + "</condition>\n");
+					if(node.sources){
+						tabOutput.push(tabulacja+"\t\t<sources>\n");
+							$.each(node.sources, function(key, source) {
+								tabOutput.push(tabulacja+"\t\t\t<source>" + source + "</source>\n");
+							});
+						tabOutput.push(tabulacja+"\t\t</sources>\n");
+					}
+				tabOutput.push(tabulacja+"\t</node>\n");
+			}
+
+
+			var tabOutput = [],
+				physicalDescription,
+				functionalDescription,
+				nonFunctionalDescription,
+				i = 0;
+			;
+			// console.log(jsonFormatter(json, true))
+			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			parseGraph(json, "\t");
+			tabOutput.push("</graph>");
+
+			var stringXML = tabOutput.join("");
+
+			if(!humanFriendly)
+				stringXML = stringXML.replace(/\t</g, "").replace(/\n/g, "");
+
+			return stringXML;
+		},
 		convert : function convert(ssdl, id){ // converst ssdl into json
 			//alert("convert"+":"+ssdl);
 			var Graph = {};
@@ -1425,6 +1617,72 @@ function Controler(url, gui){
 					
 			// console.log(Graph)
 			return Graph;
+		},
+		getRoot : function getRoot(){
+			var result;
+			for(var i = this.graphData_tab.length-1, j = -1; i > j; i-- ){
+				if(this.graphData_tab[i].isRoot){
+					result = this.graphData_tab[i];
+					break;
+				}
+			}
+
+			return result;
+		},
+		saveSSDL : function saveSSDL(){
+			// var idObj = {},
+			// 	gId,
+			// 	nId,
+			// 	that = this
+			// ;
+			// $.each(this.graphData_tab, function(key, graph){
+			// 	gId = graph.id;
+			// 	idObj[gId] = {
+			// 		graph : that.getGraphById(gId),
+			// 		ids : []
+			// 	};
+			// 	$.each(graph.nodes, function(){
+			// 		nId = this.nodeId;
+			// 		if(nId != "#Start" && nId != "#End"){
+			// 			idObj[gId].ids.push(this.nodeId);
+			// 		}
+
+			// 	})
+			// });
+
+			// var beenThere;
+			// $.each(idObj, function(key, val){
+			// 	beenThere = false;
+			// 	$.each(idObj, function(i, v){
+			// 		if(key !== i){
+			// 			$.each(v.ids, function(j, w){
+			// 				console.log(key, val, i, v, j, w)
+			// 				if(key === w){
+			// 					v.graph.subgraph = val;
+			// 					beenThere = true;
+			// 				}
+			// 			});	
+			// 		}
+			// 	});
+			// 	if(beenThere){
+			// 		delete idObj[key];
+			// 	}
+			// });
+
+			// tu przerwał i zobaczył, że każdy graf w tablicy i tak ma referencję do swojego subgraphu...
+			// zaczynamy inaczej:
+
+			var root = this.getRoot();
+			var xml = this.convertJSON2XML(root);
+			// this.save(url, 'xml', function(txt){
+				// gui.logger.info("Zapisano SSDL "+root.id);
+			// }, 'text', function(txt){
+				// gui.logger.info("Nie udało się zapisać SSDL "+root.id);
+			// })
+
+			raport(xml);
+
+			return xml;
 		}
 	}
 
