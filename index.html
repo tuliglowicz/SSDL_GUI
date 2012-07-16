@@ -312,6 +312,7 @@
 		
 		r.id_postfix = Math.round( Math.random() * 10e5 );
 		r.view = View(id, width, height, r);
+		r.view.blankNodes.init();
 		r.view.blankNodes.draw();
 		r.controler = Controler(url, r);
 		r.library = {gui: r};
