@@ -1,3 +1,5 @@
+// ocb z exeptions i parameters w graphie ???
+
 "use strict"; 
 //url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
 function Controler(url, gui){
@@ -7,8 +9,15 @@ function Controler(url, gui){
 		var resultObject = {
 			currNodes : [],
 			paper : undefined,
+			data : undefined,
 			require: "sdb_json_array div raphael_x_500".split(" "),
-			generateData : function generateData(node, n){
+			init: function init(){
+				if( $("#repoNodes_"+pf).length === 0 ){
+					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
+					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+				}
+			},
+			convertData : function generateData(node, n){
 				var result = visualiser.getBlankNode();
 				result.id = node.nodeId;
 				result.label = node.nodeLabel;
@@ -24,22 +33,24 @@ function Controler(url, gui){
 
 				return result;
 			},
-			draw: function draw(nodeArray){
+			setData : function setData(data){
+				if(data){
+					this.data = data;
+				}
+
+				return this;
+			},
+			draw: function draw(){
 				var tempNode,
 					that = this,
 					tmp,
 					n = -1
 				;
-
-				if( $("#repoNodes_"+pf).length === 0 ){
-					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
-					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
-				}
 				
 				this.clear();
 
-				$.each(nodeArray, function(k, v){
-					tempNode = that.generateData(v, ++n);
+				$.each(this.data, function(k, v){
+					tempNode = that.convertData(v, ++n);
 					tmp = visualiser.draw_serviceNode(tempNode, that.paper, true).switchToDFMode();
 					tmp.raph_label.attr({cursor: "pointer"}).dblclick(function(){
 						gui.controler.reactOnEvent("AddServiceFromRepoToCanvas", v);
@@ -52,117 +63,64 @@ function Controler(url, gui){
 
 					that.currNodes.push(tmp);
 				});
+
+				return this;
 			},
 			clear: function clear(){
 				if(this.paper){
 					this.paper.clear();
 					this.currNodes.length = 0;
 				}
+
+				return this;
 			}
 		}
 
 		return resultObject;
 	}
-
 	function initLogger(paper){
-		/* user console
+		/* juniLOGGER v1.0
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
 		var h = paper.height,
-			dId = "#console_" + pf,
-			button = paper.set(),
-			buttonBG = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+			lId = "#console_" + pf,
+			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
+			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
+			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
+			buttonBG = paper.path(bPath).attr({
 				fill : "#222",
 				"fill-opacity": .75
 			});
-		button.push(buttonBG);
 		//images
 		var iImg = paper.image('images/info.png', paper.width - 152, 4, 15, 15),
 			wImg = paper.image('images/warning.png', paper.width - 112, 4, 15, 15),
 			eImg = paper.image('images/error.png', paper.width - 72, 4, 15, 15);
-		button.push(iImg);
-		button.push(wImg);
-		button.push(eImg);
 		//counters
 		var iCounter = paper.text(paper.width - 125, 11, "0").attr({fill: "white"}),
 			wCounter = paper.text(paper.width - 85, 11, "0").attr({fill: "yellow"}),
 			eCounter = paper.text(paper.width - 45, 11, "0").attr({fill: "orange"});
-		button.push(iCounter);
-		button.push(wCounter);
-		button.push(eCounter);
-		var buttonMask = paper.rect(paper.width - 170, -25, 150, 50, 25).attr({
+		//button mask
+		var mask = paper.path(bPath).attr({
 			fill : "#222",
 			"fill-opacity": 0.0
 		});
-		//console object
-		var obj = {
-			lId : dId,
-			mask : buttonMask,
-			button : button,
-			bImgs : [iImg, wImg, eImg],
-			bCount : [iCounter, wCounter, eCounter],
-			buttonBG : buttonBG,
-			bGlow : null,
-			counter : [0, 0, 0],
-			animation : null,
-			dIds : [],
-			dTypes : [],
-			curElCount : 0,
-			actionTaken : false,
-			info : function(i){
-				this.counter[0]++;
-				this.bCount[0].remove();
-				this.bCount[0] = paper.text(paper.width - 125, 11, this.counter[0]).attr({fill: "white"});
-				this.button.push(this.bCount[0]);
-				this.mask.toFront();
-				//here adding to div and dTabs
-				this.addMessage(i, 0);
-			},
-			warning : function(w){
-				this.counter[1]++;
-				this.bCount[1].remove();
-				this.bCount[1] = paper.text(paper.width - 85, 11, this.counter[1]).attr({fill: "yellow"});
-				this.button.push(this.bCount[1]);
-				if(this.bGlow) this.bGlow.remove();
-				this.bGlow = this.buttonBG.glow().attr({fill : "#FFFF00"});
-				this.mask.toFront();
-				//here adding to div and dTabs
-				this.addMessage(w, 1);
-			},
-			error : function(e){
-				this.counter[2]++;
-				this.bCount[2].remove();
-				this.bCount[2] = paper.text(paper.width - 45, 11, this.counter[2]).attr({fill: "orange"});
-				this.button.push(this.bCount[2]);
-				if(this.bGlow) this.bGlow.remove();
-				this.bGlow = this.buttonBG.glow(10, true).attr({fill : "#FF0000"});
-				this.mask.toFront();
-				//here adding to div and dTabs
-				this.addMessage(e, 2);
-				//pulse
-				var fade = function(o){
-					if(o.buttonBG.attr("fill-opacity")==1){
-						o.buttonBG.animate({"fill-opacity": 0.4}, 700);
-					}else{
-						o.buttonBG.animate({"fill-opacity": 1}, 700);
-					}
-				};
-				if(this.animation) clearInterval(this.animation);
-				this.animation = setInterval((function(that){
-					return function(){
-						fade(that);
-					}
-				})(this),750);
-			},
-			addMessage : function(message, priority){
-				this.curElCount++;
-				var divId = "console_row_" + this.curElCount;
-				var colors = ['#FAFAFF','#FFFFE0','#FFFAFA'];
-				var txtColors = ['white','yellow','orange'];
-				var imgNames = ['info','warning','error'];
-				this.dIds.push(divId);
-				this.dTypes.push(priority);
+		//private variables
+		var counter = [0, 0, 0],
+			bImgs = [iImg, wImg, eImg],
+			bCount = [iCounter, wCounter, eCounter],
+			buttonBG = buttonBG,
+			bGlow = null,
+			animation = null,
+			curElCount = 0,
+			actionTaken = false,
+			colors = ['#FAFAFF','#FFFFE0','#FFFAFA'],
+			txtColors = ['white','yellow','orange'],
+			imgNames = ['info','warning','error'];
+		//private functions
+		var addMessage = function(message, priority){
+				curElCount++;
+				var divId = "console_row_" + curElCount;
 				var divString = [];
 				divString.push("<div id='");
 				divString.push(divId);
@@ -175,64 +133,96 @@ function Controler(url, gui){
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
-				divString.push(this.curElCount);
-				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
-				divString.push(this.curElCount);
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push(curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
-				$(divString).prependTo($(this.lId));
-				var checkId = "#cCheck_"+this.curElCount;
-				var that = this;
-				var nr = this.curElCount;
-				$(checkId).click((function(that){
-					return function(){
-						that.actionTaken = true;
-					}
-				})(this));
-				var delId = "#cCancel_"+this.curElCount;
-				$(delId).click((function(that){
-					return function(){
-						that.actionTaken = true;
-						that.counter[priority]--;
-						that.bCount[priority].remove();
-						that.bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, that.counter[priority]).attr({fill: txtColors[priority]});
-						that.button.push(that.bCount[priority]);
-						that.mask.toFront();
-						delId = "#console_row_" + nr;
-						console.log(delId);
-						$(delId).remove();
-					}
-				})(this));
+				$(divString).prependTo($(lId));
+				var nr = curElCount;
+				var delId = "#cCancel_"+curElCount;
+				$(delId).click(function(){
+					actionTaken = true;
+					counter[priority]--;
+					bCount[priority].remove();
+					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
+					mask.toFront();
+					delId = "#console_row_" + nr;
+					$(delId).remove();
+				});
+			},
+			fade = function(){
+				if(buttonBG.attr("fill-opacity")==1){
+					buttonBG.animate({"fill-opacity": 0.4}, 700);
+				}else{
+					buttonBG.animate({"fill-opacity": 1}, 700);
+				}
+			};
+		//console object
+		var obj = {
+			info : function info(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
+				counter[0]++;
+				bCount[0].remove();
+				bCount[0] = paper.text(paper.width - 125, 11, counter[0]).attr({fill: "white"});
+				mask.toFront();
+				//here adding to div and dTabs
+				addMessage(text, 0);
+			},
+			warning : function warn(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
+				counter[1]++;
+				bCount[1].remove();
+				bCount[1] = paper.text(paper.width - 85, 11, counter[1]).attr({fill: "yellow"});
+				if(bGlow) bGlow.remove();
+				bGlow = buttonBG.glow().attr({fill : "#FFFF00"});
+				mask.toFront();
+				//here adding to div and dTabs
+				addMessage(text, 1);
+			},
+			error : function err(text, title){
+				text = text || "(an empty string)";
+				if(title) text = "<b>"+title+"</b><br/>" + text;
+				counter[2]++;
+				bCount[2].remove();
+				bCount[2] = paper.text(paper.width - 45, 11, counter[2]).attr({fill: "orange"});
+				if(bGlow) bGlow.remove();
+				bGlow = buttonBG.glow(10, true).attr({fill : "#FFFF00"});
+				mask.toFront();
+				//here adding to div and dTabs
+				addMessage(text, 2);
+				//pulse
+				if(animation) clearInterval(animation);
+				animation = setInterval(fade, 750);
 			}
 		};
 		//event handling
-		$(dId).click(function(){
-			if(obj.actionTaken){
-				obj.actionTaken = false;
+		$(lId).click(function(){
+			if(actionTaken){
+				actionTaken = false;
 			}else{
-				$(dId).animate({
+				$(lId).animate({
 					height: 0
 				});
 			}
 		});
-		obj.mask.click(function(){
-			$(dId).animate({
+		mask.click(function(){
+			$(lId).animate({
 				height: h
 			});
 		});
-		obj.mask.mouseover(function(){
-			if(obj.bGlow) obj.bGlow.remove();
-			if(obj.animation) clearInterval(obj.animation);
-			obj.buttonBG.animate({"fill-opacity": 0.75}, 500);
-			obj.bGlow = obj.buttonBG.glow();
+		mask.mouseover(function(){
+			if(bGlow) bGlow.remove();
+			if(animation) clearInterval(animation);
+			buttonBG.animate({"fill-opacity": 0.75}, 500);
+			bGlow = buttonBG.glow();
 		});
-		obj.mask.mouseout(function(){
-			obj.bGlow.remove();
+		mask.mouseout(function(){
+			bGlow.remove();
 		});
 		return obj;
 	}
-
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* SSDL Graph Deployment v0.64
 		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -663,98 +653,115 @@ function Controler(url, gui){
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
-	function subgraphTree(){
+	function navigator(){
 		var tmp = {
-			name: "subgraphTree",
+			name: "navigator",
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
 			data: null,
 			tree: null,
-			parent: gui.controler,
 			globalEvents: ["load"],
 			localEvents: ["select"],
 			require: "ssdl_JSON div".split(" "),
-			counter: 0, //zmienna potrzebna ze względu na dziwactwo wtyczki jsTree
-			draw: function draw(){
-				var that = this;
-
-				if( $("#subgraphTree_"+pf).length === 0 ){
-						$("#left_plugins_"+pf).prepend("<div id='subgraphTree_"+pf+"' class='plugin_"+pf+"'> </div>");
-						// alert($("#left_plugins_"+pf+" div").length)
+			currentIdsAndLabels: {},
+			init : function init(){
+				if( $("#navigator_"+pf).length === 0 ){
+					$("#left_plugins_"+pf).prepend("<div id='navigator_"+pf+"' class='plugin_"+pf+"'' style='overflow:hidden'> </div>");
 				}
+			},
+			setData : function setData(data){
+				if(data){
+					this.data =  this.convert(data)
+				}
+			},
+			setCurrent: function setCurrent(id){
+				var $theOne = $("ul#navigator span#"+ id);
 
-				if(this.parent.current_graphData){
-					this.data = this.convert(this.parent.current_graphData);
-					// console.log(this.data)
+				if($theOne.length === 1){
+					$("li.navigatorElement span").removeClass("selectedLI");
+					$theOne.addClass("selectedLI");
+				}
+			},
+			draw: function draw(){
+				if(this.data){
+					var that = this;
+					// console.log(this.data);
+					currentIdsAndLabels : {};
 					// if(this.data.children.length > 0)
-					// this.data.children[0].children.push( {data:"BUM"} );
+					// 	this.data.children[0].children.push( {id:"BUM", label: "BIMBAM"} );
 					
-						var out = (function(data){
+					var out = (function(data){
 						var tab = [];
 
 						tab.push("<ul id='navigator'>");
-							tab.push("<li class='navigatorElement'><img id='img_navigator_root' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+data.data+"</span></li>");
+						tab.push("<li class='navigatorElement'><img id='img_navigator|"+data.id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span id='"+data.id+"'>"+data.id+"</span></li>");
 
-							(function inner(data, id){
-								tab.push("<ul id='"+id+"'>");
-									$.each(data.children, function(){
-										if(this.children && this.children.length > 0){
-											tab.push("<li class='navigatorElement'><img id='img_"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span>"+this.data+"</span></li>");
-												inner(this, id+"_"+this.data);
-										}
-										else {
-											tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span>"+this.data+"</span></li>");
-										}
-									});
-								tab.push("</ul>");
-							})(data, 'navigator_root');
+						that.currentIdsAndLabels[data.id] = data.label || data.id;
+
+						(function inner(data, id){
+							tab.push("<ul id='"+id+"'>");
+								$.each(data.children, function(){
+									if(this.children && this.children.length > 0){
+										tab.push("<li class='navigatorElement'><img id='img|"+id+"' src='images\\arrow_next.png' class='img_hasChildren' style='width: 10px'/><span id='"+this.id+"'>"+this.label+"</span></li>");
+											inner(this, id+"|"+this.id);
+									}
+									else {
+										tab.push("<li class='navigatorElement'><img src='images\\white.gif' class='img_noChildren' style='visibility: hidden;height: 10px; width: 10px'/><span id='"+this.id+"'>"+this.label+"</span></li>");
+									}
+									that.currentIdsAndLabels[this.id] = this.label || this.id;
+								});
+							tab.push("</ul>");
+						})(data, 'navigator|'+data.id);
 						tab.push("</ul>");
 
 						return tab.join("");
-						})(this.data);
+					})(this.data);
 
-						$("#subgraphTree_"+pf).html(out);
+					$("#navigator_"+pf).html(out);
 
-						$("img.img_hasChildren").click(function(){
-							var $ul = $(this).parent().next();
-							$ul.toggle( 150 );
+					$("img.img_hasChildren").click(function(){
+						var $ul = $(this).parent().next();
+						$ul.toggle( 150 );
+						// dodać zmianę img
 
-							return false;
-						});
+						return false;
+					});
 
-						$("li.navigatorElement").click(function(){
-							if(! $(this).find("span").hasClass("selectedLI") ){
-								$("li.navigatorElement span").removeClass("selectedLI");
-								$(this).find("span").addClass("selectedLI");
+					$("li.navigatorElement").click(function(){
+						var $this = $(this);
+						if(! $this.find("span").hasClass("selectedLI") ){
+							$("li.navigatorElement span").removeClass("selectedLI");
+							$this.find("span").addClass("selectedLI");
 
-								gui.controler.reactOnEvent("SwitchCurrentView", {id: $(this).text(), parent_id: $(this).parent().attr("id")})
-							}
-							return false;
-						});
+							// console.log($(this).parent().find("img").attr("id").split("|")[1]);
+							gui.controler.reactOnEvent("SwitchCurrentGraph", {id: $this.parent().attr("id")+"|"+$this.find("span:first").attr("id")})
+						}
+						return false;
+					});
 
-						$("li.navigatorElement:first").click();
+					$("li.navigatorElement:first").click();
 				}
 			},
 			convert: function convert(json, id, str){
-				var n = json.nodes;
-				var output_json = {
-					data: (id ? id : "root"), 
-					attr: {id: (id ? id : "root") },
-					state: "open",
-					children: []
-				};
+				// alert(json.id)
+				var n = json.nodes,
+					id = json.id,
+					output_json = {
+						id: (id ? id : "root"), 
+						children: []
+					};
 				str = ((str ? str : "") + (id ? id : "root"))
 				$.each(n, function(){
 					if(this.subgraph && this.subgraph.nodes && this.subgraph.nodes.length > 0){						
 						var currNode = {};
-						currNode.data = this.nodeId;
-						currNode.attr = { id: "subgraphTree_"+pf+"_"+this.nodeId};
-						currNode.state = "open";
+						currNode.id = this.nodeId;
+						currNode.label = this.nodeLabel;
 						currNode.children = convert(this.subgraph).children;
 						output_json.children.push(currNode);
 					}
 				});
+				// console.log(output_json);
 				
 				return output_json;
 			}	
@@ -763,54 +770,62 @@ function Controler(url, gui){
 		
 		return tmp;
 	}
-	function repository(data){
-		if(data.constructor != "[object XMLDocument]")
-			return false;
-		else {
-			var tmp = {
-				name: "repository",
-				version: "1.0",
-				author: "Author",
-				dataType: 'xml',
-				data: data,
-				paper: undefined,
-				globalEvents: ["load"],
-				require: "div canvas".split(" "),
-				localEvents: ["select"],
-				draw : function draw(){
+	function repository(){
+		var tmp = {
+			name: "repository",
+			version: "1.0",
+			author: "Author",
+			dataType: 'xml',
+			data: undefined,
+			globalEvents: ["load"],
+			require: "div canvas".split(" "),
+			localEvents: ["select"],
+			init: function init(){
+				if( $("#repository_"+pf).length === 0 ){
+					$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"' style='overflow:hidden;'> </div>");
+				}
+			},
+			setData : function setData(data){
+				//na przyszłość wymagane więcej walidacji
+				if(data && data.constructor == "[object XMLDocument]"){
+					this.data = data;
+				}
+
+				return this;
+			},
+			draw : function draw(){
+				if(this.data){
 					var html = [],
 						name,
 						url,
 						that = this;
+					;
 
-					if( $("#repository_"+pf).length === 0 ){
-						$("#right_plugins_"+pf).append("<div id='repository_"+pf+"' class='plugin_"+pf+"'> </div>");
-						//this.paper = Raphael("repository_"+pf, canvas_width, h);
-					}
-
-					$(data).find("list element").each(function(){
+					$(this.data).find("list element").each(function(){
 						name = $(this).find("name").text();
 						url = $(this).find("url").text();
 						html.push("<a href='"+url+"' class='repository_link_"+pf+"'>"+name+"</a><br/>");
 					});
 					
-					$("#repository_"+pf).html(html.join(""));
+					$("#repository_"+pf).html( html.join("") );
 					
-					$(".repository_link_"+pf).click(function(){
-						gui.controler.reactOnEvent("EditService", {url: this.href});
-
+					var $repository_links = $(".repository_link_"+pf);
+					$repository_links.click(function(){
+						$repository_links.removeClass("selectedRepoNodes")
+						gui.controler.reactOnEvent("LoadAndEditCompoundService", {url: this.href, title: this.textContent});
+						$(this).addClass("selectedRepoNodes");
 						return false;
 					});
 
+					$($("a")[4]).click();
+					// $("a:last").click();
 				}
+
+				return this;
 			}
-
-			tmp.draw();
-
-			 // $("a:first").click(); //od razu wczytanie pierwszego serwisu
-			
-			return tmp;
 		}
+
+		return tmp;
 	}
 	var controlerObject = {
 		plugins : [],
@@ -820,8 +835,201 @@ function Controler(url, gui){
 		init: function init(){
 			this.initPlugins();
 		},
+		getGraphById : function getGraphById(id){
+			var result;
+			$.each(this.graphData_tab, function(){
+				if(id === this.id){
+					result = this;
+					return false;
+				}
+			});
+
+			return result;
+		},
 		deploy : deploy,
 		initLogger : initLogger,
+		changeCurrentGraphData : function changeCurrentGraphData(id){
+			var result;
+			$.each(this.graphData_tab, function(){
+				if(this.id === id){
+					result = this;
+					return false;
+				}
+			});
+			if(result){
+				this.current_graphData = result;
+			}
+		},
+		reactOnEvent : function reactOnEvent(evtType, evtObj){
+			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
+			var that = this;
+			switch(evtType.toUpperCase()){
+				case "EDITSERVICE" : (function (e) {
+					if(e && e.url){
+						that.loadSSDL(e.url);
+					}
+				})(evtObj); break;
+				case "SELECT" : (function (e) {
+					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
+				})(evtObj); break;
+				case "DESELECT" : (function () {
+					gui.view.deselectAll();
+				})(); break;
+				case "ADDCFEDGE" : (function(e){
+					var target = gui.controler.getNodeById(e.target.id);
+					// alert(e.target.id)
+					target.sources.push( e.source.id );
+					var edge = gui.view.addCFEdge(e);
+					gui.view.current_graph_view.edgesCF.push(edge);
+				})(evtObj); break;
+				case "ADDDFEDGE" : (function(e){
+					var input = gui.controler.getInputById(e.targetId, e.input.id);
+					if(input){
+						input.source = [e.sourceId, e.output.id];
+					} else {
+						a(e.targetId+":"+e.input.id);
+					}
+					var edge = gui.view.addDFEdge(e);
+					gui.view.current_graph_view.edgesDF.push(edge);					
+				})(evtObj); break;
+				case "NODEMOVED" : (function(){
+					gui.view.updateEdges();
+				})(); break;
+				case "SWITCHMODE" : (function(e){
+					gui.view.switchMode(e.mode);
+				})(evtObj); break;
+				case "ADDSTARTSTOPAUTOMATICALLY" : (function(){
+					var result = that.addStartStop();
+					if( result ){
+						gui.view.addStartStop(result);
+					}
+				})(); break;
+				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
+					e.nodeId = gui.controler.generateId();
+					// alert(e.nodeId)
+					e = $.extend(true, {}, e);
+					e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
+					e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
+
+					that.current_graphData.nodes.push(e)
+					gui.view.addNodeFromRepo(e);
+				})(evtObj); break;
+				case "EDITNODE" : (function(e){
+					if(e && e.nodeId){
+						// alert(e.nodeId)
+						var node = that.getNodeById(e.nodeId);
+						gui.view.editNode(node);
+					}
+				})(evtObj); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					alert("inside try to save...");
+				})(evtObj); break;
+				case "START" : (function(){
+					that.load(url, function fun_success(list){
+						that.repository.setData(list).draw();
+					});
+					that.load("get_all_atomic_service.xml", function fun_success(sdb){
+						var parsedSDB = that.parseSDBetaArray(sdb);
+						that.repoNodes.setData(parsedSDB).draw();
+					});
+				})(); break;
+				case "LOADANDEDITCOMPOUNDSERVICE" : (function(e){
+					that.load(e.url, (function(ssdl){
+						var tab = [],
+							ssdl_json = this.convert(ssdl, e.title);
+							// raport(this.convertJSON2XML(ssdl_json, true));
+
+						// if( true )
+						// 	this.current_graphData = ssdl_json;
+
+						// rozwal na tablice
+						(function splitOnSubgraph(graph, id, isRoot){
+							$.each(graph.nodes, function(){
+								if(this.subgraph.nodes){
+									splitOnSubgraph(this.subgraph, this.nodeId);
+								}
+							});
+							graph.id = (id || graph.id);
+							graph.isRoot = isRoot;
+							//delete graph.subgraph;
+							tab.push(graph);
+
+						})(ssdl_json, e.title, true);
+
+						//walidacja
+						//save current data, graph_view
+						//delete all graphViews
+
+						// gui.view.
+						gui.view.removeAllGraphs();
+						gui.view.setBlankGraphAsCurrent()
+
+						this.graphData_tab = tab;
+						this.current_graphData = tab[ tab.length-1 ];
+
+						gui.view.parseAndSetDataModelToView(this.graphData_tab);
+						
+						this.reactOnEvent("SSDLLoaded", ssdl);
+
+					}).bind(that) );
+				})(evtObj); break;
+				case "SWITCHCURRENTGRAPH" : (function (e) {
+					// --- kod dla wtyczki navigator
+					if(e && e.id && (typeof e.id === "string") && e.id.substring(e.id.lastIndexOf("|")+1 !== that.current_graphData.id)){
+						var tab_nav = e.id.split("|");
+							tab_nav.splice(0, 1);
+						var tab_copy = $.extend(true, [], tab_nav),
+							id = tab_nav[ tab_nav.length-1 ],
+							id_string = "",
+							labels = that.navigator.currentIdsAndLabels;
+							$.each(tab_nav, function(k, v){
+								id_string += "|"+v;
+								tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem"+id_string+"'>"+(labels[v] || v)+"</a>";
+							});
+							tab_nav = tab_nav.join(" \\ ");
+
+						$("div#top_nav_"+pf+" span").html(tab_nav);
+
+						$("a.top_nav_element").click(function(){
+							var lastIndexOf = this.id.lastIndexOf("|"),
+								id = this.id.substring(lastIndexOf+1)
+							;
+							that.reactOnEvent("SWITCHCURRENTGRAPH", {id: this.id});
+							that.navigator.setCurrent(id)
+						});
+
+						gui.view.changeCurrentGraphView(id);
+						that.changeCurrentGraphData(id);
+					}
+
+				})(evtObj); break;
+				case "SSDLLOADED" : (function(e){
+					that.navigator.setData(that.current_graphData)
+					that.navigator.draw();
+				})(evtObj); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					//e = zwrócony JSONek
+					//TUTAJ JACKOWA WALIDACJA i,jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
+					if(!e.nodeId || e.nodeId==="") { //to jest blank
+						e.generateId();
+						//x, y -> skąd?
+						var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100);
+						gui.view.current_graph_view.nodes.push(graphNode);
+						that.current_graphData.nodes.push(e);
+					}
+					else{ //to nie jest blank
+						//node = getNodeById(e.nodeId)
+						//update danych w node z e
+						//update widoku
+					}
+				})(evtObj); break;
+				case "ADDBLANKNODE" : (function(e){
+					gui.view.addBlankNode(e); //
+				})(evtObj); break;
+
+
+			}
+		},
 		load: function load(sUrl, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
@@ -870,42 +1078,13 @@ function Controler(url, gui){
 		xmlToString: function xmlToString(xml){
 			return (new XMLSerializer()).serializeToString(xml);
 		},
-		loadSSDL : function loadSSDL(url){ 
-			var that = this;
-			this.load(url, function(ssdl){
-				var ssdl_json = that.convert(ssdl);
-				//raport(JSON.stringify(ssdl_json));
-				if ( true ) //that.validate_ssdl(ssdl_json))
-					that.current_graphData = ssdl_json;//.nodes[3].subgraph;
-					gui.view.drawGraph(gui.controler.current_graphData);
-					
-				// alert(that.plugins)
-				$.each(that.plugins, function(){
-					this.draw();
-				});
-
-				that.reactOnEvent("SSDLLoaded");
-			});
-		},
 		initPlugins : function initPlugins(){
-			var that = this,
-				repo,
-				sdb
-				;
-
-			this.load(url, function fun_success(list){
-				repo = repository(list, gui.view.columnParams.rightCol.width);
-				that.plugins.push(repo);
-				that.plugins.push( subgraphTree() );
-			});
-
-
-			this.repoNodes = repoNodes(gui.view.visualiser);
-
-			this.load("get_all_atomic_service.xml", function fun_success(sdb){
-				var parsedSDB = that.parseSDBetaArray(sdb);
-				that.repoNodes.draw( parsedSDB );
-			});
+			this.repository = repository(gui.view.columnParams.rightCol.width);
+			this.repository.init();
+			this.repoNodes = repoNodes( gui.view.visualiser );
+			this.repoNodes.init();
+			this.navigator = navigator();
+			this.navigator.init();
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;
@@ -998,7 +1177,7 @@ function Controler(url, gui){
 
 					this.current_graphData.nodes.unshift(start, stop);
 					
-					result = true;
+					result = {start: start, stop: stop};
 				}
 
 				return result;
@@ -1016,8 +1195,10 @@ function Controler(url, gui){
 					tab.push("0");
 				tab.push(num);
 
+			var outputId = tab.join("");
 			return tab.join("");
 		},
+<<<<<<< HEAD
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
@@ -1123,6 +1304,8 @@ function Controler(url, gui){
 				})(evtObj); break;
 			}
 		},
+=======
+>>>>>>> origin/master
 		parseSDBetaArray : function parseSDBetaArray(sdb){
 			var tab = [],
 				that = this,
@@ -1220,15 +1403,203 @@ function Controler(url, gui){
 
 			return tab;
 		},
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
+			
+			function parseGraph(subgraph, tabulacja){
+				// alert(++i);
+				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
+				if(subgraph.nodes && subgraph.nodes.length > 0){
+					tabOutput.push(tabulacja+"<nodes>\n");
+					$.each(subgraph.nodes, function(key, node){
+						parseNode(key, node, tabulacja);
+					});
+					tabOutput.push(tabulacja+"</nodes>\n"); /* Koniec wierzchołków  w grafie */
+				} else {
+					tabOutput.push(tabulacja+"<nodes/>\n")
+				}
+				parseGraphAtributes(subgraph, tabulacja)
+			}
+			function parseGraphAtributes(graph, tabulacja){
+				/* Dane wejściowe  w grafie */
+				if (graph.inputVariables && graph.inputVariables.length > 0){
+					tabOutput.push(tabulacja+"<inputVariables>\n");
+						$.each(graph.inputVariables, function(key, inputVariable) {
+							tabOutput.push(tabulacja+"\t<inputVariable>\n");
+								tabOutput.push(tabulacja+"\t\t<name>" + (inputVariable.name || "") + "</name>\n");
+								tabOutput.push(tabulacja+"\t\t<value>" + (inputVariable.value || "") + "</value>\n");
+								tabOutput.push(tabulacja+"\t\t<type>" + (inputVariable.type || "") + "</type>\n");
+							tabOutput.push(tabulacja+"\t</inputVariable>\n");
+						});
+					tabOutput.push(tabulacja+"</inputVariables>\n");
+				} else {
+					tabOutput.push(tabulacja+"<inputVariables/>\n");
+				}
+				/* Koniec danych wejściowych  w grafie */
+
+				/* Paramertry niefunkcjonalne w grafie */
+				if (graph.nonFunctionalParameters && graph.nonFunctionalParameters.length > 0){
+					tabOutput.push(tabulacja+"<nonFunctionalParameters>\n");
+						$.each(graph.nonFunctionalParameters, function(key, nonFunctionalProperty) {
+							tabOutput.push(tabulacja+"\t<nonFunctionalProperty>\n");
+								tabOutput.push(tabulacja+"\t\t<weight>" + (nonFunctionalProperty.weight || "") + "</weight>\n");
+								tabOutput.push(tabulacja+"\t\t<unit>" + (nonFunctionalProperty.unit || "") + "</unit>\n");
+								tabOutput.push(tabulacja+"\t\t<value>" + (nonFunctionalProperty.value || "") + "</value>\n");
+								tabOutput.push(tabulacja+"\t\t<relation>" + (nonFunctionalProperty.relation || "") + "</relation>\n");
+								tabOutput.push(tabulacja+"\t\t<name>" + (nonFunctionalProperty.name || "") + "</name>\n");
+							tabOutput.push(tabulacja+"\t</nonFunctionalProperty>\n");
+						});
+					tabOutput.push(tabulacja+"</nonFunctionalParameters>\n");
+				} else {
+					tabOutput.push(tabulacja+"<nonFunctionalParameters/>\n");
+				}
+				/* Koniec parametrów niefunkcjonalnych w grafie */
+			}
+			function parseNode(key, node, tabulacja) {
+				// alert(node.nodeId)
+				/* Wierzchołki  w grafie */
+				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
+				tabOutput.push(tabulacja+"\t<node>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeId>" + (node.nodeId || "") + "</nodeId>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeLabel>" + (node.nodeLabel || "") + "</nodeLabel>\n");
+					tabOutput.push(tabulacja+"\t\t<nodeType>" + (node.nodeType || "") + "</nodeType>\n");
+					tabOutput.push(tabulacja+"\t\t<controlType>" + (node.controlType || "") + "</controlType>\n");
+					if(node.physicalDescription){
+						physicalDescription = node.physicalDescription;
+						tabOutput.push(tabulacja+"\t\t<physicalDescription>\n");
+							tabOutput.push(tabulacja+"\t\t\t<serviceName>" + (physicalDescription.serviceName || "") + "</serviceName>\n");
+							tabOutput.push(tabulacja+"\t\t\t<serviceGlobalId>" + (physicalDescription.serviceGlobalId || "") + "</serviceGlobalId>\n");
+							tabOutput.push(tabulacja+"\t\t\t<address>" + (physicalDescription.address || "") + "</address>\n");
+							tabOutput.push(tabulacja+"\t\t\t<operation>" + (physicalDescription.operation || "") + "</operation>\n");
+						tabOutput.push(tabulacja+"\t\t</physicalDescription>\n");
+					}
+					if(node.functionalDescription){
+						functionalDescription = node.functionalDescription;
+						tabOutput.push(tabulacja+"\t\t<functionalDescription>\n");
+							if (functionalDescription.serviceClasses && functionalDescription.serviceClasses.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<serviceClasses>\n");
+									$.each(functionalDescription.serviceClasses, function(key, serviceClass) {
+										tabOutput.push(tabulacja+"\t\t\t\t<serviceClass>" + (serviceClass || "") + "</serviceClass>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</serviceClasses>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<serviceClasses/>\n");
+							}
+							tabOutput.push(tabulacja+"\t\t\t<description>" + (functionalDescription.description || "") + "</description>\n");
+							if (functionalDescription.metaKeywords && functionalDescription.metaKeywords.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<metaKeywords>\n");
+									$.each(functionalDescription.metaKeywords, function(key, metaKeyword) {
+										tabOutput.push(tabulacja+"\t\t\t\t<metaKeyword>" + (metaKeyword || "") + "</metaKeyword>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</metaKeywords>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<metaKeywords/>\n");
+							}
+							if (functionalDescription.inputs && functionalDescription.inputs.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<inputs>\n");
+									$.each(functionalDescription.inputs, function(key, input) {
+										tabOutput.push(tabulacja+"\t\t\t\t<input>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<class>" + (input.class || "") + "</class>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<id>" + (input.id || "") + "</id>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<label>" + (input.label || "") + "</label>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<dataType>" + (input.dataType || "") + "</dataType>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<properties>" + (input.properties || "") + "</properties>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t<source>\n");
+												tabOutput.push(tabulacja+"\t\t\t\t\t\t<nodeId>" + (input.source[0] || "") + "</nodeId>\n");
+												tabOutput.push(tabulacja+"\t\t\t\t\t\t<outputId>" + (input.source[1] || "") + "</outputId>\n");
+											tabOutput.push(tabulacja+"\t\t\t\t\t</source>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t</input>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</inputs>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<inputs/>\n");
+							}
+							if (functionalDescription.inputs && functionalDescription.outputs.length > 0){
+								tabOutput.push(tabulacja+"\t\t\t<outputs>\n");
+									$.each(functionalDescription.outputs, function(key, output) {
+										tabOutput.push(tabulacja+"\t\t\t\t<output>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<class>" + (output.class || "") + "</class>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<id>" + (output.id || "") + "</id>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<label>" + (output.label || "") + "</label>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<dataType>" + (output.dataType || "") + "</dataType>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t\t<properties>" + (output.properties || "") + "</properties>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t</output>\n");
+									});
+								tabOutput.push(tabulacja+"\t\t\t</outputs>\n");
+							} else {
+								tabOutput.push(tabulacja+"\t\t\t<outputs/>\n");
+							}
+							tabOutput.push(tabulacja+"\t\t\t<preconditions>" + (functionalDescription.preconditions || "") + "</preconditions>\n");
+							tabOutput.push(tabulacja+"\t\t\t<effects>" + (functionalDescription.effects || "") + "</effects>\n");
+						tabOutput.push(tabulacja+"\t\t</functionalDescription>\n");
+					}
+					if(node.nonFunctionalDescription){
+						nonFunctionalDescription = node.nonFunctionalDescription
+						if (nonFunctionalDescription && nonFunctionalDescription.length > 0){
+							tabOutput.push(tabulacja+"\t\t<nonFunctionalDescription>\n");
+								$.each(nonFunctionalDescription, function(key, nonFunctionalProperty) {
+									tabOutput.push(tabulacja+"\t\t\t<nonFunctionalProperty>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<weight>" + (nonFunctionalProperty.weight || "") + "</weight>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<name>" + (nonFunctionalProperty.name || "") + "</name>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<relation>" + (nonFunctionalProperty.relation || "") + "</relation>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<unit>" + (nonFunctionalProperty.unit || "") + "</unit>\n");
+										tabOutput.push(tabulacja+"\t\t\t\t<value>" + (nonFunctionalProperty.value || "") + "</value>\n");
+									tabOutput.push(tabulacja+"\t\t\t</nonFunctionalProperty>\n");
+								});
+							tabOutput.push(tabulacja+"\t\t</nonFunctionalDescription>\n");
+						} else {
+							tabOutput.push(tabulacja+"\t\t<nonFunctionalDescription/>\n");
+						}
+					}
+					tabOutput.push(tabulacja+"\t\t<alternatives>" + (node.alternatives || "") + "</alternatives>\n");
+					
+					if(node.subgraph && node.subgraph.nodes){
+						tabOutput.push(tabulacja+"\t\t<subGraph>\n");
+						parseGraph(node.subgraph, tabulacja+"\t\t\t");
+						tabOutput.push(tabulacja+"\t\t</subGraph>\n");
+					}
+					else 
+						tabOutput.push(tabulacja+"\t\t<subGraph>" + (false || "") + "</subGraph>\n");
+
+					tabOutput.push(tabulacja+"\t\t<controlType>" + (false || "") + "</controlType>\n");
+					tabOutput.push(tabulacja+"\t\t<condition>" + (node.condition || "") + "</condition>\n");
+					if(node.sources){
+						tabOutput.push(tabulacja+"\t\t<sources>\n");
+							$.each(node.sources, function(key, source) {
+								tabOutput.push(tabulacja+"\t\t\t<source>" + source + "</source>\n");
+							});
+						tabOutput.push(tabulacja+"\t\t</sources>\n");
+					}
+				tabOutput.push(tabulacja+"\t</node>\n");
+			}
+
+
+			var tabOutput = [],
+				physicalDescription,
+				functionalDescription,
+				nonFunctionalDescription,
+				i = 0;
+			;
+			// console.log(jsonFormatter(json, true))
+			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			parseGraph(json, "\t");
+			tabOutput.push("</graph>");
+
+			var stringXML = tabOutput.join("");
+
+			if(!humanFriendly)
+				stringXML = stringXML.replace(/\t</g, "").replace(/\n/g, "");
+
+			return stringXML;
+		},
 		convert : function convert(ssdl, id){ // converst ssdl into json
 			//alert("convert"+":"+ssdl);
 			var Graph = {};
 			Graph.id = id ? id : "root";
 			Graph.nodes = [];
 			
-			(id ? ssdl : $(ssdl)).
-			find("nodes node:first, nodes node:first ~ node").
-			each(function(){
+			$(ssdl)
+			.find("nodes node:first, nodes node:first ~ node")
+			.each(function(){
 				var _this = $(this);
 				var node = {};
 				node.nodeId = _this.find("nodeId:first").text();
@@ -1300,9 +1671,9 @@ function Controler(url, gui){
 					node.subgraph = {};
 				
 				if(_this.find("subGraph:first nodes").length > 0){
-					var tmp = _this.find("subGraph:first");			
+					var tmp = _this.find("subGraph:first");
 					node.subgraph = {};
-					var t = convert(tmp, node.nodeId);			
+					var t = convert(tmp[0], node.nodeId);			
 					node.subgraph.nodes = t.nodes;
 					node.subgraph.inputVariables = t.inputVariables;
 					node.subgraph.nonFunctionalParameters = t.nonFunctionalParameters;
@@ -1354,8 +1725,78 @@ function Controler(url, gui){
 					
 			// console.log(Graph)
 			return Graph;
+		},
+		getRoot : function getRoot(){
+			var result;
+			for(var i = this.graphData_tab.length-1, j = -1; i > j; i-- ){
+				if(this.graphData_tab[i].isRoot){
+					result = this.graphData_tab[i];
+					break;
+				}
+			}
+
+			return result;
+		},
+		saveSSDL : function saveSSDL(){
+			// var idObj = {},
+			// 	gId,
+			// 	nId,
+			// 	that = this
+			// ;
+			// $.each(this.graphData_tab, function(key, graph){
+			// 	gId = graph.id;
+			// 	idObj[gId] = {
+			// 		graph : that.getGraphById(gId),
+			// 		ids : []
+			// 	};
+			// 	$.each(graph.nodes, function(){
+			// 		nId = this.nodeId;
+			// 		if(nId != "#Start" && nId != "#End"){
+			// 			idObj[gId].ids.push(this.nodeId);
+			// 		}
+
+			// 	})
+			// });
+
+			// var beenThere;
+			// $.each(idObj, function(key, val){
+			// 	beenThere = false;
+			// 	$.each(idObj, function(i, v){
+			// 		if(key !== i){
+			// 			$.each(v.ids, function(j, w){
+			// 				console.log(key, val, i, v, j, w)
+			// 				if(key === w){
+			// 					v.graph.subgraph = val;
+			// 					beenThere = true;
+			// 				}
+			// 			});	
+			// 		}
+			// 	});
+			// 	if(beenThere){
+			// 		delete idObj[key];
+			// 	}
+			// });
+
+			// tu przerwał i zobaczył, że każdy graf w tablicy i tak ma referencję do swojego subgraphu...
+			// zaczynamy inaczej:
+
+			var root = this.getRoot();
+			var xml = this.convertJSON2XML(root);
+			// this.save(url, 'xml', function(txt){
+				// gui.logger.info("Zapisano SSDL "+root.id);
+			// }, 'text', function(txt){
+				// gui.logger.info("Nie udało się zapisać SSDL "+root.id);
+			// })
+
+			raport(xml);
+
+			return xml;
 		}
 	}
 
+	controlerObject.reactOnEvent("START");
+
 	return controlerObject;
 }
+
+// 605307704

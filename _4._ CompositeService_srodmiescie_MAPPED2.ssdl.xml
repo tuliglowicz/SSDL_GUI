@@ -1,0 +1,807 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:///C:/Dropbox/SOA%20XML/Workflow%20Engine/SmartServiceExecutionGraph.xsd">
+	<nodes>
+		<node>
+			<nodeId>#Start</nodeId>
+			<nodeType>Control</nodeType>
+			<controlType>#start</controlType>
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			<condition></condition>
+			<sources>
+				<source></source>
+			</sources>
+			<functionalDescription>
+				<serviceClasses></serviceClasses>
+				<description>Start node</description>
+				<metaKeywords></metaKeywords>
+				<inputs></inputs>
+				<outputs>
+					<output>
+						<class>Message</class>
+						<id>BuildingMonitoringStarted</id>
+						<label>BuildingMonitoringStarted</label>
+						<dataType>Message</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>Object</class>
+						<id>MonitoredObject</id>
+						<label>MonitoredObject</label>
+						<dataType>Object</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+		</node>
+	
+		<node>
+			<nodeId>#End</nodeId>
+			<nodeType>Control</nodeType>
+			<controlType>#end</controlType>
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			<condition></condition>
+			<sources>
+				<source>Decryption</source>
+			</sources>	
+			<functionalDescription>
+				<serviceClasses>
+				</serviceClasses>
+				<description>End node</description>
+				<metaKeywords>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video</class>
+						<id>InputVideo</id>
+						<label>InputVideo</label>
+						<dataType>VideoData</dataType>
+						<properties />
+						<source>
+							<nodeId>Decryption</nodeId>
+							<outputId>OutputVideo</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+		</node>
+	
+	<!-- Pierwszy wierzchołek z procesu -->
+	
+		<node>
+			<nodeId>StartMonitoring</nodeId>
+			<nodeType>Event</nodeType>
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Monitoring</serviceClass>
+				</serviceClasses>
+				<description>Service starting the monitoring process</description>
+				<metaKeywords>
+					<metaKeyword>Monitoring</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Message</class>
+						<id>InputBuildingMonitoringStarted</id>
+						<label>InputBuildingMonitoringStarted</label>
+						<dataType>Message</dataType>
+						<properties />
+						<source>
+							<nodeId>#Start</nodeId>
+							<outputId>BuildingMonitoringStarted</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Object</class>
+						<id>InputMonitoredObject</id>
+						<label>InputMonitoredObject</label>
+						<dataType>Object</dataType>
+						<properties />
+						<source>
+							<nodeId>#Start</nodeId>
+							<outputId>MonitoredObject</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>VideoSensor</class>
+						<id>VideoSensor</id>
+						<label>VideoSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>MotionSensor</class>
+						<id>MotionSensor</id>
+						<label>MotionSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>Message</class>
+						<id>CCTVMonitoringStarted</id>
+						<label>CCTVMonitoringStarted</label>
+						<dataType>Message</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>#Start</source>
+			</sources>
+		</node>
+	
+		<node>
+			<nodeId>CCTVParameters</nodeId>
+			<nodeType>Function</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Monitoring</serviceClass>
+				</serviceClasses>
+				<description>Service sending CCTV monitoring parameters</description>
+				<metaKeywords>
+					<metaKeyword>Monitoring</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video Sensor</class>
+						<id>InputVideoSensor</id>
+						<label>InputVideoSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+						<source>
+							<nodeId>StartMonitoring</nodeId>
+							<outputId>VideoSensor</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Message</class>
+						<id>InputCCTVMonitoringStarted</id>
+						<label>InputCCTVMonitoringStarted</label>
+						<dataType>Message</dataType>
+						<properties />
+						<source>
+							<nodeId>StartMonitoring</nodeId>
+							<outputId>CCTVMonitoringStarted</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video Sensor</class>
+						<id>VideoSensor</id>
+						<label>VideoSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>Video Bitrate Value</class>
+						<id>VideoBitrateValue</id>
+						<label>VideoBitrateValue</label>
+						<dataType>Float</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>Color Scheme</class>
+						<id>ColorScheme</id>
+						<label>ColorScheme</label>
+						<dataType>RGB</dataType>
+						<properties />
+					</output>
+					<output>
+						<class>Codec</class>
+						<id>Codec</id>
+						<label>Codec</label>
+						<dataType>Codec</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>StartMonitoring</source>
+			</sources>
+		</node>
+	
+		<node>
+			<nodeId>CCTVRules</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Monitoring</serviceClass>
+				</serviceClasses>
+				<description>Service determining processing rules for the CCTV monitoring video</description>
+				<metaKeywords>
+					<metaKeyword>Monitoring</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video Sensor</class>
+						<id>InputVideoSensor</id>
+						<label>InputVideoSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+						<source>
+							<nodeId>StartMonitoring</nodeId>
+							<outputId>VideoSensor</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Message</class>
+						<id>InputCCTVMonitoringStarted</id>
+						<label>InputCCTVMonitoringStarted</label>
+						<dataType>Message</dataType>
+						<properties />
+						<source>
+							<nodeId>StartMonitoring</nodeId>
+							<outputId>CCTVMonitoringStarted</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video Processing</class>
+						<id>VideoProcessing</id>
+						<label>VideoProcessing</label>
+						<dataType>Rules</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>StartMonitoring</source>
+			</sources>
+		</node>
+	
+		<node>
+			<nodeId>CCTVTempStore</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Store</serviceClass>
+				</serviceClasses>
+				<description>Service temporarily storing the video from CCTV monitoring</description>
+				<metaKeywords>
+					<metaKeyword>Store</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video Sensor</class>
+						<id>InputVideoSensor</id>
+						<label>InputVideoSensor</label>
+						<dataType>Sensor</dataType>
+						<properties />
+						<source>
+							<nodeId>StartMonitoring</nodeId>
+							<outputId>VideoSensor</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Video Bitrate Value</class>
+						<id>InputVideoBitrateValue</id>
+						<label>InputVideoBitrateValue</label>
+						<dataType>Float</dataType>
+						<properties />
+						<source>
+							<nodeId>CCTVParameters</nodeId>
+							<outputId>VideoBitrateValue</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Color Scheme</class>
+						<id>InputColorScheme</id>
+						<label>InputColorScheme</label>
+						<dataType>RGB</dataType>
+						<properties />
+						<source>
+							<nodeId>CCTVParameters</nodeId>
+							<outputId>ColorScheme</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Codec</class>
+						<id>InputCodec</id>
+						<label>InputCodec</label>
+						<dataType>Codec</dataType>
+						<properties />
+						<source>
+							<nodeId>CCTVParameters</nodeId>
+							<outputId>Codec</outputId>
+						</source>
+					</input>
+					<input>
+						<class>Video Processing</class>
+						<id>InputVideoProcessing</id>
+						<label>InputVideoProcessing</label>
+						<dataType>Rules</dataType>
+						<properties />
+						<source>
+							<nodeId>CCTVParameters</nodeId>
+							<outputId>VideoProcessing</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video</class>
+						<id>Video</id>
+						<label>Video</label>
+						<dataType>VideoData</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<alternatives></alternatives>
+			<subGraph></subGraph>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>CCTVParameters</source>
+				<source>CCTVRules</source>
+			</sources>
+		</node>
+	<!--
+	//MAPOWANIE
+	//(raw video)->Coding->Ecnryption->Transmission->Decryption->(coded video)
+	//Location: srodmiescie
+	
+	//VIDEO CODING
+-->
+		<node>
+			<nodeId>Coding</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Process</serviceClass>
+				</serviceClasses>
+				<description>Video stream coding in CCTV monitoring</description>
+				<metaKeywords>
+					<metaKeyword>Video</metaKeyword>
+					<metaKeyword>Coding</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video</class>
+						<id>InputVideo</id>
+						<label>InputVideo</label>
+						<dataType>VideoData</dataType>
+						<properties />
+						<source>
+							<nodeId>CCTVTempStore</nodeId>
+							<outputId>Video</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video</class>
+						<id>OutputVideo</id>
+						<label>OutputCodedVideo</label>
+						<dataType>stream</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>CCTVTempStore</source>
+			</sources>
+		</node>
+		<!--
+	//VIDEO (coded) ENCRYPTION
+-->
+		<node>
+			<nodeId>Encryption</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Process</serviceClass>
+				</serviceClasses>
+				<description>Video stream encryption</description>
+				<metaKeywords>
+					<metaKeyword>Video</metaKeyword>
+					<metaKeyword>Encryption</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video</class>
+						<id>InputVideo</id>
+						<label>CodedVideo</label>
+						<dataType>Stream</dataType>
+						<properties />
+						<source>
+							<nodeId>Coding</nodeId>
+							<outputId>OutputVideo</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video</class>
+						<id>OutputVideo</id>
+						<dataType>stream</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>Coding</source>
+			</sources>
+		</node>
+	
+	<!-- //VIDEO (coded, encrypted) TRANSMISSION -->
+		<node>
+			<nodeId>Transmission</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Process</serviceClass>
+				</serviceClasses>
+				<description>Video stream transmission</description>
+				<metaKeywords>
+					<metaKeyword>Video</metaKeyword>
+					<metaKeyword>Transmission</metaKeyword>
+				</metaKeywords>
+				<inputs>	
+					<input>
+						<class>Video</class>
+						<id>InputVideo</id>
+						<label>EncryptedVideo</label>
+						<dataType>Stream</dataType>
+						<properties />
+						<source>
+							<nodeId>Encryption</nodeId>
+							<outputId>OutputVideo</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video</class>
+						<id>Output</id>
+						<dataType>stream</dataType>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>Encryption</source>
+			</sources>
+		</node>
+		
+	<!-- //VIDEO DECRYPTION -->
+	<node>
+			<nodeId>Decryption</nodeId>
+			<nodeType>Service</nodeType>
+			
+			<physicalDescription>
+				<serviceName></serviceName>
+				<serviceGlobalId></serviceGlobalId>
+				<address></address>
+				<operation></operation>
+			</physicalDescription>
+			
+			<functionalDescription>
+				<serviceClasses>
+					<serviceClass>Process</serviceClass>
+				</serviceClasses>
+				<description>Video stream decryption</description>
+				<metaKeywords>
+					<metaKeyword>Video</metaKeyword>
+					<metaKeyword>Decryption</metaKeyword>
+				</metaKeywords>
+				<inputs>
+					<input>
+						<class>Video</class>
+						<id>InputVideo</id>
+						<label>TrasmissionVideo</label>
+						<dataType>Stream</dataType>
+						<inputClass>Video</inputClass>
+						<properties />
+						<source>
+							<nodeId>Transmission</nodeId>
+							<outputId>OutputVideo</outputId>
+						</source>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<class>Video</class>
+						<id>OutputVideo</id>
+						<dataType>stream</dataType>
+						<outputClass>Video</outputClass>
+						<properties />
+					</output>
+				</outputs>
+				<preconditions>
+				</preconditions>
+				<effects>
+				</effects>
+			</functionalDescription>
+			<nonFunctionalDescription>
+				<nonFunctionalProperty>
+					<name>location</name>
+					<relation>eq</relation>
+					<unit>district</unit>
+					<value>srodmiescie</value>
+					<weight>1</weight>
+				</nonFunctionalProperty>
+				<nonFunctionalProperty>
+					<unit>$</unit>
+					<value>2</value>
+					<relation>eq</relation>
+					<name>cost</name>
+				</nonFunctionalProperty>
+			</nonFunctionalDescription>
+			<controlType></controlType>
+			<condition></condition>
+			<sources>
+				<source>Transmission</source>
+			</sources>
+		</node>
+	
+	<!-- //MAPOWANIE (koniec) -->
+	
+	</nodes>
+	
+		<inputVariables>
+	</inputVariables>
+	<qosParameters>
+		<qosParameter>
+			<weight>1</weight>
+			<unit>$</unit>
+			<value>10</value>
+			<relation>lt</relation>
+			<name>cost</name>
+		</qosParameter>
+	</qosParameters>
+	<parameters>
+	</parameters>
+	<exceptions>
+	</exceptions>
+</graph>

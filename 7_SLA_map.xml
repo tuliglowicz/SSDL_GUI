@@ -65,7 +65,7 @@
 			</physicalDescription>
 			<condition/>
 			<sources>
-				<source>CCTVSendStart</source>
+				<source>id001</source>
 			</sources>
 			<functionalDescription>
 				<serviceClasses/>
@@ -177,7 +177,7 @@
 		</node>
 		<!--MAPOWANIE -->	
 		<node>
-			<nodeId>CCTVSendStart</nodeId>
+			<nodeId>id001</nodeId>
 			<nodeType>StreamingWorkflowEngine</nodeType>
 			<nodeLabel>CCTVSendStart</nodeLabel>
 			<physicalDescription>
