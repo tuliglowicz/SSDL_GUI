@@ -79,7 +79,7 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* juniLOGGER v1.0
+		/* juniLOGGER v1.1
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
@@ -107,6 +107,8 @@ function Controler(url, gui){
 		});
 		//private variables
 		var counter = [0, 0, 0],
+			entries = [[],[],[]],
+			cCId = "#console_controller_"+pf,
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
 			buttonBG = buttonBG,
@@ -133,21 +135,27 @@ function Controler(url, gui){
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
+				divString.push(curElCount);
+				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
 				$(divString).prependTo($(lId));
-				var nr = curElCount;
+				entries[priority].push(curElCount);
 				var delId = "#cCancel_"+curElCount;
+				var checkId = "#cCheck_"+curElCount;
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
 					bCount[priority].remove();
 					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
 					mask.toFront();
-					delId = "#console_row_" + nr;
+					delId = "#console_row_"+curElCount;
 					$(delId).remove();
+				});
+				$(checkId).click(function(){
+					actionTaken = true;
 				});
 			},
 			fade = function(){
@@ -155,6 +163,18 @@ function Controler(url, gui){
 					buttonBG.animate({"fill-opacity": 0.4}, 700);
 				}else{
 					buttonBG.animate({"fill-opacity": 1}, 700);
+				}
+			},
+			appendAfter = function(addition, id){
+				var el = document.getElementById(id);
+				if(el){
+					if(el.nextSibling){
+						el.parentNode.insertBefore(addition, el.nextSibling);
+					}else{
+						el.parentNode.appendChild(addition);
+					}
+				}else{
+					console.log("DAFUQ?");
 				}
 			};
 		//console object
@@ -197,6 +217,20 @@ function Controler(url, gui){
 				animation = setInterval(fade, 750);
 			}
 		};
+		//adding control bar
+		var divString = [];
+		divString.push("<div id='");
+		divString.push("console_controller_"+pf);
+		divString.push("' style='border-bottom: thick solid #222; border-bottom-width: 1px; background-color: white");
+		divString.push("; padding: 2px;'>");
+		divString.push("<table width='100%' style='table-layout: fixed;'><tr>");
+		divString.push("<td valign='top' style='float: left;'>");
+		divString.push("<b>Konsola</b>");
+		divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_A");
+		divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_A");
+		divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+		divString = divString.join("");
+		$(divString).prependTo($(lId));
 		//event handling
 		$(lId).click(function(){
 			if(actionTaken){
