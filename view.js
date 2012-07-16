@@ -110,28 +110,42 @@ function View(id, width, height, gui){
 		temp.init();
 		return temp;
 	};
-	function blankNode(mainCanvas, visualiser){
+	function blankNode(){
 		var tmp = {
 			name: "blankNode",
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
-			data: null,
-			minCanvas: undefined,
 			globalEvents: ["load"],
 			localEvents: ["select"],
-			
-			draw: function draw(){
-				var clone, newRect, newCirc;
+
+			init: function init(){
+				var left, top, that;
 				if( $("#blankNodes_"+pf).length === 0 ){
 					$("#left_plugins_"+pf).append("<div id='blankNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
-					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.leftCol.width-1, 500);
+					this.dataSet = this.paper.set();
+					this.scroller = addSideScroller(this.paper);
+					left = $("#blankNodes_"+pf).position().left;
+					that = this;
+					this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
+					.attr({opacity: 0, fill: "ivory"})
+					.mouseover(function(){
+						that.scroller.showYourself();
+					})
+					.mouseout(function(evt, x, y){
+						top = $("#subgraphTree_"+pf).position().top + $("#subgraphTree_"+pf).height();
+						if(! that.cover.isPointInside(x-left, y-top))
+							that.scroller.goHide();
+					})
+					.toBack();
 				}
+			},
+			draw: function draw(){
 				var nodeLength = 135,
 					nodeHeight = 35,
 					nodeHorizontalPosition = this.paper.width/2 - nodeLength/2, 
-					textHorizontalPosition = this.paper.width/2,
-					fillColor, blankNode;
+					textHorizontalPosition = this.paper.width/2;
 				
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
@@ -140,26 +154,31 @@ function View(id, width, height, gui){
 					}
 				}
 
-				this.paper.text(textHorizontalPosition,10,"Service")
-					.node.setAttribute("class","repository_text");
+				this.dataSet.push(this.paper.text(textHorizontalPosition,10,"Service")
+					.node.setAttribute("class","repository_text"));
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
 					.attr({fill:"#fbec88"})
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
-				this.paper.text(textHorizontalPosition,80,"Functionality")
-					.node.setAttribute("class","repository_text");
+				this.dataSet.push(repo_service);
+				this.dataSet.push(this.paper.text(textHorizontalPosition,80,"Functionality")
+					.node.setAttribute("class","repository_text"));
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
 					.attr({fill:"#a6c9e2"})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
-				this.paper.text(textHorizontalPosition,150,"Mediator")
-					.hide();
-					// .node.setAttribute("class","repository_text");
+				this.dataSet.push(repo_functionality);
+				this.dataSet.push(this.paper.text(textHorizontalPosition,150,"Mediator")
+					.hide());
+					// .node.setAttribute("class","repository_text"));
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,160,nodeLength,nodeHeight,5)
 					.attr({fill:"white"})
 					.dblclick(onDblClick("Mediator"))
 					.hide();
-				repo_mediator.node.setAttribute("class","repository_element");				
+				repo_mediator.node.setAttribute("class","repository_element");	
+				this.dataSet.push(repo_mediator);
+
+				this.scroller.update(this.dataSet);
 			}
 		};
 		return tmp;
@@ -196,8 +215,8 @@ function View(id, width, height, gui){
 				createBar: function createBar(x, y, width, height){
 					var that = this;
 					
-					this.bar = paper.rect(x, y, width, height).
-						attr({fill:"grey", opacity: this.invisible})
+					this.bar = paper.rect(x, y, width, height)
+						.attr({fill:"grey", opacity: this.invisible})
 						.mouseover(function(){
 							that.isVisible = true;
 
@@ -565,6 +584,55 @@ function View(id, width, height, gui){
 		//Analogicznie pokazywanie elementu
 
 		return result;
+	};
+	function addSideScroller(paper){
+		var scroll = {
+			invisible: 0,
+			visible: .4,
+			animationTime: 100,
+			move: function move(set){
+				return function(dx, dy){
+					var ny = this.oy + dy;
+					if(ny > 0 && ny + this.attr("height") < paper.height){
+						this.attr({y: ny});
+						set.forEach(function(e){
+							ny = e.oy - dy;
+							e.attr({y: ny});
+						});
+					}
+				}
+			},
+			start: function start(set){
+				return function(x, y){
+					this.oy = this.attr("y");
+					// alert(set); alert(set.getBBox().height)
+					set.forEach(function(e){
+						e.oy = e.attr("y");
+					});
+				}
+			},
+			stop: function stop(){},
+			init: function init(){
+				this.slider = paper.rect(paper.width-5, 0, 5, paper.height*.75, 5)
+					.attr({"stroke-width":0, fill:"black", opacity: this.invisible});
+				this.set = paper.set();
+			},
+			update: function update(set){
+				this.set = set;
+				var bbox = this.set.getBBox();
+				// alert(this.set); alert(this.set.getBBox().height)
+				this.slider.attr({height: bbox.height});
+				this.slider.drag(this.move(this.set), this.start(this.set), this.stop);
+			},
+			showYourself: function showYourself(){
+				this.slider.animate({opacity: this.visible}, this.animationTime);	
+			},
+			goHide: function goHide(){
+				this.slider.animate({opacity: this.invisible}, this.animationTime);	
+			}
+		};
+		scroll.init();
+		return scroll;
 	};
 	function form() {
 		var resultJSON = {
@@ -2537,7 +2605,7 @@ function View(id, width, height, gui){
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
-	outputView.blankNodes = blankNode(outputView.paper, outputView.visualiser);
+	outputView.blankNodes = blankNode();
 
 	var	lastDragX,
 		lastDragY,

@@ -1106,7 +1106,7 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
-					//TUTAJ JACKOWA WALIDACJA i,jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
+					//TUTAJ JACKOWA WALIDACJA i, jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
 					if(e.nodeId==="") { //to jest blank
 						e.generateId();
 						//x, y -> skąd?
@@ -1114,7 +1114,8 @@ function Controler(url, gui){
 						gui.view.current_graph_view.nodes.push(graphNode);
 						that.current_graphData.nodes.push(e);
 					}
-					else{ //to nie jest blank
+					else{ 
+						//to nie jest blank
 						//node = getNodeById(e.nodeId)
 						//update danych w node z e
 						//update widoku
