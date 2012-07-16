@@ -1550,6 +1550,7 @@ function View(id, width, height, gui){
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
 				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
 
+				//TU BYDEM DZIABAŁ [Błażej] (Porządkowanie wyświetlania data flow)
 				var currIO;
 				for(var k = 0; k < input_length; k++){
 					currIO = node.inputs[k];
