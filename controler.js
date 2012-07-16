@@ -85,6 +85,7 @@ function Controler(url, gui){
 		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
+			eId = "#console_entries_" + pf,
 			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
 			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
 			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
@@ -141,7 +142,7 @@ function Controler(url, gui){
 				divString.push(curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
-				$(divString).prependTo($(lId));
+				$(divString).prependTo($(eId));
 				entries[priority].push(curElCount);
 				var delId = "#cCancel_"+curElCount;
 				var checkId = "#cCheck_"+curElCount;
@@ -165,17 +166,26 @@ function Controler(url, gui){
 					buttonBG.animate({"fill-opacity": 1}, 700);
 				}
 			},
-			appendAfter = function(addition, id){
-				var el = document.getElementById(id);
-				if(el){
-					if(el.nextSibling){
-						el.parentNode.insertBefore(addition, el.nextSibling);
-					}else{
-						el.parentNode.appendChild(addition);
-					}
-				}else{
-					console.log("DAFUQ?");
-				}
+			getScrollBarWidth = function() {
+				var inner = document.createElement('p');
+				inner.style.width = "100%";
+				inner.style.height = "200px";
+				var outer = document.createElement('div');
+				outer.style.position = "absolute";
+				outer.style.top = "0px";
+				outer.style.left = "0px";
+				outer.style.visibility = "hidden";
+				outer.style.width = "200px";
+				outer.style.height = "150px";
+				outer.style.overflow = "hidden";
+				outer.appendChild (inner);
+				document.body.appendChild (outer);
+				var w1 = inner.offsetWidth;
+				outer.style.overflow = 'scroll';
+				var w2 = inner.offsetWidth;
+				if (w1 == w2) w2 = outer.clientWidth;
+				document.body.removeChild (outer);
+				return (w1 - w2);
 			};
 		//console object
 		var obj = {
@@ -221,16 +231,17 @@ function Controler(url, gui){
 		var divString = [];
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
-		divString.push("' style='border-bottom: thick solid #222; border-bottom-width: 1px; background-color: white");
-		divString.push("; padding: 2px;'>");
-		divString.push("<table width='100%' style='table-layout: fixed;'><tr>");
-		divString.push("<td valign='top' style='float: left;'>");
+		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
+		divString.push("; padding: 2px; position: absolute; height: 27px;'><table style='table-layout: fixed; width:");
+		divString.push(paper.width+2);
+		divString.push("px;'><tr><td valign='top' style='float: left;'>");
 		divString.push("<b>Konsola</b>");
 		divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_A");
 		divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_A");
 		divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
+		// $(eId).Slider("horizontal");
 		//event handling
 		$(lId).click(function(){
 			if(actionTaken){
