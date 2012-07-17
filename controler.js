@@ -109,6 +109,7 @@ function Controler(url, gui){
 		//private variables
 		var counter = [0, 0, 0],
 			entries = [[],[],[]],
+			state = [true, true, true],
 			cCId = "#console_controller_"+pf,
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
@@ -169,17 +170,10 @@ function Controler(url, gui){
 			},
 			getScrollBarWidth = function() {
 				var w = 0,
-				outer = "<div id='scrollTest'><form action='#'' id='f'><div><textarea cols='20' rows='2' name='t'></textarea></div></form></div>";
+				outer = "<div id='scrollTest' style='overflow: scroll;'></div>";
 				$('body').append(outer);
-				var t = document.forms.f.elements.t;
-  				t.wrap = 'off'; w = t.offsetHeight;
-  				t.wrap = 'soft'; w -= t.offsetHeight;
-  				if(w==0){
-  					$('#f').remove();
-  					$('#scrollTest').css('overflow', 'scroll');
-  					var el = document.getElementById('scrollTest');
-  					w = el.offsetWidth - el.scrollWidth;
-  				}
+  				var el = document.getElementById('scrollTest');
+  				w = el.offsetWidth - el.scrollWidth;
 				$('#scrollTest').remove();
 				return w;
 			};
@@ -228,36 +222,30 @@ function Controler(url, gui){
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
 		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
-		divString.push("; position: absolute; height: 25px;'><table style='table-layout: fixed; width:");
+		divString.push("; height: 25px;'><table style='table-layout: fixed; width:");
 		var w = $(lId).css('width');
 		w = w.slice(0, w.length - 2);
 		w = w - getScrollBarWidth();
 		divString.push(w);
-		divString.push("px;'><tr><td valign='top' style='float: left;'>");
-		divString.push("<b>Konsola</b>");
-		divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_A");
-		divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_A");
-		divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_I'><img src='images/info.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_W'><img src='images/warning.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_E'><img src='images/error.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_A'><form><input type='checkbox'/></form></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_D'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("</tr></table>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
-		//TU CZĘŚĆ DO SLIDERA [JACIEJ]
-		$(lId).css('height', h);
-		// $(eId).Slider("horizontal");
-		$(lId).css('height', 0);
-		//event handling
+		//event handling (wypieprzyłem show-off, chyba wygląda lepiej)
 		$(lId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
-				$(lId).animate({
-					height: 0
-				});
+				$(lId).css('height',0);
 			}
 		});
 		mask.click(function(){
-			$(lId).animate({
-				height: h
-			});
+			$(lId).css('height', h);
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
