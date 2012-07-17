@@ -236,7 +236,44 @@ function Controler(url, gui){
 		divString.push("</tr></table>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
-		//event handling (wypieprzyłem show-off, chyba wygląda lepiej)
+		//event handling for console controller
+		$('#console_I').click(function(){
+			actionTaken = true;
+			if(state[0]){
+				$('#console_I').css('opacity',0.4);
+				state[0] = false;
+			}else{
+				$('#console_I').css('opacity',1);
+				state[0] = true;
+			}
+		});
+		$('#console_W').click(function(){
+			actionTaken = true;
+			if(state[1]){
+				$('#console_W').css('opacity',0.4);
+				state[1] = false;
+			}else{
+				$('#console_W').css('opacity',1);
+				state[1] = true;
+			}
+		});
+		$('#console_E').click(function(){
+			actionTaken = true;
+			if(state[2]){
+				$('#console_E').css('opacity',0.4);
+				state[2] = false;
+			}else{
+				$('#console_E').css('opacity',1);
+				state[2] = true;
+			}
+		});
+		$('#console_A').click(function(){
+			actionTaken = true;
+		});
+		$('#console_D').click(function(){
+			actionTaken = true;
+		});
+		//main event handling (wypieprzyłem show-off, chyba wygląda lepiej)
 		$(lId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
