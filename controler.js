@@ -241,6 +241,7 @@ function Controler(url, gui){
 		divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
+		//TU CZĘŚĆ DO SLIDERA [JACIEJ]
 		// $(eId).Slider("horizontal");
 		//event handling
 		$(lId).click(function(){
@@ -266,6 +267,10 @@ function Controler(url, gui){
 		mask.mouseout(function(){
 			bGlow.remove();
 		});
+		//test
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
