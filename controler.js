@@ -129,7 +129,7 @@ function Controler(url, gui){
 				divString.push(divId);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
-				divString.push("; padding: 2px;'>");
+				divString.push(";'>");
 				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
 				divString.push("<img src='images/");
 				divString.push(imgNames[priority]);
@@ -146,13 +146,14 @@ function Controler(url, gui){
 				entries[priority].push(curElCount);
 				var delId = "#cCancel_"+curElCount;
 				var checkId = "#cCheck_"+curElCount;
+				var nr = curElCount;
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
 					bCount[priority].remove();
 					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
 					mask.toFront();
-					delId = "#console_row_"+curElCount;
+					delId = "#console_row_"+nr;
 					$(delId).remove();
 				});
 				$(checkId).click(function(){
@@ -232,9 +233,9 @@ function Controler(url, gui){
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
 		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
-		divString.push("; padding: 2px; position: absolute; height: 25px;'><table style='table-layout: fixed; width:");
-		divString.push(paper.width+2);
-		divString.push("px;'><tr><td valign='top' style='float: left;'>");
+		divString.push("; position: absolute; height: 25px;'><table style='table-layout: fixed; width:");
+		divString.push($(lId).css('width'));
+		divString.push(";'><tr><td valign='top' style='float: left;'>");
 		divString.push("<b>Konsola</b>");
 		divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_A");
 		divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_A");
@@ -242,7 +243,9 @@ function Controler(url, gui){
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
 		//TU CZĘŚĆ DO SLIDERA [JACIEJ]
-		// $(eId).Slider("horizontal");
+		$(lId).css('height', h);
+		$(lId).Slider("horizontal");
+		$(lId).css('height', 0);
 		//event handling
 		$(lId).click(function(){
 			if(actionTaken){
