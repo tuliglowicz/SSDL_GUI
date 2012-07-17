@@ -145,12 +145,9 @@ function Controler(url, gui){
 				divString.push(divId);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
-				divString.push(";'>");
-				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
-				divString.push("<img src='images/");
+				divString.push(";'><table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'><img src='images/");
 				divString.push(imgNames[priority]);
-				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
-				divString.push("<td valign='top' style='float: left;'>");
+				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td><td valign='top' style='float: left;'>");
 				divString.push(message);
 				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
 				divString.push(curElCount);
@@ -175,6 +172,20 @@ function Controler(url, gui){
 				$(checkId).click(function(){
 					actionTaken = true;
 				});
+			},
+			refreshLogger = function(priority){
+				var len = entries[priority].length,
+					visible,
+					id;
+				if(state[priority]){
+					visible = 'block';
+				}else{
+					visible = 'none';
+				}
+				for(var i = 0; i<len; i++){
+					id = "#console_row_"+entries[priority][i];
+					$(id).css('display', visible);
+				}
 			},
 			fade = function(){
 				if(buttonBG.attr("fill-opacity")==1){
@@ -261,6 +272,7 @@ function Controler(url, gui){
 				$('#console_I').css('opacity',1);
 				state[0] = true;
 			}
+			refreshLogger(0);
 		});
 		$('#console_W').click(function(){
 			actionTaken = true;
@@ -271,6 +283,7 @@ function Controler(url, gui){
 				$('#console_W').css('opacity',1);
 				state[1] = true;
 			}
+			refreshLogger(1);
 		});
 		$('#console_E').click(function(){
 			actionTaken = true;
@@ -281,6 +294,7 @@ function Controler(url, gui){
 				$('#console_E').css('opacity',1);
 				state[2] = true;
 			}
+			refreshLogger(2);
 		});
 		$('#console_A').click(function(){
 			actionTaken = true;
@@ -309,24 +323,24 @@ function Controler(url, gui){
 			bGlow.remove();
 		});
 		//test
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 1");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 1");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 1");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 2");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 2");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 2");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 3");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 3");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 3");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 4");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 4");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 4");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 5");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 5");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 5");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO 6");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING 6");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR 6");
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
