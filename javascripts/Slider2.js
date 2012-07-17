@@ -4,20 +4,20 @@ jQuery.fn.Slider = function(type) {
 			"Jaki pseudo kibic... a nie , to pseudo informatyk..."
 			"Errare humanum est"... 
 			ToDo 
-	
+				
 		*/
 
 		
 
-		
 if(type=="horizontal") {
 
-
+			var parent = this.parent();
+			console.log(parent);
 			var position = $(this).position();
-			var top = position.top,
-				left = position.left,
-				height = this.height(),
-				width = this.width();
+			var top = position.top || 0, 
+				left = position.left || 0,
+				height = this.height() || 0,
+				width = this.width() ||0 ;
 			
 			var scrollbar = jQuery('<div/>', {
 				class: "scrollbar",
@@ -122,7 +122,7 @@ if(type=="horizontal") {
 			$(scrollbar).append(track);
 			$(scrollbarcont).append(scrollbar);
 			$(scrollbarcont).append(viewport);
-			$('body').append($(scrollbarcont));
+			$(parent).append($(scrollbarcont));
 			this.css({'width':'auto', 'height':'', 'position':''});
 			scrollbarcont.tinyscrollbar();
 
