@@ -232,7 +232,7 @@ function Controler(url, gui){
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
 		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
-		divString.push("; padding: 2px; position: absolute; height: 27px;'><table style='table-layout: fixed; width:");
+		divString.push("; padding: 2px; position: absolute; height: 25px;'><table style='table-layout: fixed; width:");
 		divString.push(paper.width+2);
 		divString.push("px;'><tr><td valign='top' style='float: left;'>");
 		divString.push("<b>Konsola</b>");
