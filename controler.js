@@ -94,12 +94,13 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* juniLOGGER v1.0
+		/* juniLOGGER v1.1
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
 		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
+			eId = "#console_entries_" + pf,
 			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
 			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
 			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
@@ -122,6 +123,9 @@ function Controler(url, gui){
 		});
 		//private variables
 		var counter = [0, 0, 0],
+			entries = [[],[],[]],
+			state = [true, true, true],
+			cCId = "#console_controller_"+pf,
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
 			buttonBG = buttonBG,
@@ -141,28 +145,35 @@ function Controler(url, gui){
 				divString.push(divId);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
-				divString.push("; padding: 2px;'>");
+				divString.push(";'>");
 				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
 				divString.push("<img src='images/");
 				divString.push(imgNames[priority]);
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
 				divString.push("<td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
+				divString.push(curElCount);
+				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(curElCount);
 				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
 				divString = divString.join("");
-				$(divString).prependTo($(lId));
-				var nr = curElCount;
+				$(divString).prependTo($(eId));
+				entries[priority].push(curElCount);
 				var delId = "#cCancel_"+curElCount;
+				var checkId = "#cCheck_"+curElCount;
+				var nr = curElCount;
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
 					bCount[priority].remove();
 					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
 					mask.toFront();
-					delId = "#console_row_" + nr;
+					delId = "#console_row_"+nr;
 					$(delId).remove();
+				});
+				$(checkId).click(function(){
+					actionTaken = true;
 				});
 			},
 			fade = function(){
@@ -171,6 +182,15 @@ function Controler(url, gui){
 				}else{
 					buttonBG.animate({"fill-opacity": 1}, 700);
 				}
+			},
+			getScrollBarWidth = function() {
+				var w = 0,
+				outer = "<div id='scrollTest' style='overflow: scroll;'></div>";
+				$('body').append(outer);
+  				var el = document.getElementById('scrollTest');
+  				w = el.offsetWidth - el.scrollWidth;
+				$('#scrollTest').remove();
+				return w;
 			};
 		//console object
 		var obj = {
@@ -212,20 +232,35 @@ function Controler(url, gui){
 				animation = setInterval(fade, 750);
 			}
 		};
-		//event handling
+		//adding control bar
+		var divString = [];
+		divString.push("<div id='");
+		divString.push("console_controller_"+pf);
+		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
+		divString.push("; height: 25px;'><table style='table-layout: fixed; width:");
+		var w = $(lId).css('width');
+		w = w.slice(0, w.length - 2);
+		w = w - getScrollBarWidth();
+		divString.push(w);
+		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_I'><img src='images/info.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_W'><img src='images/warning.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_E'><img src='images/error.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_A'><form><input type='checkbox'/></form></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_D'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("</tr></table>");
+		divString = divString.join("");
+		$(divString).prependTo($(lId));
+		//event handling (wypieprzyłem show-off, chyba wygląda lepiej)
 		$(lId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
-				$(lId).animate({
-					height: 0
-				});
+				$(lId).css('height',0);
 			}
 		});
 		mask.click(function(){
-			$(lId).animate({
-				height: h
-			});
+			$(lId).css('height', h);
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
@@ -236,6 +271,25 @@ function Controler(url, gui){
 		mask.mouseout(function(){
 			bGlow.remove();
 		});
+		//test
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
+		obj.info("to jest testowe odpalenie konsoli","Test INFO");
+		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
+		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
