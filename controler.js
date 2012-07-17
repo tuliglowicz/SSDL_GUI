@@ -15,6 +15,21 @@ function Controler(url, gui){
 				if( $("#repoNodes_"+pf).length === 0 ){
 					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+					//to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
+					// this.scroller = addSideScroller(this.paper);
+					// left = $("#blankNodes_"+pf).position().left;
+					// that = this;
+					// this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
+					// .attr({opacity: 0, fill: "ivory"})
+					// .mouseover(function(){
+					// 	that.scroller.showYourself();
+					// })
+					// .mouseout(function(evt, x, y){
+					// 	top = $("#navigator_"+pf).position().top + $("#navigator_"+pf).height();
+					// 	if(! that.cover.isPointInside(x-left, y-top))
+					// 		that.scroller.goHide();
+					// })
+					// .toBack();
 				}
 			},
 			convertData : function generateData(node, n){
@@ -908,7 +923,7 @@ function Controler(url, gui){
 						return false;
 					});
 
-					$($("a")[4]).click();
+					// $($("a")[4]).click();
 					// $("a:last").click();
 				}
 
