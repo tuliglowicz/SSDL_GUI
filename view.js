@@ -118,6 +118,7 @@ function View(id, width, height, gui){
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
+			dataSet: [],
 			globalEvents: ["load"],
 			localEvents: ["select"],
 
@@ -126,21 +127,6 @@ function View(id, width, height, gui){
 				if( $("#blankNodes_"+pf).length === 0 ){
 					$("#left_plugins_"+pf).append("<div id='blankNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.leftCol.width-1, 500);
-					this.dataSet = this.paper.set();
-					this.scroller = addSideScroller(this.paper);
-					left = $("#blankNodes_"+pf).position().left;
-					that = this;
-					this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
-					.attr({opacity: 0, fill: "ivory"})
-					.mouseover(function(){
-						that.scroller.showYourself();
-					})
-					.mouseout(function(evt, x, y){
-						top = $("#subgraphTree_"+pf).position().top + $("#subgraphTree_"+pf).height();
-						if(! that.cover.isPointInside(x-left, y-top))
-							that.scroller.goHide();
-					})
-					.toBack();
 				}
 			},
 			draw: function draw(){
@@ -156,36 +142,51 @@ function View(id, width, height, gui){
 					}
 				}
 
-				this.dataSet.push(this.paper.text(textHorizontalPosition,10,"Service")
-					.node.setAttribute("class","repository_text"));
+				var text_service = this.paper.text(textHorizontalPosition,10,"Service");
+				text_service.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
 					.attr({fill:"#fbec88"})
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
-				this.dataSet.push(this.paper.text(textHorizontalPosition,80,"Functionality")
-					.node.setAttribute("class","repository_text"));
+				var text_functionality = this.paper.text(textHorizontalPosition,80,"Functionality");
+				text_functionality.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_functionality);
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
 					.attr({fill:"#a6c9e2"})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
-				this.dataSet.push(this.paper.text(textHorizontalPosition,150,"Mediator")
-					.hide());
-					// .node.setAttribute("class","repository_text"));
-				var repo_mediator = this.paper.rect(nodeHorizontalPosition,160,nodeLength,nodeHeight,5)
+
+				var text_mediator = this.paper.text(textHorizontalPosition,150,"Mediator")
+					.hide();
+					// text_mediator.node.setAttribute("class","repository_text"));
+				var repo_mediator = this.paper.rect(nodeHorizontalPosition,600,nodeLength,nodeHeight,5)
 					.attr({fill:"white"})
 					.dblclick(onDblClick("Mediator"))
 					.hide();
 				repo_mediator.node.setAttribute("class","repository_element");	
-				this.dataSet.push(repo_mediator);
-
-				this.scroller.update(this.dataSet);
+				// this.dataSet.push(repo_mediator);
 			}
 		};
 		return tmp;
 	};
 	function drawBottomBar(paper){
+		
+		//UŻYCIE WTYCZKI:
+		//ma defaultowo zdefiniowane buttony CF, DF i SS
+		//addGroup(label) dodaje grupę o zadanym labelu
+		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
+		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
+		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
+		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
+		//Analogicznie pokazywanie elementu, PRZY CZYM:
+		//- showGroup() pokazuje grupę wraz ze wszystkimi opcjami
+		//- showOnlyGroup() pokazuje tylko grafikę grupy - używane, gdy grupa znikła w wyniku usunięcia
+		//	ostatniego przycisku
+		//Użyta technologia: Javascript, Raphael ^^
+		
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -300,17 +301,28 @@ function View(id, width, height, gui){
 									if(this.label.toUpperCase()===label.toUpperCase()) 
 										this.hideThisButton();
 								});
-								that.generalFontReset();
-								this.resizeAndRelocate();
-								that.relocate();
+								if(this.areSomeButtonsVisible()){
+									that.generalFontReset();
+									this.resizeAndRelocate();
+									that.relocate();
+								}
+								else
+									this.hideGroup();
 							},
 							showButton: function showButton(label){
 								$.each(this.buttons, function(){
 									if(this.label.toUpperCase()===label.toUpperCase()) 
 										this.showThisButton();
 								});
+								if(this.isVisible===false) this.showOnlyGroup();
 								this.resizeAndRelocate();
 								that.relocate();
+							},
+							areSomeButtonsVisible: function areSomeButtonsVisible(){
+								return 
+									this.buttons.some(function(elem){
+										return elem.isVisible != false;
+									});
 							},
 							hideGroup: function hideGroup(){
 								this.isVisible = false;
@@ -326,6 +338,11 @@ function View(id, width, height, gui){
 								$.each(this.buttons, function(){
 									this.showThisButton();
 								});
+								that.generalFontReset();
+							},
+							showOnlyGroup: function showOnlyGroup(){
+								this.isVisible = true;
+								this.graphic.show();
 								that.generalFontReset();
 							},
 							createGraphic: function createGraphic(){
@@ -587,63 +604,84 @@ function View(id, width, height, gui){
 
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
-		//UŻYCIE WTYCZKI:
-		//ma defaultowo zdefiniowane buttony CF, DF i SS
-		//addGroup(label) dodaje grupę o zadanym labelu
-		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
-		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
-		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
-		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
-		//Analogicznie pokazywanie elementu
-
 		return result;
 	};
 	function addSideScroller(paper){
-		var scroll = {
-			invisible: 0,
-			visible: .4,
-			animationTime: 100,
-			move: function move(set){
-				return function(dx, dy){
-					var ny = this.oy + dy;
-					if(ny > 0 && ny + this.attr("height") < paper.height){
-						this.attr({y: ny});
-						set.forEach(function(e){
-							ny = e.oy - dy;
-							e.attr({y: ny});
-						});
-					}
-				}
+		var invisible = 0,
+			visible = .4,
+			animationTime = 100,
+			visibleHeight = paper.height,
+			checkHeight = function(set){	//określa wysokość przekazanej tablicy obiektów
+				if(!set[0]) return 0;
+				var min = set[0].getBBox().y, max = 0, bbox;
+				$.each(set, function(){
+					bbox = this.getBBox();
+					if(bbox.y < min) min = bbox.y;
+					if(bbox.y + bbox.height > max) max = bbox.y + bbox.height;
+				});
+				return max - min + 10; //10 dodaję jako margines
 			},
-			start: function start(set){
-				return function(x, y){
-					this.oy = this.attr("y");
-					// alert(set); alert(set.getBBox().height)
-					set.forEach(function(e){
-						e.oy = e.attr("y");
+			isValid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
+				return
+					set.some(function(elem){
+						return (getType(elem.getBBox) != "function" || getType(elem.translate) != "function")
 					});
+			},
+			scroll = {
+				move: function move(set, mult){
+					return function(dx, dy){
+						var newY = this.oy + dy, altDy; 
+						if(newY >= 0 && newY + this.attr("height") <= visibleHeight){
+							this.transform("t0,"+dy);
+							$.each(set, function(){
+								this.translate(0, (-1*dy/mult)); //this.transform("t0,"+(-1*dy/mult))
+							});
+						}
+						else{ 
+							if(newY < 0)
+								altDy = this.oy;
+							else
+								altDy = visibleHeight - this.oy - this.attr("height");
+							this.transform("t0,"+altDy);
+							$.each(set, function(){
+								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)))
+							});
+						}
+					}
+				},
+				start: function start(){
+					this.oy = this.attr("y");
+				},
+				stop: function stop(){},
+				init: function init(){
+					this.slider = paper.rect(paper.width-5, 0, 5, visibleHeight*.75, 5)
+						.attr({"stroke-width":0, fill:"black", opacity: visible})
+						.hide();
+					this.set = [];
+				},
+				//update musi być wywoływany przy każdorazowej zmianie zawartości kanwy, na której siedzi sobie scroll
+				update: function update(set){
+					var result = false;
+					if(isValid(set)){
+						this.set = set;
+						var setHeight = checkHeight(set);
+						this.multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
+						this.slider.attr({height: visibleHeight*this.multiplier});
+						this.slider.drag(this.move(this.set, this.multiplier), this.start, this.stop);
+						result = true;
+					}
+					else
+						console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
+					return result;
+				},
+				showYourself: function showYourself(){
+					if(this.multiplier !== 1)
+						this.slider.show();
+				},
+				goHide: function goHide(){
+					this.slider.hide();
 				}
-			},
-			stop: function stop(){},
-			init: function init(){
-				this.slider = paper.rect(paper.width-5, 0, 5, paper.height*.75, 5)
-					.attr({"stroke-width":0, fill:"black", opacity: this.invisible});
-				this.set = paper.set();
-			},
-			update: function update(set){
-				this.set = set;
-				var bbox = this.set.getBBox();
-				// alert(this.set); alert(this.set.getBBox().height)
-				this.slider.attr({height: bbox.height});
-				this.slider.drag(this.move(this.set), this.start(this.set), this.stop);
-			},
-			showYourself: function showYourself(){
-				this.slider.animate({opacity: this.visible}, this.animationTime);	
-			},
-			goHide: function goHide(){
-				this.slider.animate({opacity: this.invisible}, this.animationTime);	
-			}
-		};
+			};
 		scroll.init();
 		return scroll;
 	};
@@ -2828,7 +2866,6 @@ function View(id, width, height, gui){
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
 
-
 	var	lastDragX,
 		lastDragY,
 		ox, dx,
@@ -2881,6 +2918,8 @@ function View(id, width, height, gui){
 				y2+=lastDragY;
 			else
 				y1+=lastDragY;
+
+			// gui.view.paper.rect(ox+x, oy+y, 2, 2).attr("fill", "red");
 				
 
 			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSP??“Å?Å»Ä?DNYMI
