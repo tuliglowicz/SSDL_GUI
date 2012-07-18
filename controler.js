@@ -275,7 +275,7 @@ function Controler(url, gui){
 		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
 		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
 		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
-		divString.push("<td valign='top' style='width: 50px; text-align: right;'>Pokaż: </td>");
+		divString.push("<td valign='top' style='width: 50px; text-align: right; cursor: default;'>Pokaż: </td>");
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='pokaż/ukryj informacje' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='pokaż/ukryj ostrzeżenia' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='pokaż/ukryj błędy' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
@@ -345,11 +345,18 @@ function Controler(url, gui){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
-				$(lId).css('height',0);
+				$(eId).css('overflow-y: hidden;');
+				$(lId).animate({
+					'height': 0
+				});
 			}
 		});
 		mask.click(function(){
-			$(lId).css('height', h);
+			$(lId).animate({
+				'height': h
+			}, 400, function(){
+				$(eId).css('overflow-y: scroll;');
+			});
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
