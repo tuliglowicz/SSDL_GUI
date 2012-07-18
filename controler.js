@@ -153,6 +153,9 @@ function Controler(url, gui){
 				divString.push(priority);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
+				if(!state[priority]){
+					divString.push("; display: none")
+				}
 				divString.push(";'><table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'><img src='images/");
 				divString.push(imgNames[priority]);
 				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td><td valign='top' style='float: left;'>");
@@ -170,15 +173,18 @@ function Controler(url, gui){
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
-					bCount[priority].remove();
-					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
-					mask.toFront();
+					redrawCounter(priority);
 					delId = "#console_row_"+nr;
 					$(delId).remove();
 				});
 				$(checkId).click(function(){
 					actionTaken = true;
 				});
+			},
+			redrawCounter = function(priority){
+				bCount[priority].remove();
+				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
+				mask.toFront();
 			},
 			refreshLogger = function(priority){
 				var visible;
@@ -202,9 +208,7 @@ function Controler(url, gui){
 						num++;
 					});
 					counter[i] = num;
-					bCount[i].remove();
-					bCount[i] = paper.text(paper.width - (125 - (i * 40)), 11, counter[i]).attr({fill: txtColors[i]});
-					mask.toFront();
+					redrawCounter(i);
 				}
 			},
 			fade = function(){
@@ -229,9 +233,7 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
-				bCount[0].remove();
-				bCount[0] = paper.text(paper.width - 125, 11, counter[0]).attr({fill: "white"});
-				mask.toFront();
+				redrawCounter(0);
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
@@ -239,11 +241,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
-				bCount[1].remove();
-				bCount[1] = paper.text(paper.width - 85, 11, counter[1]).attr({fill: "yellow"});
+				redrawCounter(1);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow().attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
@@ -251,11 +251,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
-				bCount[2].remove();
-				bCount[2] = paper.text(paper.width - 45, 11, counter[2]).attr({fill: "orange"});
+				redrawCounter(2);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow(10, true).attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 2);
 				//pulse
