@@ -164,7 +164,7 @@ function Controler(url, gui){
 				divString.push(curElCount);
 				divString.push("'><form><input type='checkbox' class='cCheck'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(curElCount);
-				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='usuń komunikat' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='usuń komunikat' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table></div>");
 				divString = divString.join("");
 				$(divString).prependTo($(eId));
 				var delId = "#cCancel_"+curElCount;
@@ -186,7 +186,7 @@ function Controler(url, gui){
 				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
 				mask.toFront();
 			},
-			refreshLogger = function(priority){
+			redrawLogger = function(priority){
 				var visible;
 				if(state[priority]){
 					visible = 'block';
@@ -220,8 +220,8 @@ function Controler(url, gui){
 			},
 			getScrollBarWidth = function() {
 				var w = 0,
-				outer = "<div id='scrollTest' style='overflow: scroll;'></div>";
-				$('body').append(outer);
+					testDiv = "<div id='scrollTest' style='overflow: scroll;'></div>";
+				$('body').append(testDiv);
   				var el = document.getElementById('scrollTest');
   				w = el.offsetWidth - el.scrollWidth;
 				$('#scrollTest').remove();
@@ -261,7 +261,7 @@ function Controler(url, gui){
 				animation = setInterval(fade, 750);
 			}
 		};
-		//adding control bar
+		//adding console HTML structure
 		var divString = [];
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
@@ -279,7 +279,7 @@ function Controler(url, gui){
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='pokaż/ukryj informacje' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='pokaż/ukryj ostrzeżenia' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
 		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='pokaż/ukryj błędy' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("</tr></table>");
+		divString.push("</tr></table></div><div id='console_entries_"+pf+"' style='overflow-y:scroll; height:"+(h-25)+"px;'></div>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
 		//event handling for console controller
@@ -291,7 +291,7 @@ function Controler(url, gui){
 				$('#console_I').css('opacity',1);
 				state[0] = true;
 			}
-			refreshLogger(0);
+			redrawLogger(0);
 		});
 		$('#console_W').click(function(){
 			if(state[1]){
@@ -301,8 +301,9 @@ function Controler(url, gui){
 				$('#console_W').css('opacity',1);
 				state[1] = true;
 			}
-			refreshLogger(1);
+			redrawLogger(1);
 		});
+		//TODO: dopisać wyłączanie selectów przy ukrywaniu
 		$('#console_E').click(function(){
 			if(state[2]){
 				$('#console_E').css('opacity',0.4);
@@ -311,7 +312,7 @@ function Controler(url, gui){
 				$('#console_E').css('opacity',1);
 				state[2] = true;
 			}
-			refreshLogger(2);
+			redrawLogger(2);
 		});
 		$('#console_SA').click(function(){
 			$.each($(eId).find('.cCheck'), function(){
@@ -324,24 +325,22 @@ function Controler(url, gui){
 		});
 		$('#console_DA').click(function(){
 			$.each($(eId).find('.cCheck'), function(){
-				if($(this).parents('.console_row').css('display')!='none'){
-					$(this).prop('checked', false);
-				}
+				$(this).prop('checked', false);
 			});
 		});
 		$('#console_D').click(function(){
 			$.each($(eId).find('.cCheck'), function(){
-				if($(this).prop('checked')==true){
+				if($(this).prop('checked')==true && $(this).parents('.console_row').css('display')!='none'){
 					$(this).parents('.console_row').remove();
 				}
 			});
 			refreshCounter();
 		});
-		//unscroll
+		//unselect for text buttons
 		document.getElementById('console_SA').onselectstart = function() { return(false); };
 		document.getElementById('console_DA').onselectstart = function() { return(false); };
 		document.getElementById('console_D').onselectstart = function() { return(false); };
-		//main event handling (wypieprzyłem show-off, chyba wygląda lepiej)
+		//main event handling
 		$(eId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
