@@ -100,6 +100,10 @@ function Controler(url, gui){
 		* SUBMITTED: 18.07.2012
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
+		* REQUIRED VARIABLES SET BY HIGHER LEVEL:
+		* - pf (number for id randomization)
+		* REQUIRED DOM ELEMENTS:
+		* - div with id 'console_'+pf
 		* AVIABLE FUNCTIONS:
 		* - info(information string [, title string])
 		* - warning(warning string [, title string])
@@ -186,7 +190,7 @@ function Controler(url, gui){
 				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
 				mask.toFront();
 			},
-			redrawLogger = function(priority){
+			refreshLogger = function(priority){
 				var visible;
 				if(state[priority]){
 					visible = 'block';
@@ -291,7 +295,7 @@ function Controler(url, gui){
 				$('#console_I').css('opacity',1);
 				state[0] = true;
 			}
-			redrawLogger(0);
+			refreshLogger(0);
 		});
 		$('#console_W').click(function(){
 			if(state[1]){
@@ -301,9 +305,8 @@ function Controler(url, gui){
 				$('#console_W').css('opacity',1);
 				state[1] = true;
 			}
-			redrawLogger(1);
+			refreshLogger(1);
 		});
-		//TODO: dopisać wyłączanie selectów przy ukrywaniu
 		$('#console_E').click(function(){
 			if(state[2]){
 				$('#console_E').css('opacity',0.4);
@@ -312,7 +315,7 @@ function Controler(url, gui){
 				$('#console_E').css('opacity',1);
 				state[2] = true;
 			}
-			redrawLogger(2);
+			refreshLogger(2);
 		});
 		$('#console_SA').click(function(){
 			$.each($(eId).find('.cCheck'), function(){
