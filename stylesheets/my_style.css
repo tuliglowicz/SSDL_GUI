@@ -31,6 +31,37 @@
 	path.output {
 		cursor: crosshair;	
 	}
+
+	.logButton {
+		/*unselect*/
+		-moz-user-select: none;
+   		-khtml-user-select: none;
+   		user-select: none;
+   		/*css przycisku*/
+		display: inline-block;
+		outline: none;
+		cursor: pointer;
+		text-align: center;
+		text-decoration: none;
+		background: #fafafa;
+		font: 14px/100% Arial, Helvetica, sans-serif;
+		padding: .15em .15em .15em;
+		text-shadow: 0 1px 1px rgba(0,0,0,.3);
+		-webkit-border-radius: .5em; 
+		-moz-border-radius: .5em;
+		border-radius: .5em;
+		-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.4);
+		-moz-box-shadow: 0 1px 2px rgba(0,0,0,.4);
+		box-shadow: 0 1px 2px rgba(0,0,0,.4);
+	}
+	.logButton:hover {
+		text-decoration: none;
+	}
+	.logButton:active {
+		position: relative;
+		top: 1px;
+	}
+
 	ul {
 		list-style-type: none;
 		padding-left: 10px;

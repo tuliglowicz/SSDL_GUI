@@ -94,9 +94,20 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* juniLOGGER v1.1
+		/* Logger v2.0
+		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
+		* "Lasciate ogni speranza, voi ch'entrate"
+		* SUBMITTED: 18.07.2012
 		* REQUIRED PARAMS: 
 		* - paper (on which we will draw button opening the console)
+		* REQUIRED VARIABLES SET BY HIGHER LEVEL:
+		* - pf (number for id randomization)
+		* REQUIRED DOM ELEMENTS:
+		* - div with id 'console_'+pf
+		* AVIABLE FUNCTIONS:
+		* - info(information string [, title string])
+		* - warning(warning string [, title string])
+		* - error(error string [, title string])
 		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
@@ -123,7 +134,6 @@ function Controler(url, gui){
 		});
 		//private variables
 		var counter = [0, 0, 0],
-			entries = [[],[],[]],
 			state = [true, true, true],
 			cCId = "#console_controller_"+pf,
 			bImgs = [iImg, wImg, eImg],
@@ -143,38 +153,67 @@ function Controler(url, gui){
 				var divString = [];
 				divString.push("<div id='");
 				divString.push(divId);
+				divString.push("' class='console_row priority");
+				divString.push(priority);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
-				divString.push(";'>");
-				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
-				divString.push("<img src='images/");
+				if(!state[priority]){
+					divString.push("; display: none")
+				}
+				divString.push(";'><table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'><img src='images/");
 				divString.push(imgNames[priority]);
-				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
-				divString.push("<td valign='top' style='float: left;'>");
+				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td><td valign='top' style='float: left;'>");
 				divString.push(message);
 				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
 				divString.push(curElCount);
-				divString.push("'><form><input type='checkbox'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("'><form><input type='checkbox' class='cCheck'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(curElCount);
-				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='usuń komunikat' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table></div>");
 				divString = divString.join("");
 				$(divString).prependTo($(eId));
-				entries[priority].push(curElCount);
 				var delId = "#cCancel_"+curElCount;
 				var checkId = "#cCheck_"+curElCount;
 				var nr = curElCount;
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
-					bCount[priority].remove();
-					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
-					mask.toFront();
+					redrawCounter(priority);
 					delId = "#console_row_"+nr;
 					$(delId).remove();
 				});
 				$(checkId).click(function(){
 					actionTaken = true;
 				});
+			},
+			redrawCounter = function(priority){
+				bCount[priority].remove();
+				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
+				mask.toFront();
+			},
+			refreshLogger = function(priority){
+				var visible;
+				if(state[priority]){
+					visible = 'block';
+				}else{
+					visible = 'none';
+				}
+				var prClass = '.priority'+priority;
+				$.each($(eId).find(prClass), function(){
+					$(this).css('display', visible);
+				});
+			},
+			refreshCounter = function(){
+				var prClass,
+					num;
+				for(var i = 0; i<3; i++){
+					prClass = '.priority'+i;
+					num = 0;
+					$.each($(eId).find(prClass), function(){
+						num++;
+					});
+					counter[i] = num;
+					redrawCounter(i);
+				}
 			},
 			fade = function(){
 				if(buttonBG.attr("fill-opacity")==1){
@@ -185,8 +224,8 @@ function Controler(url, gui){
 			},
 			getScrollBarWidth = function() {
 				var w = 0,
-				outer = "<div id='scrollTest' style='overflow: scroll;'></div>";
-				$('body').append(outer);
+					testDiv = "<div id='scrollTest' style='overflow: scroll;'></div>";
+				$('body').append(testDiv);
   				var el = document.getElementById('scrollTest');
   				w = el.offsetWidth - el.scrollWidth;
 				$('#scrollTest').remove();
@@ -198,9 +237,7 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
-				bCount[0].remove();
-				bCount[0] = paper.text(paper.width - 125, 11, counter[0]).attr({fill: "white"});
-				mask.toFront();
+				redrawCounter(0);
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
@@ -208,11 +245,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
-				bCount[1].remove();
-				bCount[1] = paper.text(paper.width - 85, 11, counter[1]).attr({fill: "yellow"});
+				redrawCounter(1);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow().attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
@@ -220,11 +255,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
-				bCount[2].remove();
-				bCount[2] = paper.text(paper.width - 45, 11, counter[2]).attr({fill: "orange"});
+				redrawCounter(2);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow(10, true).attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 2);
 				//pulse
@@ -232,7 +265,7 @@ function Controler(url, gui){
 				animation = setInterval(fade, 750);
 			}
 		};
-		//adding control bar
+		//adding console HTML structure
 		var divString = [];
 		divString.push("<div id='");
 		divString.push("console_controller_"+pf);
@@ -243,24 +276,90 @@ function Controler(url, gui){
 		w = w - getScrollBarWidth();
 		divString.push(w);
 		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_I'><img src='images/info.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_W'><img src='images/warning.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_E'><img src='images/error.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_A'><form><input type='checkbox'/></form></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_D'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("</tr></table>");
+		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
+		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
+		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
+		divString.push("<td valign='top' style='width: 50px; text-align: right; cursor: default;'>Pokaż: </td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='pokaż/ukryj informacje' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='pokaż/ukryj ostrzeżenia' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='pokaż/ukryj błędy' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("</tr></table></div><div id='console_entries_"+pf+"' style='overflow-y:scroll; height:"+(h-25)+"px;'></div>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
-		//event handling (wypieprzyłem show-off, chyba wygląda lepiej)
-		$(lId).click(function(){
+		//event handling for console controller
+		$('#console_I').click(function(){
+			if(state[0]){
+				$('#console_I').css('opacity',0.4);
+				state[0] = false;
+			}else{
+				$('#console_I').css('opacity',1);
+				state[0] = true;
+			}
+			refreshLogger(0);
+		});
+		$('#console_W').click(function(){
+			if(state[1]){
+				$('#console_W').css('opacity',0.4);
+				state[1] = false;
+			}else{
+				$('#console_W').css('opacity',1);
+				state[1] = true;
+			}
+			refreshLogger(1);
+		});
+		$('#console_E').click(function(){
+			if(state[2]){
+				$('#console_E').css('opacity',0.4);
+				state[2] = false;
+			}else{
+				$('#console_E').css('opacity',1);
+				state[2] = true;
+			}
+			refreshLogger(2);
+		});
+		$('#console_SA').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				if($(this).parents('.console_row').css('display')!='none'){
+					$(this).prop('checked', true);
+				}else{
+					$(this).prop('checked', false);
+				}
+			});
+		});
+		$('#console_DA').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				$(this).prop('checked', false);
+			});
+		});
+		$('#console_D').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				if($(this).prop('checked')==true && $(this).parents('.console_row').css('display')!='none'){
+					$(this).parents('.console_row').remove();
+				}
+			});
+			refreshCounter();
+		});
+		//unselect for text buttons
+		document.getElementById('console_SA').onselectstart = function() { return(false); };
+		document.getElementById('console_DA').onselectstart = function() { return(false); };
+		document.getElementById('console_D').onselectstart = function() { return(false); };
+		//main event handling
+		$(eId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
-				$(lId).css('height',0);
+				$(eId).css('overflow-y: hidden;');
+				$(lId).animate({
+					'height': 0
+				});
 			}
 		});
 		mask.click(function(){
-			$(lId).css('height', h);
+			$(lId).animate({
+				'height': h
+			}, 400, function(){
+				$(eId).css('overflow-y: scroll;');
+			});
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
@@ -271,25 +370,6 @@ function Controler(url, gui){
 		mask.mouseout(function(){
 			bGlow.remove();
 		});
-		//test
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
-		obj.info("to jest testowe odpalenie konsoli","Test INFO");
-		obj.warning("to jest testowe odpalenie konsoli","Test WARNING");
-		obj.error("to jest testowe odpalenie konsoli","Test ERROR");
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
