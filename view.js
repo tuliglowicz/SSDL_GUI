@@ -138,7 +138,8 @@ function View(id, width, height, gui){
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
-							gui.controler.reactOnEvent("AddBlankNode", nodeType);
+							var label = prompt("Enter a label for the new node:");
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 					}
 				}
 
@@ -714,6 +715,7 @@ function View(id, width, height, gui){
 			"preconditions":"",
 			"effects":""
 		};
+		var $tabs = $( "#tabs" ).tabs();
 
 		var result = {
 			resultJSON: resultJSON,
@@ -730,43 +732,84 @@ function View(id, width, height, gui){
 			NFrow: -1,
 
 			initToEdit: function initToEdit(node){
-				var condition = [];
-				// this.node = node;
+				var titleText = 'Viewing a ' + node.nodeType + ' type node';
 				this.clearErrors();
 				this.cleanForm();
-				$( "#label" ).val(node.nodeLabel);
-				$( "#nodeType" ).val(node.nodeType);
-				$( "#controlType" ).val(node.controlType);
-				$( "#alternatives" ).val(node.alternatives);
-				if(node.condition){
-					condition = node.condition.split(" ");
-					$( "#condition" ).val((condition[1]) ? condition[1] : "");
-					$( "#conditionTRUE" ).val((condition[3]) ? condition[3] : "");
-					$( "#conditionFALSE" ).val((condition[5]) ? condition[5] : "");
-				}
-				$( "#subgraph" ).val(node.subgraph);				
-				$( "#serviceName" ).val(node.physicalDescription.serviceName);
-				$( "#serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
-				$( "#address" ).val(node.physicalDescription.address);
-				$( "#operation" ).val(node.physicalDescription.operation);
-				$( "#description" ).val(node.functionalDescription.description);
-				$( "#prec" ).val(node.functionalDescription.preconditions);
-				$( "#effects" ).val(node.functionalDescription.effects);
-				this.appendList(node.sources, "sources");
+				$('#ui-dialog-title-form').text(titleText);
+				$( "#f_mainTab_label" ).val(node.nodeLabel);
+				$("#f_mainTab_controlType").val(node.controlType);
+				this.adjustForm(node.nodeType);
+				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
+				$( "#f_physicalDescriptionTab_serviceName" ).val(node.physicalDescription.serviceName);
+				$( "#f_physicalDescriptionTab_serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
+				$( "#f_physicalDescriptionTab_address" ).val(node.physicalDescription.address);
+				$( "#f_physicalDescriptionTab_operation" ).val(node.physicalDescription.operation);
+				
 				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
-				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 				this.appendIO(node.functionalDescription.inputs, "inputs");
 				this.appendIO(node.functionalDescription.outputs, "outputs");
 				this.appendNonFuncDesc(node.nonFunctionalDescription);
 				this.resultJSON.nodeId = node.nodeId;
 				$( "#form" ).dialog( "open" );
+				
+				//  pola obecnie nieużywane:
+				//
+				// var condition = [];
+				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
+				// $( "#f_mainTab_alternatives" ).val(node.alternatives);
+				// if(node.condition){
+				// 	condition = node.condition.split(" ");
+				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
+				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
+				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
+				// }
+				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
+
+				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
+				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
+				// this.appendList(node.sources, "sources");
+
+				// this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 			},
-			initBlank: function initBlank(nodeType){
+			initBlank: function initBlank(nodeData){
+				var titleText = "Create a " + nodeData.nodeType + " type node";
 				this.clearErrors();
 				this.cleanForm();
-				this.resultJSON.nodeType = nodeType;
-				$( "#nodeType" ).val(nodeType);
+				this.resultJSON.label = nodeData.label;
+				this.resultJSON.nodeType = nodeData.nodeType;
+				$('#ui-dialog-title-form').text(titleText);
+				this.adjustForm(nodeData.nodeType);
+				$( "#f_mainTab_label" ).val(nodeData.label);
+				$( "#f_mainTab_nodeType" ).val(nodeData.nodeType);
 				$( "#form" ).dialog( "open" );
+			},
+			adjustForm: function adjustForm(nodeType){
+				switch(nodeType.toLowerCase()){
+					case "control" : 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).show();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').hide();
+						$('#f_button_addServiceClass').hide();
+						$('#f_mainTab_scInfo').hide();
+						$('#tabs-2').hide();
+						break;
+					case "functionality" : 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').hide();
+						break;
+					default: 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$('#physicalDescriptionTab').removeClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').show();				
+						break;
+					}
 			},
 			//funkcje czyszczące elementy formularza
 			clearNF: function clearNF(){
@@ -787,6 +830,8 @@ function View(id, width, height, gui){
 				this.outputNumber = -1;
 				this.outputRow = -1;
 			},
+			//@handleErrors: to trzeba przepisać od zera dla nowej walidacji + usunąć buglist
+			//na rzecz czegoś bardziej pro
 			handleErrors: function handleErrors(array){
 				var input;
 				$.each(array, function(){
@@ -802,43 +847,39 @@ function View(id, width, height, gui){
 			clearErrors: function clearErrors(){
 				$( "#buglist" ).empty();
 				$( "#buglist" ).removeClass( "ui-state-error" );
-				$( "#nodeId" ).removeClass( "ui-state-error" ); 
-				$( "#serviceName" ).removeClass( "ui-state-error" ); 
-				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
-				$( "#address" ).removeClass( "ui-state-error" ); 
-				$( "#operation" ).removeClass( "ui-state-error" ); 
-				$( "#serviceName" ).removeClass( "ui-state-error" ); 
-				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
-				$( "#address" ).removeClass( "ui-state-error" ); 
-				$( "#operation" ).removeClass( "ui-state-error" ); 
-				$( "#nodeId" ).removeClass( "ui-state-error" ); 
-				$( "#nodeType" ).removeClass( "ui-state-error" ); 
-				$( "#source" ).removeClass( "ui-state-error" ); 
-				$( "#sources" ).removeClass( "ui-state-error" ); 
-				$( "#weight" ).removeClass( "ui-state-error" ); 
-				$( "#name" ).removeClass( "ui-state-error" ); 
-				$( "#relation" ).removeClass( "ui-state-error" ); 
-				$( "#unit" ).removeClass( "ui-state-error" );
-				$( "#value" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_serviceName" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_serviceGlobalId" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_address" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_operation" ).removeClass( "ui-state-error" ); 
+				$( "#f_mainTab_nodeType" ).removeClass( "ui-state-error" ); 
+				// $( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
+				// $( "#f_mainTab_sources" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_weight" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_name" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_relation" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_unit" ).removeClass( "ui-state-error" );
+				$( "#f_nonFunctionalDescriptionTab_value" ).removeClass( "ui-state-error" ); 
 				for(var i = 1; i < 5; i++){ $( "#t" + i ).removeClass( "ui-state-error" );  }
 			},
 			cleanForm: function cleanForm(){
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
-				$( "#inputs tbody" ).empty();
-				$( "#outputs tbody" ).empty();
-				$( "#NFProps tbody" ).empty();
-				$( "#source" ).val("");
-				$( "#sources" ).empty();
-				$( "#sClasses" ).empty();
-				$( "#mKeywords" ).empty();
+				$( "#f_inputOutputTab_inputs tbody" ).empty();
+				$( "#f_inputOutputTab_outputs tbody" ).empty();
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
+				// $( "#f_mainTab_source" ).val("");
+				// $( "#f_mainTab_sources" ).empty();
+				$( "#f_mainTab_sClasses" ).empty();
+				// $( "#f_functionalDescription_mKeywords" ).empty();
 				$( "#mainForm" )[0].reset();
 				$( "#physDescForm" )[0].reset(); 
 				$( "#funcDescForm" )[0].reset(); 
 				$( "#inputForm" )[0].reset(); 
 				$( "#outputForm" )[0].reset(); 
 				$( "#nonFuncDescForm" )[0].reset(); 
+
+				$tabs.tabs('select', 0);
 			},
 			appendIO: function appendIO(array, type){
 				var input;
@@ -854,7 +895,7 @@ function View(id, width, height, gui){
 						inputJSON.properties = input.properties;
 						this.funcDescJSON.inputs.push(inputJSON);
 						
-						this.inputAndOutputAppender(inputJSON, "inputs tbody", no);
+						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", no);
 					}
 				}
 				else if(type==="outputs"){
@@ -869,33 +910,33 @@ function View(id, width, height, gui){
 						outputJSON.properties = input.properties;
 						this.funcDescJSON.outputs.push(outputJSON);
 						
-						this.inputAndOutputAppender(outputJSON, "outputs tbody", no);
+						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", no);
 					}
 				}
 			},
 			appendList: function appendList(array, type){
 				var input, that = this;
-				if(type === "sources"){
-					$.each(array, function(){
-						input = this;
-						that.resultJSON.sources.push(input); 	
-						$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
-					});
-				}
-				else if(type === "serviceClasses"){
+				// if(type === "sources"){
+				// 	$.each(array, function(){
+				// 		input = this;
+				// 		that.resultJSON.sources.push(input); 	
+				// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
+				// 	});
+				// } else 
+				if(type === "serviceClasses"){
 					$.each(array, function(){
 						input = this;
 						that.funcDescJSON.serviceClasses.push(input);
-						$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+						$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 					});
 				}
-				else if(type === "metaKeywords"){
-					$.each(array, function(){
-						input = this;	
-						that.funcDescJSON.metaKeywords.push(input);
-						$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-					});
-				}
+				// else if(type === "metaKeywords"){
+				// 	$.each(array, function(){
+				// 		input = this;	
+				// 		that.funcDescJSON.metaKeywords.push(input);
+				// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+				// 	});
+				// }
 			},		
 			appendNonFuncDesc: function appendNonFuncDesc(array){
 				var input, no;
@@ -928,7 +969,7 @@ function View(id, width, height, gui){
 						"</tr>" );
 			},
 			NFPropsAppender: function NFPropsAppender(input, number){
-				$( "#NFProps tbody").append( "<tr>" +
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( "<tr>" +
 						"<td>" + input.weight + "</td>" + 
 						"<td>" + input.name + "</td>" + 
 						"<td>" + input.relation + "</td>" +
@@ -993,32 +1034,32 @@ function View(id, width, height, gui){
 			*	EVENT HANDLERS START HERE
 			*/
 			submitAll: function submitAll(){
-				var condition;
+				// var condition;
 
 				this.clearErrors();
 				
-				this.resultJSON.nodeLabel = $( "#label" ).val();
-				this.resultJSON.nodeType = $( "#nodeType" ).val();
-				this.resultJSON.controlType = $( "#controlType" ).val();
-				this.resultJSON.alternatives = $( "#alternatives" ).val();
+				this.resultJSON.nodeLabel = $( "#f_mainTab_label" ).val();
+				this.resultJSON.nodeType = $( "#f_mainTab_nodeType" ).val();
+				// this.resultJSON.controlType = $( "#f_mainTab_controlType" ).val();
+				// this.resultJSON.alternatives = $( "#f_mainTab_alternatives" ).val();
 				
-				condition = $( "#condition" ).val();
-				if(condition)
-					this.resultJSON.condition = "if " + $( "#condition" ).val() + " then " + $( "#conditionTRUE" ).val() + " else " + $( "#conditionFALSE" ).val();
-				else this.resultJSON.condition = "";
+				// condition = $( "#f_mainTab_condition" ).val();
+				// if(condition)
+				// 	this.resultJSON.condition = "if " + $( "#f_mainTab_condition" ).val() + " then " + $( "#f_mainTab_conditionTRUE" ).val() + " else " + $( "#f_mainTab_conditionFALSE" ).val();
+				// else this.resultJSON.condition = "";
 
-				this.physDescJSON.serviceName = $( "#serviceName" ).val();
-				this.physDescJSON.serviceGlobalId = $( "#serviceGlobalId" ).val();
-				this.physDescJSON.address = $( "#address" ).val();
-				this.physDescJSON.operation = $( "#operation" ).val();
+				this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName" ).val();
+				this.physDescJSON.serviceGlobalId = $( "#f_physicalDescriptionTab_serviceGlobalId" ).val();
+				this.physDescJSON.address = $( "#f_physicalDescriptionTab_address" ).val();
+				this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation" ).val();
 				this.resultJSON.physicalDescription = this.physDescJSON;
 					
-				this.funcDescJSON.description = $( "#description" ).val();
-				this.funcDescJSON.preconditions = $( "#prec" ).val();
-				this.funcDescJSON.effects = $( "#effects" ).val();
+				this.funcDescJSON.description = $( "#f_mainTab_description" ).val();
+				this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
+				this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
 				this.resultJSON.functionalDescription = this.funcDescJSON;
 			
-				alert(JSON.stringify(resultJSON));
+				alert(JSON.stringify(this.resultJSON));
 
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 				
@@ -1026,103 +1067,103 @@ function View(id, width, height, gui){
 				$( "#form" ).dialog( "close" );
 			},
 			addServiceClass: function addServiceClass(){
-				var input = $("#serviceClass").val();
-				if(!this.stringExists(input, this.funcDescJSON.serviceClasses)){
+				var input = $("#f_mainTab_serviceClass").val();
+				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
 					this.funcDescJSON.serviceClasses.push(input);
-					$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+					$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 				}
-				$("#serviceClass").val("");
+				$("#f_mainTab_serviceClass").val("");
 			},
-			addMetaKeyword: function addMetaKeyword(){
-				var input = $("#metaKeyword").val();
-				if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
-					this.funcDescJSON.metaKeywords.push(input);
-					$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-				}
-				$("#metaKeyword").val("");
-			},
-			addSource: function addSource(){
-				$( "#source" ).removeClass( "ui-state-error" ); 
-				var input = $("#source").val();
-				if(!this.stringExists(input, this.resultJSON.sources)){
-					this.resultJSON.sources.push(input);
-					$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
-				}
-				$( "#source" ).val(""); 
-			},
+			// addMetaKeyword: function addMetaKeyword(){
+			// 	var input = $("#f_inputOutputTab_metaKeyword").val();
+			// 	if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
+			// 		this.funcDescJSON.metaKeywords.push(input);
+			// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+			// 	}
+			// 	$("#f_inputOutputTab_metaKeyword").val("");
+			// },
+			// addSource: function addSource(){
+			// 	$( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
+			// 	var input = $("#f_mainTab_source").val();
+			// 	if(!this.stringExists(input, this.resultJSON.sources)){
+			// 		this.resultJSON.sources.push(input);
+			// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
+			// 	}
+			// 	$( "#f_mainTab_source" ).val(""); 
+			// },
 			addInput: function addInput(){
 				if(this.inputEdit){
-					this.funcDescJSON.inputs[this.inputNumber].class = $( "#inputClass" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].id = $( "#inputNodeId" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].label = $( "#inputLabel" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#inputDataType" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].properties = $( "#iProperties" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].class = $( "#f_inputOutputTab_inputClass" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].id = $( "#f_inputOutputTab_inputId" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].label = $( "#f_inputOutputTab_inputLabel" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#f_inputOutputTab_inputDataType" ).val();
+					// this.funcDescJSON.inputs[this.inputNumber].properties = $( "#f_inputOutputTab_inputProperties" ).val();
 					alert("Changes to input " + this.inputNumber + " were saved successfully.");
 					
-					this.rowRemover("inputs", this.inputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "inputs tbody", this.inputNumber);
+					this.rowRemover("f_inputOutputTab_inputs", this.inputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "f_inputOutputTab_inputs tbody", this.inputNumber);
 				}
 				else{
 					var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					inputJSON.class = $( "#inputClass" ).val();
-					inputJSON.id = $( "#inputNodeId" ).val();
-					inputJSON.label = $( "#inputLabel" ).val();
-					inputJSON.dataType = $( "#inputDataType" ).val();
-					inputJSON.properties = $( "#iProperties" ).val();
+					inputJSON.class = $( "#f_inputOutputTab_inputClass" ).val();
+					inputJSON.id = $( "#f_inputOutputTab_inputId" ).val();
+					inputJSON.label = $( "#f_inputOutputTab_inputLabel" ).val();
+					inputJSON.dataType = $( "#f_inputOutputTab_inputDataType" ).val();
+					// inputJSON.properties = $( "#f_inputOutputTab_inputProperties" ).val();
 			
 					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
 						this.funcDescJSON.inputs.push(inputJSON);
-						this.inputAndOutputAppender(inputJSON, "inputs tbody", this.funcDescJSON.inputs.length);
+						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", this.funcDescJSON.inputs.length);
 					}
 				}
 				this.clearInputs();
 			},
 			addOutput: function addOutput(){
 				if(this.outputEdit){
-					this.funcDescJSON.outputs[this.outputNumber].class = $( "#outputClass" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].id = $( "#outputNodeId" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].label = $( "#outputLabel" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#outputDataType" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].properties = $( "#oProperties" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].class = $( "#f_inputOutputTab_outputClass" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].id = $( "#f_inputOutputTab_outputId" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].label = $( "#f_inputOutputTab_outputLabel" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#f_inputOutputTab_outputDataType" ).val();
+					// this.funcDescJSON.outputs[this.outputNumber].properties = $( "#f_inputOutputTab_outputProperties" ).val();
 					alert("Changes to output " + this.outputNumber + " were saved successfully.");
 					
-					this.rowRemover("outputs", this.outputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "outputs tbody", this.outputNumber);
+					this.rowRemover("f_inputOutputTab_outputs", this.outputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "f_inputOutputTab_outputs tbody", this.outputNumber);
 				}
 				else{
 					var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					outputJSON.class = $( "#outputClass" ).val();
-					outputJSON.id = $( "#outputNodeId" ).val();
-					outputJSON.label = $( "#outputLabel" ).val();
-					outputJSON.dataType = $( "#outputDataType" ).val();
-					outputJSON.properties = $( "#oProperties" ).val();
+					outputJSON.class = $( "#f_inputOutputTab_outputClass" ).val();
+					outputJSON.id = $( "#f_inputOutputTab_outputId" ).val();
+					outputJSON.label = $( "#f_inputOutputTab_outputLabel" ).val();
+					outputJSON.dataType = $( "#f_inputOutputTab_outputDataType" ).val();
+					// outputJSON.properties = $( "#f_inputOutputTab_outputProperties" ).val();
 					
 					if(!this.ioExists(outputJSON, this.funcDescJSON.outputs)){
 						this.funcDescJSON.outputs.push(outputJSON);
-						this.inputAndOutputAppender(outputJSON, "outputs tbody", this.funcDescJSON.outputs.length);
+						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", this.funcDescJSON.outputs.length);
 					}
 				}
 				this.clearOutputs();
 			},
 			addNonFunctional: function addNonFunctional(){
 				if(this.NFedit){
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#weight" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#name" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#relation" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#unit" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#value" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
 					alert("Changes to nonfunctional property " + this.NFnumber + " were saved successfully.");
 					
-					this.rowRemover("NFProps", this.NFrow+1);
+					this.rowRemover("f_nonFunctionalDescriptionTab_NFProps", this.NFrow+1);
 					this.NFPropsAppender(this.resultJSON.nonFunctionalDescription[this.NFnumber], this.NFnumber);
 				}
 				else{
 					var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""};
-					nonFuncDescJSON.weight = $( "#weight" ).val();
-					nonFuncDescJSON.name = $( "#name" ).val();
-					nonFuncDescJSON.relation = $( "#relation" ).val();
-					nonFuncDescJSON.unit = $( "#unit" ).val();
-					nonFuncDescJSON.value = $( "#value" ).val();
+					nonFuncDescJSON.weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
+					nonFuncDescJSON.name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
+					nonFuncDescJSON.relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
+					nonFuncDescJSON.unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
+					nonFuncDescJSON.value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
 					
 					if(!this.nonFuncExists(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription)){
 						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
@@ -1139,32 +1180,32 @@ function View(id, width, height, gui){
 			},
 			//TO NIE PARTYZANTKA, TO PARTYZANA!
 			editInput: function editInput(input){
-				$( "#iProperties" ).val(input.parent().prev().text());
-				$( "#inputDataType" ).val(input.parent().prev().prev().text());
-				$( "#inputClass" ).val(input.parent().prev().prev().prev().text());
-				$( "#inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
-				$( "#inputNodeId" ).val(input.parent().prev().prev().prev().prev().prev().text());
-				this.inputNumber = this.ioExistsIndex($( "#inputNodeId" ).val(), this.funcDescJSON.inputs);
+				// $( "#f_inputOutputTab_inputProperties" ).val(input.parent().prev().text());
+				$( "#f_inputOutputTab_inputDataType" ).val(input.parent().prev().prev().text());
+				$( "#f_inputOutputTab_inputClass" ).val(input.parent().prev().prev().prev().text());
+				$( "#f_inputOutputTab_inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
+				$( "#f_inputOutputTab_inputId" ).val(input.parent().prev().prev().prev().prev().prev().text());
+				this.inputNumber = this.ioExistsIndex($( "#f_inputOutputTab_inputId" ).val(), this.funcDescJSON.inputs);
 				this.inputEdit = true;
 				this.inputRow = input.parent().parent().parent().children().index(input.parent().parent());
 			},
 			editOutput: function editOutput(output){
-				$( "#oProperties" ).val(output.parent().prev().text());
-				$( "#outputDataType" ).val(output.parent().prev().prev().text());
-				$( "#outputClass" ).val(output.parent().prev().prev().prev().text());
-				$( "#outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
-				$( "#outputNodeId" ).val(output.parent().prev().prev().prev().prev().prev().text());
-				this.outputNumber = this.ioExistsIndex($( "#outputNodeId" ).val(), this.funcDescJSON.outputs);
+				// $( "#f_inputOutputTab_outputProperties" ).val(output.parent().prev().text());
+				$( "#f_inputOutputTab_outputDataType" ).val(output.parent().prev().prev().text());
+				$( "#f_inputOutputTab_outputClass" ).val(output.parent().prev().prev().prev().text());
+				$( "#f_inputOutputTab_outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
+				$( "#f_inputOutputTab_outputId" ).val(output.parent().prev().prev().prev().prev().prev().text());
+				this.outputNumber = this.ioExistsIndex($( "#f_inputOutputTab_outputId" ).val(), this.funcDescJSON.outputs);
 				this.outputEdit = true;
 				this.outputRow = output.parent().parent().parent().children().index(output.parent().parent());
 			},
 			editNonFunc: function editNonFunc(nfProp){
-				$( "#weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
-				$( "#name" ).val(nfProp.parent().prev().prev().prev().prev().text());
-				$( "#relation" ).val(nfProp.parent().prev().prev().prev().text());
-				$( "#unit" ).val(nfProp.parent().prev().prev().text());
-				$( "#value" ).val(nfProp.parent().prev().text());
-				this.NFnumber = this.nonFuncExistsIndex($( "#name" ).val(), this.resultJSON.nonFunctionalDescription);
+				$( "#f_nonFunctionalDescriptionTab_weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_name" ).val(nfProp.parent().prev().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_relation" ).val(nfProp.parent().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_unit" ).val(nfProp.parent().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_value" ).val(nfProp.parent().prev().text());
+				this.NFnumber = this.nonFuncExistsIndex($( "#f_nonFunctionalDescriptionTab_name" ).val(), this.resultJSON.nonFunctionalDescription);
 				this.NFedit = true;
 				this.NFrow = nfProp.parent().parent().parent().children().index(nfProp.parent().parent());
 			},
@@ -1189,17 +1230,32 @@ function View(id, width, height, gui){
 				this.funcDescJSON.serviceClasses.splice(index, 1);
 				serviceClass.remove();
 			},
-			removeMetaKeyword: function removeMetaKeyword(metaKeyword){
-				var id = metaKeyword.attr("id").split("_").pop();
-				var index = this.stringExistsIndex(id, funcDescJSON.metaKeywords);
-				funcDescJSON.metaKeywords.splice(index, 1);
-				metaKeyword.remove();
+			// removeMetaKeyword: function removeMetaKeyword(metaKeyword){
+			// 	var id = metaKeyword.attr("id").split("_").pop();
+			// 	var index = this.stringExistsIndex(id, funcDescJSON.metaKeywords);
+			// 	funcDescJSON.metaKeywords.splice(index, 1);
+			// 	metaKeyword.remove();
+			// },
+			// removeSource: function removeSource(source){
+			// 	var id = source.attr("id").split("_").pop();
+			// 	var index = this.stringExistsIndex(id, this.resultJSON.sources);
+			// 	this.resultJSON.sources.splice(index, 1);
+			// 	source.remove();
+			// },
+
+			//w tym jest bezczelna partyzantka - dopóki nie znajdę sposobu na uzyskanie referencji do 
+			//$('#physicalDescriptionTab'), mając tylko id taba
+			//var index = jQuery('#tabs').data('tabs').options.selected; 
+			//
+			nextTab: function nextTab(){
+				var selected = $tabs.tabs('option', 'selected');
+				if(selected==0 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected++;
+				if(selected < 3) $tabs.tabs('select', selected+1);
 			},
-			removeSource: function removeSource(source){
-				var id = source.attr("id").split("_").pop();
-				var index = this.stringExistsIndex(id, this.resultJSON.sources);
-				this.resultJSON.sources.splice(index, 1);
-				source.remove();
+			previousTab: function previousTab(){
+				var selected = $tabs.tabs('option', 'selected');
+				if(selected==2 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected--;
+				if(selected > 0) $tabs.tabs('select', selected-1);
 			}
 			/*
 			* EVENT HANDLERS END HERE
@@ -1207,69 +1263,95 @@ function View(id, width, height, gui){
 		};
 
 		//SUBMITY			
-		$("#sumbitAllButton").button().click(function() {
+		$("#f_button_sumbitAllButton").button().click(function() {
 			result.submitAll();
 		});
 		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
-		$("#addServiceClass").button().click(
+		$("#f_button_addServiceClass").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addServiceClass();
 			}
 		);
-		$("#addMetaKeyword").button().click(
+		$("#f_button_addMetaKeyword").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addMetaKeyword();
 			}
 		);
-		$("#addSource").button().click(
+		$("#f_button_addSource").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addSource();
 			}
 		);
-		$("#addInputButton").button().click(
+		$("#f_button_addInputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addInput();
 			}
 		);
-		$("#addOutputButton").button().click(
+		$("#f_button_addOutputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addOutput();		
 			}
 		);
-		$("#addNonFunctional").button().click(
+		$("#f_button_addNonFunctional").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addNonFunctional();
 			}
 		);
 		//RESETY
-		$("#resetAllButton").button().click(
+		$("#f_button_resetAllButton").button().click(
 			function(event) {
 				event.preventDefault();
-				result.resetAll();
+				if(confirm("You are about to clear the entire form. Are you sure?"))
+					if(confirm("You will lose all data and this action cannot be cancelled. Do you really want to do this?")){
+						alert("FINE.");
+						result.resetAll();
+					}
 			}
 		);
-		$("#clearNonFunctional").button().click(
+		$("#f_button_clearNonFunctional").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearNF();
 			}
 		);		
-		$("#clearInputButton").button().click(
+		$("#f_button_clearInputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearInputs();
 			}
 		);		
-		$("#clearOutputButton").button().click(
+		$("#f_button_clearOutputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearOutputs();
+			}
+		);
+		$("#f_mainTab_moar").click(
+			function(event) {
+				var input = $("#f_mainTab_description");
+				if(this.innerHTML=="more..."){
+					input.attr({'rows': 2, 'cols': '40'}).css({'width': '270px', 'height': '40px'}).parent().attr("colspan", 2);
+					this.innerHTML = "less...";
+				}
+				else{
+					input.attr({'rows': '1', 'cols': '20'}).css({'width': '135px', 'height': '20px'}).parent().attr("colspan", 1);
+					this.innerHTML = "more...";					
+				}
+			}
+		);
+		//Next/Back
+		$('button[id$="Tab_nextButton"]').button().click(function() {
+				result.nextTab();
+			}
+		);
+		$('button[id$="Tab_backButton"]').button().click(function() {
+				result.previousTab();
 			}
 		);
 		//EDITY i DELETY w tabelkach z i/o oraz non func
@@ -1283,42 +1365,42 @@ function View(id, width, height, gui){
 				form.removeNonFunc($(this));
 			});
 		}(result));
-		$('button[id^="inputsedit"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_inputsedit"]').live("click", function(form){
 			return (function(){
 				form.editInput($(this));
 			});
 		}(result));
-		$('button[id^="inputsdel"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_inputsdel"]').live("click", function(form){
 			return (function(){
 				form.removeInput($(this));
 			});
 		}(result));
-		$('button[id^="outputsedit"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_outputsedit"]').live("click", function(form){
 			return (function(){
 				form.editOutput($(this));
 			});
 		}(result));
-		$('button[id^="outputsdel"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_outputsdel"]').live("click", function(form){
 			return (function(){
 				form.removeOutput($(this));
 			});
 		}(result));
 		//spany z source'ami, service classes i meta keywords
-		$('span[id^="src_"]').live("click", function(form){
-			return (function(){
-				form.removeSource($(this));
-			});
-		}(result));
+		// $('span[id^="src_"]').live("click", function(form){
+		// 	return (function(){
+		// 		form.removeSource($(this));
+		// 	});
+		// }(result));
 		$('span[id^="sc_"]').live("click", function(form){
 			return (function(){
-				form.removeSource($(this));
+				form.removeServiceClass($(this));
 			});
 		}(result));
-		$('span[id^="mk_"]').live("click", function(form){
-			return (function(){
-				form.removeMetaKeyword($(this));
-			});
-		}(result));
+		// $('span[id^="mk_"]').live("click", function(form){
+		// 	return (function(){
+		// 		form.removeMetaKeyword($(this));
+		// 	});
+		// }(result));
 
 		return result;
 	};
@@ -1989,8 +2071,8 @@ function View(id, width, height, gui){
 				this.current_graph_view.nodes.unshift( start, stop );
 			}
 		},
-		addBlankNode : function addBlankNode(nodeType){
-			this.form.initBlank(nodeType);
+		addBlankNode : function addBlankNode(nodeInfo){
+			this.form.initBlank(nodeInfo);
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
 			//dodać lepiej dobierane parametry x, y
@@ -2682,16 +2764,17 @@ function View(id, width, height, gui){
 				autoOpen: false,
 				modal: true,
 				height: 500,
-				width: 800
+				width: 700
 			});
-			$( "#tabs" ).tabs();
-			$("#functional1")
+			$("#functionalAcc1")
 				.accordion({ 
+					active: false,
 					collapsible: true,
 					header: "h3" 
 			});
-			$("#functional2")
+			$("#functionalAcc2")
 				.accordion({ 
+					active: false,
 					collapsible: true,
 					header: "h3" 
 			});
