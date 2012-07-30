@@ -1616,6 +1616,7 @@ function View(id, width, height, gui){
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
+				//TU BYDEM DZIABAŁ [Błażej] (Porządkowanie wyświetlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -1624,6 +1625,7 @@ function View(id, width, height, gui){
 				$.each(node.functionalDescription.outputs, function(){
 					newNode.outputs.push( $.extend(true, {}, this) );
 				});
+				console.log(newNode.id, newNode.inputs, newNode.outputs);
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
@@ -1656,18 +1658,17 @@ function View(id, width, height, gui){
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
 				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
 
-				//TU BYDEM DZIABAŁ [Błażej] (Porządkowanie wyświetlania data flow)
 				var currIO;
 				for(var k = 0; k < input_length; k++){
 					currIO = node.inputs[k];
 					if(k < 4){
-						multX = ((k % 2) === 0) ? 1 : -1;
+						multX = ((k % 2) === 0) ? -1 : 1;
 						multY = (k < 2) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
 					}
 					else{
-						multX = ((k % 2) === 0) ? 1 : -1;
+						multX = ((k % 2) === 0) ? -1 : 1;
 						multY = (k < 6) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
@@ -1677,13 +1678,13 @@ function View(id, width, height, gui){
 				for(var l = 0; l < output_length; l++){
 					currIO = node.outputs[l];
 					if(l < 4){
-						multX = ((l % 2) === 0) ? 1 : -1;
+						multX = ((l % 2) === 0) ? -1 : 1;
 						multY = (l < 2) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
 					}
 					else{
-						multX = ((l % 2) === 0) ? 1 : -1;
+						multX = ((l % 2) === 0) ? -1 : 1;
 						multY = (l < 6) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"});
 						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
