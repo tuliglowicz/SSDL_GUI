@@ -456,7 +456,7 @@ function Controler(url, gui){
 			});
 			return ret;
 		}
-		function processNodes(nodeArray) {//setting flow and processing subgraph for each node
+		function processNodes(nodeArray) {//setting flow for each node
 			$.each(nodeArray, function() {
 				var tempObj = this;
 				$.each(this.sources, function() {//assigning parent/child refferences for each node
