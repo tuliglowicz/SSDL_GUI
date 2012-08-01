@@ -104,10 +104,11 @@ function Controler(url, gui){
 		* - pf (number for id randomization)
 		* REQUIRED DOM ELEMENTS:
 		* - div with id 'console_'+pf
-		* AVIABLE FUNCTIONS:
-		* - info(information string [, title string])
-		* - warning(warning string [, title string])
-		* - error(error string [, title string])
+		* OUTPUT:
+		* - object
+		* -> info (function(information string [, title string]) displaying information in console)
+		* -> warning (function(warning string [, title string]) displaying warning in console)
+		* -> error (function(error string [, title string]) displaying error in console)
 		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
@@ -386,6 +387,10 @@ function Controler(url, gui){
 		* - nodeHSpacing (minimum horizontal spacing between nodes)
 		* - nodeVSpacing (vertical spacing between nodes)
 		* - startY (height on canvas from which we start to draw graph)
+		* OUTPUT:
+		* - object
+		* -> coords (array{nodeID, nodeX, nodeY})
+		* -> getCoords (function(id) returning array{nodeX, nodeY} for specified ID)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
 		function run(){//deploying main ssdl graph
