@@ -35,7 +35,7 @@ function View(id, width, height, gui){
 				isOpen: function isOpen() {
 					return this.visible;
 				},
-				open2: function open2(title, text, x, y) {
+				openHelper: function openHelper(title, text, x, y) {
 					this.tipContener.show();
 					this.visible = true;
 				},
@@ -52,13 +52,12 @@ function View(id, width, height, gui){
 						this.tipContener.css("height", (this.tipTitle.height() + this.tipText.height()) + "px");
 
 						if (evt.shiftKey)
-							this.open2(this.title, this.text, this.x, this.y);
+							this.openHelper(this.title, this.text, this.x, this.y);
 						else 
-							this.tOut = setTimeout((function() { this.open2(this.title, this.text, this.x, this.y); }).bind(this), 500);
+							this.tOut = setTimeout((function() { this.openHelper(this.title, this.text, this.x, this.y); }).bind(this), 500);
 					}
 				},
 				close: function close() {
-					// console.log("close")
 					clearTimeout(this.tOut);
 					this.tipContener.hide();
 					this.visible = false;
@@ -558,13 +557,13 @@ function View(id, width, height, gui){
 		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
 		result.addGroup("Edit");
 		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
-		result.addGroup("Tester group");
-		result.addOption("Tester group", "Test1", f3, "Test if works");
-		result.addOption("Tester group", "TestTWO", f3, "Test if works");
-		result.addOption("Tester group", "AnotherTest", f3, "Test if works");
-		result.addOption("Tester group", "Test4", f3, "Test if works");
-		result.addOption("Views", "SS", f3, "Test if works");
-		result.addOption("Views", "Test", f3, "Test if works");
+		// result.addGroup("Tester group");
+		// result.addOption("Tester group", "Test1", f3, "Test if works");
+		// result.addOption("Tester group", "TestTWO", f3, "Test if works");
+		// result.addOption("Tester group", "AnotherTest", f3, "Test if works");
+		// result.addOption("Tester group", "Test4", f3, "Test if works");
+		// result.addOption("Views", "SS", f3, "Test if works");
+		// result.addOption("Views", "Test", f3, "Test if works");
 
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
@@ -1486,7 +1485,6 @@ function View(id, width, height, gui){
 						});
 					},
 					updateNode : function updateNode(){
-
 					}
 				}
 				
@@ -2401,6 +2399,7 @@ function View(id, width, height, gui){
 			this.current_graph_view = tab[ tab.length-1 ];
 			this.showCurrentGraph();
 			this.switchMode();
+			c = -1;
 		},
 		drawGraph : function drawGraph(graph_json){
 			// alert(graph_json.nodes)

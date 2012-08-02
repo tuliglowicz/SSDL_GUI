@@ -5,6 +5,287 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
+	function validator() {
+		/*
+			 Validator for ,,Java Son'' JSON by Jacek ,,Jaciej'' Kowalczyk
+			 All errors are being put in errlist array.
+			 You can access them by simply using code written below:
+		        var error = errlist[i].split("_");
+		     This will create array containing label_id and error description.
+		*/
+		// validateNode
+		// validateInputVariables
+		// validateNonFunctionalParameters
+		// validateParameters (na razie tylko pusta funkcja)
+		// validateExceptions (na razie tylko pusta funkcja)
+
+		// nonFunctionalParameters : [],
+		// parameters : [],
+		// exceptions : []
+
+		var validator = {
+			// n: json.nodes,
+			errlist: [],
+			nodeIdValidation: function nodeIdValidation(node) {
+				var i = 0;
+				var n = parent.json.nodes || json.nodes;
+				$.each(n, function() {
+					if (i > 1) {
+						validator.errlist.push("t1_nodeId_NodeID exists!");
+					} else if (this.nodeId == node.nodeId) {
+						i++;
+					}
+				});
+			},
+			nodePhysDescValidation: function nodePhysDescValidation(node) {
+				if (node.physicalDescription.serviceName == null || node.physicalDescription.serviceName == "") {
+					validator.errlist.push("t2_serviceName_Service Name is empty!");
+				} else if (node.physicalDescription.serviceGlobalId == null || node.physicalDescription.serviceGlobalId == "") {
+					validator.errlist.push("t2_serviceGlobalId_Service Global Id is empty!");
+				} else if (node.physicalDescription.address == null || node.physicalDescription.address == "") {
+					validator.errlist.push("t2_address_Addres is empty!");
+				} else if (node.physicalDescription.operation == null || node.physicalDescription.operation == "") {
+					validator.errlist.push("t2_operation_Operation is empty.");
+				}
+			},
+			nodePhysDescValidationfunctional: function nodePhysDescValidationfunctional(node) {
+				if (node.physicalDescription.serviceName != "") {
+					validator.errlist.push("t2_serviceName_Service name should be empty!");
+				} else if (node.physicalDescription.serviceGlobalId != "") {
+					validator.errlist.push("t2_serviceGlobalId_Service GlobalId should be empty!");
+				} else if (node.physicalDescription.address != "") {
+					validator.errlist.push("t2_address_Address should be empty!");
+				} else if (node.physicalDescription.operation != "") {
+					validator.errlist.push("t2_operation_Operation should be empty!");
+				}
+			},
+			tabChecker: function inputTabChecker(tab1, tab2) {
+				var sukces = true;
+				$.each(tab2, function() {
+					var szukana = this;
+					console.log("poszukiwany: " + this.label)
+					$.each(tab1, function() {
+						if (this.class == szukana.class && this.id == szukana.id && this.label == szukana.label && this.dataType == szukana.dataType && this.properties == szukana.properties) {
+							sukces = true;
+							return !sukces
+						} else {
+							sukces = false;
+						}
+
+					});
+					if (sukces == false) return sukces;
+				});
+				return sukces;
+			},
+			subGraphChecker: function subGraphChecker(node) {
+				var inputsArray = node.functionalDescription.inputs;
+				var outputsArray = node.functionalDescription.outputs;
+				$.each(node.subgraph.nodes, function() {
+					if (this.nodeId == "#Start") {
+						console.log(this.nodeId);
+						console.log(validator.tabChecker(inputsArray, this.functionalDescription.outputs));
+
+					}
+					if (this.nodeId == "#End") {
+						console.log(this.nodeId);
+						console.log(validator.tabChecker(outputsArray, this.functionalDescription.inputs));
+					}
+				});
+			},
+			outputInputChecker: function outputInputChecker(node) {
+				var searched = node.functionalDescription.inputs
+				if(node.nodeId = "#Start")
+					if(searched.length>0)
+						validator.errlist.push("Start not can't have any imputs!");
+				var sukces;
+				var n = parent.json.nodes || json.nodes;
+				$.each(searched, function() {
+					var searchnode = this.source[0];
+					console.group("Walidacja OI dla " + searchnode);
+					console.log("Bede szukal wyjscia ktore ma wejscie w node " + searchnode);
+					var searchoutputid = this.source[1];
+					console.log("Bede szukal w wyjsciach id: " + searchoutputid);
+					$.each(n, function() {
+						if (this.nodeId == searchnode) {
+							var searchforid = this;
+							$.each(searchforid.functionalDescription.outputs, function() {
+								if (this.id == searchoutputid) {
+									var classvar = this.class;
+									console.log("Szukam ontologie dla " + classvar);
+									var dataTypevar = this.dataType;
+									console.log("Szukam ontologie dla " + dataTypevar);
+									var classOK = false,
+										dataTypeOK = false;
+									$.each(Ontology, function() {
+										classOK = classOK || (this == classvar);
+										dataTypeOK = dataTypeOK || (this == dataTypevar);
+										sukces = (classOK && dataTypeOK);
+										return !(sukces);
+									});
+								}
+
+								//else
+								//sukces = false;
+							});
+							console.groupEnd();
+							return false;
+						} else sukces = false;
+					});
+				});
+
+				if (sukces == false) validator.errlist.push("t3_inputs_Input Exception!");
+			},
+			inputOutputchecker: function inputOutputchecker(node) {
+				var searched = node.functionalDescription.outputs;
+				if(node.nodeId=="#End")
+					if(searched.length>0)
+						validator.errlist.push("#End node can't have outputs!");
+				var n = parent.json.nodes || json.nodes;
+				var sukces = false;
+				var searchnode = node.nodeId;
+				console.group("Walidacja IO dla " + searchnode);
+				console.log("Szukam takich wejsc ktore potrzebuja wyjscia  " + searchnode);
+				$.each(searched, function() {
+					var searchoutputid = this.id;
+					console.log("Szukam " + searchoutputid);
+					$.each(n, function() {
+						if (this.nodeId != searchnode) $.each(this.functionalDescription.inputs, function() {
+							var searchnodeOK = false,
+								searchoutputOK = false;
+							var searchnodeOK = searchnodeOK || (this.source[0] == searchnode);
+							searchoutputOK = searchoutputOK || (this.source[1] == searchoutputid);
+							sukces = (searchnodeOK && searchoutputOK);
+							return !(sukces);
+						});
+					});
+					if (sukces == false) validator.errlist.push(node.nodeId + " t3_outputs_Output Exception!");
+				});
+				console.groupEnd();
+			},
+			nodeTypeValidation: function nodeTypeValidation(node) {
+				if (node.nodeType != "Functionality" && node.nodeType != "Service" && node.nodeType != "Control" && node.nodeType != "Mediator" && node.nodeType != "JavaService")
+					validator.errlist.push("t1_nodeType_Node Type is unsupported!");
+				if (node.nodeId == "#Start")
+					if (node.nodeType != "Control") validator.errlist.push("Start node type must be Control!");
+			},
+			sourcesValidation: function sourcesValidation(node) {
+				if (node.nodeId == "#Start") {
+					if (node.sources.length != 0) validator.errlist.push("t1_source_Sources is not empty!");
+				} else if (node.sources.length == 0) {
+					validator.errlist.push("t1_source_Sources is empty!");
+				}
+			},
+			nodeNonFuncValidation: function nodeNonFuncValidation(node) {
+				if (node.nonFunctionalDescription.length != 0) {
+					$.each(node.nonFunctionalDescription, function() {
+						var prop = this;
+						if (prop.weight == "" || prop.weight < 0) validator.errlist.push("t4_weight_Weight must be more than 0!");
+						if (prop.name == " ") validator.errlist.push("t4_name_Name cannot be empty!");
+						if (prop.relation != "eq" || prop.relation != "le" || prop.relation != "ge") validator.errlist.push("t4_relation_Relation empty or unsupported");
+						if (prop.unit == "") validator.errlist.push("t4_unit_Unit cannot be empty!");
+						if (prop.value == "") validator.errlist.push("t4_value_Value must be entered!");
+					});
+				}
+			}
+		};
+		validator.validateAll = function validateAll(json) {
+			validator.errlist = [];
+			$.each(json.nodes, function() {
+				if (this.nodeType == "Control") {
+					// console.group(this.nodeId);
+					// console.log("Waliduje  kontroler o nazwie " + this.nodeId);
+					validator.validateforControlType(this);
+					// console.groupEnd();
+				} else if (this.nodeType == "Functionality") {
+					// console.group(this.nodeId);
+					// console.log("Waliduje  funkcjonalna o nazwie " + this.nodeId);
+					validator.validateforfunctionalType(this);
+					// console.groupEnd();
+				} else if (this.nodeType == "StreamingWorkflowEngine" || this.nodeType == "Service") {
+					// console.group(this.nodeId);
+					// console.log("Waliduje  serwisowa	 o nazwie " + this.nodeId);
+					validator.validateforServiceType(this);
+					// console.groupEnd();
+				} else {
+					// console.group(this.nodeId);
+					// console.log("Waliduje  o nazwie " + this.nodeId);
+					validator.nodeTypeValidation(this);
+					validator.nodeIdValidation(this);
+					validator.sourcesValidation(this);
+					validator.nodePhysDescValidation(this);
+					validator.outputInputChecker(this);
+					validator.inputOutputchecker(this);
+					// console.groupEnd();
+				}
+			});
+			// console.log("Koniec Walidacji");
+		}
+
+		// �cie�ka walidacji dla typu Funkcyjnego 
+		validator.validateforfunctionalType = function(node) {
+			validator.nodeIdValidation(node);
+			if (node.subgraph.nodes) {
+				validator.subGraphChecker(node);
+			}
+			validator.nodePhysDescValidationfunctional(node);
+			validator.sourcesValidation(node);
+			validator.outputInputChecker(node);
+			validator.inputOutputchecker(node);
+		}
+
+		// �cie�ka walidacji dla typu Kontrolnego		
+		validator.validateforControlType = function(node) {
+			validator.nodeIdValidation(node);
+			validator.nodePhysDescValidationfunctional(node);
+			if (node.subgraph.nodes) {
+				validator.subGraphChecker(node);
+			}
+			validator.sourcesValidation(node);
+			validator.outputInputChecker(node);
+		}
+		// �cie�ka walidacji dla typu Us�ugowego		
+		validator.validateforServiceType = function(node) {
+
+			validator.nodeIdValidation(node);
+			validator.nodePhysDescValidation(node);
+			if (node.subgraph.nodes) {
+				validator.subGraphChecker(node);
+			}
+			validator.nodeNonFuncValidation(node);
+			validator.sourcesValidation(node);
+			validator.outputInputChecker(node);
+			validator.inputOutputchecker(node);
+		}
+
+		validator.validateOne = function validateOne(node) {
+			validator.errlist = new Array();
+			if (node.nodeType == "Control") {
+				// console.group(node.nodeId);
+				// console.log("Waliduje  kontroler o nazwie " + node.nodeId);
+				validator.validateforControlType(node);
+				// console.groupEnd();
+			} else if (node.nodeType == "Functionality") {
+				// console.group(node.nodeId);
+				// console.log("Waliduje  funkcjonalna o nazwie " + node.nodeId);
+				validator.validateforfunctionalType(node);
+				// console.groupEnd();
+			} else if (node.nodeType == "StreamingWorkflowEngine" || node.nodeType == "Service") {
+				// console.group(node.nodeId);
+				// console.log("Waliduje  serwisowa     o nazwie " + node.nodeId);
+				validator.validateforServiceType(node);
+				// console.groupEnd();
+			} else {
+				validator.nodeTypeValidation(node);
+				validator.nodeIdValidation(node);
+				validator.sourcesValidation(node);
+				validator.nodePhysDescValidation(node);
+				validator.outputInputChecker(node);
+				validator.inputOutputchecker(node);
+			}
+		}
+
+		return validator;
+	}
 	function repoNodes(visualiser){
 		var resultObject = {
 			currNodes : [],
@@ -79,10 +360,6 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* juniLOGGER v1.0
-		* REQUIRED PARAMS: 
-		* - paper (on which we will draw button opening the console)
-		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
 			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
@@ -224,10 +501,7 @@ function Controler(url, gui){
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
-		/* SSDL Graph Deployment v0.64
-		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
-		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 26.06.2012
+		/* 
 		* REQUIRED PARAMS: 
 		* - ssdlJson (jSon form of SSDL XML)
 		* - canvasW (width of canvas we will be drawing on)
@@ -906,7 +1180,7 @@ function Controler(url, gui){
 				})(); break;
 				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
 					e.nodeId = gui.controler.generateId();
-					// alert(e.nodeId)
+					alert(e.nodeId)
 					e = $.extend(true, {}, e);
 					e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
 					e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
@@ -939,6 +1213,7 @@ function Controler(url, gui){
 							ssdl_json = this.convert(ssdl, e.title);
 							// raport(this.convertJSON2XML(ssdl_json, true));
 
+						// var afterValidation = that.validator.
 						// if( true )
 						// 	this.current_graphData = ssdl_json;
 
@@ -1085,6 +1360,7 @@ function Controler(url, gui){
 			this.repoNodes.init();
 			this.navigator = navigator();
 			this.navigator.init();
+			this.validator = validator();
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;
@@ -1295,8 +1571,7 @@ function Controler(url, gui){
 
 			return tab;
 		},
-		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
-			
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {			
 			function parseGraph(subgraph, tabulacja){
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
@@ -1549,7 +1824,7 @@ function Controler(url, gui){
 				var nonFunctionalProperty;
 				_this.find("nonFunctionalDescription:first nonFunctionalProperty").each(function(){
 					nonFunctionalProperty = {};
-					nonFunctionalProperty.weight = $(this).find("weight").text();
+					nonFunctionalProperty.weight = parseInt( $(this).find("weight").text(), 10 );
 					nonFunctionalProperty.name = $(this).find("name").text();
 					nonFunctionalProperty.relation = $(this).find("relation").text();
 					nonFunctionalProperty.unit = $(this).find("unit").text();
@@ -1604,7 +1879,7 @@ function Controler(url, gui){
 				nonFunctionalProperty;
 			$(ssdl).find("nonFunctionalParameters:first nonFunctionalProperty").each(function(){
 				nonFunctionalProperty = {};
-				nonFunctionalProperty.weight = $(this).find("weight:first").text();
+				nonFunctionalProperty.weight = parseInt( $(this).find("weight:first").text(), 10);
 				nonFunctionalProperty.unit = $(this).find("unit:first").text();
 				nonFunctionalProperty.value = $(this).find("value:first").text();
 				nonFunctionalProperty.relation = $(this).find("relation:first").text();
@@ -1673,7 +1948,7 @@ function Controler(url, gui){
 			// zaczynamy inaczej:
 
 			var root = this.getRoot();
-			var xml = this.convertJSON2XML(root);
+			var xml = this.convertJSON2XML(root, true);
 			// this.save(url, 'xml', function(txt){
 				// gui.logger.info("Zapisano SSDL "+root.id);
 			// }, 'text', function(txt){
