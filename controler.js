@@ -5,287 +5,6 @@
 function Controler(url, gui){
 	var pf = gui.id_postfix;
 
-	function validator() {
-		/*
-			 Validator for ,,Java Son'' JSON by Jacek ,,Jaciej'' Kowalczyk
-			 All errors are being put in errlist array.
-			 You can access them by simply using code written below:
-		        var error = errlist[i].split("_");
-		     This will create array containing label_id and error description.
-		*/
-		// validateNode
-		// validateInputVariables
-		// validateNonFunctionalParameters
-		// validateParameters (na razie tylko pusta funkcja)
-		// validateExceptions (na razie tylko pusta funkcja)
-
-		// nonFunctionalParameters : [],
-		// parameters : [],
-		// exceptions : []
-
-		var validator = {
-			// n: json.nodes,
-			errlist: [],
-			nodeIdValidation: function nodeIdValidation(node) {
-				var i = 0;
-				var n = parent.json.nodes || json.nodes;
-				$.each(n, function() {
-					if (i > 1) {
-						validator.errlist.push("t1_nodeId_NodeID exists!");
-					} else if (this.nodeId == node.nodeId) {
-						i++;
-					}
-				});
-			},
-			nodePhysDescValidation: function nodePhysDescValidation(node) {
-				if (node.physicalDescription.serviceName == null || node.physicalDescription.serviceName == "") {
-					validator.errlist.push("t2_serviceName_Service Name is empty!");
-				} else if (node.physicalDescription.serviceGlobalId == null || node.physicalDescription.serviceGlobalId == "") {
-					validator.errlist.push("t2_serviceGlobalId_Service Global Id is empty!");
-				} else if (node.physicalDescription.address == null || node.physicalDescription.address == "") {
-					validator.errlist.push("t2_address_Addres is empty!");
-				} else if (node.physicalDescription.operation == null || node.physicalDescription.operation == "") {
-					validator.errlist.push("t2_operation_Operation is empty.");
-				}
-			},
-			nodePhysDescValidationfunctional: function nodePhysDescValidationfunctional(node) {
-				if (node.physicalDescription.serviceName != "") {
-					validator.errlist.push("t2_serviceName_Service name should be empty!");
-				} else if (node.physicalDescription.serviceGlobalId != "") {
-					validator.errlist.push("t2_serviceGlobalId_Service GlobalId should be empty!");
-				} else if (node.physicalDescription.address != "") {
-					validator.errlist.push("t2_address_Address should be empty!");
-				} else if (node.physicalDescription.operation != "") {
-					validator.errlist.push("t2_operation_Operation should be empty!");
-				}
-			},
-			tabChecker: function inputTabChecker(tab1, tab2) {
-				var sukces = true;
-				$.each(tab2, function() {
-					var szukana = this;
-					console.log("poszukiwany: " + this.label)
-					$.each(tab1, function() {
-						if (this.class == szukana.class && this.id == szukana.id && this.label == szukana.label && this.dataType == szukana.dataType && this.properties == szukana.properties) {
-							sukces = true;
-							return !sukces
-						} else {
-							sukces = false;
-						}
-
-					});
-					if (sukces == false) return sukces;
-				});
-				return sukces;
-			},
-			subGraphChecker: function subGraphChecker(node) {
-				var inputsArray = node.functionalDescription.inputs;
-				var outputsArray = node.functionalDescription.outputs;
-				$.each(node.subgraph.nodes, function() {
-					if (this.nodeId == "#Start") {
-						console.log(this.nodeId);
-						console.log(validator.tabChecker(inputsArray, this.functionalDescription.outputs));
-
-					}
-					if (this.nodeId == "#End") {
-						console.log(this.nodeId);
-						console.log(validator.tabChecker(outputsArray, this.functionalDescription.inputs));
-					}
-				});
-			},
-			outputInputChecker: function outputInputChecker(node) {
-				var searched = node.functionalDescription.inputs
-				if(node.nodeId = "#Start")
-					if(searched.length>0)
-						validator.errlist.push("Start not can't have any imputs!");
-				var sukces;
-				var n = parent.json.nodes || json.nodes;
-				$.each(searched, function() {
-					var searchnode = this.source[0];
-					console.group("Walidacja OI dla " + searchnode);
-					console.log("Bede szukal wyjscia ktore ma wejscie w node " + searchnode);
-					var searchoutputid = this.source[1];
-					console.log("Bede szukal w wyjsciach id: " + searchoutputid);
-					$.each(n, function() {
-						if (this.nodeId == searchnode) {
-							var searchforid = this;
-							$.each(searchforid.functionalDescription.outputs, function() {
-								if (this.id == searchoutputid) {
-									var classvar = this.class;
-									console.log("Szukam ontologie dla " + classvar);
-									var dataTypevar = this.dataType;
-									console.log("Szukam ontologie dla " + dataTypevar);
-									var classOK = false,
-										dataTypeOK = false;
-									$.each(Ontology, function() {
-										classOK = classOK || (this == classvar);
-										dataTypeOK = dataTypeOK || (this == dataTypevar);
-										sukces = (classOK && dataTypeOK);
-										return !(sukces);
-									});
-								}
-
-								//else
-								//sukces = false;
-							});
-							console.groupEnd();
-							return false;
-						} else sukces = false;
-					});
-				});
-
-				if (sukces == false) validator.errlist.push("t3_inputs_Input Exception!");
-			},
-			inputOutputchecker: function inputOutputchecker(node) {
-				var searched = node.functionalDescription.outputs;
-				if(node.nodeId=="#End")
-					if(searched.length>0)
-						validator.errlist.push("#End node can't have outputs!");
-				var n = parent.json.nodes || json.nodes;
-				var sukces = false;
-				var searchnode = node.nodeId;
-				console.group("Walidacja IO dla " + searchnode);
-				console.log("Szukam takich wejsc ktore potrzebuja wyjscia  " + searchnode);
-				$.each(searched, function() {
-					var searchoutputid = this.id;
-					console.log("Szukam " + searchoutputid);
-					$.each(n, function() {
-						if (this.nodeId != searchnode) $.each(this.functionalDescription.inputs, function() {
-							var searchnodeOK = false,
-								searchoutputOK = false;
-							var searchnodeOK = searchnodeOK || (this.source[0] == searchnode);
-							searchoutputOK = searchoutputOK || (this.source[1] == searchoutputid);
-							sukces = (searchnodeOK && searchoutputOK);
-							return !(sukces);
-						});
-					});
-					if (sukces == false) validator.errlist.push(node.nodeId + " t3_outputs_Output Exception!");
-				});
-				console.groupEnd();
-			},
-			nodeTypeValidation: function nodeTypeValidation(node) {
-				if (node.nodeType != "Functionality" && node.nodeType != "Service" && node.nodeType != "Control" && node.nodeType != "Mediator" && node.nodeType != "JavaService")
-					validator.errlist.push("t1_nodeType_Node Type is unsupported!");
-				if (node.nodeId == "#Start")
-					if (node.nodeType != "Control") validator.errlist.push("Start node type must be Control!");
-			},
-			sourcesValidation: function sourcesValidation(node) {
-				if (node.nodeId == "#Start") {
-					if (node.sources.length != 0) validator.errlist.push("t1_source_Sources is not empty!");
-				} else if (node.sources.length == 0) {
-					validator.errlist.push("t1_source_Sources is empty!");
-				}
-			},
-			nodeNonFuncValidation: function nodeNonFuncValidation(node) {
-				if (node.nonFunctionalDescription.length != 0) {
-					$.each(node.nonFunctionalDescription, function() {
-						var prop = this;
-						if (prop.weight == "" || prop.weight < 0) validator.errlist.push("t4_weight_Weight must be more than 0!");
-						if (prop.name == " ") validator.errlist.push("t4_name_Name cannot be empty!");
-						if (prop.relation != "eq" || prop.relation != "le" || prop.relation != "ge") validator.errlist.push("t4_relation_Relation empty or unsupported");
-						if (prop.unit == "") validator.errlist.push("t4_unit_Unit cannot be empty!");
-						if (prop.value == "") validator.errlist.push("t4_value_Value must be entered!");
-					});
-				}
-			}
-		};
-		validator.validateAll = function validateAll(json) {
-			validator.errlist = [];
-			$.each(json.nodes, function() {
-				if (this.nodeType == "Control") {
-					// console.group(this.nodeId);
-					// console.log("Waliduje  kontroler o nazwie " + this.nodeId);
-					validator.validateforControlType(this);
-					// console.groupEnd();
-				} else if (this.nodeType == "Functionality") {
-					// console.group(this.nodeId);
-					// console.log("Waliduje  funkcjonalna o nazwie " + this.nodeId);
-					validator.validateforfunctionalType(this);
-					// console.groupEnd();
-				} else if (this.nodeType == "StreamingWorkflowEngine" || this.nodeType == "Service") {
-					// console.group(this.nodeId);
-					// console.log("Waliduje  serwisowa	 o nazwie " + this.nodeId);
-					validator.validateforServiceType(this);
-					// console.groupEnd();
-				} else {
-					// console.group(this.nodeId);
-					// console.log("Waliduje  o nazwie " + this.nodeId);
-					validator.nodeTypeValidation(this);
-					validator.nodeIdValidation(this);
-					validator.sourcesValidation(this);
-					validator.nodePhysDescValidation(this);
-					validator.outputInputChecker(this);
-					validator.inputOutputchecker(this);
-					// console.groupEnd();
-				}
-			});
-			// console.log("Koniec Walidacji");
-		}
-
-		// �cie�ka walidacji dla typu Funkcyjnego 
-		validator.validateforfunctionalType = function(node) {
-			validator.nodeIdValidation(node);
-			if (node.subgraph.nodes) {
-				validator.subGraphChecker(node);
-			}
-			validator.nodePhysDescValidationfunctional(node);
-			validator.sourcesValidation(node);
-			validator.outputInputChecker(node);
-			validator.inputOutputchecker(node);
-		}
-
-		// �cie�ka walidacji dla typu Kontrolnego		
-		validator.validateforControlType = function(node) {
-			validator.nodeIdValidation(node);
-			validator.nodePhysDescValidationfunctional(node);
-			if (node.subgraph.nodes) {
-				validator.subGraphChecker(node);
-			}
-			validator.sourcesValidation(node);
-			validator.outputInputChecker(node);
-		}
-		// �cie�ka walidacji dla typu Us�ugowego		
-		validator.validateforServiceType = function(node) {
-
-			validator.nodeIdValidation(node);
-			validator.nodePhysDescValidation(node);
-			if (node.subgraph.nodes) {
-				validator.subGraphChecker(node);
-			}
-			validator.nodeNonFuncValidation(node);
-			validator.sourcesValidation(node);
-			validator.outputInputChecker(node);
-			validator.inputOutputchecker(node);
-		}
-
-		validator.validateOne = function validateOne(node) {
-			validator.errlist = new Array();
-			if (node.nodeType == "Control") {
-				// console.group(node.nodeId);
-				// console.log("Waliduje  kontroler o nazwie " + node.nodeId);
-				validator.validateforControlType(node);
-				// console.groupEnd();
-			} else if (node.nodeType == "Functionality") {
-				// console.group(node.nodeId);
-				// console.log("Waliduje  funkcjonalna o nazwie " + node.nodeId);
-				validator.validateforfunctionalType(node);
-				// console.groupEnd();
-			} else if (node.nodeType == "StreamingWorkflowEngine" || node.nodeType == "Service") {
-				// console.group(node.nodeId);
-				// console.log("Waliduje  serwisowa     o nazwie " + node.nodeId);
-				validator.validateforServiceType(node);
-				// console.groupEnd();
-			} else {
-				validator.nodeTypeValidation(node);
-				validator.nodeIdValidation(node);
-				validator.sourcesValidation(node);
-				validator.nodePhysDescValidation(node);
-				validator.outputInputChecker(node);
-				validator.inputOutputchecker(node);
-			}
-		}
-
-		return validator;
-	}
 	function repoNodes(visualiser){
 		var resultObject = {
 			currNodes : [],
@@ -296,6 +15,21 @@ function Controler(url, gui){
 				if( $("#repoNodes_"+pf).length === 0 ){
 					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+					//to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
+					// this.scroller = addSideScroller(this.paper);
+					// left = $("#blankNodes_"+pf).position().left;
+					// that = this;
+					// this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
+					// .attr({opacity: 0, fill: "ivory"})
+					// .mouseover(function(){
+					// 	that.scroller.showYourself();
+					// })
+					// .mouseout(function(evt, x, y){
+					// 	top = $("#navigator_"+pf).position().top + $("#navigator_"+pf).height();
+					// 	if(! that.cover.isPointInside(x-left, y-top))
+					// 		that.scroller.goHide();
+					// })
+					// .toBack();
 				}
 			},
 			convertData : function generateData(node, n){
@@ -362,6 +96,7 @@ function Controler(url, gui){
 	function initLogger(paper){
 		var h = paper.height,
 			lId = "#console_" + pf,
+			eId = "#console_entries_" + pf,
 			bPath = 'M'+ (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 '
 			 + (paper.width - 145) +' 25 L' + (paper.width - 45) + ' 25 Q' 
 			 + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
@@ -384,6 +119,8 @@ function Controler(url, gui){
 		});
 		//private variables
 		var counter = [0, 0, 0],
+			state = [true, true, true],
+			cCId = "#console_controller_"+pf,
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
 			buttonBG = buttonBG,
@@ -401,31 +138,67 @@ function Controler(url, gui){
 				var divString = [];
 				divString.push("<div id='");
 				divString.push(divId);
+				divString.push("' class='console_row priority");
+				divString.push(priority);
 				divString.push("' style='border-bottom: dashed #222; border-bottom-width: 1px; background-color:");
 				divString.push(colors[priority]);
-				divString.push("; padding: 2px;'>");
-				divString.push("<table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'>");
-				divString.push("<img src='images/");
+				if(!state[priority]){
+					divString.push("; display: none")
+				}
+				divString.push(";'><table width='100%' style='table-layout: fixed;'><tr><td valign='top' style='width: 20px;'><img src='images/");
 				divString.push(imgNames[priority]);
-				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td>");
-				divString.push("<td valign='top' style='float: left;'>");
+				divString.push(".png' style='padding-left: 2px; padding-top: 3px;'/></td><td valign='top' style='float: left;'>");
 				divString.push(message);
-				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push("</td><td valign='top' style='width: 20px;'><div id='cCheck_");
 				divString.push(curElCount);
-				divString.push("'><img src='images/cancel.png' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table>");
+				divString.push("'><form><input type='checkbox' class='cCheck'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
+				divString.push(curElCount);
+				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='usuń komunikat' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table></div>");
 				divString = divString.join("");
-				$(divString).prependTo($(lId));
-				var nr = curElCount;
+				$(divString).prependTo($(eId));
 				var delId = "#cCancel_"+curElCount;
+				var checkId = "#cCheck_"+curElCount;
+				var nr = curElCount;
 				$(delId).click(function(){
 					actionTaken = true;
 					counter[priority]--;
-					bCount[priority].remove();
-					bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
-					mask.toFront();
-					delId = "#console_row_" + nr;
+					redrawCounter(priority);
+					delId = "#console_row_"+nr;
 					$(delId).remove();
 				});
+				$(checkId).click(function(){
+					actionTaken = true;
+				});
+			},
+			redrawCounter = function(priority){
+				bCount[priority].remove();
+				bCount[priority] = paper.text(paper.width - (125 - (priority * 40)), 11, counter[priority]).attr({fill: txtColors[priority]});
+				mask.toFront();
+			},
+			refreshLogger = function(priority){
+				var visible;
+				if(state[priority]){
+					visible = 'block';
+				}else{
+					visible = 'none';
+				}
+				var prClass = '.priority'+priority;
+				$.each($(eId).find(prClass), function(){
+					$(this).css('display', visible);
+				});
+			},
+			refreshCounter = function(){
+				var prClass,
+					num;
+				for(var i = 0; i<3; i++){
+					prClass = '.priority'+i;
+					num = 0;
+					$.each($(eId).find(prClass), function(){
+						num++;
+					});
+					counter[i] = num;
+					redrawCounter(i);
+				}
 			},
 			fade = function(){
 				if(buttonBG.attr("fill-opacity")==1){
@@ -433,6 +206,15 @@ function Controler(url, gui){
 				}else{
 					buttonBG.animate({"fill-opacity": 1}, 700);
 				}
+			},
+			getScrollBarWidth = function() {
+				var w = 0,
+					testDiv = "<div id='scrollTest' style='overflow: scroll;'></div>";
+				$('body').append(testDiv);
+  				var el = document.getElementById('scrollTest');
+  				w = el.offsetWidth - el.scrollWidth;
+				$('#scrollTest').remove();
+				return w;
 			};
 		//console object
 		var obj = {
@@ -440,9 +222,7 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
-				bCount[0].remove();
-				bCount[0] = paper.text(paper.width - 125, 11, counter[0]).attr({fill: "white"});
-				mask.toFront();
+				redrawCounter(0);
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
@@ -450,11 +230,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
-				bCount[1].remove();
-				bCount[1] = paper.text(paper.width - 85, 11, counter[1]).attr({fill: "yellow"});
+				redrawCounter(1);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow().attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
@@ -462,11 +240,9 @@ function Controler(url, gui){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
-				bCount[2].remove();
-				bCount[2] = paper.text(paper.width - 45, 11, counter[2]).attr({fill: "orange"});
+				redrawCounter(2);
 				if(bGlow) bGlow.remove();
 				bGlow = buttonBG.glow(10, true).attr({fill : "#FFFF00"});
-				mask.toFront();
 				//here adding to div and dTabs
 				addMessage(text, 2);
 				//pulse
@@ -474,19 +250,100 @@ function Controler(url, gui){
 				animation = setInterval(fade, 750);
 			}
 		};
-		//event handling
-		$(lId).click(function(){
+		//adding console HTML structure
+		var divString = [];
+		divString.push("<div id='");
+		divString.push("console_controller_"+pf);
+		divString.push("' style='border-bottom: solid #222; border-bottom-width: 1px; background-color: white");
+		divString.push("; height: 25px;'><table style='table-layout: fixed; width:");
+		var w = $(lId).css('width');
+		w = w.slice(0, w.length - 2);
+		w = w - getScrollBarWidth();
+		divString.push(w);
+		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
+		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
+		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
+		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
+		divString.push("<td valign='top' style='width: 50px; text-align: right; cursor: default;'>Pokaż: </td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='pokaż/ukryj informacje' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='pokaż/ukryj ostrzeżenia' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='pokaż/ukryj błędy' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("</tr></table></div><div id='console_entries_"+pf+"' style='overflow-y:scroll; height:"+(h-25)+"px;'></div>");
+		divString = divString.join("");
+		$(divString).prependTo($(lId));
+		//event handling for console controller
+		$('#console_I').click(function(){
+			if(state[0]){
+				$('#console_I').css('opacity',0.4);
+				state[0] = false;
+			}else{
+				$('#console_I').css('opacity',1);
+				state[0] = true;
+			}
+			refreshLogger(0);
+		});
+		$('#console_W').click(function(){
+			if(state[1]){
+				$('#console_W').css('opacity',0.4);
+				state[1] = false;
+			}else{
+				$('#console_W').css('opacity',1);
+				state[1] = true;
+			}
+			refreshLogger(1);
+		});
+		$('#console_E').click(function(){
+			if(state[2]){
+				$('#console_E').css('opacity',0.4);
+				state[2] = false;
+			}else{
+				$('#console_E').css('opacity',1);
+				state[2] = true;
+			}
+			refreshLogger(2);
+		});
+		$('#console_SA').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				if($(this).parents('.console_row').css('display')!='none'){
+					$(this).prop('checked', true);
+				}else{
+					$(this).prop('checked', false);
+				}
+			});
+		});
+		$('#console_DA').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				$(this).prop('checked', false);
+			});
+		});
+		$('#console_D').click(function(){
+			$.each($(eId).find('.cCheck'), function(){
+				if($(this).prop('checked')==true && $(this).parents('.console_row').css('display')!='none'){
+					$(this).parents('.console_row').remove();
+				}
+			});
+			refreshCounter();
+		});
+		//unselect for text buttons
+		document.getElementById('console_SA').onselectstart = function() { return(false); };
+		document.getElementById('console_DA').onselectstart = function() { return(false); };
+		document.getElementById('console_D').onselectstart = function() { return(false); };
+		//main event handling
+		$(eId).click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
+				$(eId).css('overflow-y: hidden;');
 				$(lId).animate({
-					height: 0
+					'height': 0
 				});
 			}
 		});
 		mask.click(function(){
 			$(lId).animate({
-				height: h
+				'height': h
+			}, 400, function(){
+				$(eId).css('overflow-y: scroll;');
 			});
 		});
 		mask.mouseover(function(){
@@ -511,6 +368,10 @@ function Controler(url, gui){
 		* - nodeHSpacing (minimum horizontal spacing between nodes)
 		* - nodeVSpacing (vertical spacing between nodes)
 		* - startY (height on canvas from which we start to draw graph)
+		* OUTPUT:
+		* - object
+		* -> coords (array{nodeID, nodeX, nodeY})
+		* -> getCoords (function(id) returning array{nodeX, nodeY} for specified ID)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
 		function run(){//deploying main ssdl graph
@@ -581,7 +442,7 @@ function Controler(url, gui){
 			});
 			return ret;
 		}
-		function processNodes(nodeArray) {//setting flow and processing subgraph for each node
+		function processNodes(nodeArray) {//setting flow for each node
 			$.each(nodeArray, function() {
 				var tempObj = this;
 				$.each(this.sources, function() {//assigning parent/child refferences for each node
@@ -1091,7 +952,7 @@ function Controler(url, gui){
 						return false;
 					});
 
-					$($("a")[4]).click();
+					// $($("a")[4]).click();
 					// $("a:last").click();
 				}
 
@@ -1180,7 +1041,7 @@ function Controler(url, gui){
 				})(); break;
 				case "ADDSERVICEFROMREPOTOCANVAS" : (function(e){
 					e.nodeId = gui.controler.generateId();
-					alert(e.nodeId)
+					// alert(e.nodeId)
 					e = $.extend(true, {}, e);
 					e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
 					e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
@@ -1360,7 +1221,6 @@ function Controler(url, gui){
 			this.repoNodes.init();
 			this.navigator = navigator();
 			this.navigator.init();
-			this.validator = validator();
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;

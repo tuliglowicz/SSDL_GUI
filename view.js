@@ -111,61 +111,82 @@ function View(id, width, height, gui){
 		temp.init();
 		return temp;
 	};
-	function blankNode(mainCanvas, visualiser){
+	function blankNode(){
 		var tmp = {
 			name: "blankNode",
 			version: "1.0",
 			author: "Author",
 			dataType: 'json',
-			data: null,
-			minCanvas: undefined,
+			dataSet: [],
 			globalEvents: ["load"],
 			localEvents: ["select"],
-			
-			draw: function draw(){
-				var clone, newRect, newCirc;
+
+			init: function init(){
+				var left, top, that;
 				if( $("#blankNodes_"+pf).length === 0 ){
 					$("#left_plugins_"+pf).append("<div id='blankNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
-					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
+					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.leftCol.width-1, 500);
 				}
+			},
+			draw: function draw(){
 				var nodeLength = 135,
 					nodeHeight = 35,
 					nodeHorizontalPosition = this.paper.width/2 - nodeLength/2, 
-					textHorizontalPosition = this.paper.width/2,
-					fillColor, blankNode;
+					textHorizontalPosition = this.paper.width/2;
 				
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
-							gui.controler.reactOnEvent("AddBlankNode", nodeType);
+							var label = prompt("Enter a label for the new node:");
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 					}
 				}
 
-				this.paper.text(textHorizontalPosition,10,"Service")
-					.node.setAttribute("class","repository_text");
+				var text_service = this.paper.text(textHorizontalPosition,10,"Service");
+				text_service.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
 					.attr({fill:"#fbec88"})
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
-				this.paper.text(textHorizontalPosition,80,"Functionality")
-					.node.setAttribute("class","repository_text");
+				this.dataSet.push(repo_service);
+				var text_functionality = this.paper.text(textHorizontalPosition,80,"Functionality");
+				text_functionality.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_functionality);
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
 					.attr({fill:"#a6c9e2"})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
-				this.paper.text(textHorizontalPosition,150,"Mediator")
+				this.dataSet.push(repo_functionality);
+
+				var text_mediator = this.paper.text(textHorizontalPosition,150,"Mediator")
 					.hide();
-					// .node.setAttribute("class","repository_text");
-				var repo_mediator = this.paper.rect(nodeHorizontalPosition,160,nodeLength,nodeHeight,5)
+					// text_mediator.node.setAttribute("class","repository_text"));
+				var repo_mediator = this.paper.rect(nodeHorizontalPosition,600,nodeLength,nodeHeight,5)
 					.attr({fill:"white"})
 					.dblclick(onDblClick("Mediator"))
 					.hide();
-				repo_mediator.node.setAttribute("class","repository_element");				
+				repo_mediator.node.setAttribute("class","repository_element");	
+				// this.dataSet.push(repo_mediator);
 			}
 		};
 		return tmp;
 	};
 	function drawBottomBar(paper){
+		
+		//UŻYCIE WTYCZKI:
+		//ma defaultowo zdefiniowane buttony CF, DF i SS
+		//addGroup(label) dodaje grupę o zadanym labelu
+		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
+		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
+		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
+		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
+		//Analogicznie pokazywanie elementu, PRZY CZYM:
+		//- showGroup() pokazuje grupę wraz ze wszystkimi opcjami
+		//- showOnlyGroup() pokazuje tylko grafikę grupy - używane, gdy grupa znikła w wyniku usunięcia
+		//	ostatniego przycisku
+		//Użyta technologia: Javascript, Raphael ^^
+		
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -197,8 +218,8 @@ function View(id, width, height, gui){
 				createBar: function createBar(x, y, width, height){
 					var that = this;
 					
-					this.bar = paper.rect(x, y, width, height).
-						attr({fill:"grey", opacity: this.invisible})
+					this.bar = paper.rect(x, y, width, height)
+						.attr({fill:"grey", opacity: this.invisible})
 						.mouseover(function(){
 							that.isVisible = true;
 
@@ -280,17 +301,28 @@ function View(id, width, height, gui){
 									if(this.label.toUpperCase()===label.toUpperCase()) 
 										this.hideThisButton();
 								});
-								that.generalFontReset();
-								this.resizeAndRelocate();
-								that.relocate();
+								if(this.areSomeButtonsVisible()){
+									that.generalFontReset();
+									this.resizeAndRelocate();
+									that.relocate();
+								}
+								else
+									this.hideGroup();
 							},
 							showButton: function showButton(label){
 								$.each(this.buttons, function(){
 									if(this.label.toUpperCase()===label.toUpperCase()) 
 										this.showThisButton();
 								});
+								if(this.isVisible===false) this.showOnlyGroup();
 								this.resizeAndRelocate();
 								that.relocate();
+							},
+							areSomeButtonsVisible: function areSomeButtonsVisible(){
+								return 
+									this.buttons.some(function(elem){
+										return elem.isVisible != false;
+									});
 							},
 							hideGroup: function hideGroup(){
 								this.isVisible = false;
@@ -306,6 +338,11 @@ function View(id, width, height, gui){
 								$.each(this.buttons, function(){
 									this.showThisButton();
 								});
+								that.generalFontReset();
+							},
+							showOnlyGroup: function showOnlyGroup(){
+								this.isVisible = true;
+								this.graphic.show();
 								that.generalFontReset();
 							},
 							createGraphic: function createGraphic(){
@@ -567,16 +604,86 @@ function View(id, width, height, gui){
 
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
-		//UŻYCIE WTYCZKI:
-		//ma defaultowo zdefiniowane buttony CF, DF i SS
-		//addGroup(label) dodaje grupę o zadanym labelu
-		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
-		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
-		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
-		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
-		//Analogicznie pokazywanie elementu
-
 		return result;
+	};
+	function addSideScroller(paper){
+		var invisible = 0,
+			visible = .4,
+			animationTime = 100,
+			visibleHeight = paper.height,
+			checkHeight = function(set){	//określa wysokość przekazanej tablicy obiektów
+				if(!set[0]) return 0;
+				var min = set[0].getBBox().y, max = 0, bbox;
+				$.each(set, function(){
+					bbox = this.getBBox();
+					if(bbox.y < min) min = bbox.y;
+					if(bbox.y + bbox.height > max) max = bbox.y + bbox.height;
+				});
+				return max - min + 10; //10 dodaję jako margines
+			},
+			isValid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
+				return
+					set.some(function(elem){
+						return (getType(elem.getBBox) != "function" || getType(elem.translate) != "function")
+					});
+			},
+			scroll = {
+				move: function move(set, mult){
+					return function(dx, dy){
+						var newY = this.oy + dy, altDy; 
+						if(newY >= 0 && newY + this.attr("height") <= visibleHeight){
+							this.transform("t0,"+dy);
+							$.each(set, function(){
+								this.translate(0, (-1*dy/mult)); //this.transform("t0,"+(-1*dy/mult))
+							});
+						}
+						else{ 
+							if(newY < 0)
+								altDy = this.oy;
+							else
+								altDy = visibleHeight - this.oy - this.attr("height");
+							this.transform("t0,"+altDy);
+							$.each(set, function(){
+								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)))
+							});
+						}
+					}
+				},
+				start: function start(){
+					this.oy = this.attr("y");
+				},
+				stop: function stop(){},
+				init: function init(){
+					this.slider = paper.rect(paper.width-5, 0, 5, visibleHeight*.75, 5)
+						.attr({"stroke-width":0, fill:"black", opacity: visible})
+						.hide();
+					this.set = [];
+				},
+				//update musi być wywoływany przy każdorazowej zmianie zawartości kanwy, na której siedzi sobie scroll
+				update: function update(set){
+					var result = false;
+					if(isValid(set)){
+						this.set = set;
+						var setHeight = checkHeight(set);
+						this.multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
+						this.slider.attr({height: visibleHeight*this.multiplier});
+						this.slider.drag(this.move(this.set, this.multiplier), this.start, this.stop);
+						result = true;
+					}
+					else
+						console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
+					return result;
+				},
+				showYourself: function showYourself(){
+					if(this.multiplier !== 1)
+						this.slider.show();
+				},
+				goHide: function goHide(){
+					this.slider.hide();
+				}
+			};
+		scroll.init();
+		return scroll;
 	};
 	function form() {
 		var resultJSON = {
@@ -607,6 +714,7 @@ function View(id, width, height, gui){
 			"preconditions":"",
 			"effects":""
 		};
+		var $tabs = $( "#tabs" ).tabs();
 
 		var result = {
 			resultJSON: resultJSON,
@@ -623,43 +731,84 @@ function View(id, width, height, gui){
 			NFrow: -1,
 
 			initToEdit: function initToEdit(node){
-				var condition = [];
-				// this.node = node;
+				var titleText = 'Viewing a ' + node.nodeType + ' type node';
 				this.clearErrors();
 				this.cleanForm();
-				$( "#label" ).val(node.nodeLabel);
-				$( "#nodeType" ).val(node.nodeType);
-				$( "#controlType" ).val(node.controlType);
-				$( "#alternatives" ).val(node.alternatives);
-				if(node.condition){
-					condition = node.condition.split(" ");
-					$( "#condition" ).val((condition[1]) ? condition[1] : "");
-					$( "#conditionTRUE" ).val((condition[3]) ? condition[3] : "");
-					$( "#conditionFALSE" ).val((condition[5]) ? condition[5] : "");
-				}
-				$( "#subgraph" ).val(node.subgraph);				
-				$( "#serviceName" ).val(node.physicalDescription.serviceName);
-				$( "#serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
-				$( "#address" ).val(node.physicalDescription.address);
-				$( "#operation" ).val(node.physicalDescription.operation);
-				$( "#description" ).val(node.functionalDescription.description);
-				$( "#prec" ).val(node.functionalDescription.preconditions);
-				$( "#effects" ).val(node.functionalDescription.effects);
-				this.appendList(node.sources, "sources");
+				$('#ui-dialog-title-form').text(titleText);
+				$( "#f_mainTab_label" ).val(node.nodeLabel);
+				$("#f_mainTab_controlType").val(node.controlType);
+				this.adjustForm(node.nodeType);
+				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
+				$( "#f_physicalDescriptionTab_serviceName" ).val(node.physicalDescription.serviceName);
+				$( "#f_physicalDescriptionTab_serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
+				$( "#f_physicalDescriptionTab_address" ).val(node.physicalDescription.address);
+				$( "#f_physicalDescriptionTab_operation" ).val(node.physicalDescription.operation);
+				
 				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
-				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 				this.appendIO(node.functionalDescription.inputs, "inputs");
 				this.appendIO(node.functionalDescription.outputs, "outputs");
 				this.appendNonFuncDesc(node.nonFunctionalDescription);
 				this.resultJSON.nodeId = node.nodeId;
 				$( "#form" ).dialog( "open" );
+				
+				//  pola obecnie nieużywane:
+				//
+				// var condition = [];
+				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
+				// $( "#f_mainTab_alternatives" ).val(node.alternatives);
+				// if(node.condition){
+				// 	condition = node.condition.split(" ");
+				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
+				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
+				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
+				// }
+				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
+
+				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
+				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
+				// this.appendList(node.sources, "sources");
+
+				// this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 			},
-			initBlank: function initBlank(nodeType){
+			initBlank: function initBlank(nodeData){
+				var titleText = "Create a " + nodeData.nodeType + " type node";
 				this.clearErrors();
 				this.cleanForm();
-				this.resultJSON.nodeType = nodeType;
-				$( "#nodeType" ).val(nodeType);
+				this.resultJSON.label = nodeData.label;
+				this.resultJSON.nodeType = nodeData.nodeType;
+				$('#ui-dialog-title-form').text(titleText);
+				this.adjustForm(nodeData.nodeType);
+				$( "#f_mainTab_label" ).val(nodeData.label);
+				$( "#f_mainTab_nodeType" ).val(nodeData.nodeType);
 				$( "#form" ).dialog( "open" );
+			},
+			adjustForm: function adjustForm(nodeType){
+				switch(nodeType.toLowerCase()){
+					case "control" : 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).show();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').hide();
+						$('#f_button_addServiceClass').hide();
+						$('#f_mainTab_scInfo').hide();
+						$('#tabs-2').hide();
+						break;
+					case "functionality" : 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').hide();
+						break;
+					default: 
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$('#physicalDescriptionTab').removeClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').show();				
+						break;
+					}
 			},
 			//funkcje czyszczące elementy formularza
 			clearNF: function clearNF(){
@@ -680,6 +829,8 @@ function View(id, width, height, gui){
 				this.outputNumber = -1;
 				this.outputRow = -1;
 			},
+			//@handleErrors: to trzeba przepisać od zera dla nowej walidacji + usunąć buglist
+			//na rzecz czegoś bardziej pro
 			handleErrors: function handleErrors(array){
 				var input;
 				$.each(array, function(){
@@ -695,43 +846,39 @@ function View(id, width, height, gui){
 			clearErrors: function clearErrors(){
 				$( "#buglist" ).empty();
 				$( "#buglist" ).removeClass( "ui-state-error" );
-				$( "#nodeId" ).removeClass( "ui-state-error" ); 
-				$( "#serviceName" ).removeClass( "ui-state-error" ); 
-				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
-				$( "#address" ).removeClass( "ui-state-error" ); 
-				$( "#operation" ).removeClass( "ui-state-error" ); 
-				$( "#serviceName" ).removeClass( "ui-state-error" ); 
-				$( "#serviceGlobalId" ).removeClass( "ui-state-error" ); 
-				$( "#address" ).removeClass( "ui-state-error" ); 
-				$( "#operation" ).removeClass( "ui-state-error" ); 
-				$( "#nodeId" ).removeClass( "ui-state-error" ); 
-				$( "#nodeType" ).removeClass( "ui-state-error" ); 
-				$( "#source" ).removeClass( "ui-state-error" ); 
-				$( "#sources" ).removeClass( "ui-state-error" ); 
-				$( "#weight" ).removeClass( "ui-state-error" ); 
-				$( "#name" ).removeClass( "ui-state-error" ); 
-				$( "#relation" ).removeClass( "ui-state-error" ); 
-				$( "#unit" ).removeClass( "ui-state-error" );
-				$( "#value" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_serviceName" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_serviceGlobalId" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_address" ).removeClass( "ui-state-error" ); 
+				$( "#f_physicalDescriptionTab_operation" ).removeClass( "ui-state-error" ); 
+				$( "#f_mainTab_nodeType" ).removeClass( "ui-state-error" ); 
+				// $( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
+				// $( "#f_mainTab_sources" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_weight" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_name" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_relation" ).removeClass( "ui-state-error" ); 
+				$( "#f_nonFunctionalDescriptionTab_unit" ).removeClass( "ui-state-error" );
+				$( "#f_nonFunctionalDescriptionTab_value" ).removeClass( "ui-state-error" ); 
 				for(var i = 1; i < 5; i++){ $( "#t" + i ).removeClass( "ui-state-error" );  }
 			},
 			cleanForm: function cleanForm(){
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
-				$( "#inputs tbody" ).empty();
-				$( "#outputs tbody" ).empty();
-				$( "#NFProps tbody" ).empty();
-				$( "#source" ).val("");
-				$( "#sources" ).empty();
-				$( "#sClasses" ).empty();
-				$( "#mKeywords" ).empty();
+				$( "#f_inputOutputTab_inputs tbody" ).empty();
+				$( "#f_inputOutputTab_outputs tbody" ).empty();
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
+				// $( "#f_mainTab_source" ).val("");
+				// $( "#f_mainTab_sources" ).empty();
+				$( "#f_mainTab_sClasses" ).empty();
+				// $( "#f_functionalDescription_mKeywords" ).empty();
 				$( "#mainForm" )[0].reset();
 				$( "#physDescForm" )[0].reset(); 
 				$( "#funcDescForm" )[0].reset(); 
 				$( "#inputForm" )[0].reset(); 
 				$( "#outputForm" )[0].reset(); 
 				$( "#nonFuncDescForm" )[0].reset(); 
+
+				$tabs.tabs('select', 0);
 			},
 			appendIO: function appendIO(array, type){
 				var input;
@@ -747,7 +894,7 @@ function View(id, width, height, gui){
 						inputJSON.properties = input.properties;
 						this.funcDescJSON.inputs.push(inputJSON);
 						
-						this.inputAndOutputAppender(inputJSON, "inputs tbody", no);
+						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", no);
 					}
 				}
 				else if(type==="outputs"){
@@ -762,33 +909,33 @@ function View(id, width, height, gui){
 						outputJSON.properties = input.properties;
 						this.funcDescJSON.outputs.push(outputJSON);
 						
-						this.inputAndOutputAppender(outputJSON, "outputs tbody", no);
+						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", no);
 					}
 				}
 			},
 			appendList: function appendList(array, type){
 				var input, that = this;
-				if(type === "sources"){
-					$.each(array, function(){
-						input = this;
-						that.resultJSON.sources.push(input); 	
-						$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
-					});
-				}
-				else if(type === "serviceClasses"){
+				// if(type === "sources"){
+				// 	$.each(array, function(){
+				// 		input = this;
+				// 		that.resultJSON.sources.push(input); 	
+				// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>");
+				// 	});
+				// } else 
+				if(type === "serviceClasses"){
 					$.each(array, function(){
 						input = this;
 						that.funcDescJSON.serviceClasses.push(input);
-						$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+						$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 					});
 				}
-				else if(type === "metaKeywords"){
-					$.each(array, function(){
-						input = this;	
-						that.funcDescJSON.metaKeywords.push(input);
-						$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-					});
-				}
+				// else if(type === "metaKeywords"){
+				// 	$.each(array, function(){
+				// 		input = this;	
+				// 		that.funcDescJSON.metaKeywords.push(input);
+				// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+				// 	});
+				// }
 			},		
 			appendNonFuncDesc: function appendNonFuncDesc(array){
 				var input, no;
@@ -821,7 +968,7 @@ function View(id, width, height, gui){
 						"</tr>" );
 			},
 			NFPropsAppender: function NFPropsAppender(input, number){
-				$( "#NFProps tbody").append( "<tr>" +
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( "<tr>" +
 						"<td>" + input.weight + "</td>" + 
 						"<td>" + input.name + "</td>" + 
 						"<td>" + input.relation + "</td>" +
@@ -886,32 +1033,32 @@ function View(id, width, height, gui){
 			*	EVENT HANDLERS START HERE
 			*/
 			submitAll: function submitAll(){
-				var condition;
+				// var condition;
 
 				this.clearErrors();
 				
-				this.resultJSON.nodeLabel = $( "#label" ).val();
-				this.resultJSON.nodeType = $( "#nodeType" ).val();
-				this.resultJSON.controlType = $( "#controlType" ).val();
-				this.resultJSON.alternatives = $( "#alternatives" ).val();
+				this.resultJSON.nodeLabel = $( "#f_mainTab_label" ).val();
+				this.resultJSON.nodeType = $( "#f_mainTab_nodeType" ).val();
+				// this.resultJSON.controlType = $( "#f_mainTab_controlType" ).val();
+				// this.resultJSON.alternatives = $( "#f_mainTab_alternatives" ).val();
 				
-				condition = $( "#condition" ).val();
-				if(condition)
-					this.resultJSON.condition = "if " + $( "#condition" ).val() + " then " + $( "#conditionTRUE" ).val() + " else " + $( "#conditionFALSE" ).val();
-				else this.resultJSON.condition = "";
+				// condition = $( "#f_mainTab_condition" ).val();
+				// if(condition)
+				// 	this.resultJSON.condition = "if " + $( "#f_mainTab_condition" ).val() + " then " + $( "#f_mainTab_conditionTRUE" ).val() + " else " + $( "#f_mainTab_conditionFALSE" ).val();
+				// else this.resultJSON.condition = "";
 
-				this.physDescJSON.serviceName = $( "#serviceName" ).val();
-				this.physDescJSON.serviceGlobalId = $( "#serviceGlobalId" ).val();
-				this.physDescJSON.address = $( "#address" ).val();
-				this.physDescJSON.operation = $( "#operation" ).val();
+				this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName" ).val();
+				this.physDescJSON.serviceGlobalId = $( "#f_physicalDescriptionTab_serviceGlobalId" ).val();
+				this.physDescJSON.address = $( "#f_physicalDescriptionTab_address" ).val();
+				this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation" ).val();
 				this.resultJSON.physicalDescription = this.physDescJSON;
 					
-				this.funcDescJSON.description = $( "#description" ).val();
-				this.funcDescJSON.preconditions = $( "#prec" ).val();
-				this.funcDescJSON.effects = $( "#effects" ).val();
+				this.funcDescJSON.description = $( "#f_mainTab_description" ).val();
+				this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
+				this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
 				this.resultJSON.functionalDescription = this.funcDescJSON;
 			
-				alert(JSON.stringify(resultJSON));
+				alert(JSON.stringify(this.resultJSON));
 
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 				
@@ -919,103 +1066,103 @@ function View(id, width, height, gui){
 				$( "#form" ).dialog( "close" );
 			},
 			addServiceClass: function addServiceClass(){
-				var input = $("#serviceClass").val();
-				if(!this.stringExists(input, this.funcDescJSON.serviceClasses)){
+				var input = $("#f_mainTab_serviceClass").val();
+				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
 					this.funcDescJSON.serviceClasses.push(input);
-					$( "#sClasses" ).append("<span id=\"sc_"+ input + "\">" + input + ", </span>"); 	
+					$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 				}
-				$("#serviceClass").val("");
+				$("#f_mainTab_serviceClass").val("");
 			},
-			addMetaKeyword: function addMetaKeyword(){
-				var input = $("#metaKeyword").val();
-				if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
-					this.funcDescJSON.metaKeywords.push(input);
-					$( "#mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-				}
-				$("#metaKeyword").val("");
-			},
-			addSource: function addSource(){
-				$( "#source" ).removeClass( "ui-state-error" ); 
-				var input = $("#source").val();
-				if(!this.stringExists(input, this.resultJSON.sources)){
-					this.resultJSON.sources.push(input);
-					$( "#sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
-				}
-				$( "#source" ).val(""); 
-			},
+			// addMetaKeyword: function addMetaKeyword(){
+			// 	var input = $("#f_inputOutputTab_metaKeyword").val();
+			// 	if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
+			// 		this.funcDescJSON.metaKeywords.push(input);
+			// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+			// 	}
+			// 	$("#f_inputOutputTab_metaKeyword").val("");
+			// },
+			// addSource: function addSource(){
+			// 	$( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
+			// 	var input = $("#f_mainTab_source").val();
+			// 	if(!this.stringExists(input, this.resultJSON.sources)){
+			// 		this.resultJSON.sources.push(input);
+			// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
+			// 	}
+			// 	$( "#f_mainTab_source" ).val(""); 
+			// },
 			addInput: function addInput(){
 				if(this.inputEdit){
-					this.funcDescJSON.inputs[this.inputNumber].class = $( "#inputClass" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].id = $( "#inputNodeId" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].label = $( "#inputLabel" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#inputDataType" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].properties = $( "#iProperties" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].class = $( "#f_inputOutputTab_inputClass" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].id = $( "#f_inputOutputTab_inputId" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].label = $( "#f_inputOutputTab_inputLabel" ).val();
+					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#f_inputOutputTab_inputDataType" ).val();
+					// this.funcDescJSON.inputs[this.inputNumber].properties = $( "#f_inputOutputTab_inputProperties" ).val();
 					alert("Changes to input " + this.inputNumber + " were saved successfully.");
 					
-					this.rowRemover("inputs", this.inputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "inputs tbody", this.inputNumber);
+					this.rowRemover("f_inputOutputTab_inputs", this.inputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "f_inputOutputTab_inputs tbody", this.inputNumber);
 				}
 				else{
 					var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					inputJSON.class = $( "#inputClass" ).val();
-					inputJSON.id = $( "#inputNodeId" ).val();
-					inputJSON.label = $( "#inputLabel" ).val();
-					inputJSON.dataType = $( "#inputDataType" ).val();
-					inputJSON.properties = $( "#iProperties" ).val();
+					inputJSON.class = $( "#f_inputOutputTab_inputClass" ).val();
+					inputJSON.id = $( "#f_inputOutputTab_inputId" ).val();
+					inputJSON.label = $( "#f_inputOutputTab_inputLabel" ).val();
+					inputJSON.dataType = $( "#f_inputOutputTab_inputDataType" ).val();
+					// inputJSON.properties = $( "#f_inputOutputTab_inputProperties" ).val();
 			
 					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
 						this.funcDescJSON.inputs.push(inputJSON);
-						this.inputAndOutputAppender(inputJSON, "inputs tbody", this.funcDescJSON.inputs.length);
+						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", this.funcDescJSON.inputs.length);
 					}
 				}
 				this.clearInputs();
 			},
 			addOutput: function addOutput(){
 				if(this.outputEdit){
-					this.funcDescJSON.outputs[this.outputNumber].class = $( "#outputClass" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].id = $( "#outputNodeId" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].label = $( "#outputLabel" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#outputDataType" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].properties = $( "#oProperties" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].class = $( "#f_inputOutputTab_outputClass" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].id = $( "#f_inputOutputTab_outputId" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].label = $( "#f_inputOutputTab_outputLabel" ).val();
+					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#f_inputOutputTab_outputDataType" ).val();
+					// this.funcDescJSON.outputs[this.outputNumber].properties = $( "#f_inputOutputTab_outputProperties" ).val();
 					alert("Changes to output " + this.outputNumber + " were saved successfully.");
 					
-					this.rowRemover("outputs", this.outputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "outputs tbody", this.outputNumber);
+					this.rowRemover("f_inputOutputTab_outputs", this.outputRow+1);
+					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "f_inputOutputTab_outputs tbody", this.outputNumber);
 				}
 				else{
 					var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					outputJSON.class = $( "#outputClass" ).val();
-					outputJSON.id = $( "#outputNodeId" ).val();
-					outputJSON.label = $( "#outputLabel" ).val();
-					outputJSON.dataType = $( "#outputDataType" ).val();
-					outputJSON.properties = $( "#oProperties" ).val();
+					outputJSON.class = $( "#f_inputOutputTab_outputClass" ).val();
+					outputJSON.id = $( "#f_inputOutputTab_outputId" ).val();
+					outputJSON.label = $( "#f_inputOutputTab_outputLabel" ).val();
+					outputJSON.dataType = $( "#f_inputOutputTab_outputDataType" ).val();
+					// outputJSON.properties = $( "#f_inputOutputTab_outputProperties" ).val();
 					
 					if(!this.ioExists(outputJSON, this.funcDescJSON.outputs)){
 						this.funcDescJSON.outputs.push(outputJSON);
-						this.inputAndOutputAppender(outputJSON, "outputs tbody", this.funcDescJSON.outputs.length);
+						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", this.funcDescJSON.outputs.length);
 					}
 				}
 				this.clearOutputs();
 			},
 			addNonFunctional: function addNonFunctional(){
 				if(this.NFedit){
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#weight" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#name" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#relation" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#unit" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#value" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
+					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
 					alert("Changes to nonfunctional property " + this.NFnumber + " were saved successfully.");
 					
-					this.rowRemover("NFProps", this.NFrow+1);
+					this.rowRemover("f_nonFunctionalDescriptionTab_NFProps", this.NFrow+1);
 					this.NFPropsAppender(this.resultJSON.nonFunctionalDescription[this.NFnumber], this.NFnumber);
 				}
 				else{
 					var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""};
-					nonFuncDescJSON.weight = $( "#weight" ).val();
-					nonFuncDescJSON.name = $( "#name" ).val();
-					nonFuncDescJSON.relation = $( "#relation" ).val();
-					nonFuncDescJSON.unit = $( "#unit" ).val();
-					nonFuncDescJSON.value = $( "#value" ).val();
+					nonFuncDescJSON.weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
+					nonFuncDescJSON.name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
+					nonFuncDescJSON.relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
+					nonFuncDescJSON.unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
+					nonFuncDescJSON.value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
 					
 					if(!this.nonFuncExists(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription)){
 						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
@@ -1032,32 +1179,32 @@ function View(id, width, height, gui){
 			},
 			//TO NIE PARTYZANTKA, TO PARTYZANA!
 			editInput: function editInput(input){
-				$( "#iProperties" ).val(input.parent().prev().text());
-				$( "#inputDataType" ).val(input.parent().prev().prev().text());
-				$( "#inputClass" ).val(input.parent().prev().prev().prev().text());
-				$( "#inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
-				$( "#inputNodeId" ).val(input.parent().prev().prev().prev().prev().prev().text());
-				this.inputNumber = this.ioExistsIndex($( "#inputNodeId" ).val(), this.funcDescJSON.inputs);
+				// $( "#f_inputOutputTab_inputProperties" ).val(input.parent().prev().text());
+				$( "#f_inputOutputTab_inputDataType" ).val(input.parent().prev().prev().text());
+				$( "#f_inputOutputTab_inputClass" ).val(input.parent().prev().prev().prev().text());
+				$( "#f_inputOutputTab_inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
+				$( "#f_inputOutputTab_inputId" ).val(input.parent().prev().prev().prev().prev().prev().text());
+				this.inputNumber = this.ioExistsIndex($( "#f_inputOutputTab_inputId" ).val(), this.funcDescJSON.inputs);
 				this.inputEdit = true;
 				this.inputRow = input.parent().parent().parent().children().index(input.parent().parent());
 			},
 			editOutput: function editOutput(output){
-				$( "#oProperties" ).val(output.parent().prev().text());
-				$( "#outputDataType" ).val(output.parent().prev().prev().text());
-				$( "#outputClass" ).val(output.parent().prev().prev().prev().text());
-				$( "#outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
-				$( "#outputNodeId" ).val(output.parent().prev().prev().prev().prev().prev().text());
-				this.outputNumber = this.ioExistsIndex($( "#outputNodeId" ).val(), this.funcDescJSON.outputs);
+				// $( "#f_inputOutputTab_outputProperties" ).val(output.parent().prev().text());
+				$( "#f_inputOutputTab_outputDataType" ).val(output.parent().prev().prev().text());
+				$( "#f_inputOutputTab_outputClass" ).val(output.parent().prev().prev().prev().text());
+				$( "#f_inputOutputTab_outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
+				$( "#f_inputOutputTab_outputId" ).val(output.parent().prev().prev().prev().prev().prev().text());
+				this.outputNumber = this.ioExistsIndex($( "#f_inputOutputTab_outputId" ).val(), this.funcDescJSON.outputs);
 				this.outputEdit = true;
 				this.outputRow = output.parent().parent().parent().children().index(output.parent().parent());
 			},
 			editNonFunc: function editNonFunc(nfProp){
-				$( "#weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
-				$( "#name" ).val(nfProp.parent().prev().prev().prev().prev().text());
-				$( "#relation" ).val(nfProp.parent().prev().prev().prev().text());
-				$( "#unit" ).val(nfProp.parent().prev().prev().text());
-				$( "#value" ).val(nfProp.parent().prev().text());
-				this.NFnumber = this.nonFuncExistsIndex($( "#name" ).val(), this.resultJSON.nonFunctionalDescription);
+				$( "#f_nonFunctionalDescriptionTab_weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_name" ).val(nfProp.parent().prev().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_relation" ).val(nfProp.parent().prev().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_unit" ).val(nfProp.parent().prev().prev().text());
+				$( "#f_nonFunctionalDescriptionTab_value" ).val(nfProp.parent().prev().text());
+				this.NFnumber = this.nonFuncExistsIndex($( "#f_nonFunctionalDescriptionTab_name" ).val(), this.resultJSON.nonFunctionalDescription);
 				this.NFedit = true;
 				this.NFrow = nfProp.parent().parent().parent().children().index(nfProp.parent().parent());
 			},
@@ -1082,17 +1229,32 @@ function View(id, width, height, gui){
 				this.funcDescJSON.serviceClasses.splice(index, 1);
 				serviceClass.remove();
 			},
-			removeMetaKeyword: function removeMetaKeyword(metaKeyword){
-				var id = metaKeyword.attr("id").split("_").pop();
-				var index = this.stringExistsIndex(id, funcDescJSON.metaKeywords);
-				funcDescJSON.metaKeywords.splice(index, 1);
-				metaKeyword.remove();
+			// removeMetaKeyword: function removeMetaKeyword(metaKeyword){
+			// 	var id = metaKeyword.attr("id").split("_").pop();
+			// 	var index = this.stringExistsIndex(id, funcDescJSON.metaKeywords);
+			// 	funcDescJSON.metaKeywords.splice(index, 1);
+			// 	metaKeyword.remove();
+			// },
+			// removeSource: function removeSource(source){
+			// 	var id = source.attr("id").split("_").pop();
+			// 	var index = this.stringExistsIndex(id, this.resultJSON.sources);
+			// 	this.resultJSON.sources.splice(index, 1);
+			// 	source.remove();
+			// },
+
+			//w tym jest bezczelna partyzantka - dopóki nie znajdę sposobu na uzyskanie referencji do 
+			//$('#physicalDescriptionTab'), mając tylko id taba
+			//var index = jQuery('#tabs').data('tabs').options.selected; 
+			//
+			nextTab: function nextTab(){
+				var selected = $tabs.tabs('option', 'selected');
+				if(selected==0 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected++;
+				if(selected < 3) $tabs.tabs('select', selected+1);
 			},
-			removeSource: function removeSource(source){
-				var id = source.attr("id").split("_").pop();
-				var index = this.stringExistsIndex(id, this.resultJSON.sources);
-				this.resultJSON.sources.splice(index, 1);
-				source.remove();
+			previousTab: function previousTab(){
+				var selected = $tabs.tabs('option', 'selected');
+				if(selected==2 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected--;
+				if(selected > 0) $tabs.tabs('select', selected-1);
 			}
 			/*
 			* EVENT HANDLERS END HERE
@@ -1100,69 +1262,95 @@ function View(id, width, height, gui){
 		};
 
 		//SUBMITY			
-		$("#sumbitAllButton").button().click(function() {
+		$("#f_button_sumbitAllButton").button().click(function() {
 			result.submitAll();
 		});
 		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
-		$("#addServiceClass").button().click(
+		$("#f_button_addServiceClass").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addServiceClass();
 			}
 		);
-		$("#addMetaKeyword").button().click(
+		$("#f_button_addMetaKeyword").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addMetaKeyword();
 			}
 		);
-		$("#addSource").button().click(
+		$("#f_button_addSource").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addSource();
 			}
 		);
-		$("#addInputButton").button().click(
+		$("#f_button_addInputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addInput();
 			}
 		);
-		$("#addOutputButton").button().click(
+		$("#f_button_addOutputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addOutput();		
 			}
 		);
-		$("#addNonFunctional").button().click(
+		$("#f_button_addNonFunctional").button().click(
 			function(event) {
 				event.preventDefault();
 				result.addNonFunctional();
 			}
 		);
 		//RESETY
-		$("#resetAllButton").button().click(
+		$("#f_button_resetAllButton").button().click(
 			function(event) {
 				event.preventDefault();
-				result.resetAll();
+				if(confirm("You are about to clear the entire form. Are you sure?"))
+					if(confirm("You will lose all data and this action cannot be cancelled. Do you really want to do this?")){
+						alert("FINE.");
+						result.resetAll();
+					}
 			}
 		);
-		$("#clearNonFunctional").button().click(
+		$("#f_button_clearNonFunctional").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearNF();
 			}
 		);		
-		$("#clearInputButton").button().click(
+		$("#f_button_clearInputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearInputs();
 			}
 		);		
-		$("#clearOutputButton").button().click(
+		$("#f_button_clearOutputButton").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearOutputs();
+			}
+		);
+		$("#f_mainTab_moar").click(
+			function(event) {
+				var input = $("#f_mainTab_description");
+				if(this.innerHTML=="more..."){
+					input.attr({'rows': 2, 'cols': '40'}).css({'width': '270px', 'height': '40px'}).parent().attr("colspan", 2);
+					this.innerHTML = "less...";
+				}
+				else{
+					input.attr({'rows': '1', 'cols': '20'}).css({'width': '135px', 'height': '20px'}).parent().attr("colspan", 1);
+					this.innerHTML = "more...";					
+				}
+			}
+		);
+		//Next/Back
+		$('button[id$="Tab_nextButton"]').button().click(function() {
+				result.nextTab();
+			}
+		);
+		$('button[id$="Tab_backButton"]').button().click(function() {
+				result.previousTab();
 			}
 		);
 		//EDITY i DELETY w tabelkach z i/o oraz non func
@@ -1176,42 +1364,42 @@ function View(id, width, height, gui){
 				form.removeNonFunc($(this));
 			});
 		}(result));
-		$('button[id^="inputsedit"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_inputsedit"]').live("click", function(form){
 			return (function(){
 				form.editInput($(this));
 			});
 		}(result));
-		$('button[id^="inputsdel"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_inputsdel"]').live("click", function(form){
 			return (function(){
 				form.removeInput($(this));
 			});
 		}(result));
-		$('button[id^="outputsedit"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_outputsedit"]').live("click", function(form){
 			return (function(){
 				form.editOutput($(this));
 			});
 		}(result));
-		$('button[id^="outputsdel"]').live("click", function(form){
+		$('button[id^="f_inputOutputTab_outputsdel"]').live("click", function(form){
 			return (function(){
 				form.removeOutput($(this));
 			});
 		}(result));
 		//spany z source'ami, service classes i meta keywords
-		$('span[id^="src_"]').live("click", function(form){
-			return (function(){
-				form.removeSource($(this));
-			});
-		}(result));
+		// $('span[id^="src_"]').live("click", function(form){
+		// 	return (function(){
+		// 		form.removeSource($(this));
+		// 	});
+		// }(result));
 		$('span[id^="sc_"]').live("click", function(form){
 			return (function(){
-				form.removeSource($(this));
+				form.removeServiceClass($(this));
 			});
 		}(result));
-		$('span[id^="mk_"]').live("click", function(form){
-			return (function(){
-				form.removeMetaKeyword($(this));
-			});
-		}(result));
+		// $('span[id^="mk_"]').live("click", function(form){
+		// 	return (function(){
+		// 		form.removeMetaKeyword($(this));
+		// 	});
+		// }(result));
 
 		return result;
 	};
@@ -1508,6 +1696,7 @@ function View(id, width, height, gui){
 				newNode.type = node.nodeType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
+				//TU BYDEM DZIABAŁ [Błażej] (Porządkowanie wyświetlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -1516,6 +1705,7 @@ function View(id, width, height, gui){
 				$.each(node.functionalDescription.outputs, function(){
 					newNode.outputs.push( $.extend(true, {}, this) );
 				});
+				console.log(newNode.id, newNode.inputs, newNode.outputs);
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
@@ -1552,13 +1742,13 @@ function View(id, width, height, gui){
 				for(var k = 0; k < input_length; k++){
 					currIO = node.inputs[k];
 					if(k < 4){
-						multX = ((k % 2) === 0) ? 1 : -1;
+						multX = ((k % 2) === 0) ? -1 : 1;
 						multY = (k < 2) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
 					}
 					else{
-						multX = ((k % 2) === 0) ? 1 : -1;
+						multX = ((k % 2) === 0) ? -1 : 1;
 						multY = (k < 6) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
@@ -1568,13 +1758,13 @@ function View(id, width, height, gui){
 				for(var l = 0; l < output_length; l++){
 					currIO = node.outputs[l];
 					if(l < 4){
-						multX = ((l % 2) === 0) ? 1 : -1;
+						multX = ((l % 2) === 0) ? -1 : 1;
 						multY = (l < 2) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"});
 						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
 					}
 					else{
-						multX = ((l % 2) === 0) ? 1 : -1;
+						multX = ((l % 2) === 0) ? -1 : 1;
 						multY = (l < 6) ? 1 : -1;
 						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"});
 						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
@@ -1880,8 +2070,8 @@ function View(id, width, height, gui){
 				this.current_graph_view.nodes.unshift( start, stop );
 			}
 		},
-		addBlankNode : function addBlankNode(nodeType){
-			this.form.initBlank(nodeType);
+		addBlankNode : function addBlankNode(nodeInfo){
+			this.form.initBlank(nodeInfo);
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
 			//dodać lepiej dobierane parametry x, y
@@ -2519,8 +2709,8 @@ function View(id, width, height, gui){
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
-			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left; overflow-y: scroll;'> </div>");
-			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left; '> </div> </div>");
+			html.push("<div id='console_"+pf+"' style='width:"+canvas_width+"px; height: 0px; float:left;'></div>");
+			html.push("<div id='canvas_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left; '></div></div>");
 			html.push("<div id='right_plugins_"+pf+"' style='width:"+(this.width-6-canvas_width-left_plugins_width)+"px; height:" + h + "px; float:left;border:1px solid black; '></div>");
 
 			$elem.html(html.join(""));
@@ -2574,16 +2764,17 @@ function View(id, width, height, gui){
 				autoOpen: false,
 				modal: true,
 				height: 500,
-				width: 800
+				width: 700
 			});
-			$( "#tabs" ).tabs();
-			$("#functional1")
+			$("#functionalAcc1")
 				.accordion({ 
+					active: false,
 					collapsible: true,
 					header: "h3" 
 			});
-			$("#functional2")
+			$("#functionalAcc2")
 				.accordion({ 
+					active: false,
 					collapsible: true,
 					header: "h3" 
 			});
@@ -2756,8 +2947,7 @@ function View(id, width, height, gui){
 	outputView.visualiser = nodeVisualizator(outputView);
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
-	outputView.blankNodes = blankNode(outputView.paper, outputView.visualiser);
-
+	outputView.blankNodes = blankNode();
 
 	var	lastDragX,
 		lastDragY,
@@ -2811,6 +3001,8 @@ function View(id, width, height, gui){
 				y2+=lastDragY;
 			else
 				y1+=lastDragY;
+
+			// gui.view.paper.rect(ox+x, oy+y, 2, 2).attr("fill", "red");
 				
 
 			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSP??“Å?Å»Ä?DNYMI
