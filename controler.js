@@ -15,7 +15,7 @@ function Controler(url, gui){
 				if( $("#repoNodes_"+pf).length === 0 ){
 					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
-					//to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
+					// to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
 					// this.scroller = addSideScroller(this.paper);
 					// left = $("#blankNodes_"+pf).position().left;
 					// that = this;
@@ -1825,5 +1825,3 @@ function Controler(url, gui){
 
 	return controlerObject;
 }
-
-// 605307704

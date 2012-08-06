@@ -16,11 +16,12 @@ function View(id, width, height, gui){
 				visible: false,
 				init: function init() {
 					var x = 10,
-						y = 10
+						y = 10,
+						win = $(window)
 					;
 
-					x = ( x + this.width > $(window).width() ? $(window).width() - 1.1 * this.width : x );
-					y = ( y + this.height > $(window).height() ? $(window).height() - 1.1 * this.height : y );
+					x = ( x + this.width > win.width() ? win.width() - 1.1 * this.width : x );
+					y = ( y + this.height > win.height() ? win.height() - 1.1 * this.height : y );
 					
 					$("<div id='tipContener' style='opacity:"+opacity+";position: absolute; top:" + y + "px; left:"+ x +"px; width:auto;height:auto; background-color: #666; color: black; '> </div>").appendTo("body");
 					$("<div id='tipTitle' style='font-size: 14px;padding:5px 5px 5px 5px;opacity:"+opacity+";border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gray;border-radius: 5px 5px 0px 0px; text-align: center; background-color: #666; color: #fff; font-weight: bold;'> </div>").appendTo("#tipContener");
@@ -2329,6 +2330,7 @@ function View(id, width, height, gui){
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
 						$.each(v.inputs, function(){
+							console.log(v.id, this.id);
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "red"}) );
 							}
@@ -2361,8 +2363,8 @@ function View(id, width, height, gui){
 					}
 
 					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
-					// alert(resultObj)
-					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
+					// jsonFormatter(resultObj, true, true)
+					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
 						if(resultObj.input.dataType === output.dataType){
 							gui.controler.reactOnEvent("AddDFEdge", {
 							 	sourceId: sourceNode.id,
@@ -2559,6 +2561,7 @@ function View(id, width, height, gui){
 			return foundedDFEdge;
 		},
 		isInputConnected: function isInputConnected(nodeId, inputId){
+			// alert(this.caller.callee)
 			var result = false;
 			$.each(this.current_graph_view.edgesDF, function(){
 				if(this.targetId === nodeId && this.input.id === inputId){
@@ -2566,6 +2569,7 @@ function View(id, width, height, gui){
 					return false;
 				}
 			});
+			console.log(nodeId, inputId, result);
 
 			return result;
 		},
