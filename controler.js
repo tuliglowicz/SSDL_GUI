@@ -13,23 +13,23 @@ function Controler(url, gui){
 			require: "sdb_json_array div raphael_x_500".split(" "),
 			init: function init(){
 				if( $("#repoNodes_"+pf).length === 0 ){
+					var that, left, top;
 					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
-					//to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
-					// this.scroller = addSideScroller(this.paper);
-					// left = $("#blankNodes_"+pf).position().left;
-					// that = this;
-					// this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
-					// .attr({opacity: 0, fill: "ivory"})
-					// .mouseover(function(){
-					// 	that.scroller.showYourself();
-					// })
-					// .mouseout(function(evt, x, y){
-					// 	top = $("#navigator_"+pf).position().top + $("#navigator_"+pf).height();
-					// 	if(! that.cover.isPointInside(x-left, y-top))
-					// 		that.scroller.goHide();
-					// })
-					// .toBack();
+					this.scroller = addSideScroller(this.paper);
+					left = $("#repoNodes_"+pf).position().left;
+					that = this;
+					this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height)
+					.attr({opacity: 0, fill: "ivory"})
+					.mouseover(function(){
+						that.scroller.showYourself();
+					})
+					.mouseout(function(evt, x, y){
+						top = $("#navigator_"+pf).position().top + $("#navigator_"+pf).height();
+						if(! that.cover.isPointInside(x-left, y-top))
+							that.scroller.goHide();
+					})
+					.toBack();
 				}
 			},
 			convertData : function generateData(node, n){
@@ -78,6 +78,8 @@ function Controler(url, gui){
 
 					that.currNodes.push(tmp);
 				});
+
+				this.scroller.update(this.currNodes);
 
 				return this;
 			},
@@ -1070,9 +1072,6 @@ function Controler(url, gui){
 						gui.view.editNode(node);
 					}
 				})(evtObj); break;
-				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
-					alert("inside try to save...");
-				})(evtObj); break;
 				case "START" : (function(){
 					that.load(url, function fun_success(list){
 						that.repository.setData(list).draw();
@@ -1158,18 +1157,33 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
-					//TUTAJ JACKOWA WALIDACJA i,jeżeli nie puszcza, w formularzu view.form.handleErrors(errlist)
 					if(!e.nodeId || e.nodeId==="") { //to jest blank
-						e.generateId();
-						//x, y -> skąd?
-						var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100);
-						gui.view.current_graph_view.nodes.push(graphNode);
-						that.current_graphData.nodes.push(e);
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						if(wrongsList.length == 0){
+							e.nodeId = that.generateId();
+							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
+							graphNode.switchToDFMode();
+							gui.view.current_graph_view.nodes.push(graphNode);
+							that.current_graphData.nodes.push(e);
+							gui.view.form.closeForm();
+						}
+						else {
+							gui.view.form.handleErrors(wrongsList);
+						}
 					}
 					else{ //to nie jest blank
-						//node = getNodeById(e.nodeId)
-						//update danych w node z e
-						//update widoku
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						if(wrongsList.length === 0){
+							var node = that.getNodeById(e.nodeId);
+							// alert(jsonFormatter(node, true, true));
+							that.updateNodeData(node, e);
+							// alert(jsonFormatter(node, true, true));
+							// gui.view.updateGraph(e.nodeId);
+							gui.view.form.closeForm();
+						}
+						else {
+							gui.view.form.handleErrors(wrongsList);
+						}
 					}
 				})(evtObj); break;
 				case "ADDBLANKNODE" : (function(e){
@@ -1234,6 +1248,12 @@ function Controler(url, gui){
 			this.repoNodes.init();
 			this.navigator = navigator();
 			this.navigator.init();
+		},
+		updateNodeData: function updateNodeData(oldNode, newNode){
+			oldNode.nodeLabel = newNode.nodeLabel;
+			oldNode.physicalDescription = newNode.physicalDescription;
+			oldNode.functionalDescription = newNode.functionalDescription;
+			oldNode.nonFunctionalDescription = newNode.nonFunctionalDescription;
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;
@@ -1840,4 +1860,5 @@ function Controler(url, gui){
 	return controlerObject;
 }
 
+// Włodku, dlaczego używasz pliku controler.js jako swojego notesu? -- Dorota
 // 605307704
