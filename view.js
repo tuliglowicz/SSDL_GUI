@@ -2347,10 +2347,7 @@ function View(id, width, height, gui){
 					} catch(e){
 						// console.log(e);
 					}
-					// console.clear()
-					// console.log(event.clientX, event.clientY);
-					// paper.rect(event.clientX-offsetX, event.clientY-offsetY, 1, 1);
-					// to  to jest dopuki błażej nie poprawi czegośtam u siebie
+					
 					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},

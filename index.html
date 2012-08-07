@@ -337,6 +337,8 @@
 	var jstr = JSON.stringify;
 	// eof pomocnicze skrĂłty
 
+	
+
 	var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
 	var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
 
@@ -349,8 +351,8 @@
 		r.view.blankNodes.draw();
 		r.controler = Controler(url, r);
 		r.library = {gui: r};
-		r.controler.init();
 		r.logger = r.controler.initLogger(r.view.paper);
+		r.controler.init();
 
 		$(function(){
 			$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")
