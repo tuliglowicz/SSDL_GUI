@@ -341,6 +341,7 @@ function Controler(url, gui){
 			refreshCounter();
 		});
 		//unselect for text buttons
+		document.getElementById("console_entries_" + pf).onselectstart = function() { actionTaken = true; return(false); };
 		document.getElementById('console_SA').onselectstart = function() { return(false); };
 		document.getElementById('console_DA').onselectstart = function() { return(false); };
 		document.getElementById('console_D').onselectstart = function() { return(false); };
