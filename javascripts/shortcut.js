@@ -185,7 +185,6 @@ shortcut = {
 					//e.cancelBubble is supported by IE - this will kill the bubbling process.
 					e.cancelBubble = true;
 					e.returnValue = false;
-	
 					//e.stopPropagation works in Firefox.
 					if (e.stopPropagation) {
 						e.stopPropagation();

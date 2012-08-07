@@ -96,21 +96,6 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* Logger v2.0
-		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
-		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 18.07.2012
-		* REQUIRED PARAMS: 
-		* - paper (on which we will draw button opening the console)
-		* REQUIRED VARIABLES SET BY HIGHER LEVEL:
-		* - pf (number for id randomization)
-		* REQUIRED DOM ELEMENTS:
-		* - div with id 'console_'+pf
-		* AVIABLE FUNCTIONS:
-		* - info(information string [, title string])
-		* - warning(warning string [, title string])
-		* - error(error string [, title string])
-		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
 			eId = "#console_entries_" + pf,
@@ -235,7 +220,7 @@ function Controler(url, gui){
 			};
 		//console object
 		var obj = {
-			info : function info(text, title){
+			info : function info(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
@@ -243,7 +228,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
-			warning : function warn(text, title){
+			warning : function warn(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
@@ -253,7 +238,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
-			error : function err(text, title){
+			error : function err(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
@@ -277,7 +262,7 @@ function Controler(url, gui){
 		w = w.slice(0, w.length - 2);
 		w = w - getScrollBarWidth();
 		divString.push(w);
-		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
+		divString.push("px;'><tr><td valign='top' style='float: left;'><div id='console_CL' class='logButton' style='margin-left: 5px; background-color: #FF7400; color: white;'>Zamknij konsolę</div></td>");
 		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
 		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
 		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
@@ -342,11 +327,12 @@ function Controler(url, gui){
 			refreshCounter();
 		});
 		//unselect for text buttons
+		document.getElementById('console_CL').onselectstart = function() { return(false); };
 		document.getElementById('console_SA').onselectstart = function() { return(false); };
 		document.getElementById('console_DA').onselectstart = function() { return(false); };
 		document.getElementById('console_D').onselectstart = function() { return(false); };
 		//main event handling
-		$(eId).click(function(){
+		$('#console_CL').click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
@@ -375,10 +361,7 @@ function Controler(url, gui){
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
-		/* SSDL Graph Deployment v0.64
-		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
-		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 26.06.2012
+		/* 
 		* REQUIRED PARAMS: 
 		* - ssdlJson (jSon form of SSDL XML)
 		* - canvasW (width of canvas we will be drawing on)
@@ -388,6 +371,10 @@ function Controler(url, gui){
 		* - nodeHSpacing (minimum horizontal spacing between nodes)
 		* - nodeVSpacing (vertical spacing between nodes)
 		* - startY (height on canvas from which we start to draw graph)
+		* OUTPUT:
+		* - object
+		* -> coords (array{nodeID, nodeX, nodeY})
+		* -> getCoords (function(id) returning array{nodeX, nodeY} for specified ID)
 		*/
 		//-MAIN-FUNCTION--------------------->>>
 		function run(){//deploying main ssdl graph
@@ -458,7 +445,7 @@ function Controler(url, gui){
 			});
 			return ret;
 		}
-		function processNodes(nodeArray) {//setting flow and processing subgraph for each node
+		function processNodes(nodeArray) {//setting flow for each node
 			$.each(nodeArray, function() {
 				var tempObj = this;
 				$.each(this.sources, function() {//assigning parent/child refferences for each node
@@ -978,6 +965,115 @@ function Controler(url, gui){
 
 		return tmp;
 	}
+	function shortcut(){
+		var memoryTab = [],
+			validationTab = [
+				"ctrl",
+				"shift",
+				"esc",
+				"f1",
+				"home",
+				"alt",
+				"backspace",
+				"space",
+				"enter",
+				"home",
+				"end"
+			],
+			// spacje
+			exists = function shortcutExists(shortcut){
+				var result = false;
+				$.each(memoryTab, function(){
+					if(this === shortcut){
+						result = true;
+						return false;
+					}
+				})
+
+				return result;
+			},
+			validate = function isValid(argumentsTab){
+				var shortcut = argumentsTab[0],
+					callback = argumentsTab[1],
+					opt = argumentsTab[2],
+					msgTab = [],
+					result = {
+						valid : true,
+						msg : ""
+					};
+
+				if(typeof callback != "function"){
+					result.valid = false;
+					msgTab.push("drugi argument musi być funkcją.");
+				}
+
+				if( ! (typeof shortcut == "string") ) {
+					result.valid = false;
+					msgTab.push("\npierwszy argument musi być typu string");
+				} else {
+					var localShortcut = shortcut.toLowerCase(),
+						stringTab = localShortcut.split("+")
+					;
+
+					var numberOfAZ = 0
+					$.each(stringTab, function(i){
+						var noErrors = true;
+						if( !~validationTab.indexOf(this) ){
+							if ( ! /^[a-z]{1}$/.test(this) ) {
+								if(noErrors){
+									result.valid = false;
+									msgTab.push("\npodany skrót: "+shortcut)
+									msgTab.push("\nnieprawidłowe wartości: " + this);
+									noErrors = false;
+								}
+								msgTab.push(", " + this);
+							}
+						}
+					});
+
+				}
+
+				if( !result.valid )
+					result.msg = msgTab.join("");
+
+				return result;
+			},
+			result = {
+				add : function add(shortcut, fun, opt){
+					var validationObj = validate( arguments );
+					if( ! validationObj.valid ){
+						gui.logger.error("shortcut.add", validationObj.msg.replace(/\n/g,"<br/>"));
+					} else if( exists( shortcut ) ){
+
+					} else {
+						memoryTab.push(shortcut);
+						window.shortcut.add(shortcut, fun, opt)
+					}
+
+				},
+				remove : function remove(shortcut){
+					// transformacja shortcut
+					var index = memoryTab.indexOf(shortcut);
+					var result = true;
+
+					if( !~index ){
+						gui.logger.error("skrót \""+shortcut+"\" nie jest jeszcze zdefiniowany");
+						result = false;
+					} else {
+						memoryTab.splice(index, 1);
+						window.shortcut.remove(shortcut);
+					}
+
+					return result;
+				}
+			}
+
+		
+		;
+
+		return result;
+	}
+	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
 		plugins : [],
 		idCounter : 0,
@@ -1087,6 +1183,7 @@ function Controler(url, gui){
 							ssdl_json = this.convert(ssdl, e.title);
 							// raport(this.convertJSON2XML(ssdl_json, true));
 
+						// var afterValidation = that.validator.
 						// if( true )
 						// 	this.current_graphData = ssdl_json;
 
@@ -1248,6 +1345,9 @@ function Controler(url, gui){
 			this.repoNodes.init();
 			this.navigator = navigator();
 			this.navigator.init();
+			this.shortcut = shortcut();
+
+			this.shortcut.add("ctrl+a", function(){alert("")});
 		},
 		updateNodeData: function updateNodeData(oldNode, newNode){
 			oldNode.nodeLabel = newNode.nodeLabel;
@@ -1464,8 +1564,7 @@ function Controler(url, gui){
 
 			return tab;
 		},
-		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
-			
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {			
 			function parseGraph(subgraph, tabulacja){
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
@@ -1718,7 +1817,7 @@ function Controler(url, gui){
 				var nonFunctionalProperty;
 				_this.find("nonFunctionalDescription:first nonFunctionalProperty").each(function(){
 					nonFunctionalProperty = {};
-					nonFunctionalProperty.weight = $(this).find("weight").text();
+					nonFunctionalProperty.weight = parseInt( $(this).find("weight").text(), 10 );
 					nonFunctionalProperty.name = $(this).find("name").text();
 					nonFunctionalProperty.relation = $(this).find("relation").text();
 					nonFunctionalProperty.unit = $(this).find("unit").text();
@@ -1773,7 +1872,7 @@ function Controler(url, gui){
 				nonFunctionalProperty;
 			$(ssdl).find("nonFunctionalParameters:first nonFunctionalProperty").each(function(){
 				nonFunctionalProperty = {};
-				nonFunctionalProperty.weight = $(this).find("weight:first").text();
+				nonFunctionalProperty.weight = parseInt( $(this).find("weight:first").text(), 10);
 				nonFunctionalProperty.unit = $(this).find("unit:first").text();
 				nonFunctionalProperty.value = $(this).find("value:first").text();
 				nonFunctionalProperty.relation = $(this).find("relation:first").text();
@@ -1842,7 +1941,7 @@ function Controler(url, gui){
 			// zaczynamy inaczej:
 
 			var root = this.getRoot();
-			var xml = this.convertJSON2XML(root);
+			var xml = this.convertJSON2XML(root, true);
 			// this.save(url, 'xml', function(txt){
 				// gui.logger.info("Zapisano SSDL "+root.id);
 			// }, 'text', function(txt){
@@ -1859,6 +1958,3 @@ function Controler(url, gui){
 
 	return controlerObject;
 }
-
-// Włodku, dlaczego używasz pliku controler.js jako swojego notesu? -- Dorota
-// 605307704
