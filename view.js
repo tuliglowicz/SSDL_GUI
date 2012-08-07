@@ -16,11 +16,12 @@ function View(id, width, height, gui){
 				visible: false,
 				init: function init() {
 					var x = 10,
-						y = 10
+						y = 10,
+						win = $(window)
 					;
 
-					x = ( x + this.width > $(window).width() ? $(window).width() - 1.1 * this.width : x );
-					y = ( y + this.height > $(window).height() ? $(window).height() - 1.1 * this.height : y );
+					x = ( x + this.width > win.width() ? win.width() - 1.1 * this.width : x );
+					y = ( y + this.height > win.height() ? win.height() - 1.1 * this.height : y );
 					
 					$("<div id='tipContener' style='opacity:"+opacity+";position: absolute; top:" + y + "px; left:"+ x +"px; width:auto;height:auto; background-color: #666; color: black; '> </div>").appendTo("body");
 					$("<div id='tipTitle' style='font-size: 14px;padding:5px 5px 5px 5px;opacity:"+opacity+";border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gray;border-radius: 5px 5px 0px 0px; text-align: center; background-color: #666; color: #fff; font-weight: bold;'> </div>").appendTo("#tipContener");
@@ -35,7 +36,7 @@ function View(id, width, height, gui){
 				isOpen: function isOpen() {
 					return this.visible;
 				},
-				open2: function open2(title, text, x, y) {
+				openHelper: function openHelper(title, text, x, y) {
 					this.tipContener.show();
 					this.visible = true;
 				},
@@ -52,13 +53,12 @@ function View(id, width, height, gui){
 						this.tipContener.css("height", (this.tipTitle.height() + this.tipText.height()) + "px");
 
 						if (evt.shiftKey)
-							this.open2(this.title, this.text, this.x, this.y);
+							this.openHelper(this.title, this.text, this.x, this.y);
 						else 
-							this.tOut = setTimeout((function() { this.open2(this.title, this.text, this.x, this.y); }).bind(this), 500);
+							this.tOut = setTimeout((function() { this.openHelper(this.title, this.text, this.x, this.y); }).bind(this), 500);
 					}
 				},
 				close: function close() {
-					// console.log("close")
 					clearTimeout(this.tOut);
 					this.tipContener.hide();
 					this.visible = false;
@@ -595,13 +595,13 @@ function View(id, width, height, gui){
 		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
 		result.addGroup("Edit");
 		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
-		result.addGroup("Tester group");
-		result.addOption("Tester group", "Test1", f3, "Test if works");
-		result.addOption("Tester group", "TestTWO", f3, "Test if works");
-		result.addOption("Tester group", "AnotherTest", f3, "Test if works");
-		result.addOption("Tester group", "Test4", f3, "Test if works");
-		result.addOption("Views", "SS", f3, "Test if works");
-		result.addOption("Views", "Test", f3, "Test if works");
+		// result.addGroup("Tester group");
+		// result.addOption("Tester group", "Test1", f3, "Test if works");
+		// result.addOption("Tester group", "TestTWO", f3, "Test if works");
+		// result.addOption("Tester group", "AnotherTest", f3, "Test if works");
+		// result.addOption("Tester group", "Test4", f3, "Test if works");
+		// result.addOption("Views", "SS", f3, "Test if works");
+		// result.addOption("Views", "Test", f3, "Test if works");
 
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
@@ -1674,7 +1674,6 @@ function View(id, width, height, gui){
 						});
 					},
 					updateNode : function updateNode(){
-
 					}
 				}
 				
@@ -2331,6 +2330,7 @@ function View(id, width, height, gui){
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
 						$.each(v.inputs, function(){
+							console.log(v.id, this.id);
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "red"}) );
 							}
@@ -2363,8 +2363,8 @@ function View(id, width, height, gui){
 					}
 
 					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
-					// alert(resultObj)
-					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.targetId) ){
+					// jsonFormatter(resultObj, true, true)
+					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
 						if(resultObj.input.dataType === output.dataType){
 							gui.controler.reactOnEvent("AddDFEdge", {
 							 	sourceId: sourceNode.id,
@@ -2561,6 +2561,7 @@ function View(id, width, height, gui){
 			return foundedDFEdge;
 		},
 		isInputConnected: function isInputConnected(nodeId, inputId){
+			// alert(this.caller.callee)
 			var result = false;
 			$.each(this.current_graph_view.edgesDF, function(){
 				if(this.targetId === nodeId && this.input.id === inputId){
@@ -2568,6 +2569,7 @@ function View(id, width, height, gui){
 					return false;
 				}
 			});
+			console.log(nodeId, inputId, result);
 
 			return result;
 		},
@@ -2591,6 +2593,7 @@ function View(id, width, height, gui){
 			this.current_graph_view = tab[ tab.length-1 ];
 			this.showCurrentGraph();
 			this.switchMode();
+			c = -1;
 		},
 		drawGraph : function drawGraph(graph_json){
 			// alert(graph_json.nodes)

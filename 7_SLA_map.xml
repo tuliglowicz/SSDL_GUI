@@ -17,8 +17,8 @@
 				<source/>
 			</sources>
 			<functionalDescription>
-				<serviceClasses/>
 				<description>Start node</description>
+				<serviceClasses/>
 				<metaKeywords/>
 				<inputs/>
 				<outputs>
@@ -99,16 +99,16 @@
 		</node>
 		<!-- Pierwszy wierzchołek z procesu -->
 		<node>
-			<nodeId>CCTVStartMonitoring</nodeId>
-			<nodeType>Functionality</nodeType>
-			<nodeLabel>CCTVStartMonitoring</nodeLabel>
-			<physicalDescription>
+			+|*<nodeId>CCTVStartMonitoring</nodeId>
+			+|*<nodeType>Functionality</nodeType>
+			+|*<nodeLabel>CCTVStartMonitoring</nodeLabel>
+			+|service<physicalDescription>
 				<serviceName/>
 				<serviceGlobalId/>
 				<address/>
 				<operation/>
-			</physicalDescription>
-			<functionalDescription>
+			         </physicalDescription>
+			|^control<functionalDescription>
 				<serviceClasses>
 					<serviceClass>Monitoring</serviceClass>
 				</serviceClasses>
@@ -157,23 +157,24 @@
 				</outputs>
 				<preconditions/>
 				<effects/>
-			</functionalDescription>
-			<nonFunctionalDescription>
-				<nonFunctionalProperty>
-					<weight>1</weight>
-					<name>location</name>
-					<relation>eq</relation>
-					<unit>district</unit>
-					<value>srodmiescie</value>
-				</nonFunctionalProperty>
-			</nonFunctionalDescription>
-			<alternatives/>
-			<subGraph/>
-			<controlType/>
-			<condition/>
-			<sources>
+					 </functionalDescription>
+			+|^control<nonFunctionalDescription>
+						<nonFunctionalProperty>
+							<weight>1</weight>
+							<name>location</name>
+							<relation>eq</relation>
+							<unit>district</unit>
+							<value>srodmiescie</value>
+						</nonFunctionalProperty>
+					 </nonFunctionalDescription>
+			~|^control<alternatives/>
+			+|service<subGraph/>
+			|control <controlType/>
+			| ???<condition/>
+			|^control#"#Start"<sources>
+
 				<source>#Start</source>
-			</sources>
+							  </sources>
 		</node>
 		<!--MAPOWANIE -->	
 		<node>

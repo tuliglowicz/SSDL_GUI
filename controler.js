@@ -15,7 +15,7 @@ function Controler(url, gui){
 				if( $("#repoNodes_"+pf).length === 0 ){
 					$("#right_plugins_"+pf).append("<div id='repoNodes_"+pf+"' class='plugin_"+pf+"'> </div>");
 					this.paper = Raphael("repoNodes_"+pf, gui.view.columnParams.rightCol.width-1, 500);
-					//to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
+					// to nie będzie gadać ze scrollerem, bo node'y nie maja getBBox()!!!
 					// this.scroller = addSideScroller(this.paper);
 					// left = $("#blankNodes_"+pf).position().left;
 					// that = this;
@@ -94,22 +94,6 @@ function Controler(url, gui){
 		return resultObject;
 	}
 	function initLogger(paper){
-		/* Logger v2.0
-		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
-		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 18.07.2012
-		* REQUIRED PARAMS: 
-		* - paper (on which we will draw button opening the console)
-		* REQUIRED VARIABLES SET BY HIGHER LEVEL:
-		* - pf (number for id randomization)
-		* REQUIRED DOM ELEMENTS:
-		* - div with id 'console_'+pf
-		* OUTPUT:
-		* - object
-		* -> info (function(information string [, title string]) displaying information in console)
-		* -> warning (function(warning string [, title string]) displaying warning in console)
-		* -> error (function(error string [, title string]) displaying error in console)
-		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
 			eId = "#console_entries_" + pf,
@@ -375,10 +359,7 @@ function Controler(url, gui){
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
-		/* SSDL Graph Deployment v0.64
-		* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
-		* "Lasciate ogni speranza, voi ch'entrate"
-		* SUBMITTED: 26.06.2012
+		/* 
 		* REQUIRED PARAMS: 
 		* - ssdlJson (jSon form of SSDL XML)
 		* - canvasW (width of canvas we will be drawing on)
@@ -1094,6 +1075,7 @@ function Controler(url, gui){
 							ssdl_json = this.convert(ssdl, e.title);
 							// raport(this.convertJSON2XML(ssdl_json, true));
 
+						// var afterValidation = that.validator.
 						// if( true )
 						// 	this.current_graphData = ssdl_json;
 
@@ -1450,8 +1432,7 @@ function Controler(url, gui){
 
 			return tab;
 		},
-		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
-			
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {			
 			function parseGraph(subgraph, tabulacja){
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
@@ -1704,7 +1685,7 @@ function Controler(url, gui){
 				var nonFunctionalProperty;
 				_this.find("nonFunctionalDescription:first nonFunctionalProperty").each(function(){
 					nonFunctionalProperty = {};
-					nonFunctionalProperty.weight = $(this).find("weight").text();
+					nonFunctionalProperty.weight = parseInt( $(this).find("weight").text(), 10 );
 					nonFunctionalProperty.name = $(this).find("name").text();
 					nonFunctionalProperty.relation = $(this).find("relation").text();
 					nonFunctionalProperty.unit = $(this).find("unit").text();
@@ -1759,7 +1740,7 @@ function Controler(url, gui){
 				nonFunctionalProperty;
 			$(ssdl).find("nonFunctionalParameters:first nonFunctionalProperty").each(function(){
 				nonFunctionalProperty = {};
-				nonFunctionalProperty.weight = $(this).find("weight:first").text();
+				nonFunctionalProperty.weight = parseInt( $(this).find("weight:first").text(), 10);
 				nonFunctionalProperty.unit = $(this).find("unit:first").text();
 				nonFunctionalProperty.value = $(this).find("value:first").text();
 				nonFunctionalProperty.relation = $(this).find("relation:first").text();
@@ -1828,7 +1809,7 @@ function Controler(url, gui){
 			// zaczynamy inaczej:
 
 			var root = this.getRoot();
-			var xml = this.convertJSON2XML(root);
+			var xml = this.convertJSON2XML(root, true);
 			// this.save(url, 'xml', function(txt){
 				// gui.logger.info("Zapisano SSDL "+root.id);
 			// }, 'text', function(txt){
@@ -1845,5 +1826,3 @@ function Controler(url, gui){
 
 	return controlerObject;
 }
-
-// 605307704
