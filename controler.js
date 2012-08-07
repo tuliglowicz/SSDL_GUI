@@ -260,7 +260,7 @@ function Controler(url, gui){
 		w = w.slice(0, w.length - 2);
 		w = w - getScrollBarWidth();
 		divString.push(w);
-		divString.push("px;'><tr><td valign='top' style='float: left;'><b>Konsola</b></td>");
+		divString.push("px;'><tr><td valign='top' style='float: left;'><div id='console_CL' class='logButton' style='margin-left: 5px; background-color: #FF7400; color: white;'>Zamknij konsolę</div></td>");
 		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
 		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
 		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
@@ -325,12 +325,11 @@ function Controler(url, gui){
 			refreshCounter();
 		});
 		//unselect for text buttons
-		document.getElementById("console_entries_" + pf).onselectstart = function() { actionTaken = true; return(false); };
 		document.getElementById('console_SA').onselectstart = function() { return(false); };
 		document.getElementById('console_DA').onselectstart = function() { return(false); };
 		document.getElementById('console_D').onselectstart = function() { return(false); };
 		//main event handling
-		$(eId).click(function(){
+		$('#console_CL').click(function(){
 			if(actionTaken){
 				actionTaken = false;
 			}else{
