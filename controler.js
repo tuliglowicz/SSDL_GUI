@@ -218,7 +218,7 @@ function Controler(url, gui){
 			};
 		//console object
 		var obj = {
-			info : function info(text, title){
+			info : function info(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[0]++;
@@ -226,7 +226,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 0);
 			},
-			warning : function warn(text, title){
+			warning : function warn(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[1]++;
@@ -236,7 +236,7 @@ function Controler(url, gui){
 				//here adding to div and dTabs
 				addMessage(text, 1);
 			},
-			error : function err(text, title){
+			error : function err(title, text){
 				text = text || "(an empty string)";
 				if(title) text = "<b>"+title+"</b><br/>" + text;
 				counter[2]++;
@@ -962,6 +962,115 @@ function Controler(url, gui){
 
 		return tmp;
 	}
+	function shortcut(){
+		var memoryTab = [],
+			validationTab = [
+				"ctrl",
+				"shift",
+				"esc",
+				"f1",
+				"home",
+				"alt",
+				"backspace",
+				"space",
+				"enter",
+				"home",
+				"end"
+			],
+			// spacje
+			exists = function shortcutExists(shortcut){
+				var result = false;
+				$.each(memoryTab, function(){
+					if(this === shortcut){
+						result = true;
+						return false;
+					}
+				})
+
+				return result;
+			},
+			validate = function isValid(argumentsTab){
+				var shortcut = argumentsTab[0],
+					callback = argumentsTab[1],
+					opt = argumentsTab[2],
+					msgTab = [],
+					result = {
+						valid : true,
+						msg : ""
+					};
+
+				if(typeof callback != "function"){
+					result.valid = false;
+					msgTab.push("drugi argument musi być funkcją.");
+				}
+
+				if( ! (typeof shortcut == "string") ) {
+					result.valid = false;
+					msgTab.push("\npierwszy argument musi być typu string");
+				} else {
+					var localShortcut = shortcut.toLowerCase(),
+						stringTab = localShortcut.split("+")
+					;
+
+					var numberOfAZ = 0
+					$.each(stringTab, function(i){
+						var noErrors = true;
+						if( !~validationTab.indexOf(this) ){
+							if ( ! /^[a-z]{1}$/.test(this) ) {
+								if(noErrors){
+									result.valid = false;
+									msgTab.push("\npodany skrót: "+shortcut)
+									msgTab.push("\nnieprawidłowe wartości: " + this);
+									noErrors = false;
+								}
+								msgTab.push(", " + this);
+							}
+						}
+					});
+
+				}
+
+				if( !result.valid )
+					result.msg = msgTab.join("");
+
+				return result;
+			},
+			result = {
+				add : function add(shortcut, fun, opt){
+					var validationObj = validate( arguments );
+					if( ! validationObj.valid ){
+						gui.logger.error("shortcut.add", validationObj.msg.replace(/\n/g,"<br/>"));
+					} else if( exists( shortcut ) ){
+
+					} else {
+						memoryTab.push(shortcut);
+						window.shortcut.add(shortcut, fun, opt)
+					}
+
+				},
+				remove : function remove(shortcut){
+					// transformacja shortcut
+					var index = memoryTab.indexOf(shortcut);
+					var result = true;
+
+					if( !~index ){
+						gui.logger.error("skrót \""+shortcut+"\" nie jest jeszcze zdefiniowany");
+						result = false;
+					} else {
+						memoryTab.splice(index, 1);
+						window.shortcut.remove(shortcut);
+					}
+
+					return result;
+				}
+			}
+
+		
+		;
+
+		return result;
+	}
+	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
 		plugins : [],
 		idCounter : 0,
@@ -1221,6 +1330,9 @@ function Controler(url, gui){
 			this.repoNodes.init();
 			this.navigator = navigator();
 			this.navigator.init();
+			this.shortcut = shortcut();
+
+			this.shortcut.add("ctrl+a", function(){alert("")});
 		},
 		getNodeById : function getNodeById(id, graph){
 			var result;
