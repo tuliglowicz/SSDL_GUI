@@ -1,33 +1,33 @@
 
 function formGenerator(divId, lang, postfix, json){
 	// a("")
-	var html = ["<form>"]
+	var html = ["<form id=\"" + json.formId + "_" + postfix + "\"><table>"]
 	;
 
-	$.each(json, function(i){
-		html.push("<label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label>");
+	$.each(json.fields, function(i){
+		html.push("<tr><td><label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label></td>");
 		switch(this.inputType.toLowerCase()){
 			case "textbox" :
-				html.push("<input type=\"text\" id=\"" + this.id + "_" + postfix + "\" />");
+				html.push("<td><input type=\"text\" id=\"" + this.id + "_" + postfix + "\" /></td>");
 			break;
 			case "textarea" :
-				html.push("<textarea id=\"" + this.id + "_" + postfix + "\"></textarea>");
+				html.push("<td><textarea id=\"" + this.id + "_" + postfix + "\"></textarea></td>");
 			break;
 			case "select" :
-				html.push("<select id=\"" + this.id + "_" + postfix + "\" />");
+				html.push("<td><select id=\"" + this.id + "_" + postfix + "\" />");
 					$.each(this.values, function(){
 						// a("a")
 						html.push("<option value=\""+this+"\">"+this+"</option>")
 					});
-				html.push("</select>")
+				html.push("</select></td>")
 			break;
 			case "radio" :
 				html.push("ra");
 			break;
 		}
-		html.push("<span id=\"" + this.id + "validation_" + postfix + "\"></span><br/>");
+		html.push("<td><span id=\"" + this.id + "validation_" + postfix + "\"></span></td><br/>");
 	});
-	html.push("<form/>")
+	html.push("</table></form>")
 
 	return html.join("");
 }
@@ -286,3 +286,188 @@ function formGenerator(divId, lang, postfix, json){
 		scroll.init();
 		return scroll;
 	};
+var formJSON = [
+	{
+		tabLabel:"main",
+		tabId: "mainTab",
+		formId: "mainForm",
+		fields: [
+		{
+			label: "label",
+			id: "f_mainTab_label",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "description",
+			id: "f_mainTab_description",
+			inputType: "textArea",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "controlType",
+			id: "f_mainTab_controlType",
+			inputType: "select",
+			validation: function(){},
+			values:["#start", "#end"]
+		},
+		{
+			label: "serviceClass",
+			id: "f_mainTab_serviceClass",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		}
+	]},
+	{
+		tabLabel:"service description",
+		tabId: "physicalDescriptionTab",
+		formId: "physDescForm",
+		fields: [
+		{
+			label: "address",
+			id: "f_physicalDescriptionTab_address",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "serviceName",
+			id: "f_physicalDescriptionTab_serviceName",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "serviceGlobalId",
+			id: "f_physicalDescriptionTab_serviceGlobalId",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "operation",
+			id: "f_physicalDescriptionTab_operation",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		}
+	]},
+	{
+		tabLabel:"inputs",
+		tabId: "inputsTab",
+		formId: "inputForm",
+		fields: [
+		{
+			label: "id",
+			id: "f_inputsTab_id",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "class",
+			id: "f_inputsTab_class",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "dataType",
+			id: "f_inputsTab_dataType",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "properties",
+			id: "f_inputsTab_properties",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "source",
+			id: "f_inputsTab_source",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		}
+	]},
+	{
+		tabLabel:"outputs",
+		tabId: "outputsTab",
+		formId: "outputForm",
+		fields: [
+		{
+			label: "id",
+			id: "f_outputsTab_id",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "class",
+			id: "f_outputsTab_class",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "dataType",
+			id: "f_outputsTab_dataType",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "properties",
+			id: "f_outputsTab_properties",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		}
+	]},
+	{
+		tabLabel:"non functional description",
+		tabId: "nonFunctionalDescriptionTab",
+		formId: "nonFuncDescForm",
+		fields: [{
+			label: "weight",
+			id: "f_nonFunctionalDescriptionTab_weight",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "name",
+			id: "f_nonFunctionalDescriptionTab_name",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "relation",
+			id: "f_nonFunctionalDescriptionTab_relation",
+			inputType: "textBox",
+			validation: function(){},
+			values:["eq", "gt", "le", "leq", "geq"]
+		},
+		{
+			label: "unit",
+			id: "f_nonFunctionalDescriptionTab_unit",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "value",
+			id: "f_nonFunctionalDescriptionTab_value",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		}
+	]}
+];

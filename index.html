@@ -326,7 +326,7 @@
 		</table>
 	</form>	
 </div>
-<div id="f_addNFPropertyForm" class="ui-dialog-content ui-widget-content" title="Add a new non functional property">
+<div id="f_addNFPropertyForm" title="Add a new non functional property">
 	<form id="nonFuncDescForm">
 		<table>
 			<tr>
@@ -391,26 +391,7 @@
 	}
 
 	// ------------------------------------------------------------------------test formGenerator
-	var form = formGenerator("raport", "polish", 438250, [
-		{
-			label: "label",
-			inputType: "textBox",
-			validation: function(){},
-			values:[]
-		},
-		{
-			label: "description",
-			inputType: "textArea",
-			validation: function(){},
-			values:[]
-		},
-		{
-			label: "controlType",
-			inputType: "select",
-			validation: function(){},
-			values:["#start", "#end"]
-		}
-	]);
+	var form = formGenerator("raport", "polish", 438250,  formJSON[3]);
 	document.getElementById("raport").innerHTML = form;	
 	// ------------------------------------------------------------------------ eof test formGenerator
 
