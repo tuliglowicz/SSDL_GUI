@@ -993,7 +993,7 @@ function Controler(url, gui){
 				return result;
 			},
 			validate = function isValid(argumentsTab){
-				var shortcut = argumentsTab[0],
+				var shortcut = argumentsTab[0].toLowerCase().replace(/ /g,""),
 					callback = argumentsTab[1],
 					opt = argumentsTab[2],
 					msgTab = [],
@@ -1011,28 +1011,27 @@ function Controler(url, gui){
 					result.valid = false;
 					msgTab.push("\npierwszy argument musi być typu string");
 				} else {
-					var localShortcut = shortcut.toLowerCase(),
-						stringTab = localShortcut.split("+")
-					;
+					var stringTab = shortcut.split("+");
+					msgTab.push("\npodany skrót: "+shortcut)
 
 					var numberOfAZ = 0
 					$.each(stringTab, function(i){
 						var noErrors = true;
 						if( !~validationTab.indexOf(this) ){
-							if ( ! /^[a-z]{1}$/.test(this) ) {
-								if(noErrors){
-									result.valid = false;
-									msgTab.push("\npodany skrót: "+shortcut)
-									msgTab.push("\nnieprawidłowe wartości: " + this);
-									noErrors = false;
-								}
-								msgTab.push(", " + this);
+							if ( ! /^[a-z]{1}$/.test(this) ){
+								result.valid = false;
+								msgTab.push("\nnieprawidłowa wartość: " + this);
+							}
+							else if(numberOfAZ > 0){
+								result.valid = false;
+								msgTab.push("\nnieprawidłowa wartość: +" + this);
+							} else {
+								numberOfAZ++;
 							}
 						}
 					});
 
 				}
-
 				if( !result.valid )
 					result.msg = msgTab.join("");
 
@@ -1040,35 +1039,45 @@ function Controler(url, gui){
 			},
 			result = {
 				add : function add(shortcut, fun, opt){
-					var validationObj = validate( arguments );
+					var result = true,
+						validationObj = validate( arguments )
+					;
+
+					shortcut = shortcut.toLowerCase().replace(/ /g,"");
 					if( ! validationObj.valid ){
 						gui.logger.error("shortcut.add", validationObj.msg.replace(/\n/g,"<br/>"));
 					} else if( exists( shortcut ) ){
-
+						gui.logger.error("shortcut.add", shortcut+" jest już używany");
 					} else {
 						memoryTab.push(shortcut);
 						window.shortcut.add(shortcut, fun, opt)
 					}
 
+					// console.log(memoryTab)
+
+					return result;
 				},
 				remove : function remove(shortcut){
 					// transformacja shortcut
+					shortcut = shortcut.toLowerCase().replace(/ /g,"");
+					// console.log(shortcut);
+
 					var index = memoryTab.indexOf(shortcut);
 					var result = true;
 
 					if( !~index ){
-						gui.logger.error("skrót \""+shortcut+"\" nie jest jeszcze zdefiniowany");
+						gui.logger.error("shortcut.remove", "skrót \""+shortcut+"\" nie jest jeszcze zdefiniowany");
 						result = false;
 					} else {
 						memoryTab.splice(index, 1);
 						window.shortcut.remove(shortcut);
 					}
 
+					// console.log(memoryTab)
+
 					return result;
 				}
 			}
-
-		
 		;
 
 		return result;
@@ -1081,6 +1090,21 @@ function Controler(url, gui){
 		current_graphData : {id: "root", nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
+		},
+		initPlugins : function initPlugins(){
+			this.repository = repository(gui.view.columnParams.rightCol.width);
+			this.repository.init();
+			this.repoNodes = repoNodes( gui.view.visualiser );
+			this.repoNodes.init();
+			this.navigator = navigator();
+			this.navigator.init();
+			this.shortcut = shortcut();
+
+			this.shortcut.add("ctrl+a", (function(){ this.reactOnEvent("selectAll") }).bind(this));
+			this.shortcut.add("Esc", (function(){ this.reactOnEvent("Escape") }).bind(this));
+			this.shortcut.add("ctrl + X", function(){alert("")});
+			this.shortcut.add("ctrl+shift+z", function(){alert("")});
+			setTimeout((function(){this.shortcut.remove("ctrl+x")}).bind(this), 2000);
 		},
 		getGraphById : function getGraphById(id){
 			var result;
@@ -1121,6 +1145,13 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "DESELECT" : (function () {
 					gui.view.deselectAll();
+				})(); break;
+				case "SELECTALL" : (function () {
+					gui.view.selectAll();
+				})(); break;
+				case "ESCAPE" : (function () {
+					gui.view.deselectAll();
+					gui.view.tooltip.close();
 				})(); break;
 				case "ADDCFEDGE" : (function(e){
 					var target = gui.controler.getNodeById(e.target.id);
@@ -1337,17 +1368,6 @@ function Controler(url, gui){
 		},
 		xmlToString: function xmlToString(xml){
 			return (new XMLSerializer()).serializeToString(xml);
-		},
-		initPlugins : function initPlugins(){
-			this.repository = repository(gui.view.columnParams.rightCol.width);
-			this.repository.init();
-			this.repoNodes = repoNodes( gui.view.visualiser );
-			this.repoNodes.init();
-			this.navigator = navigator();
-			this.navigator.init();
-			this.shortcut = shortcut();
-
-			this.shortcut.add("ctrl+a", function(){alert("")});
 		},
 		updateNodeData: function updateNodeData(oldNode, newNode){
 			oldNode.nodeLabel = newNode.nodeLabel;
