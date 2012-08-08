@@ -607,85 +607,7 @@ function View(id, width, height, gui){
 
 		return result;
 	};
-	function addSideScroller(paper){
-		var invisible = 0,
-			visible = .4,
-			animationTime = 100,
-			visibleHeight = paper.height,
-			checkHeight = function(set){	//określa wysokość przekazanej tablicy obiektów
-				if(!set[0]) return 0;
-				var min = set[0].getBBox().y, max = 0, bbox;
-				$.each(set, function(){
-					bbox = this.getBBox();
-					if(bbox.y < min) min = bbox.y;
-					if(bbox.y + bbox.height > max) max = bbox.y + bbox.height;
-				});
-				return max - min + 10; //10 dodaję jako margines
-			},
-			isValid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
-				return
-					set.some(function(elem){
-						return (getType(elem.getBBox) != "function" || getType(elem.translate) != "function")
-					});
-			},
-			scroll = {
-				move: function move(set, mult){
-					return function(dx, dy){
-						var newY = this.oy + dy, altDy; 
-						if(newY >= 0 && newY + this.attr("height") <= visibleHeight){
-							this.transform("t0,"+dy);
-							$.each(set, function(){
-								this.translate(0, (-1*dy/mult)); //this.transform("t0,"+(-1*dy/mult))
-							});
-						}
-						else{ 
-							if(newY < 0)
-								altDy = this.oy;
-							else
-								altDy = visibleHeight - this.oy - this.attr("height");
-							this.transform("t0,"+altDy);
-							$.each(set, function(){
-								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)))
-							});
-						}
-					}
-				},
-				start: function start(){
-					this.oy = this.attr("y");
-				},
-				stop: function stop(){},
-				init: function init(){
-					this.slider = paper.rect(paper.width-5, 0, 5, visibleHeight*.75, 5)
-						.attr({"stroke-width":0, fill:"black", opacity: visible})
-						.hide();
-					this.set = [];
-				},
-				//update musi być wywoływany przy każdorazowej zmianie zawartości kanwy, na której siedzi sobie scroll
-				update: function update(set){
-					var result = false;
-					if(isValid(set)){
-						this.set = set;
-						var setHeight = checkHeight(set);
-						this.multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
-						this.slider.attr({height: visibleHeight*this.multiplier});
-						this.slider.drag(this.move(this.set, this.multiplier), this.start, this.stop);
-						result = true;
-					}
-					else
-						console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
-					return result;
-				},
-				showYourself: function showYourself(){
-					if(this.multiplier !== 1)
-						this.slider.show();
-				},
-				goHide: function goHide(){
-					this.slider.hide();
-				}
-			};
-		scroll.init();
-		return scroll;
-	};
+	//sidescroller -> moved to library.js
 	function form() {
 		var resultJSON = {
 			"nodeId":"",
@@ -721,35 +643,31 @@ function View(id, width, height, gui){
 			resultJSON: resultJSON,
 			physDescJSON: physDescJSON,
 			funcDescJSON: funcDescJSON,
-			inputEdit: false,
-			outputEdit: false,
-			NFedit: false,
-			inputNumber: -1,
-			outputNumber: -1, 
-			NFnumber: -1,
-			inputRow: -1,
-			outputRow: -1, 
-			NFrow: -1,
+			selectedInputIndex: -1,
+			selectedOutputIndex: -1,
+			selectedNFPropertyIndex: -1,
 
 			initToEdit: function initToEdit(node){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
 				this.clearErrors();
-				this.cleanForm();
+				this.cleanForm(true);
 				$('#ui-dialog-title-form').text(titleText);
 				$( "#f_mainTab_label" ).val(node.nodeLabel);
 				$("#f_mainTab_controlType").val(node.controlType);
 				this.adjustForm(node.nodeType);
 				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
 				$( "#f_physicalDescriptionTab_serviceName" ).val(node.physicalDescription.serviceName);
-				$( "#f_physicalDescriptionTab_serviceGlobalId" ).val(node.physicalDescription.serviceGlobalId);
-				$( "#f_physicalDescriptionTab_address" ).val(node.physicalDescription.address);
+				$( "#f_physicalDescriptionTab_serviceGlobalId" ).val(node.physicalDescription.serviceGlobalID);
+				$( "#f_physicalDescriptionTab_address" ).val(node.physicalDescription.adress);
 				$( "#f_physicalDescriptionTab_operation" ).val(node.physicalDescription.operation);
 				
 				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
+				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 				this.appendIO(node.functionalDescription.inputs, "inputs");
 				this.appendIO(node.functionalDescription.outputs, "outputs");
 				this.appendNonFuncDesc(node.nonFunctionalDescription);
 				this.resultJSON.nodeId = node.nodeId;
+				this.resultJSON.nodeType = node.nodeType;
 				$( "#form" ).dialog( "open" );
 				
 				//  pola obecnie nieużywane:
@@ -764,18 +682,15 @@ function View(id, width, height, gui){
 				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
 				// }
 				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
-
 				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
 				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
 				// this.appendList(node.sources, "sources");
-
-				// this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
 			},
 			initBlank: function initBlank(nodeData){
 				var titleText = "Create a " + nodeData.nodeType + " type node";
 				this.clearErrors();
-				this.cleanForm();
-				this.resultJSON.label = nodeData.label;
+				this.cleanForm(true);
+				this.resultJSON.nodeLabel = nodeData.label;
 				this.resultJSON.nodeType = nodeData.nodeType;
 				$('#ui-dialog-title-form').text(titleText);
 				this.adjustForm(nodeData.nodeType);
@@ -786,7 +701,7 @@ function View(id, width, height, gui){
 			adjustForm: function adjustForm(nodeType){
 				switch(nodeType.toLowerCase()){
 					case "control" : 
-						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).show();
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType, #f_mainTab_controlType_validation' ).show();
 						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').hide();
 						$('#f_button_addServiceClass').hide();
@@ -794,7 +709,7 @@ function View(id, width, height, gui){
 						$('#tabs-2').hide();
 						break;
 					case "functionality" : 
-						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType, #f_mainTab_controlType_validation' ).hide();
 						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
 						$('#f_button_addServiceClass').show();
@@ -802,7 +717,7 @@ function View(id, width, height, gui){
 						$('#tabs-2').hide();
 						break;
 					default: 
-						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType' ).hide();
+						$( 'label[for="f_mainTab_controlType"], #f_mainTab_controlType, #f_mainTab_controlType_validation' ).hide();
 						$('#physicalDescriptionTab').removeClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass"], #f_mainTab_serviceClass').show();
 						$('#f_button_addServiceClass').show();
@@ -813,72 +728,62 @@ function View(id, width, height, gui){
 			},
 			//funkcje czyszczące elementy formularza
 			clearNF: function clearNF(){
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
 				$( "#nonFuncDescForm" )[0].reset();
-				this.NFedit = false;
-				this.NFnumber = -1;	
-				this.NFrow = -1;
+				this.resetSelectedNFPropertyIndex();
 			},
 			clearInputs: function clearInputs(){
-				$( "#inputForm" )[0].reset(); 
-				this.inputEdit = false;	
-				this.inputNumber = -1;
-				this.inputRow = -1;
+				$( "#inputForm" )[0].reset();
+				$( "#f_inputsTab_inputs tbody" ).empty();
+				this.resetSelectedInputIndex();
 			},
 			clearOutputs: function clearOutputs(){
 				$( "#outputForm" )[0].reset(); 	
-				this.outputEdit = false;	
-				this.outputNumber = -1;
-				this.outputRow = -1;
+				$( "#f_outputsTab_outputs tbody" ).empty();
+				this.resetSelectedOutputIndex();
 			},
-			//@handleErrors: to trzeba przepisać od zera dla nowej walidacji + usunąć buglist
-			//na rzecz czegoś bardziej pro
 			handleErrors: function handleErrors(array){
-				var input;
-				$.each(array, function(){
-						input = this;
-					var splitty = input.split("_");
-						$( "#" + splitty[0] ).addClass( "ui-state-error" );
-						$( "#" + splitty[1] ).addClass( "ui-state-error" );
-						$( "#buglist" ).append(splitty[2] + " ");
+				$.each(array, function(){						
+					var splitty = this.split("_"), 
+						id,
+						tabId = splitty[1].split("x")[0],
+						inputId;
+					$("#" + tabId).addClass("ui-state-error");
+					if(tabId==="inputsTab" || tabId==="outputsTab" || tabId==="nonFunctionalDescriptionTab"){
+						id = "#" + splitty[0] + "_" + splitty[1];
+						inputId = "#" + splitty[0] + "_" + tabId + "_" + splitty[2];
+						$(inputId).addClass("ui-state-error");
+						$(inputId+"_validation").text(splitty[3]);
+					}
+					else{
+						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
+						$( id+"_validation" ).text(splitty[3]);
+					}	
+					$( id ).addClass( "ui-state-error" );
 				});
-				$( "#buglist" ).append('<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>');
-				$( "#buglist" ).addClass( "ui-state-error ui-corner-all" );
 			},
 			clearErrors: function clearErrors(){
-				$( "#buglist" ).empty();
-				$( "#buglist" ).removeClass( "ui-state-error" );
-				$( "#f_physicalDescriptionTab_serviceName" ).removeClass( "ui-state-error" ); 
-				$( "#f_physicalDescriptionTab_serviceGlobalId" ).removeClass( "ui-state-error" ); 
-				$( "#f_physicalDescriptionTab_address" ).removeClass( "ui-state-error" ); 
-				$( "#f_physicalDescriptionTab_operation" ).removeClass( "ui-state-error" ); 
-				$( "#f_mainTab_nodeType" ).removeClass( "ui-state-error" ); 
-				// $( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
-				// $( "#f_mainTab_sources" ).removeClass( "ui-state-error" ); 
-				$( "#f_nonFunctionalDescriptionTab_weight" ).removeClass( "ui-state-error" ); 
-				$( "#f_nonFunctionalDescriptionTab_name" ).removeClass( "ui-state-error" ); 
-				$( "#f_nonFunctionalDescriptionTab_relation" ).removeClass( "ui-state-error" ); 
-				$( "#f_nonFunctionalDescriptionTab_unit" ).removeClass( "ui-state-error" );
-				$( "#f_nonFunctionalDescriptionTab_value" ).removeClass( "ui-state-error" ); 
-				for(var i = 1; i < 5; i++){ $( "#t" + i ).removeClass( "ui-state-error" );  }
+				$("*").removeClass("ui-state-error");
+				$('td[id$="_validation"]').text("");
 			},
-			cleanForm: function cleanForm(){
+			//argument total decyduje, czy ma być skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
+			cleanForm: function cleanForm(total){
+				if( !total )
+					var temp = this.resultJSON.nodeId;
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
-				$( "#f_inputOutputTab_inputs tbody" ).empty();
-				$( "#f_inputOutputTab_outputs tbody" ).empty();
-				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
+				this.clearInputs();
+				this.clearOutputs();
+				this.clearNF();
+				if( !total )
+					this.resultJSON.nodeId = temp;
 				// $( "#f_mainTab_source" ).val("");
 				// $( "#f_mainTab_sources" ).empty();
 				$( "#f_mainTab_sClasses" ).empty();
 				// $( "#f_functionalDescription_mKeywords" ).empty();
 				$( "#mainForm" )[0].reset();
-				$( "#physDescForm" )[0].reset(); 
-				$( "#funcDescForm" )[0].reset(); 
-				$( "#inputForm" )[0].reset(); 
-				$( "#outputForm" )[0].reset(); 
-				$( "#nonFuncDescForm" )[0].reset(); 
-
+				$( "#physDescForm" )[0].reset();
 				$tabs.tabs('select', 0);
 			},
 			appendIO: function appendIO(array, type){
@@ -892,10 +797,10 @@ function View(id, width, height, gui){
 						inputJSON.id = input.id;
 						inputJSON.label = input.label;
 						inputJSON.dataType = input.dataType;
-						inputJSON.properties = input.properties;
+						// inputJSON.properties = input.properties;
 						this.funcDescJSON.inputs.push(inputJSON);
 						
-						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", no);
+						this.inputAndOutputAppender(inputJSON, "f_inputsTab_inputs tbody", no);
 					}
 				}
 				else if(type==="outputs"){
@@ -907,10 +812,10 @@ function View(id, width, height, gui){
 						outputJSON.id = input.id;
 						outputJSON.label = input.label;
 						outputJSON.dataType = input.dataType;
-						outputJSON.properties = input.properties;
+						// outputJSON.properties = input.properties;
 						this.funcDescJSON.outputs.push(outputJSON);
 						
-						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", no);
+						this.inputAndOutputAppender(outputJSON, "f_outputsTab_outputs tbody", no);
 					}
 				}
 			},
@@ -930,13 +835,13 @@ function View(id, width, height, gui){
 						$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 					});
 				}
-				// else if(type === "metaKeywords"){
-				// 	$.each(array, function(){
-				// 		input = this;	
-				// 		that.funcDescJSON.metaKeywords.push(input);
-				// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-				// 	});
-				// }
+				else if(type === "metaKeywords"){
+					$.each(array, function(){
+						input = this;	
+						that.funcDescJSON.metaKeywords.push(input);
+						// $( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
+					});
+				}
 			},		
 			appendNonFuncDesc: function appendNonFuncDesc(array){
 				var input, no;
@@ -956,32 +861,32 @@ function View(id, width, height, gui){
 			//Poniższe funkcje "przyklejają" nowo dodane inputy/outputy/non functional properties
 			//do tabeli w formularzu
 			inputAndOutputAppender: function inputAndOutputAppender(input, id, number){
-				//id = "outputs tbody" || id = "inputs tbody"
-				var tempId = id.split(" ")[0]; // => tempId = "inputs" || tempId = "outputs"
-				$( "#" + id ).append( "<tr>" +
-							"<td>" + input.id + "</td>" + 
-							"<td>" + input.label + "</td>" + 
-							"<td>" + input.class + "</td>" +
-							"<td>" + input.dataType + "</td>" + 
-							"<td>" + input.properties + "</td>" +
-							"<td><button id=\"" + tempId + "edit" + number + "\" class=\"ui-state-default ui-corner-all\">edit</button>" +
-							" <button id=\"" + tempId + "del" + number + "\" class=\"ui-state-default ui-corner-all\">delete</button></td>" +
-						"</tr>" );
+				//id = "f_outputsTab_outputs tbody" || id = "f_inputsTab_inputs tbody"
+				var temp = id.split(" ")[0].split("_"); 
+				var tempId = temp[0] +  "_" + temp[1] + "x" + temp[2] + number;
+				$( "#" + id ).append( 
+							"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+								"<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
+								"<td id=\"" + tempId + "_label\">" + input.label + "</td>" + 
+								"<td id=\"" + tempId + "_class\">" + input.class + "</td>" +
+								"<td id=\"" + tempId + "_dataType\">" + input.dataType + "</td>" + 
+							"</tr>" 
+					);
 			},
 			NFPropsAppender: function NFPropsAppender(input, number){
-				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( "<tr>" +
-						"<td>" + input.weight + "</td>" + 
-						"<td>" + input.name + "</td>" + 
-						"<td>" + input.relation + "</td>" +
-						"<td>" + input.unit + "</td>" + 
-						"<td>" + input.value + "</td>" +
-						"<td><button id=\"NFedit" + number + "\" class=\"ui-state-default ui-corner-all\">edit</button>" +
-						" <button id=\"NFdel" + number + "\" class=\"ui-state-default ui-corner-all\">delete</button></td>" +
-				"</tr>" );
+				var tempId = "f_nonFunctionalDescriptionTabxNFProps" + number;
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_weight\">" + input.weight + "</td>" + 
+						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
+						"<td id=\"" + tempId + "_relation\">" + input.relation + "</td>" +
+						"<td id=\"" + tempId + "_unit\">" + input.unit + "</td>" + 
+						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" +
+					"</tr>" );
 			},
-			rowRemover: function rowRemover(tabId, index){
-				$( "#" + tabId + " tr:eq(" + index + ")").remove();
-			},
+			// rowRemover: function rowRemover(tabId, index){
+			// 	$( "#" + tabId + " tr:eq(" + index + ")").remove();
+			// },
 			//Poniższe funkcje sprawdzajż, czy string/input/output/non functional property istnieje na zadanej liście
 			stringExists: function stringExists(obj, array){
 				var namey;
@@ -1014,21 +919,67 @@ function View(id, width, height, gui){
 				}
 				return -1;
 			},
-			ioExistsIndex: function ioExistsIndex(id, array){
-				var namey;
-				for(namey in array){
-					var ob = array[namey];
-					if (id === ob.id) return namey;
-				}
-				return -1;
+			getSelectedInputIndex: function getSelectedInputIndex(){
+				return this.selectedInputIndex;
 			},
-			nonFuncExistsIndex: function nonFuncExists(name, array){
-				var namey;
-				for(namey in array){
-					var ob = array[namey];
-					if (name === ob.name) return namey;
+			getSelectedOutputIndex: function getSelectedOutputIndex(){
+				return this.selectedOutputIndex;
+			},
+			getSelectedNFPropertyIndex: function getSelectedNFPropertyIndex(){
+				return this.selectedNFPropertyIndex;
+			},
+			setSelectedInputIndex: function setSelectedInputIndex(index){
+				this.selectedInputIndex = index;
+			},
+			setSelectedOutputIndex: function setSelectedOutputIndex(index){
+				this.selectedOutputIndex = index;
+			},
+			setSelectedNFPropertyIndex: function setSelectedNFPropertyIndex(index){
+				this.selectedNFPropertyIndex = index;
+			},
+			resetSelectedInputIndex: function resetSelectedInputIndex(){
+				this.selectedInputIndex = -1;
+			},
+			resetSelectedOutputIndex: function resetSelectedOutputIndex(){
+				this.selectedOutputIndex = -1;
+			},
+			resetSelectedNFPropertyIndex: function resetSelectedNFPropertyIndex(){
+				this.selectedNFPropertyIndex = -1;
+			},
+			clearInputSelectionInTable: function clearInputSelectionInTable(){
+				$.each($("#f_inputsTab_inputs tbody").children(), function(){
+					$(this).removeClass("ui-state-active");
+				});
+			},
+			clearOutputSelectionInTable: function clearOutputSelectionInTable(){
+				$.each($("#f_outputsTab_outputs tbody").children(), function(){
+					$(this).removeClass("ui-state-active");
+				});
+			},
+			clearNFPropertySelectionInTable: function clearNFPropertySelectionInTable(){
+				$.each($("#f_nonFunctionalDescriptionTab_NFProps tbody").children(), function(){
+					$(this).removeClass("ui-state-active");
+				});
+			},
+			removeUndefinedElements: function removeUndefinedElements(){
+				for(var i = 0; i < this.funcDescJSON.inputs.length; i++){
+					if(this.funcDescJSON.inputs[i] === undefined){ 
+						this.funcDescJSON.inputs.splice(i, 1);
+						i--;
+					}
 				}
-				return -1;
+				for(var i = 0; i < this.funcDescJSON.outputs.length; i++){
+					if(this.funcDescJSON.outputs[i] === undefined) {
+						this.funcDescJSON.outputs.splice(i, 1);
+						i--;
+					}
+				}
+				for(var i = 0; i < this.resultJSON.nonFunctionalDescription.length; i++){
+					if(this.resultJSON.nonFunctionalDescription[i] === undefined){ 
+						this.resultJSON.nonFunctionalDescription.splice(i, 1);
+						i--;
+					}
+				}
 			},
 			/*
 			*	EVENT HANDLERS START HERE
@@ -1039,8 +990,7 @@ function View(id, width, height, gui){
 				this.clearErrors();
 				
 				this.resultJSON.nodeLabel = $( "#f_mainTab_label" ).val();
-				this.resultJSON.nodeType = $( "#f_mainTab_nodeType" ).val();
-				// this.resultJSON.controlType = $( "#f_mainTab_controlType" ).val();
+				this.resultJSON.controlType = $( "#f_mainTab_controlType" ).val();
 				// this.resultJSON.alternatives = $( "#f_mainTab_alternatives" ).val();
 				
 				// condition = $( "#f_mainTab_condition" ).val();
@@ -1055,16 +1005,13 @@ function View(id, width, height, gui){
 				this.resultJSON.physicalDescription = this.physDescJSON;
 					
 				this.funcDescJSON.description = $( "#f_mainTab_description" ).val();
-				this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
-				this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
+				this.removeUndefinedElements();
+				// this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
+				// this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
 				this.resultJSON.functionalDescription = this.funcDescJSON;
 			
-				alert(JSON.stringify(this.resultJSON));
-
-				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 				
-				//TO MOŻE NASTĄPIĆ TYLKO, KIEDY WALIDACJA JEST OK; ale ona jest w kontrolerze, więc have fun
-				$( "#form" ).dialog( "close" );
+				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
 			addServiceClass: function addServiceClass(){
 				var input = $("#f_mainTab_serviceClass").val();
@@ -1092,137 +1039,108 @@ function View(id, width, height, gui){
 			// 	$( "#f_mainTab_source" ).val(""); 
 			// },
 			addInput: function addInput(){
-				if(this.inputEdit){
-					this.funcDescJSON.inputs[this.inputNumber].class = $( "#f_inputOutputTab_inputClass" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].id = $( "#f_inputOutputTab_inputId" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].label = $( "#f_inputOutputTab_inputLabel" ).val();
-					this.funcDescJSON.inputs[this.inputNumber].dataType = $( "#f_inputOutputTab_inputDataType" ).val();
-					// this.funcDescJSON.inputs[this.inputNumber].properties = $( "#f_inputOutputTab_inputProperties" ).val();
-					alert("Changes to input " + this.inputNumber + " were saved successfully.");
-					
-					this.rowRemover("f_inputOutputTab_inputs", this.inputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.inputs[this.inputNumber], "f_inputOutputTab_inputs tbody", this.inputNumber);
-				}
-				else{
-					var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					inputJSON.class = $( "#f_inputOutputTab_inputClass" ).val();
-					inputJSON.id = $( "#f_inputOutputTab_inputId" ).val();
-					inputJSON.label = $( "#f_inputOutputTab_inputLabel" ).val();
-					inputJSON.dataType = $( "#f_inputOutputTab_inputDataType" ).val();
-					// inputJSON.properties = $( "#f_inputOutputTab_inputProperties" ).val();
-			
+				var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]},
+					index = this.getSelectedInputIndex();
+				inputJSON.class = $( "#f_inputsTab_class" ).val();
+				inputJSON.id = $( "#f_inputsTab_id" ).val();
+				inputJSON.label = $( "#f_inputsTab_label" ).val();
+				inputJSON.dataType = $( "#f_inputsTab_dataType" ).val();
+				// inputJSON.properties = $( "#f_inputsTab_properties" ).val();
+		
+				if(index==-1){	//Index = -1 => dodajemy nowy input
 					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
+						this.inputAndOutputAppender(inputJSON, "f_inputsTab_inputs tbody", this.funcDescJSON.inputs.length);
 						this.funcDescJSON.inputs.push(inputJSON);
-						this.inputAndOutputAppender(inputJSON, "f_inputOutputTab_inputs tbody", this.funcDescJSON.inputs.length);
+						$("#f_addInputForm").dialog("close");	
 					}
+					else alert("This input already exists!");	
 				}
-				this.clearInputs();
+				else{	//edytujemy istniejący input
+					var destinationId = "f_inputsTabxinputs" + index;
+					this.funcDescJSON.inputs[index] = inputJSON;
+					$("#" + destinationId + "_id").text(inputJSON.id);
+					$("#" + destinationId + "_class").text(inputJSON.class);
+					$("#" + destinationId + "_label").text(inputJSON.label);
+					$("#" + destinationId + "_dataType").text(inputJSON.dataType);
+					$("#f_addInputForm").dialog("close");	
+				}
 			},
 			addOutput: function addOutput(){
-				if(this.outputEdit){
-					this.funcDescJSON.outputs[this.outputNumber].class = $( "#f_inputOutputTab_outputClass" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].id = $( "#f_inputOutputTab_outputId" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].label = $( "#f_inputOutputTab_outputLabel" ).val();
-					this.funcDescJSON.outputs[this.outputNumber].dataType = $( "#f_inputOutputTab_outputDataType" ).val();
-					// this.funcDescJSON.outputs[this.outputNumber].properties = $( "#f_inputOutputTab_outputProperties" ).val();
-					alert("Changes to output " + this.outputNumber + " were saved successfully.");
-					
-					this.rowRemover("f_inputOutputTab_outputs", this.outputRow+1);
-					this.inputAndOutputAppender(this.funcDescJSON.outputs[this.outputNumber], "f_inputOutputTab_outputs tbody", this.outputNumber);
-				}
-				else{
-					var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
-					outputJSON.class = $( "#f_inputOutputTab_outputClass" ).val();
-					outputJSON.id = $( "#f_inputOutputTab_outputId" ).val();
-					outputJSON.label = $( "#f_inputOutputTab_outputLabel" ).val();
-					outputJSON.dataType = $( "#f_inputOutputTab_outputDataType" ).val();
-					// outputJSON.properties = $( "#f_inputOutputTab_outputProperties" ).val();
-					
+				var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":""},
+					index = this.getSelectedOutputIndex();
+				outputJSON.class = $( "#f_outputsTab_class" ).val();
+				outputJSON.id = $( "#f_outputsTab_id" ).val();
+				outputJSON.label = $( "#f_outputsTab_label" ).val();
+				outputJSON.dataType = $( "#f_outputsTab_dataType" ).val();
+				// outputJSON.properties = $( "#f_outputsTab_outputProperties" ).val();
+				
+				if(index==-1){	//Index = -1 => dodajemy nowy output
 					if(!this.ioExists(outputJSON, this.funcDescJSON.outputs)){
+						this.inputAndOutputAppender(outputJSON, "f_outputsTab_outputs tbody", this.funcDescJSON.outputs.length);
 						this.funcDescJSON.outputs.push(outputJSON);
-						this.inputAndOutputAppender(outputJSON, "f_inputOutputTab_outputs tbody", this.funcDescJSON.outputs.length);
+						$("#f_addOutputForm").dialog("close");	
 					}
+					else alert("This output already exists!"); //TODO: te alerciątka jako modal dialogs
 				}
-				this.clearOutputs();
+				else{	//edytujemy istniejący output
+					var destinationId = "f_outputsTabxoutputs" + index;
+					this.funcDescJSON.outputs[index] = outputJSON;
+					$("#" + destinationId + "_id").text(outputJSON.id);
+					$("#" + destinationId + "_class").text(outputJSON.class);
+					$("#" + destinationId + "_label").text(outputJSON.label);
+					$("#" + destinationId + "_dataType").text(outputJSON.dataType);
+					$("#f_addOutputForm").dialog("close");	
+				}
 			},
 			addNonFunctional: function addNonFunctional(){
-				if(this.NFedit){
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
-					this.resultJSON.nonFunctionalDescription[this.NFnumber].value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
-					alert("Changes to nonfunctional property " + this.NFnumber + " were saved successfully.");
-					
-					this.rowRemover("f_nonFunctionalDescriptionTab_NFProps", this.NFrow+1);
-					this.NFPropsAppender(this.resultJSON.nonFunctionalDescription[this.NFnumber], this.NFnumber);
-				}
-				else{
-					var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""};
-					nonFuncDescJSON.weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
-					nonFuncDescJSON.name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
-					nonFuncDescJSON.relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
-					nonFuncDescJSON.unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
-					nonFuncDescJSON.value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
-					
+				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
+					index = this.getSelectedNFPropertyIndex();
+				nonFuncDescJSON.weight = $( "#f_nonFunctionalDescriptionTab_weight" ).val();
+				nonFuncDescJSON.name = $( "#f_nonFunctionalDescriptionTab_name" ).val();
+				nonFuncDescJSON.relation = $( "#f_nonFunctionalDescriptionTab_relation" ).val();
+				nonFuncDescJSON.unit = $( "#f_nonFunctionalDescriptionTab_unit" ).val();
+				nonFuncDescJSON.value = $( "#f_nonFunctionalDescriptionTab_value" ).val();
+				
+				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
 					if(!this.nonFuncExists(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription)){
-						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
 						this.NFPropsAppender(nonFuncDescJSON, this.resultJSON.nonFunctionalDescription.length);
+						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
+						$("#f_addNFPropertyForm").dialog("close");
 					}
+					else alert("This non functional property already exists!");
 				}
-				this.clearNF();
+				else{	//edytujemy istniejący NFProperty
+					var destinationId = "f_nonFunctionalDescriptionTabxNFProps" + index;
+					this.resultJSON.nonFunctionalDescription[index] = nonFuncDescJSON;
+					$("#" + destinationId + "_weight").text(nonFuncDescJSON.weight);
+					$("#" + destinationId + "_name").text(nonFuncDescJSON.name);
+					$("#" + destinationId + "_relation").text(nonFuncDescJSON.relation);
+					$("#" + destinationId + "_unit").text(nonFuncDescJSON.unit);
+					$("#" + destinationId + "_value").text(nonFuncDescJSON.value);
+					$("#f_addNFPropertyForm").dialog("close");	
+				}
 			},
 			resetAll: function resetAll(){
 				this.cleanForm();
-				this.clearNF();
-				this.clearInputs();
-				this.clearOutputs();
 			},
-			//TO NIE PARTYZANTKA, TO PARTYZANA!
-			editInput: function editInput(input){
-				// $( "#f_inputOutputTab_inputProperties" ).val(input.parent().prev().text());
-				$( "#f_inputOutputTab_inputDataType" ).val(input.parent().prev().prev().text());
-				$( "#f_inputOutputTab_inputClass" ).val(input.parent().prev().prev().prev().text());
-				$( "#f_inputOutputTab_inputLabel" ).val(input.parent().prev().prev().prev().prev().text());
-				$( "#f_inputOutputTab_inputId" ).val(input.parent().prev().prev().prev().prev().prev().text());
-				this.inputNumber = this.ioExistsIndex($( "#f_inputOutputTab_inputId" ).val(), this.funcDescJSON.inputs);
-				this.inputEdit = true;
-				this.inputRow = input.parent().parent().parent().children().index(input.parent().parent());
+			//TO JEST ŹLE, need do to sth. indeksy w tablicach rozjeżdżają się z id w tabelce...
+			removeInput: function removeInput(){
+				var index = this.getSelectedInputIndex();
+				this.funcDescJSON.inputs[index] = undefined;
+				$("#f_inputsTabxinputs"+index).remove();
+				this.resetSelectedInputIndex();
 			},
-			editOutput: function editOutput(output){
-				// $( "#f_inputOutputTab_outputProperties" ).val(output.parent().prev().text());
-				$( "#f_inputOutputTab_outputDataType" ).val(output.parent().prev().prev().text());
-				$( "#f_inputOutputTab_outputClass" ).val(output.parent().prev().prev().prev().text());
-				$( "#f_inputOutputTab_outputLabel" ).val(output.parent().prev().prev().prev().prev().text());
-				$( "#f_inputOutputTab_outputId" ).val(output.parent().prev().prev().prev().prev().prev().text());
-				this.outputNumber = this.ioExistsIndex($( "#f_inputOutputTab_outputId" ).val(), this.funcDescJSON.outputs);
-				this.outputEdit = true;
-				this.outputRow = output.parent().parent().parent().children().index(output.parent().parent());
-			},
-			editNonFunc: function editNonFunc(nfProp){
-				$( "#f_nonFunctionalDescriptionTab_weight" ).val(nfProp.parent().prev().prev().prev().prev().prev().text());
-				$( "#f_nonFunctionalDescriptionTab_name" ).val(nfProp.parent().prev().prev().prev().prev().text());
-				$( "#f_nonFunctionalDescriptionTab_relation" ).val(nfProp.parent().prev().prev().prev().text());
-				$( "#f_nonFunctionalDescriptionTab_unit" ).val(nfProp.parent().prev().prev().text());
-				$( "#f_nonFunctionalDescriptionTab_value" ).val(nfProp.parent().prev().text());
-				this.NFnumber = this.nonFuncExistsIndex($( "#f_nonFunctionalDescriptionTab_name" ).val(), this.resultJSON.nonFunctionalDescription);
-				this.NFedit = true;
-				this.NFrow = nfProp.parent().parent().parent().children().index(nfProp.parent().parent());
-			},
-			removeInput: function removeInput(input){
-				var index = this.ioExistsIndex(input.parent().prev().prev().prev().prev().prev().text(), this.funcDescJSON.inputs);
-				this.funcDescJSON.inputs.splice(index, 1);
-				input.parent().parent().remove();
-			},
-			removeOutput: function removeOutput(output){
-				var index = this.ioExistsIndex(output.parent().prev().prev().prev().prev().prev().text(), this.funcDescJSON.outputs);
-				this.funcDescJSON.outputs.splice(index, 1);
-				output.parent().parent().remove();
+			removeOutput: function removeOutput(){
+				var index = this.getSelectedOutputIndex();
+				this.funcDescJSON.outputs[index] = undefined; 
+				$("#f_outputsTabxoutputs"+index).remove();
+				this.resetSelectedOutputIndex();
 			},
 			removeNonFunc: function removeNonFunc(nfProp){
-				var index = this.nonFuncExistsIndex(nfProp.parent().prev().prev().prev().prev().text(), this.resultJSON.nonFunctionalDescription);
-				this.resultJSON.nonFunctionalDescription.splice(index, 1);
-				nfProp.parent().parent().remove();
+				var index = this.getSelectedNFPropertyIndex();
+				this.resultJSON.nonFunctionalDescription[index] = undefined;
+				$("#f_nonFunctionalDescriptionTabxNFProps"+index).remove();
+				this.resetSelectedNFPropertyIndex();
 			},
 			removeServiceClass: function removeServiceClass(serviceClass){
 				var id = serviceClass.attr("id").split("_").pop();
@@ -1250,12 +1168,15 @@ function View(id, width, height, gui){
 			nextTab: function nextTab(){
 				var selected = $tabs.tabs('option', 'selected');
 				if(selected==0 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected++;
-				if(selected < 3) $tabs.tabs('select', selected+1);
+				if(selected < 4) $tabs.tabs('select', selected+1);
 			},
 			previousTab: function previousTab(){
 				var selected = $tabs.tabs('option', 'selected');
 				if(selected==2 && $('#physicalDescriptionTab').hasClass("ui-tabs-hide")) selected--;
 				if(selected > 0) $tabs.tabs('select', selected-1);
+			},
+			closeForm: function closeForm(){
+				$("#form").dialog("close");
 			}
 			/*
 			* EVENT HANDLERS END HERE
@@ -1285,64 +1206,124 @@ function View(id, width, height, gui){
 				result.addSource();
 			}
 		);
-		$("#f_button_addInputButton").button().click(
+		$("#f_inputsTab_openAddInputForm").button().click(
 			function(event) {
-				event.preventDefault();
-				result.addInput();
+				$( "#inputForm" )[0].reset();
+				result.resetSelectedInputIndex();
+				result.clearInputSelectionInTable();
+				$('#ui-dialog-title-f_addInputForm').text("New input");
+				$("#f_addInputForm").dialog("open");
 			}
 		);
-		$("#f_button_addOutputButton").button().click(
+		$("#f_outputsTab_openAddOutputForm").button().click(
 			function(event) {
-				event.preventDefault();
-				result.addOutput();		
+				$( "#outputForm" )[0].reset();
+				result.resetSelectedOutputIndex();
+				result.clearOutputSelectionInTable();
+				$('#ui-dialog-title-f_addOutputForm').text("New output");
+				$("#f_addOutputForm").dialog("open");	
 			}
 		);
-		$("#f_button_addNonFunctional").button().click(
+		$("#f_nonFunctionalDescriptionTab_openAddNFPropertyForm").button().click(
 			function(event) {
-				event.preventDefault();
-				result.addNonFunctional();
+				$( "#nonFuncDescForm" )[0].reset();
+				result.resetSelectedNFPropertyIndex();
+				result.clearNFPropertySelectionInTable();
+				$('#ui-dialog-title-f_addNFPropertyForm').text("New non functional property");
+				$("#f_addNFPropertyForm").dialog("open");	
 			}
 		);
+		$("#f_inputsTab_openEditInputForm").button().click(
+			function(event) {
+				var index = result.getSelectedInputIndex();
+				if(index == -1)
+					alert("No input selected!");
+				else{
+					var sourceId = "f_inputsTabxinputs" + index;
+					$("#f_inputsTab_id").val($("#" + sourceId + "_id").text());
+					$("#f_inputsTab_label").val($("#" + sourceId + "_label").text());
+					$("#f_inputsTab_class").val($("#" + sourceId + "_class").text());
+					$("#f_inputsTab_dataType").val($("#" + sourceId + "_dataType").text());
+					$('#ui-dialog-title-f_addInputForm').text("Edit existing input");
+					$("#f_addInputForm").dialog("open");
+				}				
+			}
+		);
+		$("#f_outputsTab_openEditOutputForm").button().click(
+			function(event) {
+				var index = result.getSelectedOutputIndex();
+				if(index == -1)
+					alert("No output selected!");
+				else{
+					var sourceId = "f_outputsTabxoutputs" + index;
+					$("#f_outputsTab_id").val($("#" + sourceId + "_id").text());
+					$("#f_outputsTab_label").val($("#" + sourceId + "_label").text());
+					$("#f_outputsTab_class").val($("#" + sourceId + "_class").text());
+					$("#f_outputsTab_dataType").val($("#" + sourceId + "_dataType").text());
+					$('#ui-dialog-title-f_addOutputForm').text("Edit existing output");
+					$("#f_addOutputForm").dialog("open");
+				}
+			}
+		);
+		$("#f_nonFunctionalDescriptionTab_openEditNFPropertyForm").button().click(
+			function(event) {
+				var index = result.getSelectedNFPropertyIndex();
+				if(index == -1)
+					alert("No entry selected!");
+				else{
+					var sourceId = "f_nonFunctionalDescriptionTabxNFProps" + index;
+					$("#f_nonFunctionalDescriptionTab_weight").val($("#" + sourceId + "_weight").text());
+					$("#f_nonFunctionalDescriptionTab_name").val($("#" + sourceId + "_name").text());
+					$("#f_nonFunctionalDescriptionTab_relation").val($("#" + sourceId + "_relation").text());
+					$("#f_nonFunctionalDescriptionTab_unit").val($("#" + sourceId + "_unit").text());
+					$("#f_nonFunctionalDescriptionTab_value").val($("#" + sourceId + "_value").text());
+					$('#ui-dialog-title-f_addNFPropertyForm').text("Edit existing non functional property");
+					$("#f_addNFPropertyForm").dialog("open");
+				}
+			}
+		);
+		$("#f_inputsTab_deleteThisInput").button().click(
+			function(event) {
+				var index = result.getSelectedInputIndex();
+				if(index == -1)
+					alert("No input selected!");
+				else{
+					result.removeInput();
+				}
+			}
+		);
+		$("#f_outputsTab_deleteThisOutput").button().click(
+			function(event) {
+				var index = result.getSelectedOutputIndex();
+				if(index == -1)
+					alert("No output selected!");
+				else{
+					result.removeOutput();
+				}
+			}
+		);
+		$("#f_nonFunctionalDescriptionTab_deleteThisNFProperty").button().click(
+			function(event) {
+				var index = result.getSelectedNFPropertyIndex();
+				if(index == -1)
+					alert("No entry selected!");
+				else{
+					result.removeNonFunc();
+				}
+			}
+		);
+
 		//RESETY
 		$("#f_button_resetAllButton").button().click(
 			function(event) {
 				event.preventDefault();
-				if(confirm("You are about to clear the entire form. Are you sure?"))
-					if(confirm("You will lose all data and this action cannot be cancelled. Do you really want to do this?")){
-						alert("FINE.");
-						result.resetAll();
-					}
+				$( "#f_dialog_confirm1" ).dialog("open");
 			}
 		);
 		$("#f_button_clearNonFunctional").button().click(
 			function(event) {
 				event.preventDefault();
 				result.clearNF();
-			}
-		);		
-		$("#f_button_clearInputButton").button().click(
-			function(event) {
-				event.preventDefault();
-				result.clearInputs();
-			}
-		);		
-		$("#f_button_clearOutputButton").button().click(
-			function(event) {
-				event.preventDefault();
-				result.clearOutputs();
-			}
-		);
-		$("#f_mainTab_moar").click(
-			function(event) {
-				var input = $("#f_mainTab_description");
-				if(this.innerHTML=="more..."){
-					input.attr({'rows': 2, 'cols': '40'}).css({'width': '270px', 'height': '40px'}).parent().attr("colspan", 2);
-					this.innerHTML = "less...";
-				}
-				else{
-					input.attr({'rows': '1', 'cols': '20'}).css({'width': '135px', 'height': '20px'}).parent().attr("colspan", 1);
-					this.innerHTML = "more...";					
-				}
 			}
 		);
 		//Next/Back
@@ -1354,37 +1335,38 @@ function View(id, width, height, gui){
 				result.previousTab();
 			}
 		);
-		//EDITY i DELETY w tabelkach z i/o oraz non func
-		$('button[id^="NFedit"]').live("click", function(form){
-			return (function(){
-				form.editNonFunc($(this));
-			});
-		}(result));
-		$('button[id^="NFdel"]').live("click", function(form){
-			return (function(){
-				form.removeNonFunc($(this));
-			});
-		}(result));
-		$('button[id^="f_inputOutputTab_inputsedit"]').live("click", function(form){
-			return (function(){
-				form.editInput($(this));
-			});
-		}(result));
-		$('button[id^="f_inputOutputTab_inputsdel"]').live("click", function(form){
-			return (function(){
-				form.removeInput($(this));
-			});
-		}(result));
-		$('button[id^="f_inputOutputTab_outputsedit"]').live("click", function(form){
-			return (function(){
-				form.editOutput($(this));
-			});
-		}(result));
-		$('button[id^="f_inputOutputTab_outputsdel"]').live("click", function(form){
-			return (function(){
-				form.removeOutput($(this));
-			});
-		}(result));
+		//Zaznaczanie wybranego I/O/NFProperty w tabelce
+		//TODO: dblclick odpala edit!!!!!!!!!!!1
+		$('tr[id^="f_inputsTabxinputs"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearInputSelectionInTable();
+			if(result.getSelectedInputIndex() == index)
+				result.resetSelectedInputIndex();
+			else{
+				result.setSelectedInputIndex(index);
+				$(this).addClass("ui-state-active");
+			}
+		});
+		$('tr[id^="f_outputsTabxoutputs"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearOutputSelectionInTable();
+			if(result.getSelectedOutputIndex() == index)
+				result.resetSelectedOutputIndex();
+			else{
+				result.setSelectedOutputIndex(index);
+				$(this).toggleClass("ui-state-active");
+			}
+		});
+		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearNFPropertySelectionInTable();
+			if(result.getSelectedNFPropertyIndex() == index)
+				result.resetSelectedNFPropertyIndex();
+			else{
+				result.setSelectedNFPropertyIndex(index);
+				$(this).toggleClass("ui-state-active");
+			}
+		});
 		//spany z source'ami, service classes i meta keywords
 		// $('span[id^="src_"]').live("click", function(form){
 		// 	return (function(){
@@ -1401,6 +1383,94 @@ function View(id, width, height, gui){
 		// 		form.removeMetaKeyword($(this));
 		// 	});
 		// }(result));
+		$( "#f_dialog_confirm1" ).dialog({
+			autoOpen: false,
+			resizable: false,
+			height: 200,
+			width: 320,
+			modal: true,
+			buttons: {
+				"Yes, clear the form": function() {
+					$(this).dialog("close");
+					$( "#f_dialog_confirm2" ).dialog("open");
+
+				},
+				Cancel: function() {
+					$(this).dialog("close");
+					return false;
+				}
+			}
+		});
+		$( "#f_dialog_confirm2" ).dialog({
+			autoOpen: false,
+			resizable: false,
+			height: 200,
+			width: 320,
+			modal: true,
+			buttons: {
+				"Yes, I'm 100% sure": function() {
+					$( "#f_dialog_fine" ).dialog("open");
+					$(this).dialog("close");
+					result.resetAll();
+				},
+				Cancel: function() {
+					return false;
+					$(this).dialog("close");
+				}
+			}
+		});
+		$( "#f_dialog_fine" ).dialog({
+			autoOpen: false,
+			resizable: false,
+			modal: true,
+			buttons: {
+				OK: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_addInputForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350,
+			buttons: {
+				"Confirm": function() {
+					result.addInput();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_addOutputForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350,
+			buttons: {
+				"Confirm": function() {
+					result.addOutput();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_addNFPropertyForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350,
+			buttons: {
+				"Confirm": function() {
+					result.addNonFunctional();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
 
 		return result;
 	};
@@ -2036,7 +2106,7 @@ function View(id, width, height, gui){
 		updateGraph : function updateGraph(nodeId){
 			var node = this.getNodeById(nodeId);
 			if(node){
-				node.update();
+				node.update();  //WŁODKU WTF?!
 			}
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
@@ -2766,18 +2836,6 @@ function View(id, width, height, gui){
 				modal: true,
 				height: 500,
 				width: 700
-			});
-			$("#functionalAcc1")
-				.accordion({ 
-					active: false,
-					collapsible: true,
-					header: "h3" 
-			});
-			$("#functionalAcc2")
-				.accordion({ 
-					active: false,
-					collapsible: true,
-					header: "h3" 
 			});
 		},
 		setBold : function setBold(x1, y1, x2, y2){

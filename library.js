@@ -206,3 +206,83 @@ function formGenerator(divId, lang, postfix, json){
 
 		return result;
 	}
+	function addSideScroller(paper){
+		// TODO: dobrze byłoby upgrade'ować to jakoś tak, żeby wywołanie nie miało 20 linijek...
+		var invisible = 0,
+			visible = .4,
+			animationTime = 100,
+			visibleHeight = paper.height,
+			checkHeight = function(set){	//określa wysokość przekazanej tablicy obiektów
+				if(!set[0]) return 0;
+				var min = set[0].getBBox().y, max = 0, bbox;
+				$.each(set, function(){
+					bbox = this.getBBox();
+					if(bbox.y < min) min = bbox.y;
+					if(bbox.y + bbox.height > max) max = bbox.y + bbox.height;
+				});
+				return max - min + 10; //10 dodaję jako margines
+			},
+			isValid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
+				return
+					set.some(function(elem){
+						return (getType(elem.getBBox) != "function" || getType(elem.translate) != "function")
+					});
+			},
+			scroll = {
+				move: function move(set, mult){
+					return function(dx, dy){
+						var newY = this.oy + dy, altDy; 
+						if(newY >= 0 && newY + this.attr("height") <= visibleHeight){
+							this.transform("t0,"+dy);
+							$.each(set, function(){
+								this.translate(0, (-1*dy/mult)); //this.transform("t0,"+(-1*dy/mult))
+							});
+						}
+						else{ 
+							if(newY < 0)
+								altDy = this.oy;
+							else
+								altDy = visibleHeight - this.oy - this.attr("height");
+							this.transform("t0,"+altDy);
+							$.each(set, function(){
+								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)))
+							});
+						}
+					}
+				},
+				start: function start(){
+					this.oy = this.attr("y");
+				},
+				stop: function stop(){},
+				init: function init(){
+					this.slider = paper.rect(paper.width-5, 0, 5, visibleHeight*.75, 5)
+						.attr({"stroke-width":0, fill:"black", opacity: visible})
+						.hide();
+					this.set = [];
+				},
+				//update musi być wywoływany przy każdorazowej zmianie zawartości kanwy, na której siedzi sobie scroll
+				update: function update(set){
+					var result = false;
+					if(isValid(set)){
+						this.set = set;
+						var setHeight = checkHeight(set);
+						this.multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
+						this.slider.attr({height: visibleHeight*this.multiplier});
+						this.slider.drag(this.move(this.set, this.multiplier), this.start, this.stop);
+						result = true;
+					}
+					else
+						console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
+					return result;
+				},
+				showYourself: function showYourself(){
+					if(this.multiplier !== 1)
+						this.slider.show();
+				},
+				goHide: function goHide(){
+					this.slider.hide();
+				}
+			};
+		scroll.init();
+		return scroll;
+	};

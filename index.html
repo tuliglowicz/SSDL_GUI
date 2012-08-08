@@ -15,12 +15,13 @@
 	<script src="library.js"></script>
 	<script src="controler.js"></script>
 	<script src="view.js"></script>
+	<script src="lib.js"></script>
+	<script src="generators.js"></script>
+	<script src="validators.js"></script>
+	<script src="myValidator.js"></script>
 	<link href="stylesheets/my_style.css" rel="stylesheet">
 	<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
 	<style>
-		#acc_inside{
-			height: 200px;
-		}
 		.clickable{
 			cursor: pointer;
 		}
@@ -38,8 +39,9 @@
 		<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 			<li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active" id="mainTab"><a href="#tabs-1">Main</a></li>
 			<li id="physicalDescriptionTab"><a href="#tabs-2">Service description</a></li>
-			<li id="inputOutputTab"><a href="#tabs-3">Inputs and outputs</a></li>
-			<li id="nonFunctionalDescriptionTab"><a href="#tabs-4">Non-functional description</a></li>
+			<li id="inputsTab"><a href="#tabs-3">Inputs</a></li>
+			<li id="outputsTab"><a href="#tabs-4">Outputs</a></li>
+			<li id="nonFunctionalDescriptionTab"><a href="#tabs-5">Non-functional description</a></li>
 		</ul>
 		<div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
 			<p>
@@ -48,6 +50,7 @@
 						<tr>
 							<td><label for="f_mainTab_label">Label: </label></td>
 							<td><input type="text" name="f_mainTab_label" id="f_mainTab_label" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td id="f_mainTab_label_validation" style="color:red"></td>
 						</tr>
 						
 					<!-- <tr>
@@ -89,23 +92,25 @@
 					-->
 						<tr>
 							<td><label for="f_mainTab_description">Description: </label></td>
-							<td><textarea rows='1' cols='20' name="f_mainTab_description" id="f_mainTab_description" value="" class="text ui-widget-content ui-corner-all textfield" style="height: 20px; resize:none"/></textarea></td>
-							<td><span id="f_mainTab_moar" class="clickable" style="color: navy; font-size: 0.85em" >more...</span></td>
+							<td colspan='2'><textarea rows='2' cols='40' name="f_mainTab_description" id="f_mainTab_description" value="" class="text ui-widget-content ui-corner-all textfield" style="width: 270px; height: 40px; resize:none"/></textarea></td>
+							<td id="f_mainTab_description_validation" style="color:red"></td>
 						</tr>
 						<tr>
 							<td><label for="f_mainTab_controlType">ControlType: </label></td>
 							<td><input type="text" name="f_mainTab_controlType" id="f_mainTab_controlType" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td id="f_mainTab_controlType_validation" style="color:red"></td>
 						</tr>
 						<tr>
 							<td><label for="f_mainTab_serviceClass">Service Classes: </label></td>
 							<td><input type="text" name="f_mainTab_serviceClass" id="f_mainTab_serviceClass" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
 							<td><input type="submit" name="f_button_addServiceClass" id="f_button_addServiceClass" value="Add Service Class"/></td>
+							<!-- TODO: walidacja + reboot Service Classes -->
 							<td><span id="f_mainTab_scInfo"><small>click on a service class to delete it</small></span></td>
 						</tr>
 					</table>
 					<span id="f_mainTab_sClasses"></span>
 				</form>
-				<button id="f_mainTab_nextButton" style="float:right">NEXT</button>
+				</br><button id="f_mainTab_nextButton" style="float:right">NEXT</button></br>
 			</p>
 		</div>
 		<div id="tabs-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
@@ -114,31 +119,33 @@
 					<table>
 						<tr>
 							<td><label for="f_physicalDescriptionTab_address">Address: </label></td>
-							<td><input type="text" name="f_physicalDescriptionTab_address" id="f_physicalDescriptionTab_address" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td><input type="text" name="f_physicalDescriptionTab_address" id="f_physicalDescriptionTab_address" value="" class="text ui-widget-content ui-corner-all textfield" style="width: 270px"/></td>
+							<td id="f_physicalDescriptionTab_address_validation" style="color:red"></td>
 						</tr>
 						<tr>
 							<td><label for="f_physicalDescriptionTab_serviceName">ServiceName: </label></td>
-							<td><input type="text" name="f_physicalDescriptionTab_serviceName" id="f_physicalDescriptionTab_serviceName" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td><input type="text" name="f_physicalDescriptionTab_serviceName" id="f_physicalDescriptionTab_serviceName" value="" class="text ui-widget-content ui-corner-all textfield" style="width: 270px"/></td>
+							<td id="f_physicalDescriptionTab_serviceName_validation" style="color:red"></td>
 						</tr>
 						<tr>
 							<td><label for="f_physicalDescriptionTab_serviceGlobalId">ServiceGlobalId: </label></td>
-							<td><input type="text" name="f_physicalDescriptionTab_serviceGlobalId" id="f_physicalDescriptionTab_serviceGlobalId" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td><input type="text" name="f_physicalDescriptionTab_serviceGlobalId" id="f_physicalDescriptionTab_serviceGlobalId" value="" class="text ui-widget-content ui-corner-all textfield" style="width: 270px"/></td>
+							<td id="f_physicalDescriptionTab_serviceGlobalId_validation" style="color:red"></td>
 						</tr>
 						<tr>
 							<td><label for="f_physicalDescriptionTab_operation">Operation: </label></td>
-							<td><input type="text" name="f_physicalDescriptionTab_operation" id="f_physicalDescriptionTab_operation" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+							<td><input type="text" name="f_physicalDescriptionTab_operation" id="f_physicalDescriptionTab_operation" value="" class="text ui-widget-content ui-corner-all textfield" style="width: 270px"/></td>
+							<td id="f_physicalDescriptionTab_operation_validation" style="color:red"></td>
 						</tr>
 					</table>
 				</form>
-				<button id="f_physicalDescriptionTab_backButton" style="float: left">BACK</button>
-				<button id="f_physicalDescriptionTab_nextButton" style="float: right">NEXT</button>
+				</br><button id="f_physicalDescriptionTab_nextButton" style="float: right">NEXT</button><button id="f_physicalDescriptionTab_backButton" style="float: right">BACK</button></br>
 			</p>
 		</div>
 		<div id="tabs-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
 			<p>
+				<!--
 				<form id="funcDescForm">
-				
-					<!--
 					<table>
 						<tr>
 							<td><label for="f_inputOutputTab_metaKeyword">Meta Keywords: </label></td>
@@ -147,160 +154,71 @@
 							<td><small>click on a meta keyword to delete it</small></td>
 						</tr>							
 					</table>
-					-->
+					
 				</form>
 				<span id="f_inputOutputTab_mKeywords"></span>
-				<div id="functionalAcc1">
-					<h3><a href="#">Inputs</a></h3>
-					<div id="acc_inside">
-						<form id="inputForm">
-							<table>
-								<tr>
-									<td><label for="f_inputOutputTab_inputId">Id: </label></td>
-									<td><input type="text" name="f_inputOutputTab_inputId" id="f_inputOutputTab_inputId" value="" class="text ui-widget-content ui-corner-all"/></td>
-								
-									<td><label for="f_inputOutputTab_inputLabel">Label: </label></td>
-									<td><input type="text" name="f_inputOutputTab_inputLabel" id="f_inputOutputTab_inputLabel" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								<tr>
-									<td><label for="f_inputOutputTab_inputClass">Class: </label></td>
-									<td><input type="text" name="f_inputOutputTab_inputClass" id="f_inputOutputTab_inputClass" value="" class="text ui-widget-content ui-corner-all"/></td>
-									
-									<td><label for="f_inputOutputTab_inputDataType">DataType: </label></td>
-									<td><input type="text" name="f_inputOutputTab_inputDataType" id="f_inputOutputTab_inputDataType" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								
-								<!--
-								<tr>
-									<td><label for="f_inputOutputTab_inputProperties">Properties: </label></td>
-									<td><input type="text" name="f_inputOutputTab_inputProperties" id="f_inputOutputTab_inputProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								-->
-
-								<tr>
-									<td><input type="submit" name="f_button_addInputButton" id="f_button_addInputButton" value="Add input"/></td>
-									<td><input type="reset" name="f_button_clearInputButton" id="f_button_clearInputButton" value="Reset"/></td>
-								</tr>
-							</table>
-						</form>
-						<div id="inputs-content" class="ui-widget">
-							<p>Defined inputs:</p>
-							<table id="f_inputOutputTab_inputs" class="text ui-widget-content ui-corner-all">
-								<thead>
-									<tr class="ui-widget-header ">
-										<th>Id</th>
-										<th>Label</th>
-										<th>Class</th>
-										<th>DataType</th>
-										<th>Properties</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				<div id="functionalAcc2">
-					<h3><a href="#">Outputs</a></h3>
-					<div id="acc_inside">
-						<form id="outputForm">
-							<table>
-								<tr>
-									<td><label for="f_inputOutputTab_outputId">NodeId: </label></td>
-									<td><input type="text" name="f_inputOutputTab_outputId" id="f_inputOutputTab_outputId" value="" class="text ui-widget-content ui-corner-all"/></td>
-										
-									<td><label for="f_inputOutputTab_outputLabel">Label: </label></td>
-									<td><input type="text" name="f_inputOutputTab_outputLabel" id="f_inputOutputTab_outputLabel" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								<tr>
-									<td><label for="f_inputOutputTab_outputClass">Class: </label></td>
-									<td><input type="text" name="f_inputOutputTab_outputClass" id="f_inputOutputTab_outputClass" value="" class="text ui-widget-content ui-corner-all"/></td>
-								
-									<td><label for="f_inputOutputTab_outputDataType">DataType: </label></td>
-									<td><input type="text" name="f_inputOutputTab_outputDataType" id="f_inputOutputTab_outputDataType" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								<!--
-								<tr>
-									<td><label for="f_inputOutputTab_outputProperties">Properties: </label></td>
-									<td><input type="text" name="f_inputOutputTab_outputProperties" id="f_inputOutputTab_outputProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
-								</tr>
-								-->
-								<tr>
-									<td><input type="submit" name="f_button_addOutputButton" id="f_button_addOutputButton" value="Add output"/></td>
-									<td><input type="reset" name="f_button_clearOutputButton" id="f_button_clearOutputButton" value="Reset"/></td>
-								</tr>
-							</table>
-						</form>		
-						<div id="outputs-content" class="ui-widget">
-							<p>Defined outputs:</p>
-							<table id="f_inputOutputTab_outputs" class="text ui-widget-content ui-corner-all">
-								<thead>
-									<tr class="ui-widget-header ">
-										<th>Id</th>
-										<th>Label</th>
-										<th>Class</th>
-										<th>DataType</th>
-										<th>Properties</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>	
-				<!--
-				<table>
-					<tr>
-						<td><label for="f_inputOutputTab_preconditions">Preconditions: </label></td>
-						<td><input type="text" name="f_inputOutputTab_preconditions" id="f_inputOutputTab_preconditions" value="" class="text ui-widget-content ui-corner-all"/></td>
-							
-						<td><label for="f_inputOutputTab_effects">Effects: </label></td>
-						<td><input type="text" name="f_inputOutputTab_effects" id="f_inputOutputTab_effects" value="" class="text ui-widget-content ui-corner-all"/></td>
-					</tr>
-				</table>
 				-->
-			<button id="f_inputOutputTab_backButton" style="float: left">BACK</button>
-			<button id="f_inputOutputTab_nextButton" style="float: right">NEXT</button>
+				<div id="inputs-content" class="ui-widget">
+					<p>Defined inputs:</p>
+					<table id="f_inputsTab_inputs" class="text ui-widget-content ui-corner-all">
+						<thead>
+							<tr class="ui-widget-header ">
+								<th>Id</th>
+								<th>Label</th>
+								<th>Class</th>
+								<th>DataType</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+							</tr>
+						</tbody>
+					</table>
+					</br>
+					<button id="f_inputsTab_openAddInputForm">Add new</button>
+					<button id="f_inputsTab_openEditInputForm">Edit</button>
+					<button id="f_inputsTab_deleteThisInput">Delete</button>	
+				</div>	
+			</br><button id="f_inputsTab_nextButton" style="float: right">NEXT</button><button id="f_inputsTab_backButton" style="float: right">BACK</button></br>
 			</p>
 		</div>
 		<div id="tabs-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
 			<p>
-				<form id="nonFuncDescForm">
-					<table>
-						<tr>
-							<td><label for="f_nonFunctionalDescriptionTab_">Weight:</label></td>
-							<td><input type="text" name="f_nonFunctionalDescriptionTab_weight" id="f_nonFunctionalDescriptionTab_weight" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
-						
-							<td><label for="f_nonFunctionalDescriptionTab_name">Name: </label></td>
-							<td><input type="text" name="f_nonFunctionalDescriptionTab_name" id="f_nonFunctionalDescriptionTab_name" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
-						</tr>
-						<tr>
-							<td><label for="f_nonFunctionalDescriptionTab_relation">Relation: </label></td>
-							<td><input type="text" name="f_nonFunctionalDescriptionTab_relation" id="f_nonFunctionalDescriptionTab_relation" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
-								
-							<td><label for="f_nonFunctionalDescriptionTab_unit">Unit: </label></td>
-							<td><input type="text" name="f_nonFunctionalDescriptionTab_unit" id="f_nonFunctionalDescriptionTab_unit" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
-						</tr>
-						<tr>
-							<td><label for="f_nonFunctionalDescriptionTab_value">Value: </label></td>
-							<td><input type="text" name="f_nonFunctionalDescriptionTab_value" id="f_nonFunctionalDescriptionTab_value" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
-						</tr>
+				<div id="outputs-content" class="ui-widget">
+					<p>Defined outputs:</p>
+					<table id="f_outputsTab_outputs" class="text ui-widget-content ui-corner-all">
+						<thead>
+							<tr class="ui-widget-header ">
+								<th>Id</th>
+								<th>Label</th>
+								<th>Class</th>
+								<th>DataType</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
 					</table>
-					<table>
-						<tr>
-							<td><input type="submit" name="f_button_addNonFunctional" id="f_button_addNonFunctional" value="Add nonfunctional property"/></td>
-							<td><input type="reset" name="f_button_clearNonFunctional" id="f_button_clearNonFunctional" value="Reset"/></td>
-						</tr>
-					</table>
-				</form>
+					</br>
+					<button id="f_outputsTab_openAddOutputForm">Add new</button>
+					<button id="f_outputsTab_openEditOutputForm">Edit</button>
+					<button id="f_outputsTab_deleteThisOutput">Delete</button>	
+				</div>
+			</br><button id="f_outputsTab_nextButton" style="float: right">NEXT</button><button id="f_outputsTab_backButton" style="float: right">BACK</button></br>
+			</p>
+		</div>	
+		<!--
+		<table>
+			<tr>
+				<td><label for="f_inputOutputTab_preconditions">Preconditions: </label></td>
+				<td><input type="text" name="f_inputOutputTab_preconditions" id="f_inputOutputTab_preconditions" value="" class="text ui-widget-content ui-corner-all"/></td>
+					
+				<td><label for="f_inputOutputTab_effects">Effects: </label></td>
+				<td><input type="text" name="f_inputOutputTab_effects" id="f_inputOutputTab_effects" value="" class="text ui-widget-content ui-corner-all"/></td>
+			</tr>
+		</table>
+		-->
+		<div id="tabs-5" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+			<p>
 				<div id="nonFunctionalProperties-content" class="ui-widget">
 				<p>Defined Non Functional Properties:</p>
 					<table id="f_nonFunctionalDescriptionTab_NFProps" class="text ui-widget-content ui-corner-all">
@@ -311,7 +229,6 @@
 								<th>Relation</th>
 								<th>Unit</th>
 								<th>Value</th>
-								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -319,15 +236,128 @@
 							</tr>
 						</tbody>
 					</table>
+				</br>
+				<button id="f_nonFunctionalDescriptionTab_openAddNFPropertyForm">Add new</button>
+				<button id="f_nonFunctionalDescriptionTab_openEditNFPropertyForm">Edit</button>
+				<button id="f_nonFunctionalDescriptionTab_deleteThisNFProperty">Delete</button>	
 				</div>
-				<button id="f_nonFunctionalDescriptionTab_backButton" style="float: left">BACK</button>
+				</br><button id="f_nonFunctionalDescriptionTab_backButton" style="float: right">BACK</button></br>
 			</p>
 		</div>
 	</div>
-	<input type="submit" name="f_button_sumbitAllButton" id="f_button_sumbitAllButton" value="Submit all"/>
-	<input type="reset" name="f_button_resetAllButton" id="f_button_resetAllButton" value="Reset all"/>
-	<p id="buglist" color="red"><p/>
+	<input type="submit" name="f_button_sumbitAllButton" id="f_button_sumbitAllButton" value="Submit all" style="float:right;"/>
+	<input type="reset" name="f_button_resetAllButton" id="f_button_resetAllButton" value="Reset all" style="float:right;"/>
+	</br>
 </div>
+<div id="f_dialog_confirm1" title="Remove all data?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 5px 5px 0;"></span>
+		<span style="font-size: 10px">You are about to clear the entire form. Are you sure?</span></p>
+</div>
+<div id="f_dialog_confirm2" title="Are you sure?">
+	<p ><span class="ui-icon ui-icon-alert" style="float:left; margin:0 5px 5px 0;"></span>
+		<span style="font-size: 10px">You will lose all data and this action cannot be cancelled. Do you really want to do this?</span></p>
+</div>
+<div id="f_dialog_fine" title="As you wish."><p>FINE.</p></div>
+<div id="f_addInputForm" class="ui-dialog-content ui-widget-content" title="Add a new input">
+	<form id="inputForm">
+		<table>
+			<tr>
+				<td><label for="f_inputsTab_id">Id: </label></td>
+				<td><input type="text" name="f_inputsTab_id" id="f_inputsTab_id" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_inputsTab_id_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_inputsTab_label">Label: </label></td>
+				<td><input type="text" name="f_inputsTab_label" id="f_inputsTab_label" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_inputsTab_label_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_inputsTab_class">Class: </label></td>
+				<td><input type="text" name="f_inputsTab_class" id="f_inputsTab_class" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_inputsTab_class_validation" style="color:red"></td>
+			</tr>
+			<tr>	
+				<td><label for="f_inputsTab_dataType">DataType: </label></td>
+				<td><input type="text" name="f_inputsTab_dataType" id="f_inputsTab_dataType" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_inputsTab_dataType_validation" style="color:red"></td>
+			</tr>
+			
+			<!--
+			<tr>
+				<td><label for="f_inputsTab_inputProperties">Properties: </label></td>
+				<td><input type="text" name="f_inputsTab_inputProperties" id="f_inputsTab_inputProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
+			</tr>
+			-->
+
+			
+		</table>
+	</form>
+</div>
+<div id="f_addOutputForm" class="ui-dialog-content ui-widget-content" title="Add a new output">
+	<form id="outputForm">
+		<table>
+			<tr>
+				<td><label for="f_outputsTab_id">Id: </label></td>
+				<td><input type="text" name="f_outputsTab_id" id="f_outputsTab_id" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_outputsTab_id_validation" style="color:red"></td>
+			</tr>
+			<tr>		
+				<td><label for="f_outputsTab_label">Label: </label></td>
+				<td><input type="text" name="f_outputsTab_label" id="f_outputsTab_label" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_outputsTab_label_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_outputsTab_class">Class: </label></td>
+				<td><input type="text" name="f_outputsTab_class" id="f_outputsTab_class" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_outputsTab_class_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_outputsTab_dataType">DataType: </label></td>
+				<td><input type="text" name="f_outputsTab_dataType" id="f_outputsTab_dataType" value="" class="text ui-widget-content ui-corner-all"/></td>
+				<td id="f_outputsTab_dataType_validation" style="color:red"></td>
+			</tr>
+			<!--
+			<tr>
+				<td><label for="f_outputsTab_outputProperties">Properties: </label></td>
+				<td><input type="text" name="f_outputsTab_outputProperties" id="f_outputsTab_outputProperties" value="" class="text ui-widget-content ui-corner-all"/></td>
+			</tr>
+			-->
+			
+		</table>
+	</form>	
+</div>
+<div id="f_addNFPropertyForm" class="ui-dialog-content ui-widget-content" title="Add a new non functional property">
+	<form id="nonFuncDescForm">
+		<table>
+			<tr>
+				<td><label for="f_nonFunctionalDescriptionTab_">Weight:</label></td>
+				<td><input type="text" name="f_nonFunctionalDescriptionTab_weight" id="f_nonFunctionalDescriptionTab_weight" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+				<td id="f_nonFunctionalDescription_weight_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_nonFunctionalDescriptionTab_name">Name: </label></td>
+				<td><input type="text" name="f_nonFunctionalDescriptionTab_name" id="f_nonFunctionalDescriptionTab_name" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+				<td id="f_nonFunctionalDescription_name_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_nonFunctionalDescriptionTab_relation">Relation: </label></td>
+				<td><input type="text" name="f_nonFunctionalDescriptionTab_relation" id="f_nonFunctionalDescriptionTab_relation" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+				<td id="f_nonFunctionalDescription_relation_validation" style="color:red"></td>
+			</tr>
+			<tr>		
+				<td><label for="f_nonFunctionalDescriptionTab_unit">Unit: </label></td>
+				<td><input type="text" name="f_nonFunctionalDescriptionTab_unit" id="f_nonFunctionalDescriptionTab_unit" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+				<td id="f_nonFunctionalDescription_unit_validation" style="color:red"></td>
+			</tr>
+			<tr>
+				<td><label for="f_nonFunctionalDescriptionTab_value">Value: </label></td>
+				<td><input type="text" name="f_nonFunctionalDescriptionTab_value" id="f_nonFunctionalDescriptionTab_value" value="" class="text ui-widget-content ui-corner-all textfield"/></td>
+				<td id="f_nonFunctionalDescription_value_validation" style="color:red"></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
 
 <script>
 	"use strict";
