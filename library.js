@@ -1,3 +1,37 @@
+
+function formGenerator(divId, lang, postfix, json){
+	// a("")
+	var html = ["<form>"]
+	;
+
+	$.each(json, function(i){
+		html.push("<label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label>");
+		switch(this.inputType.toLowerCase()){
+			case "textbox" :
+				html.push("<input type=\"text\" id=\"" + this.id + "_" + postfix + "\" />");
+			break;
+			case "textarea" :
+				html.push("<textarea id=\"" + this.id + "_" + postfix + "\"></textarea>");
+			break;
+			case "select" :
+				html.push("<select id=\"" + this.id + "_" + postfix + "\" />");
+					$.each(this.values, function(){
+						// a("a")
+						html.push("<option value=\""+this+"\">"+this+"</option>")
+					});
+				html.push("</select>")
+			break;
+			case "radio" :
+				html.push("ra");
+			break;
+		}
+		html.push("<span id=\"" + this.id + "validation_" + postfix + "\"></span><br/>");
+	});
+	html.push("<form/>")
+
+	return html.join("");
+}
+
 	Raphael.fn.arrow = function (x1, y1, x2, y2, size) {
 		var angle = (Math.atan2(x1-x2,y2-y1) / Math.PI) * 180,
 			arrowPath = this.path("M" + x2 + " " + y2 + " L" + (x2 - size) + " " + (y2 - size) + " L" + (x2 - size) + " " + (y2 + size) + " L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle),x2,y2),
@@ -38,7 +72,6 @@
 
 		return tmp.substring(8, tmp.length-1).toLowerCase();
 	}
-
 	function jsonFormatter(json, humanFreiendly, wannaLog){
 		if(isEmpty(json))
 			console.log("Nieprawidłowy argument");

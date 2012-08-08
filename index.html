@@ -11,6 +11,7 @@
 	<script src="javascripts/ontology.js"></script>
 	<script src="javascripts/jquery.tinyscrollbar.js"></script>
 	<script src="javascripts/Slider2.js"></script>
+	<script src="language.js"></script>
 	<script src="library.js"></script>
 	<script src="controler.js"></script>
 	<script src="view.js"></script>
@@ -30,9 +31,8 @@
 	</style>
 </head>
 <body>
-	
 <div id="sandbox" style="background-color:ivory;"> </div>
-<div id="raport" style='clear: both; display:block;'> </div>
+<div id="raport" style='clear: both; display:block;'>a</div>
 <div id="form" class="ui-dialog-content ui-widget-content" title="New SSDL node">
 	<div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
 		<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
@@ -337,8 +337,6 @@
 	var jstr = JSON.stringify;
 	// eof pomocnicze skrĂłty
 
-	
-
 	var modules = ["historyTree", "blanks", "miniature", "subgraphTree", "repository"];
 	var A = Graph_GUI("sandbox", 1200, 600, modules, "list.xml");
 
@@ -350,7 +348,6 @@
 		r.view.blankNodes.init();
 		r.view.blankNodes.draw();
 		r.controler = Controler(url, r);
-		r.library = {gui: r};
 		r.logger = r.controler.initLogger(r.view.paper);
 		r.controler.init();
 
@@ -363,7 +360,29 @@
 		return r;
 	}
 
-	// $("#form").dialog("open")
+	// ------------------------------------------------------------------------test formGenerator
+	var form = formGenerator("raport", "polish", 438250, [
+		{
+			label: "label",
+			inputType: "textBox",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "description",
+			inputType: "textArea",
+			validation: function(){},
+			values:[]
+		},
+		{
+			label: "controlType",
+			inputType: "select",
+			validation: function(){},
+			values:["#start", "#end"]
+		}
+	]);
+	document.getElementById("raport").innerHTML = form;	
+	// ------------------------------------------------------------------------ eof test formGenerator
 
 
 	var G = A.view.graph_view;
