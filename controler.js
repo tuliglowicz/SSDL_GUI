@@ -1285,8 +1285,10 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
+							jsonFormatter(e, 1,1)
 					if(!e.nodeId || e.nodeId==="") { //to jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						var wrongsList = [];//prepareFormMessages(validatorObject.validateNode(e));
+
 						if(wrongsList.length == 0){
 							e.nodeId = that.generateId();
 							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
@@ -1300,13 +1302,15 @@ function Controler(url, gui){
 						}
 					}
 					else{ //to nie jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						var wrongsList = [];//prepareFormMessages(validatorObject.validateNode(e));
 						if(wrongsList.length === 0){
-							var node = that.getNodeById(e.nodeId);
-							// alert(jsonFormatter(node, true, true));
-							that.updateNodeData(node, e);
-							// alert(jsonFormatter(node, true, true));
-							// gui.view.updateGraph(e.nodeId);
+							$.each(that.current_graphData.nodes, function(i, v){
+								if(v.nodeId == e.nodeId){
+									that.current_graphData.nodes[i] = e;
+									return false;
+								}
+							});
+							gui.view.updateNode(e);
 							gui.view.form.closeForm();
 						}
 						else {
@@ -1317,7 +1321,6 @@ function Controler(url, gui){
 				case "ADDBLANKNODE" : (function(e){
 					gui.view.addBlankNode(e); //
 				})(evtObj); break;
-
 
 			}
 		},
