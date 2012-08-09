@@ -1494,6 +1494,18 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
+					removeView : function(){
+						function remove(){
+							if(this.remove)
+								this.remove();
+							else
+								this.node.remove();
+						}
+						$.each(this.inputs, remove);
+						$.each(this.outputs, remove);
+						$.each(this.connectors, remove);
+						$.each(this.set, remove);
+					},
 					show : function show(i, v){
 						if(v && v.node){
 							var objToAnimate = (v.node.animate ? v.node : v);
@@ -1737,8 +1749,6 @@ function View(id, width, height, gui){
 						$.each(this.connectors, function(){
 							this.show();
 						});
-					},
-					updateNode : function updateNode(){
 					}
 				}
 				
@@ -2087,6 +2097,25 @@ function View(id, width, height, gui){
 			nodes : [],
 			edgesCF : [],
 			edgesDF : []
+		},
+		updateNode : function updateNode(node){
+			var id = node.nodeId,
+				newNode,
+				oldNode,
+				index
+			;
+			$.each(this.current_graph_view.nodes, function(i){
+				if(this.id === id){
+					oldNode = this;
+					index = i;
+					return false;
+				}
+			})
+			if(oldNode && oldNode.removeView){
+				oldNode.removeView();
+				newNode = this.visualiser.visualiseNode(node, oldNode.x, oldNode.y);
+				this.current_graph_view.nodes[index] = newNode;
+			}
 		},
 		setCurrentGraph : function setCurrentGraph(id){
 			var currGraph = this.getGraphById(id);
