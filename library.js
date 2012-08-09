@@ -25,7 +25,7 @@ function formGenerator(divId, lang, postfix, json){
 				html.push("ra");
 			break;
 		}
-		html.push("<td><span id=\"" + this.id + "validation_" + postfix + "\"></span></td><br/>");
+		html.push("<td><span id=\"" + this.id + "validation_" + postfix + "\"></span></td>");
 	});
 	html.push("</table></form>")
 
