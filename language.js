@@ -18,7 +18,8 @@ var language = {
 			name: "nazwa",
 			relation: "relacja",
 			unit: "jednostka",
-			value: "wartość"
+			value: "wartość",
+			type: "typ"
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -61,7 +62,8 @@ var language = {
 			name: "name",
 			relation: "relation",
 			unit: "unit",
-			value: "value"
+			value: "value",
+			type: "type"
 		},
 		formTabs: {
 			main: "Main",

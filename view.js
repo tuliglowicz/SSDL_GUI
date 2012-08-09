@@ -590,10 +590,10 @@ function View(id, width, height, gui){
 		var f3 = function(){alert("this is just for debugging")};
 
 		var editInputVariables = function editInputVariables(){
-			//
+			$("#f_inputVariablesForm").dialog("open");
 		}
 		var editNonFunctionalParameters = function editNonFunctionalParameters(){
-			
+			 $("#f_globalNFPropertiesForm").dialog("open");
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);
@@ -619,6 +619,257 @@ function View(id, width, height, gui){
 	};
 	//sidescroller -> moved to library.js
 	function form() {
+		var formJSON = [
+			{
+				tabLabel:"main",
+				tabId: "mainTab",
+				formId: "mainForm",
+				fields: [
+				{
+					label: "label",
+					id: "f_mainTab_label",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "description",
+					id: "f_mainTab_description",
+					inputType: "textArea",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "controlType",
+					id: "f_mainTab_controlType",
+					inputType: "select",
+					validation: function(){},
+					values:["#start", "#end"]
+				},
+				{
+					label: "serviceClass",
+					id: "f_mainTab_serviceClass",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"service description",
+				tabId: "physicalDescriptionTab",
+				formId: "physDescForm",
+				fields: [
+				{
+					label: "address",
+					id: "f_physicalDescriptionTab_address",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "serviceName",
+					id: "f_physicalDescriptionTab_serviceName",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "serviceGlobalId",
+					id: "f_physicalDescriptionTab_serviceGlobalId",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "operation",
+					id: "f_physicalDescriptionTab_operation",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"inputs",
+				tabId: "inputsTab",
+				formId: "inputForm",
+				fields: [
+				{
+					label: "id",
+					id: "f_inputsTab_id",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "class",
+					id: "f_inputsTab_class",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "dataType",
+					id: "f_inputsTab_dataType",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "properties",
+					id: "f_inputsTab_properties",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "source",
+					id: "f_inputsTab_source",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"outputs",
+				tabId: "outputsTab",
+				formId: "outputForm",
+				fields: [
+				{
+					label: "id",
+					id: "f_outputsTab_id",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "class",
+					id: "f_outputsTab_class",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "dataType",
+					id: "f_outputsTab_dataType",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "properties",
+					id: "f_outputsTab_properties",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"non functional description",
+				tabId: "nonFunctionalDescriptionTab",
+				formId: "nonFuncDescForm",
+				fields: [{
+					label: "weight",
+					id: "f_nonFunctionalDescriptionTab_weight",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "name",
+					id: "f_nonFunctionalDescriptionTab_name",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "relation",
+					id: "f_nonFunctionalDescriptionTab_relation",
+					inputType: "textBox",
+					validation: function(){},
+					values:["eq", "gt", "le", "leq", "geq"]
+				},
+				{
+					label: "unit",
+					id: "f_nonFunctionalDescriptionTab_unit",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "value",
+					id: "f_nonFunctionalDescriptionTab_value",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"",
+				tabId: "",
+				formId: "globalNonFuncDescForm",
+				fields: [{
+					label: "weight",
+					id: "f_globalNonFunctionalDescription_weight",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "name",
+					id: "f_globalNonFunctionalDescription_name",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "relation",
+					id: "f_globalNonFunctionalDescription_relation",
+					inputType: "textBox",
+					validation: function(){},
+					values:["eq", "gt", "le", "leq", "geq"]
+				},
+				{
+					label: "unit",
+					id: "f_globalNonFunctionalDescription_unit",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "value",
+					id: "f_globalNonFunctionalDescription_value",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
+				tabLabel:"",
+				tabId: "",
+				formId: "inputVariableForm",
+				fields: [{
+					label: "name",
+					id: "f_inputVariable_name",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "value",
+					id: "f_inputVariable_value",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "type",
+					id: "f_inputVariable_type",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+		];		
 		var resultJSON = {
 			"nodeId":"",
 			"nodeLabel":"",
@@ -647,6 +898,21 @@ function View(id, width, height, gui){
 			"preconditions":"",
 			"effects":""
 		};
+		
+		formAppender();
+		$("#tabs-1").prepend(formGenerator("english", pf, formJSON[0]));	
+		$("#tabs-2").prepend(formGenerator("english", pf, formJSON[1]));	
+		$("#f_addInputForm").prepend(formGenerator("english", pf, formJSON[2]));	
+		$("#f_addOutputForm").prepend(formGenerator("english", pf, formJSON[3]));	
+		$("#f_addNFPropertyForm").prepend(formGenerator("english", pf, formJSON[4]));
+		$("#f_addGlobalNFPropertyForm").prepend(formGenerator("english", pf, formJSON[5]));
+		$("#f_addInputVariableForm").prepend(formGenerator("english", pf, formJSON[6]));
+		$("#form").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 500,
+			width: 700
+		});
 		var $tabs = $( "#tabs" ).tabs();
 
 		var result = {
@@ -655,7 +921,9 @@ function View(id, width, height, gui){
 			funcDescJSON: funcDescJSON,
 			selectedInputIndex: -1,
 			selectedOutputIndex: -1,
+			selectedInputVariableIndex: -1,
 			selectedNFPropertyIndex: -1,
+			selectedGlobalNFPropertyIndex: -1,
 
 			initToEdit: function initToEdit(node){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
@@ -769,7 +1037,7 @@ function View(id, width, height, gui){
 						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
 						$( id+"_validation_" + pf ).text(splitty[3]);
 					}	
-					$( id ).addClass( "ui-state-error" );
+					$( id + "_" + pf ).addClass( "ui-state-error" );
 				});
 			},
 			clearErrors: function clearErrors(){
@@ -875,17 +1143,38 @@ function View(id, width, height, gui){
 				var temp = id.split(" ")[0].split("_"); 
 				var tempId = temp[0] +  "_" + temp[1] + "x" + temp[2] + number;
 				$( "#" + id ).append( 
-							"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-								"<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
-								"<td id=\"" + tempId + "_label\">" + input.label + "</td>" + 
-								"<td id=\"" + tempId + "_class\">" + input.class + "</td>" +
-								"<td id=\"" + tempId + "_dataType\">" + input.dataType + "</td>" + 
-							"</tr>" 
-					);
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
+						"<td id=\"" + tempId + "_label\">" + input.label + "</td>" + 
+						"<td id=\"" + tempId + "_class\">" + input.class + "</td>" +
+						"<td id=\"" + tempId + "_dataType\">" + input.dataType + "</td>" + 
+					"</tr>" 
+				);
+			},
+			inputVariablesAppender: function inputVariablesAppender(input, number){
+				var tempId = "f_inputVariables" + number;
+				$( "#f_inputVariables tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
+						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" + 
+						"<td id=\"" + tempId + "_type\">" + input.type + "</td>" +
+					"</tr>" 
+				);
 			},
 			NFPropsAppender: function NFPropsAppender(input, number){
 				var tempId = "f_nonFunctionalDescriptionTabxNFProps" + number;
 				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_weight\">" + input.weight + "</td>" + 
+						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
+						"<td id=\"" + tempId + "_relation\">" + input.relation + "</td>" +
+						"<td id=\"" + tempId + "_unit\">" + input.unit + "</td>" + 
+						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" +
+					"</tr>" );
+			},
+			globalNFPropsAppender: function globalNFPropsAppender(input, number){
+				var tempId = "f_globalNFProps" + number;
+				$( "#f_globalNFProps tbody").append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
 						"<td id=\"" + tempId + "_weight\">" + input.weight + "</td>" + 
 						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
@@ -930,8 +1219,14 @@ function View(id, width, height, gui){
 			getSelectedOutputIndex: function getSelectedOutputIndex(){
 				return this.selectedOutputIndex;
 			},
+			getSelectedInputVariableIndex: function getSelectedInputVariableIndex(){
+				return this.selectedInputVariableIndex;
+			},
 			getSelectedNFPropertyIndex: function getSelectedNFPropertyIndex(){
 				return this.selectedNFPropertyIndex;
+			},
+			getSelectedGlobalNFPropertyIndex: function getSelectedGlobalNFPropertyIndex(){
+				return this.selectedGlobalNFPropertyIndex;
 			},
 			setSelectedInputIndex: function setSelectedInputIndex(index){
 				this.selectedInputIndex = index;
@@ -939,8 +1234,14 @@ function View(id, width, height, gui){
 			setSelectedOutputIndex: function setSelectedOutputIndex(index){
 				this.selectedOutputIndex = index;
 			},
+			setSelectedInputVariableIndex: function setSelectedInputVariableIndex(index){
+				this.selectedInputVariableIndex = index;
+			},
 			setSelectedNFPropertyIndex: function setSelectedNFPropertyIndex(index){
 				this.selectedNFPropertyIndex = index;
+			},
+			setSelectedGlobalNFPropertyIndex: function setSelectedGlobalNFPropertyIndex(index){
+				this.selectedGlobalNFPropertyIndex = index;
 			},
 			resetSelectedInputIndex: function resetSelectedInputIndex(){
 				this.selectedInputIndex = -1;
@@ -948,8 +1249,14 @@ function View(id, width, height, gui){
 			resetSelectedOutputIndex: function resetSelectedOutputIndex(){
 				this.selectedOutputIndex = -1;
 			},
+			resetSelectedInputVariableIndex: function resetSelectedInputVariableIndex(){
+				this.selectedInputVariableIndex = -1;
+			},
 			resetSelectedNFPropertyIndex: function resetSelectedNFPropertyIndex(){
 				this.selectedNFPropertyIndex = -1;
+			},
+			resetSelectedGlobalNFPropertyIndex: function resetSelectedGlobalNFPropertyIndex(){
+				this.selectedGlobalNFPropertyIndex = -1;
 			},
 			clearInputSelectionInTable: function clearInputSelectionInTable(){
 				$.each($("#f_inputsTab_inputs tbody").children(), function(){
@@ -961,8 +1268,18 @@ function View(id, width, height, gui){
 					$(this).removeClass("ui-state-active");
 				});
 			},
+			clearInputVariableSelectionInTable: function clearInputVariableSelectionInTable(){
+				$.each($("#f_inputVariables tbody").children(), function(){
+					$(this).removeClass("ui-state-active");
+				});
+			},
 			clearNFPropertySelectionInTable: function clearNFPropertySelectionInTable(){
 				$.each($("#f_nonFunctionalDescriptionTab_NFProps tbody").children(), function(){
+					$(this).removeClass("ui-state-active");
+				});
+			},
+			clearGlobalNFPropertySelectionInTable: function clearGlobalNFPropertySelectionInTable(){
+				$.each($("#f_globalNFProps tbody").children(), function(){
 					$(this).removeClass("ui-state-active");
 				});
 			},
@@ -1097,6 +1414,27 @@ function View(id, width, height, gui){
 					$("#f_addOutputForm_" + pf ).dialog("close");	
 				}
 			},
+			addInputVariable: function addInputVariable(){
+				var inputVariableJSON = {"name":"","value":"","type":""},
+					index = this.getSelectedInputVariableIndex();
+				inputVariableJSON.name = $( "#f_inputVariable_name_" + pf ).val();
+				inputVariableJSON.value = $( "#f_inputVariable_value_" + pf ).val();
+				inputVariableJSON.type = $("#f_inputVariable_type_" + pf).val();
+						
+				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
+				if(index==-1){	//Index = -1 => dodajemy nowy inputVariable
+					//TU jEST STAŁA 5 JAKO INDEKS I TO BEDZIE SYPAĆ BŁĘDY
+					this.inputVariablesAppender(inputVariableJSON, 5);//this.COKOLWIEK.inputVariables.length);
+					$("#f_addInputVariableForm").dialog("close");	
+				}
+				else{	//edytujemy istniejący inputVariable
+					var destinationId = "f_inputVariables" + index;
+					$("#" + destinationId + "_name").text(inputVariableJSON.name);
+					$("#" + destinationId + "_value").text(inputVariableJSON.value);
+					$("#" + destinationId + "_type").text(inputVariableJSON.type);
+					$("#f_addInputVariableForm").dialog("close");	
+				}
+			},
 			addNonFunctional: function addNonFunctional(){
 				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
 					index = this.getSelectedNFPropertyIndex();
@@ -1125,10 +1463,34 @@ function View(id, width, height, gui){
 					$("#f_addNFPropertyForm_" + pf ).dialog("close");	
 				}
 			},
+			addGlobalNonFunctional: function addGlobalNonFunctionalVariable(){
+				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
+					index = this.getSelectedGlobalNFPropertyIndex();
+				nonFuncDescJSON.weight = $( "#f_globalNonFunctionalDescription_weight_" + pf ).val();
+				nonFuncDescJSON.name = $( "#f_globalNonFunctionalDescription_name_" + pf ).val();
+				nonFuncDescJSON.relation = $( "#f_globalNonFunctionalDescription_relation_" + pf ).val();
+				nonFuncDescJSON.unit = $( "#f_globalNonFunctionalDescription_unit_" + pf ).val();
+				nonFuncDescJSON.value = $( "#f_globalNonFunctionalDescription_value_" + pf ).val();
+				
+				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
+				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
+					//TU jEST STAŁA 5 JAKO INDEKS I TO BEDZIE SYPAĆ BŁĘDY
+					this.globalNFPropsAppender(nonFuncDescJSON, 5);//this.COKOLWIEK.inputVariables.length);
+					$("#f_addGlobalNFPropertyForm").dialog("close");
+				}
+				else{	//edytujemy istniejący globalNFProperty
+					var destinationId = "f_globalNFProps" + index;
+					$("#" + destinationId + "_weight_" + pf ).text(nonFuncDescJSON.weight);
+					$("#" + destinationId + "_name_" + pf ).text(nonFuncDescJSON.name);
+					$("#" + destinationId + "_relation_" + pf ).text(nonFuncDescJSON.relation);
+					$("#" + destinationId + "_unit_" + pf ).text(nonFuncDescJSON.unit);
+					$("#" + destinationId + "_value_" + pf ).text(nonFuncDescJSON.value);
+					$("#f_addGlobalNFPropertyForm").dialog("close");	
+				}
+			},
 			resetAll: function resetAll(){
 				this.cleanForm();
 			},
-			//TO JEST ŹLE, need do to sth. indeksy w tablicach rozjeżdżają się z id w tabelce...
 			removeInput: function removeInput(){
 				var index = this.getSelectedInputIndex();
 				this.funcDescJSON.inputs[index] = undefined;
@@ -1141,11 +1503,21 @@ function View(id, width, height, gui){
 				$("#f_outputsTabxoutputs"+index).remove();
 				this.resetSelectedOutputIndex();
 			},
+			removeInputVariable: function removeInput(){
+				var index = this.getSelectedInputVariableIndex();
+				alert("This feature has yet to be implemented");
+				this.resetSelectedInputVariableIndex();
+			},
 			removeNonFunc: function removeNonFunc(nfProp){
 				var index = this.getSelectedNFPropertyIndex();
 				this.resultJSON.nonFunctionalDescription[index] = undefined;
 				$("#f_nonFunctionalDescriptionTabxNFProps"+index).remove();
 				this.resetSelectedNFPropertyIndex();
+			},
+			removeGlobalNonFunc: function removeNonFunc(nfProp){
+				var index = this.getSelectedGlobalNFPropertyIndex();
+				alert("This feature has yet to be implemented");
+				this.resetSelectedGlobalNFPropertyIndex();
 			},
 			removeServiceClass: function removeServiceClass(serviceClass){
 				var id = serviceClass.attr("id").split("_").pop();
@@ -1187,7 +1559,7 @@ function View(id, width, height, gui){
 			* EVENT HANDLERS END HERE
 			*/
 		};
-
+		
 		//SUBMITY			
 		$("#f_button_sumbitAllButton").button().click(function() {
 			result.submitAll();
@@ -1211,6 +1583,7 @@ function View(id, width, height, gui){
 				result.addSource();
 			}
 		);
+		//openAddInputVariableForm
 		$("#f_inputsTab_openAddInputForm").button().click(
 			function(event) {
 				$( "#inputForm_" + pf )[0].reset();
@@ -1229,6 +1602,15 @@ function View(id, width, height, gui){
 				$("#f_addOutputForm").dialog("open");	
 			}
 		);
+		$("#f_openAddInputVariableForm").button().click(
+			function(event) {
+				$( "#inputVariableForm_" + pf )[0].reset();
+				result.resetSelectedInputVariableIndex();
+				result.clearInputVariableSelectionInTable();
+				$('#ui-dialog-title-f_addInputVariableForm').text("New input variable");
+				$("#f_addInputVariableForm").dialog("open");
+			}
+		);
 		$("#f_nonFunctionalDescriptionTab_openAddNFPropertyForm").button().click(
 			function(event) {
 				$( "#nonFuncDescForm_" + pf  )[0].reset();
@@ -1236,6 +1618,15 @@ function View(id, width, height, gui){
 				result.clearNFPropertySelectionInTable();
 				$('#ui-dialog-title-f_addNFPropertyForm').text("New non functional property");
 				$("#f_addNFPropertyForm").dialog("open");	
+			}
+		);
+		$("#f_openAddGlobalNFPropertyForm").button().click(
+			function(event) {
+				$( "#globalNonFuncDescForm_" + pf  )[0].reset();
+				result.resetSelectedGlobalNFPropertyIndex();
+				result.clearGlobalNFPropertySelectionInTable();
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm').text("New graph non functional property");
+				$("#f_addGlobalNFPropertyForm").dialog("open");	
 			}
 		);
 		$("#f_inputsTab_openEditInputForm").button().click(
@@ -1270,13 +1661,29 @@ function View(id, width, height, gui){
 				}
 			}
 		);
+		$("#f_openEditInputVariableForm").button().click(
+			function(event) {
+				var index = result.getSelectedInputVariableIndex();
+				if(index == -1)
+					alert("No input variable selected!");
+				else{
+					var sourceId = "f_inputVariables" + index;
+					$("#f_inputVariable_name_" + pf ).val($("#" + sourceId + "_name").text());
+					$("#f_inputVariable_value_" + pf ).val($("#" + sourceId + "_value").text());
+					$("#f_inputVariable_type_" + pf ).val($("#" + sourceId + "_type").text());
+					$('#ui-dialog-title-f_addInputVariableForm').text("Edit existing input variable");
+					result.clearInputVariableSelectionInTable();
+					$("#f_addInputVariableForm").dialog("open");
+				}
+			}
+		);
 		$("#f_nonFunctionalDescriptionTab_openEditNFPropertyForm").button().click(
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
 					alert("No entry selected!");
 				else{
-					var sourceId = "f_nonFunctionalDescriptionTabxNFProps" + index;
+					var sourceId = "f_globalNFPropsxglobalNFProps" + index;
 					$("#f_nonFunctionalDescriptionTab_weight_" + pf ).val($("#" + sourceId + "_weight").text());
 					$("#f_nonFunctionalDescriptionTab_name_" + pf ).val($("#" + sourceId + "_name").text());
 					$("#f_nonFunctionalDescriptionTab_relation_" + pf ).val($("#" + sourceId + "_relation").text());
@@ -1284,6 +1691,24 @@ function View(id, width, height, gui){
 					$("#f_nonFunctionalDescriptionTab_value_" + pf ).val($("#" + sourceId + "_value").text());
 					$('#ui-dialog-title-f_addNFPropertyForm').text("Edit existing non functional property");
 					$("#f_addNFPropertyForm").dialog("open");
+				}
+			}
+		);
+		$("#f_openEditGlobalNFPropertyForm").button().click(
+			function(event) {
+				var index = result.getSelectedGlobalNFPropertyIndex();
+				if(index == -1)
+					alert("No graph non functional property selected!");
+				else{
+					var sourceId = "f_globalNFProps" + index;
+					$("#f_globalNonFunctionalDescriptionTab_weight_" + pf ).val($("#" + sourceId + "_weight").text());
+					$("#f_globalNonFunctionalDescriptionTab_name_" + pf ).val($("#" + sourceId + "_name").text());
+					$("#f_globalNonFunctionalDescriptionTab_relation_" + pf ).val($("#" + sourceId + "_relation").text());
+					$("#f_globalNonFunctionalDescriptionTab_unit_" + pf ).val($("#" + sourceId + "_unit").text());
+					$("#f_globalNonFunctionalDescriptionTab_value_" + pf ).val($("#" + sourceId + "_value").text());
+					$('#ui-dialog-title-f_addGlobalNFPropertyForm').text("Edit existing graph non functional property");
+					result.clearGlobalNFPropertySelectionInTable();
+					$("#f_addGlobalNFPropertyForm").dialog("open");
 				}
 			}
 		);
@@ -1307,6 +1732,17 @@ function View(id, width, height, gui){
 				}
 			}
 		);
+		$("#f_deleteThisInputVariable").button().click(
+			function(event) {
+				var index = result.getSelectedInputVariableIndex();
+				if(index == -1)
+					alert("No input variable selected!");
+				else{
+					result.clearInputVariableSelectionInTable();
+					result.removeInputVariable();
+				}
+			}
+		);
 		$("#f_nonFunctionalDescriptionTab_deleteThisNFProperty").button().click(
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
@@ -1314,6 +1750,17 @@ function View(id, width, height, gui){
 					alert("No entry selected!");
 				else{
 					result.removeNonFunc();
+				}
+			}
+		);
+		$("#f_deleteThisGlobalNFProperty").button().click(
+			function(event) {
+				var index = result.getSelectedGlobalNFPropertyIndex();
+				if(index == -1)
+					alert("No entry selected!");
+				else{
+					result.clearGlobalNFPropertySelectionInTable();
+					result.removeGlobalNonFunc();
 				}
 			}
 		);
@@ -1362,6 +1809,16 @@ function View(id, width, height, gui){
 				$(this).toggleClass("ui-state-active");
 			}
 		});
+		$('tr[id^="f_inputVariables"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearInputVariableSelectionInTable();
+			if(result.getSelectedInputVariableIndex() == index)
+				result.resetSelectedInputVariableIndex();
+			else{
+				result.setSelectedInputVariableIndex(index);
+				$(this).addClass("ui-state-active");
+			}
+		});
 		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("").pop();
 			result.clearNFPropertySelectionInTable();
@@ -1369,6 +1826,16 @@ function View(id, width, height, gui){
 				result.resetSelectedNFPropertyIndex();
 			else{
 				result.setSelectedNFPropertyIndex(index);
+				$(this).toggleClass("ui-state-active");
+			}
+		});
+		$('tr[id^="f_globalNFProps"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearGlobalNFPropertySelectionInTable();
+			if(result.getSelectedGlobalNFPropertyIndex() == index)
+				result.resetSelectedGlobalNFPropertyIndex();
+			else{
+				result.setSelectedGlobalNFPropertyIndex(index);
 				$(this).toggleClass("ui-state-active");
 			}
 		});
@@ -1470,6 +1937,62 @@ function View(id, width, height, gui){
 			buttons: {
 				"Confirm": function() {
 					result.addNonFunctional();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_addGlobalNFPropertyForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350,
+			buttons: {
+				"Confirm": function() {
+					result.addGlobalNonFunctional();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_addInputVariableForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350,
+			buttons: {
+				"Confirm": function() {
+					result.addInputVariable();
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_inputVariablesForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 350,
+			width: 500,
+			buttons: {
+				"Save changes": function() {
+					//TODO
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_globalNFPropertiesForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 350,
+			width: 500,
+			buttons: {
+				"Save changes": function() {
+					//TODO
 				},
 				Cancel: function() {
 					$( this ).dialog( "close" );
@@ -1923,7 +2446,7 @@ function View(id, width, height, gui){
 				node.mainShape = rect;
 				node.raph_label = label;
 								
-				img_gear.node.setAttribute("class", id+" gear");
+				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: id});
 				});
@@ -2016,7 +2539,7 @@ function View(id, width, height, gui){
 					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
-				img_gear.node.setAttribute("class", id+" gear");
+				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: id});
 				})
@@ -2960,14 +3483,6 @@ function View(id, width, height, gui){
 				width : $column.width(),
 				height : $column.height(),
 			};
-	
-			//obsługa formularza, rzeczy z JQuery UI - to tutaj??? czy w controler.js???
-			$("#form").dialog({
-				autoOpen: false,
-				modal: true,
-				height: 500,
-				width: 700
-			});
 		},
 		setBold : function setBold(x1, y1, x2, y2){
 			$.each(this.current_graph_view.nodes, function(k, v){

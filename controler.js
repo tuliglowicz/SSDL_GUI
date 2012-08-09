@@ -1284,7 +1284,7 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
-							// jsonFormatter(e, 1,1)
+					// jsonFormatter(e, 1,1)
 					if(!e.nodeId || e.nodeId==="") { //to jest blank
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
 

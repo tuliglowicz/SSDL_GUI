@@ -23,7 +23,13 @@
 	.gear {
 		cursor:pointer;
 	}
-
+	.clickable{
+		cursor: pointer;
+	}
+	.textfield{
+		width: 135px;
+		height: 17px;
+	}
 	path.input {
 		#cursor: crosshair;
 	}
