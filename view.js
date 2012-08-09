@@ -84,8 +84,6 @@ function menu(x, y, addToDiv) {
 
 			var x = $('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).css("width"));
 			var y = $('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).position().top;
-			console.log(groupLabel + "_" + optionLabel + " " + y);
-			console.log($('#'+groupLabel + "_" + optionLabel));
 
 			if ($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener").length == 0) {
 				$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_subcontener" + " class=subcontener style='top:" + y + "px; left:150px; position:absolute; width:150px;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#' + groupLabel + '_contener').hide();
