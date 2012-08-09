@@ -589,12 +589,22 @@ function View(id, width, height, gui){
 		};
 		var f3 = function(){alert("this is just for debugging")};
 
+		var editInputVariables = function editInputVariables(){
+			//
+		}
+		var editNonFunctionalParameters = function editNonFunctionalParameters(){
+			
+		}
+
 		result.invisibleBar = result.createBar(left, top, width, height);
 		result.addGroup("Views");
 		result.addOption("Views", "CF", switchMode("CF"), "ControlFlow");
 		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
 		result.addGroup("Edit");
 		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
+		result.addGroup("Graph Options");
+		result.addOption("Graph Options", "Input Variables", editInputVariables, "editInputVariables");
+		result.addOption("Graph Options", "NonFunctionalParameters", editNonFunctionalParameters, "editNonFunctionalParameters");
 		// result.addGroup("Tester group");
 		// result.addOption("Tester group", "Test1", f3, "Test if works");
 		// result.addOption("Tester group", "TestTWO", f3, "Test if works");
@@ -1786,7 +1796,7 @@ function View(id, width, height, gui){
 				$.each(node.functionalDescription.outputs, function(){
 					newNode.outputs.push( $.extend(true, {}, this) );
 				});
-				console.log(newNode.id, newNode.inputs, newNode.outputs);
+				// console.log(newNode.id, newNode.inputs, newNode.outputs);
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
@@ -1886,7 +1896,12 @@ function View(id, width, height, gui){
 				node.set.push(c, label);
 
 				view.dragNodes(label, node);
-				view.dragCFArrow(c, node);
+				
+				var isStartNode;
+				if(node.controlType && node.controlType.toLowerCase() == "#start")
+					isStartNode = true;
+
+				view.dragCFArrow(c, node, isStartNode);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
 				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
@@ -2107,7 +2122,8 @@ function View(id, width, height, gui){
 			var id = node.nodeId,
 				newNode,
 				oldNode,
-				index
+				index,
+				that = this
 			;
 			$.each(this.current_graph_view.nodes, function(i){
 				if(this.id === id){
@@ -2119,7 +2135,64 @@ function View(id, width, height, gui){
 			if(oldNode && oldNode.removeView){
 				oldNode.removeView();
 				newNode = this.visualiser.visualiseNode(node, oldNode.x, oldNode.y);
+				newNode.switchMode(this.mode);
 				this.current_graph_view.nodes[index] = newNode;
+
+				// jsonFormatter(newNode, 1,1)
+
+				//update CF edges
+				$.each(this.current_graph_view.edgesCF, function(i, v){
+					if(this.source.id === id){
+						that.current_graph_view.edgesCF[i].source = newNode;
+					}
+					if(this.target.id === id){
+						that.current_graph_view.edgesCF[i].target = newNode;
+					}
+				});
+
+				//update DF edges
+				var io_tmp,
+					indexesToSplice = []
+				;
+				// jsonFormatter(this.current_graph_view.edgesDF, 1, 1)
+				// jsonFormatter(this.current_graph_view.edgesDF, 1, 1)
+
+				$.each(this.current_graph_view.edgesDF, function(i, v){
+
+					if(this && this.sourceId === id){
+						// console.log("1");
+						io_tmp = newNode.getOutputById(this.output.id)
+						if(io_tmp){
+							this.output = io_tmp;
+							this.update();
+						}
+						else {
+							this.remove();
+							if(!~indexesToSplice.indexOf(i))
+								indexesToSplice.push(i);
+						}
+					}
+					else if(this && this.targetId === id){
+						// console.log("2")
+						io_tmp = newNode.getInputById(this.input.id)
+						if(io_tmp){
+							this.input = io_tmp;
+							this.update();
+						}
+						else {
+							this.remove();
+							if(!~indexesToSplice.indexOf(i))
+								indexesToSplice.push(i);
+						}
+					}
+					// console.log(indexesToSplice)
+					// console.log(i, v, id, io_tmp)
+				});
+
+				var DF = this.current_graph_view.edgesDF;
+				$.each(indexesToSplice, function(){
+					DF.splice(this, 1);
+				})
 			}
 		},
 		setCurrentGraph : function setCurrentGraph(id){
@@ -2268,6 +2341,7 @@ function View(id, width, height, gui){
 				transX, transY,
 				flag = true,
 				ready2move = false,
+				that = this,
 				itWasJustAClick = false,
 				move = function move(x,y){
 					if(ready2move){
@@ -2291,7 +2365,7 @@ function View(id, width, height, gui){
 							ox += transX;
 							oy += transY;
 
-							gui.controler.reactOnEvent("NodeMoved");
+							//gui.controler.reactOnEvent("NodeMoved");
 						}
 				 	}
 				},
@@ -2315,6 +2389,9 @@ function View(id, width, height, gui){
 					}
 					ready2move = node.highlighted;
 					ctrl = evt.ctrlKey;
+
+					that.hideEdges();
+
 				},
 				stop = function stop(x,y,evt){
 					ready2move = false;
@@ -2330,6 +2407,10 @@ function View(id, width, height, gui){
 							node.highlight2();
 						}
 					}
+					else {
+						gui.controler.reactOnEvent("NodeMoved");
+						that.showEdges();
+					}
 				}
 
 				if(getType(element) === "array"){
@@ -2339,7 +2420,7 @@ function View(id, width, height, gui){
 				} else
 					element.drag(move, start, stop);
 		},
-		dragCFArrow : function dragArrow(element, node){
+		dragCFArrow : function dragArrow(element, node, isStartNode){
 			var arrow,
 				cx,
 				cy,
@@ -2348,7 +2429,7 @@ function View(id, width, height, gui){
 				sourceNode,
 				bbox,
 				start = function start(){
-					if(gui.view.mode === "CF"){
+					// if(gui.view.mode === "CF"){
 						var canvas = $(gui.view.paper.canvas);
 						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
@@ -2358,10 +2439,10 @@ function View(id, width, height, gui){
 						sourceNode = gui.view.getNodeById(this.node.classList[0]);
 
 						arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
-					}
+					// }
 				},
 				move = function(a, b, c, d, event){
-					if(gui.view.mode === "CF"){
+					// if(gui.view.mode === "CF"){
 						// todo awizowanie arrow po najechaniu na node
 						try {
 							arrow[0].remove();
@@ -2372,30 +2453,32 @@ function View(id, width, height, gui){
 						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
-					}
+					// }
 				},
 				stop = function(event){
-					if(gui.view.mode === "CF"){
-						try {
-							arrow[0].remove();
-							arrow[1].remove();
-						} catch(e){
-							console.log(e);
-						}
+					try {
+						arrow[0].remove();
+						arrow[1].remove();
+					} catch(e){
+						console.log(e);
+					}
 
+					if(gui.view.mode === "CF"){
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
 							gui.controler.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
 							 	target: targetNode,
-							 	CF_or_DF: "CF"
+							 	CF_or_DF: gui.view.mode
 							 	// type: 
 							})
+					}
+					else {
+
 					}
 				}
 				;
 
-				// alert(element+":"+element.getType())
 			if(getType(element) === "array"){
 				$.each(element, function(){
 					// alert(this +":"+ this.getType());
@@ -2429,11 +2512,11 @@ function View(id, width, height, gui){
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
 						$.each(v.inputs, function(){
-							console.log(v.id, this.id);
+							// console.log(v.id, this.id);
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "red"}) );
 							}
-						});						
+						});
 					});
 
 					arrow = paper.arrow(cx, cy, cx, cy, 4);
@@ -2476,7 +2559,7 @@ function View(id, width, height, gui){
 					}
 					$.each(glows, function(){
 						this.remove();
-					})
+					});
 				}
 				;
 
@@ -2629,6 +2712,30 @@ function View(id, width, height, gui){
 			else if(this.mode === "DF"){
 				$.each(this.current_graph_view.edgesDF, function(){
 					this.update();
+				});
+			}
+		},
+		showEdges : function showEdges(){
+			if(this.mode === "CF"){
+				$.each(this.current_graph_view.edgesCF, function(){
+					this.show();
+				});
+			}
+			else if(this.mode === "DF"){
+				$.each(this.current_graph_view.edgesDF, function(){
+					this.show();
+				});
+			}
+		},
+		hideEdges : function hideEdges(){
+			if(this.mode === "CF"){
+				$.each(this.current_graph_view.edgesCF, function(){
+					this.hide();
+				});
+			}
+			else if(this.mode === "DF"){
+				$.each(this.current_graph_view.edgesDF, function(){
+					this.hide();
 				});
 			}
 		},

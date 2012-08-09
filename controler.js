@@ -1277,7 +1277,6 @@ function Controler(url, gui){
 						gui.view.changeCurrentGraphView(id);
 						that.changeCurrentGraphData(id);
 					}
-
 				})(evtObj); break;
 				case "SSDLLOADED" : (function(e){
 					that.navigator.setData(that.current_graphData)
@@ -1285,9 +1284,9 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
-							jsonFormatter(e, 1,1)
+							// jsonFormatter(e, 1,1)
 					if(!e.nodeId || e.nodeId==="") { //to jest blank
-						var wrongsList = [];//prepareFormMessages(validatorObject.validateNode(e));
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
 
 						if(wrongsList.length == 0){
 							e.nodeId = that.generateId();
@@ -1302,7 +1301,7 @@ function Controler(url, gui){
 						}
 					}
 					else{ //to nie jest blank
-						var wrongsList = [];//prepareFormMessages(validatorObject.validateNode(e));
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
 						if(wrongsList.length === 0){
 							$.each(that.current_graphData.nodes, function(i, v){
 								if(v.nodeId == e.nodeId){
