@@ -484,7 +484,7 @@ To Do:
 	var innerBoolTestObj;
 	var indexer;
 	var validatedNodeType = validationNode.validationObject.typeofNode;
-	// console.log(validatedNodeType);
+	console.log(validatedNodeType);
 	for (var i in validationNode.validationObject) {
 		if (validationNode.validationObject.hasOwnProperty(i)) {
 			if (i == "physicalDescription") {
