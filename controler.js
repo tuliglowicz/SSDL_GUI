@@ -367,7 +367,7 @@ function Controler(url, gui){
 		});
 
 		//context menu
-		var menu = gui.view.contextMenu("console_entries_" + pf);
+		var menu = gui.view.contextMenu("console_" + pf);
 		menu.addOption('Zamknij', close);
 
 		//object return
@@ -1153,6 +1153,9 @@ function Controler(url, gui){
 						that.loadSSDL(e.url);
 					}
 				})(evtObj); break;
+				case "BODYCLICK" : (function () {
+					gui.view.MenuList.getInstance().close();
+				})(); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
@@ -1989,6 +1992,9 @@ function Controler(url, gui){
 		}
 	}
 
+	$('body').click(function(){
+		controlerObject.reactOnEvent("BODYCLICK");
+	});
 	controlerObject.reactOnEvent("START");
 
 	return controlerObject;
