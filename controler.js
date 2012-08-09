@@ -133,6 +133,7 @@ function Controler(url, gui){
 			colors = ['#FAFAFF','#FFFFE0','#FFFAFA'],
 			txtColors = ['white','yellow','orange'],
 			imgNames = ['info','warning','error'];
+
 		//private functions
 		var addMessage = function(message, priority){
 				curElCount++;
@@ -217,6 +218,12 @@ function Controler(url, gui){
   				w = el.offsetWidth - el.scrollWidth;
 				$('#scrollTest').remove();
 				return w;
+			},
+			close = function(){
+				$(eId).css('overflow-y: hidden;');
+				$(lId).animate({
+					'height': 0
+				});
 			};
 		//console object
 		var obj = {
@@ -358,6 +365,12 @@ function Controler(url, gui){
 		mask.mouseout(function(){
 			bGlow.remove();
 		});
+
+		//context menu
+		var menu = gui.view.contextMenu("console_" + pf);
+		menu.addOption('Zamknij', close);
+
+		//object return
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
@@ -1154,6 +1167,7 @@ function Controler(url, gui){
 					gui.view.selectAll();
 				})(); break;
 				case "ESCAPE" : (function () {
+					gui.view.MenuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
@@ -1331,7 +1345,7 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
-							// jsonFormatter(e, 1,1)
+					// jsonFormatter(e, 1,1)
 					if(!e.nodeId || e.nodeId==="") { //to jest blank
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
 
@@ -2042,6 +2056,9 @@ function Controler(url, gui){
 		}
 	}
 
+	$('body').click(function(){
+		controlerObject.reactOnEvent("ESCAPE");
+	});
 	controlerObject.reactOnEvent("START");
 
 	return controlerObject;

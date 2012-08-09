@@ -21,161 +21,16 @@
 	<script src="myValidator.js"></script>
 	<link href="stylesheets/my_style.css" rel="stylesheet">
 	<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
-	<style>
-		.clickable{
-			cursor: pointer;
-		}
-		.textfield{
-			width: 135px;
-			height: 17px;
-		}
-	</style>
 </head>
 <body>
 <div id="sandbox" style="background-color:ivory;"> </div>
-<div id="raport" style='clear: both; display:block;'>a</div>
-<div id="form" class="ui-dialog-content ui-widget-content" title="New SSDL node">
-	<div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
-		<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-			<li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active" id="mainTab"><a href="#tabs-1">Main</a></li>
-			<li id="physicalDescriptionTab"><a href="#tabs-2">Service description</a></li>
-			<li id="inputsTab"><a href="#tabs-3">Inputs</a></li>
-			<li id="outputsTab"><a href="#tabs-4">Outputs</a></li>
-			<li id="nonFunctionalDescriptionTab"><a href="#tabs-5">Non-functional description</a></li>
-		</ul>
-		<div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-			</br><button id="f_mainTab_nextButton" style="float:right">NEXT</button></br>
-		</div>
-		<div id="tabs-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-			</br><button id="f_physicalDescriptionTab_nextButton" style="float: right">NEXT</button><button id="f_physicalDescriptionTab_backButton" style="float: right">BACK</button></br>
-		</div>
-		<div id="tabs-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-			<p>
-				<!--
-				<form id="funcDescForm">
-					<table>
-						<tr>
-							<td><label for="f_inputOutputTab_metaKeyword">Meta Keywords: </label></td>
-							<td><input type="text" name="f_inputOutputTab_metaKeyword" id="f_inputOutputTab_metaKeyword" value="" class="text ui-widget-content ui-corner-all"/></td>
-							<td><input type="submit" name="f_button_addMetaKeyword" id="f_button_addMetaKeyword" value="Add Meta Keyword"/></td>
-							<td><small>click on a meta keyword to delete it</small></td>
-						</tr>							
-					</table>
-					
-				</form>
-				<span id="f_inputOutputTab_mKeywords"></span>
-				-->
-				<div id="inputs-content" class="ui-widget">
-					<p>Defined inputs:</p>
-					<table id="f_inputsTab_inputs" class="text ui-widget-content ui-corner-all">
-						<thead>
-							<tr class="ui-widget-header ">
-								<th>Id</th>
-								<th>Label</th>
-								<th>Class</th>
-								<th>DataType</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-							</tr>
-						</tbody>
-					</table>
-					</br>
-					<button id="f_inputsTab_openAddInputForm">Add new</button>
-					<button id="f_inputsTab_openEditInputForm">Edit</button>
-					<button id="f_inputsTab_deleteThisInput">Delete</button>	
-				</div>	
-			</br><button id="f_inputsTab_nextButton" style="float: right">NEXT</button><button id="f_inputsTab_backButton" style="float: right">BACK</button></br>
-			</p>
-		</div>
-		<div id="tabs-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-			<p>
-				<div id="outputs-content" class="ui-widget">
-					<p>Defined outputs:</p>
-					<table id="f_outputsTab_outputs" class="text ui-widget-content ui-corner-all">
-						<thead>
-							<tr class="ui-widget-header ">
-								<th>Id</th>
-								<th>Label</th>
-								<th>Class</th>
-								<th>DataType</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-					</br>
-					<button id="f_outputsTab_openAddOutputForm">Add new</button>
-					<button id="f_outputsTab_openEditOutputForm">Edit</button>
-					<button id="f_outputsTab_deleteThisOutput">Delete</button>	
-				</div>
-			</br><button id="f_outputsTab_nextButton" style="float: right">NEXT</button><button id="f_outputsTab_backButton" style="float: right">BACK</button></br>
-			</p>
-		</div>	
-		<!--
-		<table>
-			<tr>
-				<td><label for="f_inputOutputTab_preconditions">Preconditions: </label></td>
-				<td><input type="text" name="f_inputOutputTab_preconditions" id="f_inputOutputTab_preconditions" value="" class="text ui-widget-content ui-corner-all"/></td>
-					
-				<td><label for="f_inputOutputTab_effects">Effects: </label></td>
-				<td><input type="text" name="f_inputOutputTab_effects" id="f_inputOutputTab_effects" value="" class="text ui-widget-content ui-corner-all"/></td>
-			</tr>
-		</table>
-		-->
-		<div id="tabs-5" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-			<p>
-				<div id="nonFunctionalProperties-content" class="ui-widget">
-				<p>Defined Non Functional Properties:</p>
-					<table id="f_nonFunctionalDescriptionTab_NFProps" class="text ui-widget-content ui-corner-all">
-						<thead>
-							<tr class="ui-widget-header ">
-								<th>Weight</th>
-								<th>Name</th>
-								<th>Relation</th>
-								<th>Unit</th>
-								<th>Value</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>	
-							</tr>
-						</tbody>
-					</table>
-				</br>
-				<button id="f_nonFunctionalDescriptionTab_openAddNFPropertyForm">Add new</button>
-				<button id="f_nonFunctionalDescriptionTab_openEditNFPropertyForm">Edit</button>
-				<button id="f_nonFunctionalDescriptionTab_deleteThisNFProperty">Delete</button>	
-				</div>
-				</br><button id="f_nonFunctionalDescriptionTab_backButton" style="float: right">BACK</button></br>
-			</p>
-		</div>
-	</div>
-	<input type="submit" name="f_button_sumbitAllButton" id="f_button_sumbitAllButton" value="Submit all" style="float:right;"/>
-	<input type="reset" name="f_button_resetAllButton" id="f_button_resetAllButton" value="Reset all" style="float:right;"/>
-	</br>
-</div>
-<div id="f_dialog_confirm1" title="Remove all data?">
-	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 5px 5px 0;"></span>
-		<span style="font-size: 10px">You are about to clear the entire form. Are you sure?</span></p>
-</div>
-<div id="f_dialog_confirm2" title="Are you sure?">
-	<p ><span class="ui-icon ui-icon-alert" style="float:left; margin:0 5px 5px 0;"></span>
-		<span style="font-size: 10px">You will lose all data and this action cannot be cancelled. Do you really want to do this?</span></p>
-</div>
-<div id="f_dialog_fine" title="As you wish."><p>FINE.</p></div>
-<div id="f_addInputForm" class="ui-dialog-content ui-widget-content" title="Add a new input">
-</div>
-<div id="f_addOutputForm" class="ui-dialog-content ui-widget-content" title="Add a new output">
-</div>
-<div id="f_addNFPropertyForm" title="Add a new non functional property">
-</div>
-
+<div id="raport" style='clear: both; display:block;'></div>
 
 <script>
 	"use strict";
-	
+
+	skeletonAppender(); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
+
 	// pomocnicze skrĂłty
 	var a = alert;
 	var jstr = JSON.stringify;
@@ -186,24 +41,9 @@
 
 	function Graph_GUI(id, width, height, modules, url){
 		var r = {};
-		
+
 		r.id_postfix = Math.round( Math.random() * 10e5 );
-
-	// ------------------------------------------------------------------------test formGenerator
-	//PREPENDY
-	var form = formGenerator("tabs-1", "polish", r.id_postfix,  formJSON[0]);
-	document.getElementById("tabs-1").innerHTML = form;	
-	var form2 = formGenerator("tabs-2", "polish", r.id_postfix,  formJSON[1]);
-	document.getElementById("tabs-2").innerHTML = form2;	
-	var form3 = formGenerator("f_addInputForm", "polish", r.id_postfix,  formJSON[2]);
-	document.getElementById("f_addInputForm").innerHTML = form3;	
-	var form4 = formGenerator("f_addOutputForm", "polish", r.id_postfix,  formJSON[3]);
-	document.getElementById("f_addOutputForm").innerHTML = form4;	
-	var form5 = formGenerator("f_addNFPropertyForm", "polish", r.id_postfix,  formJSON[4]);
-	document.getElementById("f_addNFPropertyForm").innerHTML = form5;	
-	// ------------------------------------------------------------------------ eof test formGenerator
-
-
+	
 		r.view = View(id, width, height, r);
 		r.view.blankNodes.init();
 		r.view.blankNodes.draw();
