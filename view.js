@@ -7,6 +7,158 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 	
+	// suppported by Matka Boska Partyzantcka 
+
+function menu(x, y, addToDiv) {
+	var mainMenu = {
+		przesuwne: 0,
+		clicked: false,
+		menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center; font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
+
+		addGroup: function addGroup(label) {
+
+			$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+
+				if (mainMenu.clicked) {
+					$('div.contener').hide();
+					$('div.subcontener').hide();
+					$('#' + label + '_contener').show();
+					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+
+				}
+				$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
+			}).click(function() {
+				if (mainMenu.clicked) {
+					$('div.contener').hide();
+					mainMenu.clicked = !mainMenu.clicked;
+				} else {
+					outputView.MenuList.getInstance().secure();
+					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+					$('div.contener').hide();
+					$('#' + label + '_contener').show();
+					mainMenu.clicked = !mainMenu.clicked;
+				}
+
+
+			});
+
+			$("<div id=" + label + "_contener" + " class=contener style='top:21px; position:absolute; width:150px;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
+		},
+
+		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+
+
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 0px 10px; text-align:left; font-size:11px; width=auto; font-family:Sans-serif; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+				$('div.subcontener').hide();
+				$('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + '_subcontener').css("top", $('#'+ groupLabel + "_" + optionLabel.replace(" ", "_")).position().top  +"px");
+				$('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + '_subcontener').show();
+				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				$(this).css('background-image', "none");
+			}).click(function() {
+				$('div.contener').hide();
+				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+				mainMenu.clicked = false;
+			}).click(functionOnClick);
+
+			jQuery('<span/>', {
+				text: shortcutString,
+				css: {
+					float: 'right',
+					textAlign: "right",
+					margin: "0px 10px 0px 0px"
+				},
+
+			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(" ", "_")));
+		},
+
+		addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
+			/*
+				wejdź do grupy
+				wejdź do opcji
+				jeżeli nie ma kontenera - stwórz go
+				wstaw podopcję do opcji
+			*/
+
+			var x = $('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).css("width"));
+			var y = $('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).position().top;
+
+			if ($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener").length == 0) {
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_subcontener" + " class=subcontener style='top:" + y + "px; left:150px; position:absolute; width:150px;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#' + groupLabel + '_contener').hide();
+
+			jQuery('<span/>', {
+				html: '<img src="images/arr.png" width="10"/> ' ,
+				css: {
+					float: 'right',
+					textAlign: "center",
+					margin: "5px 5px 0px 0px"
+				},
+
+			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(" ", "_")));
+			}
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_" + subOptionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; padding:5px 0px 0px 10px; text-align:left; font-size:11px; width=auto; font-family:Sans-serif; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener")).mouseenter(function() {
+				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				$(this).css('background-image', "none");
+			}).click(function() {
+				$('div.contener').hide();
+				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+				mainMenu.clicked = false;
+			}).click(functionOnClick);
+
+			jQuery('<span/>', {
+				text: shortcutString,
+				css: {
+					float: 'right',
+					textAlign: "right",
+					margin: "0px 10px 0px 0px"
+				},
+
+			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_" + subOptionLabel.replace(" ", "_")));
+		},
+
+
+		addSeparator: function addSeparator(groupLabel) {
+			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; width:90px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+		},
+		hideGroup: function hideGroup(groupLabel) {
+			$('#' + groupLabel).hide();
+		},
+
+		showGroup: function showGroup(groupLabel) {
+			$('#' + groupLabel).show();
+		},
+
+
+		hideOption: function hideOption(groupLabel, optionLabel) {
+			$('#' + groupLabel + '_' + optionLabel.replace(" ", "_")).hide();
+
+		},
+
+		hideSubOption: function hideSubOption(groupLabel, optionLabel, subOptionLabel) {
+			$('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_" + subOptionLabel.replace(" ", "_")).hide();
+		},
+
+		showOption: function showOption(groupLabel, optionLabel) {
+			$('#' + groupLabel + '_' + optionLabel.replace(" ", "_")).show();
+
+		},
+		close: function close(){
+			mainMenu.clicked = false;
+			$('div.contener').hide();
+			$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+
+		}
+
+	};
+
+	return mainMenu;	
+
+
+};
 	function tooltipper() {
 		var opacity = .95,
 			tooltip = {
@@ -3431,6 +3583,7 @@ function View(id, width, height, gui){
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
+			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp; <span> </span></div>");
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
@@ -3645,7 +3798,238 @@ function View(id, width, height, gui){
 		},
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
 			this.current_graph_view = this.getBlankGraph();
-		}
+		},
+		MenuList : (function MenuList(){
+			//menu holder singleton (Menu Błażeja i Jacka)
+			var Constructor = function(){
+				var list = [];
+				var opened = false;
+				var sec = false;
+				var obj = {
+					push: function(menu){
+						list.push(menu);
+					},
+					close: function(){
+						if(!sec){
+							for(var i in list){
+								if(list[i]) list[i].close();
+							}
+							opened = false;
+						}else{
+							sec = false;
+						}
+					},
+					signalOpened: function(){
+						opened = true;
+					},
+					signalClosed: function(){
+						opened = false;
+					},
+					isOpen: function(){
+						return opened;
+					},
+					secure: function(){
+						sec = true;
+					}
+				};
+				return obj;
+			}, instance = null;
+			return {
+				getInstance: function(){
+					return instance || (instance = new Constructor);
+				}
+			}
+		})(),
+		contextMenu : function contextMenu(listenedObjId){
+			/* ContextMenu v2.0
+				* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
+				* "Lasciate ogni speranza, voi ch'entrate"
+				* SUBMITTED: 02.08.2012
+				* REQUIRED PARAMS: 
+				* - listenedObjId (id of object to witch we attach menu)
+				* OUTPUT:
+				* - object
+				* -> open (function([mouse event]) displaying menu)
+				* -> close (function() hiding menu)
+				* -> isOpen (function() returning if menu is visible)
+				* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
+				* -> addSeparator (function() adding separator to current level of menu)
+				* -> getOption (function(label) returning option with specified label at currrent level of option tree)
+				*/
+
+			//structure holder object
+			function option(id, label, invokedEvent, eventObject, display, level){
+				this.id = id;
+				this.label = label;
+				this.invokedEvent = invokedEvent;
+				this.eventObject = eventObject;
+				this.suboptions = [];
+				this.display = display || false;
+				this.level = level || 0;
+				this.addOption = function(label, invokedEvent, eventObject, display){
+					var l = label || 'hr'+Math.floor(Math.random()*1000000);
+					label = label || '<hr style="color: #000; background-color: #000; height: 1px; border: 0px; margin: 2px 0px 2px 0px;"/>';
+					var nO = new option(this.id+'_'+l, label, invokedEvent, eventObject, display, this.level+1);
+					this.suboptions.push(nO);
+					return nO;
+				}
+				this.addSeparator = function(){
+					this.addOption();
+				}
+				this.getOption = function(label){
+					for(i in this.suboptions){
+						var option = this.suboptions[i];
+						if(option.label == label){
+							return option;
+						}
+					}
+				}
+			}
+
+			//private variables
+			var caller = document.getElementById(listenedObjId),
+				root = new option(listenedObjId+'CM', 'menuRoot', null, null, false, 0),
+				width = $('body').width(),
+				margin = 10,
+				opened = [];
+
+			//private functions
+			var createMenu = function(option, x, y){
+				var txt = '';
+				if(option.display){
+					txt += option.label;
+				}
+				var div = jQuery('<div/>', {
+					id: option.id,
+					visible: true,
+					css: {
+						border: "1px solid #000",	
+						position: 'absolute',
+						display: 'block',
+						'background-color': 'rgba(255, 255, 255, 0.95)',
+						top: y,
+						left: x,
+						'text-align': 'left',
+						padding: '3px',
+						cursor: 'pointer',
+						'box-shadow': '2px 2px 3px black'
+					}				
+				});
+				div.append(txt);
+				div.level = option.level;
+				opened.push(div);
+				for(var i in option.suboptions){
+					var opt = option.suboptions[i];
+					var subDiv = document.createElement('div');
+					subDiv.id = opt.id;
+					subDiv.innerHTML = opt.label;
+					subDiv.visible = true;		
+					subDiv.level = opt.level;
+					if(opt.suboptions.length>0){
+						subDiv.innerHTML += '&nbsp;<img src="arrow.gif" style="margin-bottom: -2px;"/>';
+					}
+					div.append(subDiv);
+					attachListeners(div, subDiv, opt);
+				}
+				$('body').append(div);
+				if($(div).offset().left+$(div).width()>width){
+					$(div).css('display', 'none');
+					$(div).css('left', '0px');
+					$(div).css('left', (width-$(div).width()-margin)+'px');
+					$(div).css('display', 'block');
+				}
+				return div;
+			}
+			var attachListeners = function(div, subDiv, opt){
+				$(subDiv).mousedown(function(){
+					// console.log(typeof opt.invokedEvent);
+					if(opt.invokedEvent){
+						if(typeof opt.invokedEvent == 'function'){
+							opt.invokedEvent(opt.eventObject);
+						}else{
+							gui.controler.reactOnEvent(opt.invokedEvent, opt.eventObject);
+						}
+					}
+					menu.close();		
+				});
+				$(subDiv).mouseover(function(){
+					if(opened.length>1){
+						while(opened.length>subDiv.level){
+							opened.pop().remove();
+						}
+					}
+					if(opt.suboptions.length>0){
+						var x = $(div).offset().left+$(div).width()+margin;
+						var newMenu = createMenu(opt, x, $(subDiv).offset().top-3);
+						$(newMenu).css('display', 'none');
+						$(newMenu).css('left', '0px');
+						if(width<$(div).offset().left+$(div).width()+margin+$(newMenu).width()){
+							x = $(div).offset().left-margin-$(newMenu).width();
+						}
+						$(newMenu).css('left', x+'px');
+						$(newMenu).css('display', 'block');
+					}
+				});
+				$(subDiv).hover(
+					function () {
+					    $(this).css("color","red");
+					},
+					function () {
+					    $(this).css("color","black");
+					});
+			}
+
+			var that = this;
+			var menu = {
+				//public functions
+				addOption: function(label, invokedEvent){
+					return root.addOption(label, invokedEvent);
+				},
+				getOption: function(label){
+					return root.getOption(label);
+				},
+				open: function(event){
+					if(!that.MenuList.getInstance().isOpen() && opened.length == 0){
+						event = event || window.event;
+						createMenu(root, event.clientX, event.clientY);
+						that.MenuList.getInstance().signalOpened();
+					}
+				},
+				close: function(){
+					while(opened.length!=0){
+						opened.pop().remove();
+					}
+					that.MenuList.getInstance().signalClosed();
+				},
+				isOpen: function(){
+					if(document.getElementById(root.id)){
+						return true;
+					}
+					return false;
+				}
+			}
+
+			//event listeners
+			caller.onClick = function(event){
+				event = event || window.event;
+				if(event.button == 0){
+					menu.close();
+				}
+				return false;
+			}
+			caller.oncontextmenu = function(event){
+				event = event || window.event;
+				if(event.button == 2){
+					menu.open(event);
+				}
+				return false;
+			}
+
+			//pushing into menu list
+			this.MenuList.getInstance().push(menu);
+			//object return
+			return menu;
+		},
 	}
 	outputView.init();
 	outputView.tooltip = tooltipper();
@@ -3653,6 +4037,24 @@ function View(id, width, height, gui){
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
+	outputView.mainMenu = menu(190,9,"top_menu_"+pf);
+	outputView.mainMenu.addGroup("File");
+	outputView.mainMenu.addGroup("Edit");
+	outputView.mainMenu.addGroup("Find");
+	outputView.mainMenu.addOption("File", "America", function(){console.log("duuuupa")}, "");
+	outputView.mainMenu.addSubOption("File", "America", "Fuck", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addSubOption("File", "America", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addOption("File", "Open", function(){console.log("duuuupa")}, "Ctrl+O");
+	outputView.mainMenu.addSubOption("File", "Open", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addSeparator("File");
+	outputView.mainMenu.addOption("File", "Exit", function(){console.log("duuuupa")}, "Alt+F4");
+	outputView.mainMenu.addOption("Edit","Undo",function(){alert("programuje hardo!")},"Ctrl+Z");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"Ctrl+Y");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "noooooo", function(){console.log("duuuupa")}, "L+A");
+
+	outputView.MenuList.getInstance().push(outputView.mainMenu);
 
 	var	lastDragX,
 		lastDragY,
@@ -3715,7 +4117,7 @@ function View(id, width, height, gui){
 		},
 		bgStop = function(evt){
 			if(itWasJustAClick){
-				gui.controler.reactOnEvent("DESELECT");
+				gui.controler.reactOnEvent("ESCAPE");
 			}
 			else {
 				x1 = ox; y1 = oy;
