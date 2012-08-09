@@ -3602,7 +3602,7 @@ function menu(x, y, addToDiv) {
 		},
 		bgStop = function(evt){
 			if(itWasJustAClick){
-				gui.controler.reactOnEvent("DESELECT");
+				gui.controler.reactOnEvent("ESCAPE");
 			}
 			else {
 				x1 = ox; y1 = oy;

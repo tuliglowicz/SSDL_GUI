@@ -1153,9 +1153,6 @@ function Controler(url, gui){
 						that.loadSSDL(e.url);
 					}
 				})(evtObj); break;
-				case "BODYCLICK" : (function () {
-					gui.view.MenuList.getInstance().close();
-				})(); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
@@ -1166,6 +1163,7 @@ function Controler(url, gui){
 					gui.view.selectAll();
 				})(); break;
 				case "ESCAPE" : (function () {
+					gui.view.MenuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
@@ -1993,7 +1991,7 @@ function Controler(url, gui){
 	}
 
 	$('body').click(function(){
-		controlerObject.reactOnEvent("BODYCLICK");
+		controlerObject.reactOnEvent("ESCAPE");
 	});
 	controlerObject.reactOnEvent("START");
 
