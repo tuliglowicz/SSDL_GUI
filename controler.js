@@ -955,7 +955,7 @@ function Controler(url, gui){
 						return false;
 					});
 
-					// $($("a")[4]).click();
+					$($("a")[4]).click();
 					// $("a:last").click();
 				}
 
@@ -1131,6 +1131,10 @@ function Controler(url, gui){
 				this.current_graphData = result;
 			}
 		},
+		generateIOId : function generateIOId(seed){
+			seed = seed || "xyz";
+			return seed+Math.round(Math.random() * 10e5);
+		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
@@ -1153,6 +1157,48 @@ function Controler(url, gui){
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
+				case "ADDINPUT" : (function(e){
+
+				})();
+				break;
+				case "ADDOUTPUT" : (function(e){
+					var source = that.getNodeById(e.sourceId),
+						input = e.input,
+						outputTmp,
+						output,
+						newId
+					;
+					if(source){
+						outputTmp = that.getOutputById(e.sourceId, input.id)
+						if(outputTmp){
+							newId = that.generateIOId(input.id);
+						}
+						output = {
+							id : newId || input.id,
+							class : input.class,
+							label : input.label,
+							dataType : input.dataType
+						};
+
+						source.functionalDescription.outputs.push(output);
+
+						gui.view.updateNode(source);
+
+						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
+
+						that.reactOnEvent("addDFEdge", {
+							 	sourceId: source.id,
+							 	targetId: e.targetId,
+							 	input: e.input,
+							 	output: output,
+							 	CF_or_DF: "DF"
+						});
+					}
+
+					// console.log(e)
+
+				})(evtObj);
+				break;
 				case "ADDCFEDGE" : (function(e){
 					var target = gui.controler.getNodeById(e.target.id);
 					// alert(e.target.id)
@@ -1161,6 +1207,7 @@ function Controler(url, gui){
 					gui.view.current_graph_view.edgesCF.push(edge);
 				})(evtObj); break;
 				case "ADDDFEDGE" : (function(e){
+					console.log(e)
 					var input = gui.controler.getInputById(e.targetId, e.input.id);
 					if(input){
 						input.source = [e.sourceId, e.output.id];
@@ -1398,6 +1445,25 @@ function Controler(url, gui){
 				$.each(gui.controler.current_graphData.nodes, function(){
 					if( this.nodeId === nodeId ){
 						$.each(this.functionalDescription.inputs, function(){
+							if( this.id === inputId ){
+								result = this;
+								return false;
+							}
+						});
+						return false;
+					}
+				});
+			}
+
+			return result;
+		},
+		getOutputById : function getOutputById(nodeId, inputId){
+			var result;
+
+			if(gui.controler.current_graphData.nodes){
+				$.each(gui.controler.current_graphData.nodes, function(){
+					if( this.nodeId === nodeId ){
+						$.each(this.functionalDescription.outputs, function(){
 							if( this.id === inputId ){
 								result = this;
 								return false;

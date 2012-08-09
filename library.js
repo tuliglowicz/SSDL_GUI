@@ -22,7 +22,7 @@ function formGenerator(divId, lang, postfix, json){
 				html.push("</select></td>")
 			break;
 			case "radio" :
-				html.push("ra");
+				// html.push("ra");
 			break;
 		}
 		html.push("<td><span id=\"" + this.id + "validation_" + postfix + "\"></span></td>");

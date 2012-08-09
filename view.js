@@ -1,6 +1,10 @@
 //toDo
 // done // walidacja, edycja, json2ssdl, startstop
 
+// toDo globalParams:
+// szerokość node-a,
+// wysokość node-a,
+
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
@@ -1780,6 +1784,7 @@ function View(id, width, height, gui){
 				newNode.id = node.nodeId;
 				newNode.label = node.nodeLabel || newNode.id;
 				newNode.type = node.nodeType;
+				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				//TU BYDEM DZIABAŁ [Błażej] (Porządkowanie wyświetlania data flow)
@@ -1808,6 +1813,8 @@ function View(id, width, height, gui){
 					multX = 1, multY = 1, x1, y1, x2, y2
 					;
 				node.mainShape = c;
+				if(node.controlType.toLowerCase() == "#start")
+					node.mainShape.attr({cursor: "crosshair"});
 				node.raph_label = label;
 
 
@@ -1884,7 +1891,8 @@ function View(id, width, height, gui){
 					$.each(this.inputs, this.show);
 					$.each(this.outputs, this.show);
 					$.each(this.connectors, this.hide);
-					this.mainShape.attr({cursor: "default"})
+					if(node.controlType.toLowerCase() != "#start")
+						this.mainShape.attr({cursor: "default"})
 				}
 				;
 
@@ -2128,12 +2136,19 @@ function View(id, width, height, gui){
 				}
 			})
 			if(oldNode && oldNode.removeView){
+				// console.log(oldNode);
+				var x = oldNode.x,
+					y = oldNode.y
+				;
+
+				if(oldNode.mainShape.type == "circle"){
+					y -= oldNode.r;
+					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
+				}
 				oldNode.removeView();
-				newNode = this.visualiser.visualiseNode(node, oldNode.x, oldNode.y);
+				newNode = this.visualiser.visualiseNode(node, x, y);
 				newNode.switchMode(this.mode);
 				this.current_graph_view.nodes[index] = newNode;
-
-				// jsonFormatter(newNode, 1,1)
 
 				//update CF edges
 				$.each(this.current_graph_view.edgesCF, function(i, v){
@@ -2145,6 +2160,8 @@ function View(id, width, height, gui){
 					}
 				});
 
+
+				// console.log(newNode);
 				//update DF edges
 				var io_tmp,
 					indexesToSplice = []
@@ -2323,7 +2340,7 @@ function View(id, width, height, gui){
 
 			return result;
 		},
-		dragNodes : function drag(element, node){
+		dragNodes : function dragNodes(element, node){
 			var	lastDragX,
 				lastDragY,
 				ox, dx,
@@ -2401,10 +2418,10 @@ function View(id, width, height, gui){
 							gui.controler.reactOnEvent("DESELECT");
 							node.highlight2();
 						}
+						that.showEdges();
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
-						that.showEdges();
 					}
 				}
 
@@ -2422,9 +2439,10 @@ function View(id, width, height, gui){
 				offsetX,
 				offsetY,
 				sourceNode,
+				glows = [],
 				bbox,
 				start = function start(){
-					// if(gui.view.mode === "CF"){
+					if(gui.view.mode === "CF" || isStartNode){
 						var canvas = $(gui.view.paper.canvas);
 						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
@@ -2434,10 +2452,21 @@ function View(id, width, height, gui){
 						sourceNode = gui.view.getNodeById(this.node.classList[0]);
 
 						arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
-					// }
+
+						if( isStartNode ){
+							$.each(gui.view.current_graph_view.nodes, function(i, v){
+								$.each(v.inputs, function(){
+									// console.log(v.id, this.id);
+									// if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
+										glows.push( this.node.glow({color: "purple"}) );
+									// }
+								});
+							});
+						}
+					}
 				},
 				move = function(a, b, c, d, event){
-					// if(gui.view.mode === "CF"){
+					if(gui.view.mode === "CF" || isStartNode){
 						// todo awizowanie arrow po najechaniu na node
 						try {
 							arrow[0].remove();
@@ -2448,7 +2477,7 @@ function View(id, width, height, gui){
 						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
-					// }
+					}
 				},
 				stop = function(event){
 					try {
@@ -2460,17 +2489,37 @@ function View(id, width, height, gui){
 
 					if(gui.view.mode === "CF"){
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id)
+						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
 							gui.controler.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
 							 	target: targetNode,
 							 	CF_or_DF: gui.view.mode
 							 	// type: 
-							})
-					}
-					else {
+							});
+						}
+					}else if(isStartNode && sourceNode && !targetNode){
+						var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
+						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
+							// alert("HURA");
 
+							if(confirm("Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie "+sourceNode.label+" ?")){
+								gui.controler.reactOnEvent("addOutput", {
+									sourceId : sourceNode.id,
+									targetId : resultObj.targetId,
+									input : resultObj.input
+								});
+							}
+							// $("#f_addInputForm")
+							// wyrmularz, z uzupełnionymi polami
+							// confirm -> controler i update node
+							// addConnectionDF
+						}
 					}
+
+					$.each(glows, function(){
+						this.remove();
+					});
+					glows = [];
 				}
 				;
 
@@ -2509,7 +2558,7 @@ function View(id, width, height, gui){
 						$.each(v.inputs, function(){
 							// console.log(v.id, this.id);
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
-								glows.push( this.node.glow({color: "red"}) );
+								glows.push( this.node.glow({color: "green"}) );
 							}
 						});
 					});
@@ -2548,13 +2597,13 @@ function View(id, width, height, gui){
 							 	CF_or_DF: "DF"
 							});
 						} else {
-							gui.controler.reactOnEvent("Error", {msg: "You tried to make connection between input and output od different data types"})
+							gui.logger.error("Error", "You tried to make connection between input and output od different data types")
 						}
-					} else {
 					}
 					$.each(glows, function(){
 						this.remove();
 					});
+					glows = [];
 				}
 				;
 
@@ -2613,13 +2662,20 @@ function View(id, width, height, gui){
 							this.source.getPossiblePositionsOfConnectors(),
 							this.target.getPossiblePositionsOfConnectors()
 						);
+
+						var extraTime = 0;
 						try {
 							this.arrow[0].remove();	this.arrow[1].remove();
 						} catch(e){	
+
+							extraTime += 750;
 							// console.log(e);
 						}
 
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors )
+
+						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 					}
 				}
 				;
@@ -2672,14 +2728,17 @@ function View(id, width, height, gui){
 							}
 						},						
 						update : function(){
+							var extraTime = 0;
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
 							 } catch(e){
+								extraTime += 750;
 							 	//console.log(e);	
 							 }
 
-							// console.log(this);
+							console.log(this);
 
+							try{
 							var bboxInput = this.input.node.getBBox(),
 								bboxOutput = this.output.node.getBBox(),
 								coords = {
@@ -2690,7 +2749,15 @@ function View(id, width, height, gui){
 								}
 								;
 
+
 							this.arrow = this.view.visualiser.drawEdge(coords);
+
+							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							}
+							catch(e){
+								console.log(this.output.node, bboxOutput, bboxInput, coords)
+							}
 						}
 					}
 				;
