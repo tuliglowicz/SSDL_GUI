@@ -3282,7 +3282,7 @@ function menu(x, y, addToDiv) {
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
 			this.current_graph_view = this.getBlankGraph();
 		},
-		MenuList : function MenuList(){
+		MenuList : (function MenuList(){
 			//menu holder singleton (Menu Błażeja i Jacka)
 			var Constructor = function(){
 				var list = [];
@@ -3303,7 +3303,7 @@ function menu(x, y, addToDiv) {
 					return instance || (instance = new Constructor);
 				}
 			}
-		},
+		})(),
 		contextMenu : function contextMenu(listenedObjId){
 			/* ContextMenu v2.0
 				* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
@@ -3322,17 +3322,18 @@ function menu(x, y, addToDiv) {
 				*/
 
 			//structure holder object
-			function option(id, label, invokedEvent, display, level){
+			function option(id, label, invokedEvent, eventObject, display, level){
 				this.id = id;
 				this.label = label;
 				this.invokedEvent = invokedEvent;
+				this.eventObject = eventObject;
 				this.suboptions = [];
 				this.display = display || false;
 				this.level = level || 0;
-				this.addOption = function(label, invokedEvent, display){
+				this.addOption = function(label, invokedEvent, eventObject, display){
 					var l = label || 'hr'+Math.floor(Math.random()*1000000);
 					label = label || '<hr style="color: #000; background-color: #000; height: 1px; border: 0px; margin: 2px 0px 2px 0px;"/>';
-					var nO = new option(this.id+'_'+l, label, invokedEvent, display, this.level+1);
+					var nO = new option(this.id+'_'+l, label, invokedEvent, eventObject, display, this.level+1);
 					this.suboptions.push(nO);
 					return nO;
 				}
@@ -3351,7 +3352,7 @@ function menu(x, y, addToDiv) {
 
 			//private variables
 			var caller = document.getElementById(listenedObjId),
-				root = new option(listenedObjId+'CM', 'menuRoot', null, false, 0),
+				root = new option(listenedObjId+'CM', 'menuRoot', null, null, false, 0),
 				width = $('body').width(),
 				margin = 10,
 				opened = [];
@@ -3381,7 +3382,7 @@ function menu(x, y, addToDiv) {
 				div.append(txt);
 				div.level = option.level;
 				opened.push(div);
-				for(i in option.suboptions){
+				for(var i in option.suboptions){
 					var opt = option.suboptions[i];
 					var subDiv = document.createElement('div');
 					subDiv.id = opt.id;
@@ -3405,7 +3406,14 @@ function menu(x, y, addToDiv) {
 			}
 			var attachListeners = function(div, subDiv, opt){
 				$(subDiv).mousedown(function(){
-					if(opt.invokedEvent) alert(opt.invokedEvent);
+					// console.log(typeof opt.invokedEvent);
+					if(opt.invokedEvent){
+						if(typeof opt.invokedEvent == 'function'){
+							opt.invokedEvent(opt.eventObject);
+						}else{
+							gui.controler.reactOnEvent(opt.invokedEvent, opt.eventObject);
+						}
+					}
 					menu.close();		
 				});
 				$(subDiv).mouseover(function(){
@@ -3479,7 +3487,7 @@ function menu(x, y, addToDiv) {
 			}
 
 			//pushing into menu list
-			MenuList.getInstance().push(menu);
+			this.MenuList.getInstance().push(menu);
 			//object return
 			return menu;
 		},

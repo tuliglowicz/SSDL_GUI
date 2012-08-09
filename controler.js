@@ -133,6 +133,7 @@ function Controler(url, gui){
 			colors = ['#FAFAFF','#FFFFE0','#FFFAFA'],
 			txtColors = ['white','yellow','orange'],
 			imgNames = ['info','warning','error'];
+
 		//private functions
 		var addMessage = function(message, priority){
 				curElCount++;
@@ -217,6 +218,12 @@ function Controler(url, gui){
   				w = el.offsetWidth - el.scrollWidth;
 				$('#scrollTest').remove();
 				return w;
+			},
+			close = function(){
+				$(eId).css('overflow-y: hidden;');
+				$(lId).animate({
+					'height': 0
+				});
 			};
 		//console object
 		var obj = {
@@ -358,6 +365,12 @@ function Controler(url, gui){
 		mask.mouseout(function(){
 			bGlow.remove();
 		});
+
+		//context menu
+		var menu = gui.view.contextMenu("console_entries_" + pf);
+		menu.addOption('Zamknij', close);
+
+		//object return
 		return obj;
 	}
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
