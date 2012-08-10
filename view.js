@@ -21,7 +21,7 @@ function menu(x, y, addToDiv) {
 
 		addGroup: function addGroup(label) {
 
-			$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+			$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:80px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
 
 				if (mainMenu.clicked) {
 					$('div.contener').hide();
@@ -48,14 +48,14 @@ function menu(x, y, addToDiv) {
 
 			});
 
-			$("<div id=" + label + "_contener" + " class=contener style='top:21px; position:absolute; width:150px;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+			$("<div id=" + label + "_contener" + " class=contener style=' box-shadow: inset 0 0 1px #ffffff; 	top:21px; position:absolute;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
 			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
 		},
 
 		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
 
 
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 0px 10px; text-align:left; font-size:11px; width=auto; font-family:Sans-serif; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 0px 10px; text-align:left; font-size:10px; font-family:Sans-serif; width:140px; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
 				$('div.subcontener').hide();
 				$('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + '_subcontener').css("top", $('#'+ groupLabel + "_" + optionLabel.replace(" ", "_")).position().top  +"px");
 				$('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + '_subcontener').show();
@@ -71,6 +71,7 @@ function menu(x, y, addToDiv) {
 			jQuery('<span/>', {
 				text: shortcutString,
 				css: {
+					fontSize: "8px",
 					float: 'right',
 					textAlign: "right",
 					margin: "0px 10px 0px 0px"
@@ -91,19 +92,19 @@ function menu(x, y, addToDiv) {
 			var y = $('#' + groupLabel + "_" + optionLabel.replace(" ", "_")).position().top;
 
 			if ($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener").length == 0) {
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_subcontener" + " class=subcontener style='top:" + y + "px; left:150px; position:absolute; width:150px;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#' + groupLabel + '_contener').hide();
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_subcontener" + " class=subcontener style=' box-shadow: inset 0 0 1px #ffffff; top:" + y + "px; left:150px; position:absolute;width:110%;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#' + groupLabel + '_contener').hide();
 
 			jQuery('<span/>', {
 				html: '<img src="images/arr.png" width="10"/> ' ,
 				css: {
 					float: 'right',
 					textAlign: "center",
-					margin: "5px 5px 0px 0px"
+					margin: "0px 5px 0px 0px"
 				},
 
 			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(" ", "_")));
 			}
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_" + subOptionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; padding:5px 0px 0px 10px; text-align:left; font-size:11px; width=auto; font-family:Sans-serif; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener")).mouseenter(function() {
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(" ", "_") + "_" + subOptionLabel.replace(" ", "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; padding:5px 0px 0px 10px; text-align:left; font-size:10px; width=auto; font-family:Sans-serif; height:20px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(" ", "_") + "_subcontener")).mouseenter(function() {
 				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 			}).mouseleave(function() {
 				$(this).css('background-image', "none");
@@ -116,6 +117,7 @@ function menu(x, y, addToDiv) {
 			jQuery('<span/>', {
 				text: shortcutString,
 				css: {
+					fontSize: "8px",
 					float: 'right',
 					textAlign: "right",
 					margin: "0px 10px 0px 0px"
@@ -126,7 +128,7 @@ function menu(x, y, addToDiv) {
 
 
 		addSeparator: function addSeparator(groupLabel) {
-			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; width:90px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+			$("<hr id=" + groupLabel + "_sep" + "style='height:2px; border:0; width:90px; color:#f00; background-color:#f00;/>").appendTo('#' + groupLabel + '_contener');
 		},
 		hideGroup: function hideGroup(groupLabel) {
 			$('#' + groupLabel).hide();
@@ -4108,18 +4110,18 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");
 	outputView.mainMenu.addGroup("Find");
-	outputView.mainMenu.addOption("File", "America", function(){console.log("duuuupa")}, "");
-	outputView.mainMenu.addSubOption("File", "America", "Fuck", function(){console.log("duuuupa")}, "L+A");
-	outputView.mainMenu.addSubOption("File", "America", "yea", function(){console.log("duuuupa")}, "L+A");
-	outputView.mainMenu.addOption("File", "Open", function(){console.log("duuuupa")}, "Ctrl+O");
-	outputView.mainMenu.addSubOption("File", "Open", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addOption("File", "New", function(){}, "");
+	outputView.mainMenu.addSubOption("File", "New", "Functional Node", function(){alert("Addded Node")}, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("File", "New", "Service Node", function(){alert("Added Node")}, "CTRL+N+S");
+	outputView.mainMenu.addOption("File", "Open", function(){alert("Opened")}, "Ctrl+O");
+	outputView.mainMenu.addSubOption("File", "Open", "Test", function(){alert("jeżeli opcja rozwijana ma swój skrót... wyglada to źle")}, "");
 	outputView.mainMenu.addSeparator("File");
 	outputView.mainMenu.addOption("File", "Exit", function(){console.log("duuuupa")}, "Alt+F4");
-	outputView.mainMenu.addOption("Edit","Undo",function(){alert("programuje hardo!")},"Ctrl+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "yea", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addOption("Edit","Undo",function(){alert("jak będzie co, to cofnę!")},"Ctrl+Z");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("back to beginning...")}, "");
 	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"Ctrl+Y");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "yea", function(){console.log("duuuupa")}, "L+A");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "noooooo", function(){console.log("duuuupa")}, "L+A");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Do przodu, aż w przyszłośc!")}, "Ctrl+Y+A");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "Nothing", function(){alert("To mam nic nie robic?")}, "");
 
 	outputView.MenuList.getInstance().push(outputView.mainMenu);
 
