@@ -61,7 +61,6 @@ function menu(x, y, addToDiv) {
 				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
 				var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-				console.log("x "+x);
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
 				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
