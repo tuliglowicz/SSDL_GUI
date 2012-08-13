@@ -302,7 +302,7 @@ function formGenerator(lang, postfix, json){
 								altDy = visibleHeight - this.oy - this.attr("height");
 							this.transform("t0,"+altDy);
 							$.each(set, function(){
-								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)))
+								this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)));
 							});
 						}
 					}
@@ -329,7 +329,7 @@ function formGenerator(lang, postfix, json){
 						result = true;
 					}
 					else
-						console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
+						;// console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
 					return result;
 				},
 				showYourself: function showYourself(){
