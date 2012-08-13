@@ -38,7 +38,7 @@ function menu(x, y, addToDiv) {
 					$('div.contener').hide();
 					mainMenu.clicked = !mainMenu.clicked;
 				} else {
-					outputView.MenuList.getInstance().secure();
+					outputView.menuList.getInstance().secure();
 					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 					$('div.contener').hide();
 					$('#' + label + '_contener').show();
@@ -2469,7 +2469,7 @@ function menu(x, y, addToDiv) {
 				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
-				//TU BYDEM DZIABA�? [Błażej] (Porządkowanie wyświetlania data flow)
+
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -3160,7 +3160,6 @@ function menu(x, y, addToDiv) {
 						} catch(e){
 							console.log(e);
 						}
-						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
@@ -3896,7 +3895,7 @@ function menu(x, y, addToDiv) {
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
 			this.current_graph_view = this.getBlankGraph();
 		},
-		MenuList : (function MenuList(){
+		menuList : (function menuList(){
 			//menu holder singleton (Menu Błażeja i Jacka)
 			var Constructor = function(){
 				var list = [];
@@ -4086,17 +4085,17 @@ function menu(x, y, addToDiv) {
 					return root.getOption(label);
 				},
 				open: function(event){
-					if(!that.MenuList.getInstance().isOpen() && opened.length == 0){
+					if(!that.menuList.getInstance().isOpen() && opened.length == 0){
 						event = event || window.event;
 						createMenu(root, event.clientX, event.clientY);
-						that.MenuList.getInstance().signalOpened();
+						that.menuList.getInstance().signalOpened();
 					}
 				},
 				close: function(){
 					while(opened.length!=0){
 						opened.pop().remove();
 					}
-					that.MenuList.getInstance().signalClosed();
+					that.menuList.getInstance().signalClosed();
 				},
 				isOpen: function(){
 					if(document.getElementById(root.id)){
@@ -4123,7 +4122,7 @@ function menu(x, y, addToDiv) {
 			}
 
 			//pushing into menu list
-			this.MenuList.getInstance().push(menu);
+			this.menuList.getInstance().push(menu);
 			//object return
 			return menu;
 		}
@@ -4151,7 +4150,7 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("One step closer...")}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("The end...")}, "CTRL+Z+A");
-	outputView.MenuList.getInstance().push(outputView.mainMenu);
+	outputView.menuList.getInstance().push(outputView.mainMenu);
 
 	var	lastDragX,
 		lastDragY,
