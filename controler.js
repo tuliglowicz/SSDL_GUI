@@ -968,7 +968,7 @@ function Controler(url, gui){
 						return false;
 					});
 
-					$($("a")[4]).click();
+					// $($("a")[4]).click();
 					// $("a:last").click();
 				}
 
@@ -1167,14 +1167,10 @@ function Controler(url, gui){
 					gui.view.selectAll();
 				})(); break;
 				case "ESCAPE" : (function () {
-					gui.view.MenuList.getInstance().close();
+					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
-				case "ADDINPUT" : (function(e){
-
-				})();
-				break;
 				case "ADDOUTPUT" : (function(e){
 					var source = that.getNodeById(e.sourceId),
 						input = e.input,
@@ -1200,11 +1196,51 @@ function Controler(url, gui){
 
 						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
 
+						// console.log(source)
 						that.reactOnEvent("addDFEdge", {
-							 	sourceId: source.id,
+							 	sourceId: source.nodeId,
 							 	targetId: e.targetId,
 							 	input: e.input,
 							 	output: output,
+							 	CF_or_DF: "DF"
+						});
+					}
+
+					// console.log(e)
+
+				})(evtObj);
+				break;
+				case "ADDINPUT" : (function(e){
+					// console.log(e);
+					var target = that.getNodeById(e.targetId),
+						output = e.output,
+						inputTmp,
+						input,
+						newId
+					;
+					if(target){
+						inputTmp = that.getInputById(e.targetId, output.id)
+						if(inputTmp){
+							newId = that.generateIOId(output.id);
+						}
+						input = {
+							id : newId || output.id,
+							class : output.class,
+							label : output.label,
+							dataType : output.dataType
+						};
+
+						target.functionalDescription.inputs.push(input);
+
+						gui.view.updateNode(target);
+
+						input = gui.view.getNodeById(e.targetId).getInputById(input.id);
+
+						that.reactOnEvent("addDFEdge", {
+							 	sourceId: e.sourceId,
+							 	targetId: e.targetId,
+							 	input: input,
+							 	output: e.output,
 							 	CF_or_DF: "DF"
 						});
 					}
@@ -1221,7 +1257,7 @@ function Controler(url, gui){
 					gui.view.current_graph_view.edgesCF.push(edge);
 				})(evtObj); break;
 				case "ADDDFEDGE" : (function(e){
-					console.log(e)
+					// console.log(e)
 					var input = gui.controler.getInputById(e.targetId, e.input.id);
 					if(input){
 						input.source = [e.sourceId, e.output.id];
@@ -2050,11 +2086,12 @@ function Controler(url, gui){
 				// gui.logger.info("Nie udało się zapisać SSDL "+root.id);
 			// })
 
-			raport(xml);
+			// raport(xml);
 
 			return xml;
 		}
 	}
+	//var g = A.view.current_graph_view.edgesDF[0].arrow[1].glow({     color: '#ff0',     width: 5   });
 
 	$('body').click(function(){
 		controlerObject.reactOnEvent("ESCAPE");
