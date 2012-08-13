@@ -1167,7 +1167,7 @@ function Controler(url, gui){
 					gui.view.selectAll();
 				})(); break;
 				case "ESCAPE" : (function () {
-					gui.view.menuList.getInstance().close();
+					gui.view.MenuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
