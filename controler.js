@@ -360,9 +360,11 @@ function Controler(url, gui){
 			if(bGlow) bGlow.remove();
 			if(animation) clearInterval(animation);
 			buttonBG.animate({"fill-opacity": 0.75}, 500);
+			$('*').css('cursor','pointer');
 			bGlow = buttonBG.glow();
 		});
 		mask.mouseout(function(){
+			$('*').css('cursor','default');
 			bGlow.remove();
 		});
 
