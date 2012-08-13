@@ -4052,6 +4052,7 @@ function menu(x, y, addToDiv) {
 					function () {
 					    $(this).css("color","black");
 					});
+				$(subDiv).select(function() { return(false); });
 			}
 
 			var that = this;
