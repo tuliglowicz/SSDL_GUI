@@ -12,6 +12,7 @@ function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 	
 	// suppported by Matka Boska Partyzantcka 
+
 function menu(x, y, addToDiv) {
 	var mainMenu = {
 		przesuwne: 0,
@@ -38,7 +39,7 @@ function menu(x, y, addToDiv) {
 					$('div.contener').hide();
 					mainMenu.clicked = !mainMenu.clicked;
 				} else {
-					outputView.MenuList.getInstance().secure();
+					outputView.menuList.getInstance().secure();
 					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 					$('div.contener').hide();
 					$('#' + label + '_contener').show();
@@ -133,7 +134,7 @@ function menu(x, y, addToDiv) {
 
 
 		addSeparator: function addSeparator(groupLabel) {
-			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+			$("<div id=" + groupLabel + "_sep" + " class=\"separator\"; ></div>").appendTo('#' + groupLabel + '_contener');
 		},
 		hideGroup: function hideGroup(groupLabel) {
 			$('#' + groupLabel).hide();
@@ -168,6 +169,8 @@ function menu(x, y, addToDiv) {
 	};
 
 	return mainMenu;	
+
+
 };
 
 	function tooltipper() {
@@ -336,7 +339,8 @@ function menu(x, y, addToDiv) {
 		};
 		return tmp;
 	};
-	function drawBottomBar(paper){		
+	function drawBottomBar(paper){
+		
 		//UŻYCIE WTYCZKI:
 		//ma defaultowo zdefiniowane buttony CF, DF i SS
 		//addGroup(label) dodaje grupę o zadanym labelu
@@ -349,6 +353,7 @@ function menu(x, y, addToDiv) {
 		//- showOnlyGroup() pokazuje tylko grafikę grupy - używane, gdy grupa znikła w wyniku usunięcia
 		//	ostatniego przycisku
 		//Użyta technologia: Javascript, Raphael ^^
+		
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -1097,8 +1102,8 @@ function menu(x, y, addToDiv) {
 				this.adjustForm(node.nodeType);
 				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
 				$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName);
-				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId);
-				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address);
+				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalID);
+				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.adress);
 				$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation);
 				
 				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
@@ -2308,7 +2313,6 @@ function menu(x, y, addToDiv) {
 					},
 					getOutputById : function getOutputById(id){
 						var result;
-
 						$.each(this.outputs, function(){
 							if(this.id === id){
 								result = this;
@@ -2469,7 +2473,6 @@ function menu(x, y, addToDiv) {
 				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
-				//TU BYDEM DZIABA�? [Błażej] (Porządkowanie wyświetlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -2732,8 +2735,7 @@ function menu(x, y, addToDiv) {
 				return node;
 			},
 			drawEdge : function drawEdge(c){
-				// c - coords
-				// console.log(c)
+				//c - coords
 				var size = 4;
 				return view.paper.arrow(c.x1, c.y1, c.x2, c.y2, size);
 			},
@@ -2829,9 +2831,7 @@ function menu(x, y, addToDiv) {
 					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
 				}
 				oldNode.removeView();
-				
 				newNode = this.visualiser.visualiseNode(node, x, y);
-				console.log(newNode, "666")
 				newNode.switchMode(this.mode);
 				this.current_graph_view.nodes[index] = newNode;
 
@@ -2845,18 +2845,20 @@ function menu(x, y, addToDiv) {
 					}
 				});
 
+
 				// console.log(newNode);
-				var io_tmp,				// update DF edges
+				//update DF edges
+				var io_tmp,
 					indexesToSplice = []
 				;
+				// jsonFormatter(this.current_graph_view.edgesDF, 1, 1)
+				// jsonFormatter(this.current_graph_view.edgesDF, 1, 1)
 
-				// console.log(newNode.getOutputById(this.output.id));
 				$.each(this.current_graph_view.edgesDF, function(i, v){
-					// console.log("aaa", this.output.id)
-					// console.log("aaa", this.sourceId, id, i)
+
 					if(this && this.sourceId === id){
+						// console.log("1");
 						io_tmp = newNode.getOutputById(this.output.id)
-						console.log("bbb", io_tmp);
 						if(io_tmp){
 							this.output = io_tmp;
 							this.update();
@@ -2887,11 +2889,8 @@ function menu(x, y, addToDiv) {
 				var DF = this.current_graph_view.edgesDF;
 				$.each(indexesToSplice, function(){
 					DF.splice(this, 1);
-				});
+				})
 			}
-
-			var o = this.current_graph_view.edgesDF.map(function(o){ return o.output.id;});
-			console.log(o)
 		},
 		setCurrentGraph : function setCurrentGraph(id){
 			var currGraph = this.getGraphById(id);
@@ -3160,7 +3159,6 @@ function menu(x, y, addToDiv) {
 						} catch(e){
 							console.log(e);
 						}
-						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
@@ -3241,9 +3239,8 @@ function menu(x, y, addToDiv) {
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						if(v.id != sourceNode.id)
-							glows.push( v.mainShape.glow({width: "1", color: "purple"}) );
 						$.each(v.inputs, function(){
+							// console.log(v.id, this.id);
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "green"}) );
 							}
@@ -3287,24 +3284,6 @@ function menu(x, y, addToDiv) {
 							gui.logger.error("Error", "You tried to make connection between input and output od different data types")
 						}
 					}
-					else {
-						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
-							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
-								gui.controler.reactOnEvent("addInput", {
-									sourceId : sourceNode.id,
-									targetId : targetNode.id,
-									output : output
-								});
-							}
-						}
-
-						// $("#f_addInputForm")
-						// wyrmularz, z uzupełnionymi polami
-						// confirm -> controler i update node
-						// addConnectionDF
-					}
-
 					$.each(glows, function(){
 						this.remove();
 					});
@@ -3392,7 +3371,6 @@ function menu(x, y, addToDiv) {
 			//source, sourceOutputId
 			//target, targetInputId
 			// console.log(data)
-			// console.log(data)
 			var foundedDFEdge = (firstLoad ? false : this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id));
 			if(foundedDFEdge){
 				gui.controler.reactOnEvent(""); //err msg
@@ -3407,7 +3385,7 @@ function menu(x, y, addToDiv) {
 						view : this,
 						type : "DF",
 						toString : function toString(){
-							return "SSDL_DFEdge object";
+							return "SSDL_CFEdge object";
 						},
 						hide: function hide(){
 							this.arrow[0].hide();
@@ -3442,9 +3420,9 @@ function menu(x, y, addToDiv) {
 							 	//console.log(e);	
 							 }
 
-							// console.log(this);
+							console.log(this);
 
-							// try{
+							try{
 							var bboxInput = this.input.node.getBBox(),
 								bboxOutput = this.output.node.getBBox(),
 								coords = {
@@ -3455,14 +3433,15 @@ function menu(x, y, addToDiv) {
 								}
 								;
 
+
 							this.arrow = this.view.visualiser.drawEdge(coords);
 
 							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							// }
-							// catch(e){
-							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
-							// }
+							}
+							catch(e){
+								console.log(this.output.node, bboxOutput, bboxInput, coords)
+							}
 						}
 					}
 				;
@@ -3539,7 +3518,7 @@ function menu(x, y, addToDiv) {
 					return false;
 				}
 			});
-			// console.log(nodeId, inputId, result);
+			console.log(nodeId, inputId, result);
 
 			return result;
 		},
@@ -3680,7 +3659,7 @@ function menu(x, y, addToDiv) {
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp; <span> </span></div>");
+			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+";background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif);	 border:1px solid black;'>&nbsp; <span> </span></div>");
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
@@ -3896,7 +3875,7 @@ function menu(x, y, addToDiv) {
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
 			this.current_graph_view = this.getBlankGraph();
 		},
-		MenuList : (function MenuList(){
+		menuList : (function menuList(){
 			//menu holder singleton (Menu Błażeja i Jacka)
 			var Constructor = function(){
 				var list = [];
@@ -4074,6 +4053,7 @@ function menu(x, y, addToDiv) {
 					function () {
 					    $(this).css("color","black");
 					});
+				$(subDiv).select(function() { return(false); });
 			}
 
 			var that = this;
@@ -4086,17 +4066,17 @@ function menu(x, y, addToDiv) {
 					return root.getOption(label);
 				},
 				open: function(event){
-					if(!that.MenuList.getInstance().isOpen() && opened.length == 0){
+					if(!that.menuList.getInstance().isOpen() && opened.length == 0){
 						event = event || window.event;
 						createMenu(root, event.clientX, event.clientY);
-						that.MenuList.getInstance().signalOpened();
+						that.menuList.getInstance().signalOpened();
 					}
 				},
 				close: function(){
 					while(opened.length!=0){
 						opened.pop().remove();
 					}
-					that.MenuList.getInstance().signalClosed();
+					that.menuList.getInstance().signalClosed();
 				},
 				isOpen: function(){
 					if(document.getElementById(root.id)){
@@ -4123,10 +4103,10 @@ function menu(x, y, addToDiv) {
 			}
 
 			//pushing into menu list
-			this.MenuList.getInstance().push(menu);
+			this.menuList.getInstance().push(menu);
 			//object return
 			return menu;
-		}
+		},
 	}
 	outputView.init();
 	outputView.tooltip = tooltipper();
@@ -4139,6 +4119,7 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addGroup("Open");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addOption("New", "Node ", function(){}, "");
+	outputView.mainMenu.addSeparator("New");
 	outputView.mainMenu.addSubOption("New", "Node ", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
 	outputView.mainMenu.addSubOption("New", "Node ", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
 	outputView.mainMenu.addSubOption("New", "Node ", "Testowanie czy może być odpowienio długa nazwa dodawanego node", function(){alert("New functional node added!")}, "CTRL+N+F");
@@ -4151,7 +4132,7 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("One step closer...")}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("The end...")}, "CTRL+Z+A");
-	outputView.MenuList.getInstance().push(outputView.mainMenu);
+	outputView.menuList.getInstance().push(outputView.mainMenu);
 
 	var	lastDragX,
 		lastDragY,
