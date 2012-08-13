@@ -968,7 +968,7 @@ function Controler(url, gui){
 						return false;
 					});
 
-					// $($("a")[4]).click();
+					$($("a")[4]).click();
 					// $("a:last").click();
 				}
 
@@ -1055,6 +1055,11 @@ function Controler(url, gui){
 					var result = true,
 						validationObj = validate( arguments )
 					;
+					opt = opt || {
+						'type':'keypress',
+						'propagate' : false,
+						'target':document
+					}
 
 					shortcut = shortcut.toLowerCase().replace(/ /g,"");
 					if( ! validationObj.valid ){
@@ -1063,6 +1068,7 @@ function Controler(url, gui){
 						gui.logger.error("shortcut.add", shortcut+" jest już używany");
 					} else {
 						memoryTab.push(shortcut);
+						// console.log(opt)
 						window.shortcut.add(shortcut, fun, opt)
 					}
 
@@ -1117,6 +1123,9 @@ function Controler(url, gui){
 			this.shortcut.add("Esc", (function(){ this.reactOnEvent("Escape") }).bind(this));
 			this.shortcut.add("ctrl + X", function(){alert("")});
 			this.shortcut.add("ctrl+shift+z", function(){alert("")});
+
+			this.shortcut.add("ctrl + s", function( event ){ alert(event); });
+
 			setTimeout((function(){this.shortcut.remove("ctrl+x")}).bind(this), 2000);
 		},
 		getGraphById : function getGraphById(id){

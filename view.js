@@ -2,8 +2,8 @@
 // done // walidacja, edycja, json2ssdl, startstop
 
 // toDo globalParams:
-// szerokość node-a,
-// wysokość node-a,
+// szerokoÅ›Ä‡ node-a,
+// wysokoÅ›Ä‡ node-a,
 
 "use strict";
 var c = -1;
@@ -12,164 +12,163 @@ function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 	
 	// suppported by Matka Boska Partyzantcka 
-function menu(x, y, addToDiv) {
-	var mainMenu = {
-		przesuwne: 0,
-		clicked: false,
-		menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center;  width:100%;font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
+	function menu(x, y, addToDiv) {
+		var mainMenu = {
+			przesuwne: 0,
+			clicked: false,
+			menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center;  width:100%;font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
 
-		addGroup: function addGroup(label) {
+			addGroup: function addGroup(label) {
 
-			$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+				$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
 
-				if (mainMenu.clicked) {
-					
+					if (mainMenu.clicked) {
+						
+						$('div.contener').hide();
+						$('div.subcontener').hide();
+						$('#' + label + '_contener').show();
+						$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+
+					}
+					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
+				}).click(function() {
+					if (mainMenu.clicked) {
+						$('div.contener').hide();
+						mainMenu.clicked = !mainMenu.clicked;
+					} else {
+						outputView.MenuList.getInstance().secure();
+						$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+						$('div.contener').hide();
+						$('#' + label + '_contener').show();
+						mainMenu.clicked = !mainMenu.clicked;
+					}
+
+
+				});
+
+				$("<div id=" + label + "_contener" + " class=contener style='box-shadow: inset 0 0 2px #ffffff; top:21px; position:absolute; width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+				mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
+			},
+
+			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+
+
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+					$('div.subcontener').hide();
+					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
+					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
+					$('div.contener').hide();
+					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
+
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
+					css: {
+						fontSize : '9px',
+						color: 'rgba(255,255,255,0.7)',
+						float: 'right',
+						textAlign: "right",
+						padding: "3px 10px 0px 0px"
+					},
+
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
+			},
+
+			addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
+				/*
+					wejdÅº do grupy
+					wejdÅº do opcji
+					jeÅ¼eli nie ma kontenera - stwÃ³rz go
+					wstaw podopcjÄ™ do opcji
+				*/
+
+				//var x = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width"));
+				// var y = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().top;
+
+				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
+					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + " class=subcontener style='box-shadow: inset 0 0 2px #ffffff;position:absolute;width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#menuContener').hide();
+
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
+					css: {
+						float: 'right',
+						padding: "3px 0px 0px 0px"
+					},
+
+				}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
+				}
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor:default; color:white; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
 					$('div.contener').hide();
 					$('div.subcontener').hide();
-					$('#' + label + '_contener').show();
 					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
 
-				}
-				$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
-			}).click(function() {
-				if (mainMenu.clicked) {
-					$('div.contener').hide();
-					mainMenu.clicked = !mainMenu.clicked;
-				} else {
-					outputView.MenuList.getInstance().secure();
-					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-					$('div.contener').hide();
-					$('#' + label + '_contener').show();
-					mainMenu.clicked = !mainMenu.clicked;
-				}
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
+					css: {
+						fontSize:'9px',
+						color: 'rgba(255,255,255,0.7)',
+						float: 'right',
+						textAlign: "right",
+						padding: "2px 10px 0px 0px"
+					},
 
-
-			});
-
-			$("<div id=" + label + "_contener" + " class=contener style='box-shadow: inset 0 0 2px #ffffff; top:21px; position:absolute; width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
-			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
-		},
-
-		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
+			},
 
 
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
-				$('div.subcontener').hide();
-				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
-				var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.contener').hide();
-				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+			addSeparator: function addSeparator(groupLabel) {
+				$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+			},
+			hideGroup: function hideGroup(groupLabel) {
+				$('#' + groupLabel).hide();
+			},
+
+			showGroup: function showGroup(groupLabel) {
+				$('#' + groupLabel).show();
+			},
+
+
+			hideOption: function hideOption(groupLabel, optionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
+
+			},
+
+			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
+			},
+
+			showOption: function showOption(groupLabel, optionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
+
+			},
+			close: function close(){
 				mainMenu.clicked = false;
-			}).click(functionOnClick);
+				$('div.contener').hide();
+				$('div.subcontener').hide();
+				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-				css: {
-					fontSize : '9px',
-					color: 'rgba(255,255,255,0.7)',
-					float: 'right',
-					textAlign: "right",
-					padding: "3px 10px 0px 0px"
-				},
-
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
-		},
-
-		addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
-			/*
-				wejdź do grupy
-				wejdź do opcji
-				jeżeli nie ma kontenera - stwórz go
-				wstaw podopcję do opcji
-			*/
-
-			//var x = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width"));
-			// var y = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().top;
-
-			if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + " class=subcontener style='box-shadow: inset 0 0 2px #ffffff;position:absolute;width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#menuContener').hide();
-
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
-				css: {
-					float: 'right',
-					padding: "3px 0px 0px 0px"
-				},
-
-			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
 			}
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor:default; color:white; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.contener').hide();
-				$('div.subcontener').hide();
-				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-				mainMenu.clicked = false;
-			}).click(functionOnClick);
 
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-				css: {
-					fontSize:'9px',
-					color: 'rgba(255,255,255,0.7)',
-					float: 'right',
-					textAlign: "right",
-					padding: "2px 10px 0px 0px"
-				},
+		};
 
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
-		},
-
-
-		addSeparator: function addSeparator(groupLabel) {
-			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
-		},
-		hideGroup: function hideGroup(groupLabel) {
-			$('#' + groupLabel).hide();
-		},
-
-		showGroup: function showGroup(groupLabel) {
-			$('#' + groupLabel).show();
-		},
-
-
-		hideOption: function hideOption(groupLabel, optionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
-
-		},
-
-		hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
-		},
-
-		showOption: function showOption(groupLabel, optionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
-
-		},
-		close: function close(){
-			mainMenu.clicked = false;
-			$('div.contener').hide();
-			$('div.subcontener').hide();
-			$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-
-		}
-
+		return mainMenu;	
 	};
-
-	return mainMenu;	
-};
-
 	function tooltipper() {
 		var opacity = .95,
 			tooltip = {
@@ -337,18 +336,18 @@ function menu(x, y, addToDiv) {
 		return tmp;
 	};
 	function drawBottomBar(paper){		
-		//UŻYCIE WTYCZKI:
+		//UÅ»YCIE WTYCZKI:
 		//ma defaultowo zdefiniowane buttony CF, DF i SS
-		//addGroup(label) dodaje grupę o zadanym labelu
+		//addGroup(label) dodaje grupÄ™ o zadanym labelu
 		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
 		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
-		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
+		//Po dodaniu czegokolwiek nastÄ™puje automatyczne rozmieszczenie elementÃ³w na pasku.
 		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
 		//Analogicznie pokazywanie elementu, PRZY CZYM:
-		//- showGroup() pokazuje grupę wraz ze wszystkimi opcjami
-		//- showOnlyGroup() pokazuje tylko grafikę grupy - używane, gdy grupa znikła w wyniku usunięcia
+		//- showGroup() pokazuje grupÄ™ wraz ze wszystkimi opcjami
+		//- showOnlyGroup() pokazuje tylko grafikÄ™ grupy - uÅ¼ywane, gdy grupa znikÅ‚a w wyniku usuniÄ™cia
 		//	ostatniego przycisku
-		//Użyta technologia: Javascript, Raphael ^^
+		//UÅ¼yta technologia: Javascript, Raphael ^^
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -516,7 +515,7 @@ function menu(x, y, addToDiv) {
 								return temp;
 							},
 							moveGroupToX: function moveGroupToX(x){
-								//przesunięcie do punktu (x, y), nie o wektor [x, y], y = const.
+								//przesuniÄ™cie do punktu (x, y), nie o wektor [x, y], y = const.
 								var dx = x - this.x, ox;
 								this.x = x;
 								ox = this.graphic.attr("x");
@@ -607,7 +606,7 @@ function menu(x, y, addToDiv) {
 							this.graphic[2].attr({"width": w, "height": h});
 						},
 						fontsizeChange: function fontsizeChange(arg){
-							//arg nieobowiązkowy, jeśli nie zostanie podany, czcionka zmniejszy się o 2px 
+							//arg nieobowiÄ…zkowy, jeÅ›li nie zostanie podany, czcionka zmniejszy siÄ™ o 2px 
 							this.fontsize += (arg) ? arg : -2;
 							this.recreateGraphic();
 						},
@@ -678,9 +677,9 @@ function menu(x, y, addToDiv) {
 				},
 				relocate: function relocate(){
 					var sum = 10, that = this;
-					//fix dla buga powodującego powstawanie niezniszczalnych separatorów, jeżeli
-					//użytkownik ma otwarty pasek podczas hide'owania czegoś
-					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystąpić?
+					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separatorÃ³w, jeÅ¼eli
+					//uÅ¼ytkownik ma otwarty pasek podczas hide'owania czegoÅ›
+					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystÄ…piÄ‡?
 					$.each(this.separators, function(){
 						this.hide();
 					});
@@ -689,8 +688,8 @@ function menu(x, y, addToDiv) {
 					$.each(this.groups, function(){
 						if(this.isVisible){
 							this.moveGroupToX(sum);
-							//to jest ciut partyzanckie, ale jak inaczej ominąć pierwszy separator?
-							//czy też może chcemy pierwszy lub ostatni separator? ale po co?
+							//to jest ciut partyzanckie, ale jak inaczej ominÄ…Ä‡ pierwszy separator?
+							//czy teÅ¼ moÅ¼e chcemy pierwszy lub ostatni separator? ale po co?
 							if(sum>10)
 								that.addSeparator(this.x, this.y, this.height);
 							sum += this.width;
@@ -707,7 +706,7 @@ function menu(x, y, addToDiv) {
 						});
 				},
 				generalResize: function generalResize(arg){
-					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w label buttonów, non-obligatory
+					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label buttonÃ³w, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeChange(arg);
@@ -751,10 +750,10 @@ function menu(x, y, addToDiv) {
 		var f3 = function(){alert("this is just for debugging")};
 
 		var editInputVariables = function editInputVariables(){
-			$("#f_inputVariablesForm").dialog("open");
+			gui.view.form.editInputVariables();
 		}
 		var editNonFunctionalParameters = function editNonFunctionalParameters(){
-			 $("#f_globalNFPropertiesForm").dialog("open");
+			gui.view.form.editGlobalNonFunctionalParameters();
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);
@@ -766,13 +765,6 @@ function menu(x, y, addToDiv) {
 		result.addGroup("Graph Options");
 		result.addOption("Graph Options", "Input Variables", editInputVariables, "editInputVariables");
 		result.addOption("Graph Options", "NonFunctionalParameters", editNonFunctionalParameters, "editNonFunctionalParameters");
-		// result.addGroup("Tester group");
-		// result.addOption("Tester group", "Test1", f3, "Test if works");
-		// result.addOption("Tester group", "TestTWO", f3, "Test if works");
-		// result.addOption("Tester group", "AnotherTest", f3, "Test if works");
-		// result.addOption("Tester group", "Test4", f3, "Test if works");
-		// result.addOption("Views", "SS", f3, "Test if works");
-		// result.addOption("Views", "Test", f3, "Test if works");
 
 		result.set.push(result.invisibleBar, result.triangle1, result.triangle2);
 
@@ -1077,16 +1069,161 @@ function menu(x, y, addToDiv) {
 		});
 		var $tabs = $( "#tabs" ).tabs();
 
+		// edit Włodek
+		var inpVars = [],
+			globalNonFuncDesc = []
+		;
+
 		var result = {
 			resultJSON: resultJSON,
 			physDescJSON: physDescJSON,
 			funcDescJSON: funcDescJSON,
 			selectedInputIndex: -1,
 			selectedOutputIndex: -1,
-			selectedInputVariableIndex: -1,
 			selectedNFPropertyIndex: -1,
+			selectedInputVariableIndex: -1,
 			selectedGlobalNFPropertyIndex: -1,
 
+			// ============================================================================================================-    edit by Włodek
+
+			// inpVar
+			editInputVariables : function editInputVariables(){
+				this.resetInpVars();
+				this.appendInpVar(gui.controler.current_graphData.inputVariables);
+				$("#f_inputVariablesForm").dialog("open");
+			},
+			resetInpVars : function resetInpVars(){
+				inpVars = [];
+				$( "#f_inputVariables tbody").html("");
+			},
+			appendInpVar : function appendInpVar(inpVar){
+				// console.log(arguments)
+				for( var v in inpVar ){
+					inpVars.push(inpVar[v]);
+					this.inputVariablesAppender(inpVar[v], v);
+				}
+			},
+			inputVariablesAppender: function inputVariablesAppender(input, index){
+				// console.log(arguments);
+				var tempId = "f_inputVariables-" + index;
+				$( "#f_inputVariables tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
+						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" + 
+						"<td id=\"" + tempId + "_type\">" + input.type + "</td>" +
+					"</tr>"
+				);
+			},
+			removeInputVariable: function removeInputVariable(){
+				var index = this.getSelectedInputVariableIndex();
+				if(inpVars[index]){
+					inpVars[index] = undefined;
+					$( "#f_inputVariables-" + index).remove();
+				}
+				this.resetSelectedInputVariableIndex();
+			},
+			addInputVariable: function addInputVariable(){
+				var inputVariableJSON = {"name":"","value":"","type":""},
+					index = this.getSelectedInputVariableIndex();
+				;
+
+				// console.log("adasdas", index);
+
+				inputVariableJSON.name = $( "#f_inputVariable_name_" + pf ).val();
+				inputVariableJSON.value = $( "#f_inputVariable_value_" + pf ).val();
+				inputVariableJSON.type = $("#f_inputVariable_type_" + pf).val();
+				
+
+				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
+				if(index==-1){	//Index = -1 => dodajemy nowy inputVariable
+					//TU jEST STAÅ?A 5 JAKO INDEKS I TO BEDZIE SYPAÄ† BÅ?Ä?DY
+					this.inputVariablesAppender(inputVariableJSON, inpVars.length);//this.COKOLWIEK.inputVariables.length);
+
+					inpVars[ inpVars.length ] = inputVariableJSON;
+
+					$("#f_addInputVariableForm").dialog("close");
+				}
+				else{	//edytujemy istniejÄ…cy inputVariable
+					var destinationId = "f_inputVariables-" + index;
+					$("#" + destinationId + "_name").text(inputVariableJSON.name);
+					$("#" + destinationId + "_value").text(inputVariableJSON.value);
+					$("#" + destinationId + "_type").text(inputVariableJSON.type);
+
+					inpVars[index] = inputVariableJSON;
+
+					$("#f_addInputVariableForm").dialog("close");	
+				}
+			},
+			// =====================================================
+			// editNonFunctionalParameters
+			editGlobalNonFunctionalParameters : function editNonFunctionalParameters(){
+				this.resetGlobalNonFunDesc();
+				this.appendGlobalNonFuncDesc(gui.controler.current_graphData.nonFunctionalParameters);
+				$("#f_globalNFPropertiesForm").dialog("open");
+			},
+			resetGlobalNonFunDesc : function resetGlobalNonFunDesc(){
+				inpVars = [];
+				$( "#f_globalNFProps tbody").html("");
+			},
+			appendGlobalNonFuncDesc : function appendGlobalNonFuncDesc(globNonFuncDesc){
+				console.log(globNonFuncDesc)
+				for( var prop in globNonFuncDesc ){
+					inpVars.push(globNonFuncDesc[prop]);
+					this.globalNonFunPropsAppender(globNonFuncDesc[prop], prop);
+				}				
+			},
+			globalNonFunPropsAppender: function globalNFPropsAppender(input, index){
+				// console.log("input", input)
+				var tempId = "f_globalNFProps-" + index;
+				$( "#f_globalNFProps tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_weight\">" + input.weight + "</td>" + 
+						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
+						"<td id=\"" + tempId + "_relation\">" + input.relation + "</td>" +
+						"<td id=\"" + tempId + "_unit\">" + input.unit + "</td>" + 
+						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" +
+					"</tr>" );
+			},
+			removeGlobalNonFunc: function removeNonFunc(nfProp){
+				var index = this.getSelectedGlobalNFPropertyIndex();
+				if(inpVars[index]){
+					globalNonFuncDesc[index] = undefined;
+					$( "#f_globalNFProps-" + index).remove();
+				}
+
+				this.resetSelectedGlobalNFPropertyIndex();
+			},
+			addGlobalNonFunctional: function addGlobalNonFunctionalVariable(){
+				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
+					index = this.getSelectedGlobalNFPropertyIndex();
+					nonFuncDescJSON.weight = $( "#f_globalNonFunctionalDescription_weight_" + pf ).val();
+					nonFuncDescJSON.name = $( "#f_globalNonFunctionalDescription_name_" + pf ).val();
+					nonFuncDescJSON.relation = $( "#f_globalNonFunctionalDescription_relation_" + pf ).val();
+					nonFuncDescJSON.unit = $( "#f_globalNonFunctionalDescription_unit_" + pf ).val();
+					nonFuncDescJSON.value = $( "#f_globalNonFunctionalDescription_value_" + pf ).val();
+				
+				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
+				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
+					//TU jEST STAÅ?A 5 JAKO INDEKS I TO BEDZIE SYPAÄ† BÅ?Ä?DY
+					this.globalNonFunPropsAppender(nonFuncDescJSON, globalNonFuncDesc.length);//this.COKOLWIEK.inputVariables.length);
+
+					globalNonFuncDesc[ globalNonFuncDesc.length ] = nonFuncDescJSON;
+					$("#f_addGlobalNFPropertyForm").dialog("close");
+				}
+				else{	//edytujemy istniejÄ…cy globalNFProperty
+					globalNonFuncDesc[ index ] = nonFuncDescJSON;
+
+					var destinationId = "f_globalNFProps-" + index;
+					$("#" + destinationId + "_weight" ).text(nonFuncDescJSON.weight);
+					$("#" + destinationId + "_name" ).text(nonFuncDescJSON.name);
+					$("#" + destinationId + "_relation" ).text(nonFuncDescJSON.relation);
+					$("#" + destinationId + "_unit" ).text(nonFuncDescJSON.unit);
+					$("#" + destinationId + "_value" ).text(nonFuncDescJSON.value);
+					$("#f_addGlobalNFPropertyForm").dialog("close");	
+				}
+			},
+// ============================================================================================================-    ond of edit by Włodek
+			
 			initToEdit: function initToEdit(node){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
 				this.clearErrors();
@@ -1110,7 +1247,7 @@ function menu(x, y, addToDiv) {
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form" ).dialog( "open" );
 				
-				//  pola obecnie nieużywane:
+				//  pola obecnie nieuÅ¼ywane:
 				//
 				// var condition = [];
 				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
@@ -1166,7 +1303,7 @@ function menu(x, y, addToDiv) {
 						break;
 					}
 			},
-			//funkcje czyszczące elementy formularza
+			//funkcje czyszczÄ…ce elementy formularza
 			clearNF: function clearNF(){
 				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
 				$( "#nonFuncDescForm_" + pf )[0].reset();
@@ -1206,7 +1343,7 @@ function menu(x, y, addToDiv) {
 				$("*").removeClass("ui-state-error");
 				$('td[id$="_validation_' + pf + '"]').text("");
 			},
-			//argument total decyduje, czy ma być skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
+			//argument total decyduje, czy ma byÄ‡ skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
 			cleanForm: function cleanForm(total){
 				if( !total )
 					var temp = this.resultJSON.nodeId;
@@ -1229,8 +1366,7 @@ function menu(x, y, addToDiv) {
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){
-					var no;
-					for(no in array){
+					for(var no in array){
 						input = array[no];
 						var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]};
 						inputJSON.class = input.class;
@@ -1298,7 +1434,7 @@ function menu(x, y, addToDiv) {
 					this.NFPropsAppender(nonFuncDescJSON, no);
 				}
 			},
-			//Poniższe funkcje "przyklejają" nowo dodane inputy/outputy/non functional properties
+			//PoniÅ¼sze funkcje "przyklejajÄ…" nowo dodane inputy/outputy/non functional properties
 			//do tabeli w formularzu
 			inputAndOutputAppender: function inputAndOutputAppender(input, id, number){
 				//id = "f_outputsTab_outputs tbody" || id = "f_inputsTab_inputs tbody"
@@ -1313,16 +1449,6 @@ function menu(x, y, addToDiv) {
 					"</tr>" 
 				);
 			},
-			inputVariablesAppender: function inputVariablesAppender(input, number){
-				var tempId = "f_inputVariables" + number;
-				$( "#f_inputVariables tbody").append( 
-					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
-						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" + 
-						"<td id=\"" + tempId + "_type\">" + input.type + "</td>" +
-					"</tr>" 
-				);
-			},
 			NFPropsAppender: function NFPropsAppender(input, number){
 				var tempId = "f_nonFunctionalDescriptionTabxNFProps" + number;
 				$( "#f_nonFunctionalDescriptionTab_NFProps tbody").append( 
@@ -1334,21 +1460,10 @@ function menu(x, y, addToDiv) {
 						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" +
 					"</tr>" );
 			},
-			globalNFPropsAppender: function globalNFPropsAppender(input, number){
-				var tempId = "f_globalNFProps" + number;
-				$( "#f_globalNFProps tbody").append( 
-					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_weight\">" + input.weight + "</td>" + 
-						"<td id=\"" + tempId + "_name\">" + input.name + "</td>" + 
-						"<td id=\"" + tempId + "_relation\">" + input.relation + "</td>" +
-						"<td id=\"" + tempId + "_unit\">" + input.unit + "</td>" + 
-						"<td id=\"" + tempId + "_value\">" + input.value + "</td>" +
-					"</tr>" );
-			},
 			// rowRemover: function rowRemover(tabId, index){
 			// 	$( "#" + tabId + " tr:eq(" + index + ")").remove();
 			// },
-			//Poniższe funkcje sprawdzajż, czy string/input/output/non functional property istnieje na zadanej liście
+			//PoniÅ¼sze funkcje sprawdzajÅ¼, czy string/input/output/non functional property istnieje na zadanej liÅ›cie
 			stringExists: function stringExists(obj, array){
 				$.each(array, function(){
 					if (this === obj) return true;
@@ -1367,7 +1482,7 @@ function menu(x, y, addToDiv) {
 				});
 				return false;
 			},
-			//poniższe funkcje zwracają indeks elementu o zadanym id/name na liście
+			//poniÅ¼sze funkcje zwracajÄ… indeks elementu o zadanym id/name na liÅ›cie
 			stringExistsIndex: function stringExistsIndex(obj, array){
 				var namey;
 				for(namey in array){
@@ -1539,7 +1654,7 @@ function menu(x, y, addToDiv) {
 					}
 					else alert("This input already exists!");	
 				}
-				else{	//edytujemy istniejący input
+				else{	//edytujemy istniejÄ…cy input
 					var destinationId = "f_inputsTabxinputs" + index;
 					this.funcDescJSON.inputs[index] = inputJSON;
 					$("#" + destinationId + "_id_" + pf ).text(inputJSON.id);
@@ -1564,9 +1679,9 @@ function menu(x, y, addToDiv) {
 						this.funcDescJSON.outputs.push(outputJSON);
 						$("#f_addOutputForm_" + pf ).dialog("close");	
 					}
-					else alert("This output already exists!"); //TODO: te alerciątka jako modal dialogs
+					else alert("This output already exists!"); //TODO: te alerciÄ…tka jako modal dialogs
 				}
-				else{	//edytujemy istniejący output
+				else{	//edytujemy istniejÄ…cy output
 					var destinationId = "f_outputsTabxoutputs" + index;
 					this.funcDescJSON.outputs[index] = outputJSON;
 					$("#" + destinationId + "_id_" + pf ).text(outputJSON.id);
@@ -1574,27 +1689,6 @@ function menu(x, y, addToDiv) {
 					$("#" + destinationId + "_label_" + pf ).text(outputJSON.label);
 					$("#" + destinationId + "_dataType_" + pf ).text(outputJSON.dataType);
 					$("#f_addOutputForm_" + pf ).dialog("close");	
-				}
-			},
-			addInputVariable: function addInputVariable(){
-				var inputVariableJSON = {"name":"","value":"","type":""},
-					index = this.getSelectedInputVariableIndex();
-				inputVariableJSON.name = $( "#f_inputVariable_name_" + pf ).val();
-				inputVariableJSON.value = $( "#f_inputVariable_value_" + pf ).val();
-				inputVariableJSON.type = $("#f_inputVariable_type_" + pf).val();
-						
-				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
-				if(index==-1){	//Index = -1 => dodajemy nowy inputVariable
-					//TU jEST STA�?A 5 JAKO INDEKS I TO BEDZIE SYPAĆ B�?�?DY
-					this.inputVariablesAppender(inputVariableJSON, 5);//this.COKOLWIEK.inputVariables.length);
-					$("#f_addInputVariableForm").dialog("close");	
-				}
-				else{	//edytujemy istniejący inputVariable
-					var destinationId = "f_inputVariables" + index;
-					$("#" + destinationId + "_name").text(inputVariableJSON.name);
-					$("#" + destinationId + "_value").text(inputVariableJSON.value);
-					$("#" + destinationId + "_type").text(inputVariableJSON.type);
-					$("#f_addInputVariableForm").dialog("close");	
 				}
 			},
 			addNonFunctional: function addNonFunctional(){
@@ -1614,7 +1708,7 @@ function menu(x, y, addToDiv) {
 					}
 					else alert("This non functional property already exists!");
 				}
-				else{	//edytujemy istniejący NFProperty
+				else{	//edytujemy istniejÄ…cy NFProperty
 					var destinationId = "f_nonFunctionalDescriptionTabxNFProps" + index;
 					this.resultJSON.nonFunctionalDescription[index] = nonFuncDescJSON;
 					$("#" + destinationId + "_weight_" + pf ).text(nonFuncDescJSON.weight);
@@ -1623,31 +1717,6 @@ function menu(x, y, addToDiv) {
 					$("#" + destinationId + "_unit_" + pf ).text(nonFuncDescJSON.unit);
 					$("#" + destinationId + "_value_" + pf ).text(nonFuncDescJSON.value);
 					$("#f_addNFPropertyForm_" + pf ).dialog("close");	
-				}
-			},
-			addGlobalNonFunctional: function addGlobalNonFunctionalVariable(){
-				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
-					index = this.getSelectedGlobalNFPropertyIndex();
-				nonFuncDescJSON.weight = $( "#f_globalNonFunctionalDescription_weight_" + pf ).val();
-				nonFuncDescJSON.name = $( "#f_globalNonFunctionalDescription_name_" + pf ).val();
-				nonFuncDescJSON.relation = $( "#f_globalNonFunctionalDescription_relation_" + pf ).val();
-				nonFuncDescJSON.unit = $( "#f_globalNonFunctionalDescription_unit_" + pf ).val();
-				nonFuncDescJSON.value = $( "#f_globalNonFunctionalDescription_value_" + pf ).val();
-				
-				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
-				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
-					//TU jEST STA�?A 5 JAKO INDEKS I TO BEDZIE SYPAĆ B�?�?DY
-					this.globalNFPropsAppender(nonFuncDescJSON, 5);//this.COKOLWIEK.inputVariables.length);
-					$("#f_addGlobalNFPropertyForm").dialog("close");
-				}
-				else{	//edytujemy istniejący globalNFProperty
-					var destinationId = "f_globalNFProps" + index;
-					$("#" + destinationId + "_weight_" + pf ).text(nonFuncDescJSON.weight);
-					$("#" + destinationId + "_name_" + pf ).text(nonFuncDescJSON.name);
-					$("#" + destinationId + "_relation_" + pf ).text(nonFuncDescJSON.relation);
-					$("#" + destinationId + "_unit_" + pf ).text(nonFuncDescJSON.unit);
-					$("#" + destinationId + "_value_" + pf ).text(nonFuncDescJSON.value);
-					$("#f_addGlobalNFPropertyForm").dialog("close");	
 				}
 			},
 			resetAll: function resetAll(){
@@ -1665,21 +1734,11 @@ function menu(x, y, addToDiv) {
 				$("#f_outputsTabxoutputs"+index).remove();
 				this.resetSelectedOutputIndex();
 			},
-			removeInputVariable: function removeInput(){
-				var index = this.getSelectedInputVariableIndex();
-				alert("This feature has yet to be implemented");
-				this.resetSelectedInputVariableIndex();
-			},
 			removeNonFunc: function removeNonFunc(nfProp){
 				var index = this.getSelectedNFPropertyIndex();
 				this.resultJSON.nonFunctionalDescription[index] = undefined;
 				$("#f_nonFunctionalDescriptionTabxNFProps"+index).remove();
 				this.resetSelectedNFPropertyIndex();
-			},
-			removeGlobalNonFunc: function removeNonFunc(nfProp){
-				var index = this.getSelectedGlobalNFPropertyIndex();
-				alert("This feature has yet to be implemented");
-				this.resetSelectedGlobalNFPropertyIndex();
 			},
 			removeServiceClass: function removeServiceClass(serviceClass){
 				var id = serviceClass.attr("id").split("_").pop();
@@ -1700,8 +1759,8 @@ function menu(x, y, addToDiv) {
 			// 	source.remove();
 			// },
 
-			//w tym jest bezczelna partyzantka - dopóki nie znajdę sposobu na uzyskanie referencji do 
-			//$('#physicalDescriptionTab'), mając tylko id taba
+			//w tym jest bezczelna partyzantka - dopÃ³ki nie znajdÄ™ sposobu na uzyskanie referencji do 
+			//$('#physicalDescriptionTab'), majÄ…c tylko id taba
 			//var index = jQuery('#tabs').data('tabs').options.selected; 
 			//
 			nextTab: function nextTab(){
@@ -1726,7 +1785,7 @@ function menu(x, y, addToDiv) {
 		$("#f_button_sumbitAllButton").button().click(function() {
 			result.submitAll();
 		});
-		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
+		//preventDefault() w tych submitach zapobiega zamkniÄ™ciu caÅ‚ego formularza po submitnieciu czegokolwiek
 		$("#f_button_addServiceClass").button().click(
 			function(event) {
 				event.preventDefault();
@@ -1829,13 +1888,33 @@ function menu(x, y, addToDiv) {
 				if(index == -1)
 					alert("No input variable selected!");
 				else{
-					var sourceId = "f_inputVariables" + index;
-					$("#f_inputVariable_name_" + pf ).val($("#" + sourceId + "_name").text());
-					$("#f_inputVariable_value_" + pf ).val($("#" + sourceId + "_value").text());
-					$("#f_inputVariable_type_" + pf ).val($("#" + sourceId + "_type").text());
+					var sourceId = "f_inputVariables-" + index;
+					$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
+					$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
+					$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
 					$('#ui-dialog-title-f_addInputVariableForm').text("Edit existing input variable");
 					result.clearInputVariableSelectionInTable();
 					$("#f_addInputVariableForm").dialog("open");
+				}
+			}
+		);
+		$("#f_openEditGlobalNFPropertyForm").button().click(
+			function(event) {
+				var index = result.getSelectedGlobalNFPropertyIndex();
+				if(index == -1)
+					alert("No graph non functional property selected!");
+				else{
+					var sourceId = "f_globalNFProps-" + index;
+					// console.log("asdasda", $("#f_globalNonFunctionalDescriptionTab_weight_" + pf ).length )
+					// console.log("#f_globalNonFunctionalDescriptionTab_weight_" + pf, "#" + sourceId + "_weight")
+					$("#f_globalNonFunctionalDescription_weight_" + pf ).val($("#" + sourceId + "_weight").text());
+					$("#f_globalNonFunctionalDescription_name_" + pf ).val($("#" + sourceId + "_name").text());
+					$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
+					$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
+					$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
+					$('#ui-dialog-title-f_addGlobalNFPropertyForm').text("Edit existing graph non functional property");
+					result.clearGlobalNFPropertySelectionInTable();
+					$("#f_addGlobalNFPropertyForm").dialog("open");
 				}
 			}
 		);
@@ -1853,24 +1932,6 @@ function menu(x, y, addToDiv) {
 					$("#f_nonFunctionalDescriptionTab_value_" + pf ).val($("#" + sourceId + "_value").text());
 					$('#ui-dialog-title-f_addNFPropertyForm').text("Edit existing non functional property");
 					$("#f_addNFPropertyForm").dialog("open");
-				}
-			}
-		);
-		$("#f_openEditGlobalNFPropertyForm").button().click(
-			function(event) {
-				var index = result.getSelectedGlobalNFPropertyIndex();
-				if(index == -1)
-					alert("No graph non functional property selected!");
-				else{
-					var sourceId = "f_globalNFProps" + index;
-					$("#f_globalNonFunctionalDescriptionTab_weight_" + pf ).val($("#" + sourceId + "_weight").text());
-					$("#f_globalNonFunctionalDescriptionTab_name_" + pf ).val($("#" + sourceId + "_name").text());
-					$("#f_globalNonFunctionalDescriptionTab_relation_" + pf ).val($("#" + sourceId + "_relation").text());
-					$("#f_globalNonFunctionalDescriptionTab_unit_" + pf ).val($("#" + sourceId + "_unit").text());
-					$("#f_globalNonFunctionalDescriptionTab_value_" + pf ).val($("#" + sourceId + "_value").text());
-					$('#ui-dialog-title-f_addGlobalNFPropertyForm').text("Edit existing graph non functional property");
-					result.clearGlobalNFPropertySelectionInTable();
-					$("#f_addGlobalNFPropertyForm").dialog("open");
 				}
 			}
 		);
@@ -1973,22 +2034,13 @@ function menu(x, y, addToDiv) {
 		});
 		$('tr[id^="f_inputVariables"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("").pop();
+			console.log(index);
 			result.clearInputVariableSelectionInTable();
 			if(result.getSelectedInputVariableIndex() == index)
 				result.resetSelectedInputVariableIndex();
 			else{
 				result.setSelectedInputVariableIndex(index);
 				$(this).addClass("ui-state-active");
-			}
-		});
-		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("click", function(event){
-			var index = event.target.id.split("_")[1].split("").pop();
-			result.clearNFPropertySelectionInTable();
-			if(result.getSelectedNFPropertyIndex() == index)
-				result.resetSelectedNFPropertyIndex();
-			else{
-				result.setSelectedNFPropertyIndex(index);
-				$(this).toggleClass("ui-state-active");
 			}
 		});
 		$('tr[id^="f_globalNFProps"]').live("click", function(event){
@@ -1998,6 +2050,16 @@ function menu(x, y, addToDiv) {
 				result.resetSelectedGlobalNFPropertyIndex();
 			else{
 				result.setSelectedGlobalNFPropertyIndex(index);
+				$(this).toggleClass("ui-state-active");
+			}
+		});
+		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("").pop();
+			result.clearNFPropertySelectionInTable();
+			if(result.getSelectedNFPropertyIndex() == index)
+				result.resetSelectedNFPropertyIndex();
+			else{
+				result.setSelectedNFPropertyIndex(index);
 				$(this).toggleClass("ui-state-active");
 			}
 		});
@@ -2141,6 +2203,12 @@ function menu(x, y, addToDiv) {
 			buttons: {
 				"Save changes": function() {
 					// gui.controler.current_graphData.
+					for(var i in inpVars)
+						if(!inpVars[i])
+							inpVars.splice(i, 1);
+					console.log(inpVars)
+					gui.controler.current_graphData.inputVariables = inpVars;
+					$( this ).dialog( "close" );
 				},
 				Cancel: function() {
 					$( this ).dialog( "close" );
@@ -2154,7 +2222,11 @@ function menu(x, y, addToDiv) {
 			width: 500,
 			buttons: {
 				"Save changes": function() {
-					//TODO
+					for(var i in globalNonFuncDesc)
+						if(!globalNonFuncDesc[i])
+							globalNonFuncDesc.splice(i, 1);
+					gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
+					$( this ).dialog( "close" );
 				},
 				Cancel: function() {
 					$( this ).dialog( "close" );
@@ -2469,7 +2541,7 @@ function menu(x, y, addToDiv) {
 				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
-				//TU BYDEM DZIABA�? [Błażej] (Porządkowanie wyświetlania data flow)
+				//TU BYDEM DZIABAÅ? [BÅ‚aÅ¼ej] (PorzÄ…dkowanie wyÅ›wietlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -2507,7 +2579,7 @@ function menu(x, y, addToDiv) {
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
-				//obliczanie punktów na okręgu
+				//obliczanie punktÃ³w na okrÄ™gu
 				x1 = (node.x+node.r) - 10;
 				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
@@ -2826,7 +2898,7 @@ function menu(x, y, addToDiv) {
 
 				if(oldNode.mainShape.type == "circle"){
 					y -= oldNode.r;
-					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
+					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokoÅ›Ä‡ node-a
 				}
 				oldNode.removeView();
 				
@@ -2906,7 +2978,7 @@ function menu(x, y, addToDiv) {
 		updateGraph : function updateGraph(nodeId){
 			var node = this.getNodeById(nodeId);
 			if(node){
-				node.update();  //W�?ODKU WTF?!
+				node.update();  //WÅ?ODKU WTF?!
 			}
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
@@ -2945,7 +3017,7 @@ function menu(x, y, addToDiv) {
 			this.form.initBlank(nodeInfo);
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
-			//dodać lepiej dobierane parametry x, y
+			//dodaÄ‡ lepiej dobierane parametry x, y
 			var visualizedNode = this.visualiser.visualiseNode( node );
 			if(visualizedNode)
 				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
@@ -3160,7 +3232,7 @@ function menu(x, y, addToDiv) {
 						} catch(e){
 							console.log(e);
 						}
-						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
+						// to  to jest dopuki bÅ‚aÅ¼ej nie poprawi czegoÅ›tam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
@@ -3188,7 +3260,7 @@ function menu(x, y, addToDiv) {
 						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
 							// alert("HURA");
 
-							if(confirm("Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie "+sourceNode.label+" ?")){
+							if(confirm("Czy chcesz dodaÄ‡ nowe wyjÅ›cie w wierzchoÅ‚ku o etykiecie "+sourceNode.label+" ?")){
 								gui.controler.reactOnEvent("addOutput", {
 									sourceId : sourceNode.id,
 									targetId : resultObj.targetId,
@@ -3196,7 +3268,7 @@ function menu(x, y, addToDiv) {
 								});
 							}
 							// $("#f_addInputForm")
-							// wyrmularz, z uzupełnionymi polami
+							// wyrmularz, z uzupeÅ‚nionymi polami
 							// confirm -> controler i update node
 							// addConnectionDF
 						}
@@ -3290,7 +3362,7 @@ function menu(x, y, addToDiv) {
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
-							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
+							if(confirm("Czy chcesz dodaÄ‡ nowe wejÅ›cie w wierzchoÅ‚ku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
 									targetId : targetNode.id,
@@ -3300,7 +3372,7 @@ function menu(x, y, addToDiv) {
 						}
 
 						// $("#f_addInputForm")
-						// wyrmularz, z uzupełnionymi polami
+						// wyrmularz, z uzupeÅ‚nionymi polami
 						// confirm -> controler i update node
 						// addConnectionDF
 					}
@@ -3326,7 +3398,7 @@ function menu(x, y, addToDiv) {
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubujesz dodać krawędź, króta już istnieje.");
+				gui.controler.reactOnEvent("error", "Prubujesz dodaÄ‡ krawÄ™dÅº, krÃ³ta juÅ¼ istnieje.");
 			}
 			else {
 				var edgeObject = {
@@ -3648,7 +3720,7 @@ function menu(x, y, addToDiv) {
 				for(j=0, jMax=targetConnectors.length; j<jMax; j++){
 					dx = sourceConnectors[i][0]-targetConnectors[j][0]; // odleglosc w poziomie
 					dy = sourceConnectors[i][1]-targetConnectors[j][1];	// odleglosc w pionie
-					dz = dx*dx + dy*dy;	// odlegloÅ›Ä‡
+					dz = dx*dx + dy*dy;	// odlegloÃ…â€ºÃ„â€¡
 					if(dz < minOdl)
 					{
 						minI = i;
@@ -3697,7 +3769,7 @@ function menu(x, y, addToDiv) {
 			$elem.css("width", this.width);
 			$elem.css("height", this.height);
 
-			//zbieranie danych o położeniu
+			//zbieranie danych o poÅ‚oÅ¼eniu
 			var $column = $("#canvas_holder_"+pf),
 				position = $column.position();
 			this.columnParams.centerCol = {
@@ -3897,7 +3969,7 @@ function menu(x, y, addToDiv) {
 			this.current_graph_view = this.getBlankGraph();
 		},
 		MenuList : (function MenuList(){
-			//menu holder singleton (Menu Błażeja i Jacka)
+			//menu holder singleton (Menu BÅ‚aÅ¼eja i Jacka)
 			var Constructor = function(){
 				var list = [];
 				var opened = false;
@@ -3939,7 +4011,7 @@ function menu(x, y, addToDiv) {
 		})(),
 		contextMenu : function contextMenu(listenedObjId){
 			/* ContextMenu v2.0
-				* by Błażej Wolańczyk (blazejwolanczyk@gmail.com)
+				* by BÅ‚aÅ¼ej WolaÅ„czyk (blazejwolanczyk@gmail.com)
 				* "Lasciate ogni speranza, voi ch'entrate"
 				* SUBMITTED: 02.08.2012
 				* REQUIRED PARAMS: 
@@ -4141,7 +4213,7 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addOption("New", "Node ", function(){}, "");
 	outputView.mainMenu.addSubOption("New", "Node ", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
 	outputView.mainMenu.addSubOption("New", "Node ", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("New", "Node ", "Testowanie czy może być odpowienio długa nazwa dodawanego node", function(){alert("New functional node added!")}, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("New", "Node ", "Testowanie czy moÅ¼e byÄ‡ odpowienio dÅ‚uga nazwa dodawanego node", function(){alert("New functional node added!")}, "CTRL+N+F");
 	outputView.mainMenu.addOption("Open", "Graph", function(){alert("Graph loaded!")}, "CTRL+G");
 	outputView.mainMenu.addSubOption("Open", "Graph", "Testing", function(){alert("Graph loaded!")}, "CTRL+G");
 	outputView.mainMenu.addOption("New","Start - Stop",function(){alert("Start and Stop added!")},"CTRL+S+A");
@@ -4209,7 +4281,7 @@ function menu(x, y, addToDiv) {
 			// gui.view.paper.rect(ox+x, oy+y, 2, 2).attr("fill", "red");
 				
 
-			// TUTAJ POWINNO BYC WYSÅ?ANIE EVENTU DO KONTROLERA Z 4MA WSP??“Å?Å»Ä?DNYMI
+			// TUTAJ POWINNO BYC WYSÃ…?ANIE EVENTU DO KONTROLERA Z 4MA WSP??â€œÃ…?Ã…Â»Ã„?DNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
@@ -4230,7 +4302,7 @@ function menu(x, y, addToDiv) {
 				else
 					y1+=lastDragY;
 				
-				// TUTAJ POWINNO BYÄ† WYSÅ?ANIE EVENTU DO KONTROLERA Z SELEKTEM
+				// TUTAJ POWINNO BYÃ„â€  WYSÃ…?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
 					x1 : x1,
