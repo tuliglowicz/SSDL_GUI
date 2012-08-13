@@ -3968,13 +3968,8 @@ function menu(x, y, addToDiv) {
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){
 			this.current_graph_view = this.getBlankGraph();
 		},
-<<<<<<< HEAD
-		MenuList : (function MenuList(){
-			//menu holder singleton (Menu BÅ‚aÅ¼eja i Jacka)
-=======
 		menuList : (function menuList(){
 			//menu holder singleton (Menu Błażeja i Jacka)
->>>>>>> origin/master
 			var Constructor = function(){
 				var list = [];
 				var opened = false;
