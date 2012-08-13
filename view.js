@@ -133,7 +133,7 @@ function menu(x, y, addToDiv) {
 
 
 		addSeparator: function addSeparator(groupLabel) {
-			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+			$("<div id=" + groupLabel + "_sep" + " class=\"separator\"; ></div>").appendTo('#' + groupLabel + '_contener');
 		},
 		hideGroup: function hideGroup(groupLabel) {
 			$('#' + groupLabel).hide();
@@ -3679,7 +3679,7 @@ function menu(x, y, addToDiv) {
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp; <span> </span></div>");
+			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+";background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif);	 border:1px solid black;'>&nbsp; <span> </span></div>");
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
@@ -4139,6 +4139,7 @@ function menu(x, y, addToDiv) {
 	outputView.mainMenu.addGroup("Open");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addOption("New", "Node ", function(){}, "");
+	outputView.mainMenu.addSeparator("New");
 	outputView.mainMenu.addSubOption("New", "Node ", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
 	outputView.mainMenu.addSubOption("New", "Node ", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
 	outputView.mainMenu.addSubOption("New", "Node ", "Testowanie czy może być odpowienio długa nazwa dodawanego node", function(){alert("New functional node added!")}, "CTRL+N+F");
