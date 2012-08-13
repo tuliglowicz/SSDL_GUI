@@ -360,9 +360,11 @@ function Controler(url, gui){
 			if(bGlow) bGlow.remove();
 			if(animation) clearInterval(animation);
 			buttonBG.animate({"fill-opacity": 0.75}, 500);
+			$('*').css('cursor','pointer');
 			bGlow = buttonBG.glow();
 		});
 		mask.mouseout(function(){
+			$('*').css('cursor','default');
 			bGlow.remove();
 		});
 
@@ -1176,7 +1178,7 @@ function Controler(url, gui){
 					gui.view.selectAll();
 				})(); break;
 				case "ESCAPE" : (function () {
-					gui.view.MenuList.getInstance().close();
+					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
 				})(); break;
