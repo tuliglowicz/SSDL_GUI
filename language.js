@@ -1,6 +1,15 @@
 
 var language = {
 	polish : {
+		alerts: {
+				errors: {
+					ioDiffType: "Próbowałeś połączyć wyjście i wejście o innych typach danych.",
+					shortcutAdded: " jest już używany!",
+					shortcut: " skrót ",
+					shortcutNotDefined: "nie jest jeszcze zdefiniowany"
+				}
+
+		},
 		forms: {
 			label: "etykieta",
 			description: "opis",
@@ -91,6 +100,15 @@ var language = {
 		}
 	},
 	english: {
+		alerts: {
+				errors: {
+					ioDiffType: "You tried to make connection between input and output of different data types",
+					shortcutAdded: " is being used!",
+					shortcut: "shortcut",
+					shortcutNotDefined: "is not defined!"
+				}
+
+		},
 		forms: {
 			label: "label",
 			description: "description",
