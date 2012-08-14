@@ -8,19 +8,28 @@
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
+
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
-	
+
+
 	// suppported by Matka Boska Partyzantcka 
-function menu(x, y, addToDiv) {
+function menu(x, y, addToDiv,lang) {
+
+	function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
+
 	var mainMenu = {
 		przesuwne: 0,
 		clicked: false,
 		menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
 
 		addGroup: function addGroup(label) {
-
-			$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+			$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
 				if (mainMenu.clicked) {
 					
@@ -54,8 +63,7 @@ function menu(x, y, addToDiv) {
 
 		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
 
-
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
 				$('div.mMenuSubcontener').hide();
 				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
@@ -102,7 +110,7 @@ function menu(x, y, addToDiv) {
 				mainMenu.clicked = false;
 			}).click(functionOnClick);
 
-			$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(subOptionLabel);
+			$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
 			
 			jQuery('<div/>', {
 				html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
@@ -4188,7 +4196,7 @@ function menu(x, y, addToDiv) {
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(190,9,"top_menu_"+pf);
+	outputView.mainMenu = menu(190,9,"top_menu_"+pf,"english");
 	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addGroup("Graph");
