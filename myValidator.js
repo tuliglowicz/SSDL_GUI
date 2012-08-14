@@ -374,7 +374,6 @@ var validatorObject = {
 // test_json2
 // json2
 
-
 function getErrorMessages() {
 
 	var object = {

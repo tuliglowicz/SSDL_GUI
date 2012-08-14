@@ -12,7 +12,6 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 
-
 	// suppported by Matka Boska Partyzantcka 
 	function menu(x, y, addToDiv,lang) {
 	
@@ -305,7 +304,7 @@ function View(id, width, height, gui){
 		};
 		return tmp;
 	};
-	function drawBottomBar(paper){		
+	function drawBottomBar(paper){
 		//UÅ»YCIE WTYCZKI:
 		//ma defaultowo zdefiniowane buttony CF, DF i SS
 		//addGroup(label) dodaje grupÄ™ o zadanym labelu
@@ -723,7 +722,7 @@ function View(id, width, height, gui){
 			gui.view.form.editGlobalNonFunctionalParameters();
 		};
 		var save = function save(){
-			gui.controler.saveNewGraph();
+			gui.controler.reactOnEvent("SAVE");
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);
@@ -2824,7 +2823,6 @@ function View(id, width, height, gui){
 
 		return outputObject;
 	};
-	
 	var outputView = {
 		id : id,
 		width : width,
