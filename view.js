@@ -12,163 +12,163 @@ function View(id, width, height, gui){
 	var pf = gui.id_postfix;
 	
 	// suppported by Matka Boska Partyzantcka 
-function menu(x, y, addToDiv) {
-	var mainMenu = {
-		przesuwne: 0,
-		clicked: false,
-		menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center;  width:100%;font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
+	function menu(x, y, addToDiv) {
+		var mainMenu = {
+			przesuwne: 0,
+			clicked: false,
+			menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center;  width:100%;font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
 
-		addGroup: function addGroup(label) {
+			addGroup: function addGroup(label) {
 
-			$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+				$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
 
-				if (mainMenu.clicked) {
-					
+					if (mainMenu.clicked) {
+						
+						$('div.contener').hide();
+						$('div.subcontener').hide();
+						$('#' + label + '_contener').show();
+						$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+
+					}
+					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
+				}).click(function() {
+					if (mainMenu.clicked) {
+						$('div.contener').hide();
+						mainMenu.clicked = !mainMenu.clicked;
+					} else {
+						outputView.menuList.getInstance().secure();
+						$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+						$('div.contener').hide();
+						$('#' + label + '_contener').show();
+						mainMenu.clicked = !mainMenu.clicked;
+					}
+
+
+				});
+
+				$("<div id=" + label + "_contener" + " class=contener style='box-shadow: inset 0 0 2px #ffffff; top:21px; position:absolute; width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+				mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
+			},
+
+			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+
+
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+					$('div.subcontener').hide();
+					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
+					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
+					$('div.contener').hide();
+					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
+
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
+					css: {
+						fontSize : '9px',
+						color: 'rgba(255,255,255,0.7)',
+						float: 'right',
+						textAlign: "right",
+						padding: "3px 10px 0px 0px"
+					},
+
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
+			},
+
+			addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
+				/*
+					wejdź do grupy
+					wejdź do opcji
+					jeżeli nie ma kontenera - stwórz go
+					wstaw podopcję do opcji
+				*/
+
+				//var x = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width"));
+				// var y = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().top;
+
+				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
+					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + " class=subcontener style='box-shadow: inset 0 0 2px #ffffff;position:absolute;width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#menuContener').hide();
+
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
+					css: {
+						float: 'right',
+						padding: "3px 0px 0px 0px"
+					},
+
+				}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
+				}
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor:default; color:white; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
 					$('div.contener').hide();
 					$('div.subcontener').hide();
-					$('#' + label + '_contener').show();
 					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
 
-				}
-				$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
-			}).click(function() {
-				if (mainMenu.clicked) {
-					$('div.contener').hide();
-					mainMenu.clicked = !mainMenu.clicked;
-				} else {
-					outputView.menuList.getInstance().secure();
-					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-					$('div.contener').hide();
-					$('#' + label + '_contener').show();
-					mainMenu.clicked = !mainMenu.clicked;
-				}
+				jQuery('<span/>', {
+					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
+					css: {
+						fontSize:'9px',
+						color: 'rgba(255,255,255,0.7)',
+						float: 'right',
+						textAlign: "right",
+						padding: "2px 10px 0px 0px"
+					},
 
-
-			});
-
-			$("<div id=" + label + "_contener" + " class=contener style='box-shadow: inset 0 0 2px #ffffff; top:21px; position:absolute; width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
-			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
-		},
-
-		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
+			},
 
 
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
-				$('div.subcontener').hide();
-				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
-				var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.contener').hide();
-				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+			addSeparator: function addSeparator(groupLabel) {
+				$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+			},
+			hideGroup: function hideGroup(groupLabel) {
+				$('#' + groupLabel).hide();
+			},
+
+			showGroup: function showGroup(groupLabel) {
+				$('#' + groupLabel).show();
+			},
+
+
+			hideOption: function hideOption(groupLabel, optionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
+
+			},
+
+			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
+			},
+
+			showOption: function showOption(groupLabel, optionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
+
+			},
+			close: function close(){
 				mainMenu.clicked = false;
-			}).click(functionOnClick);
+				$('div.contener').hide();
+				$('div.subcontener').hide();
+				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-				css: {
-					fontSize : '9px',
-					color: 'rgba(255,255,255,0.7)',
-					float: 'right',
-					textAlign: "right",
-					padding: "3px 10px 0px 0px"
-				},
-
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
-		},
-
-		addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
-			/*
-				wejdź do grupy
-				wejdź do opcji
-				jeżeli nie ma kontenera - stwórz go
-				wstaw podopcję do opcji
-			*/
-
-			//var x = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width"));
-			// var y = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().top;
-
-			if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + " class=subcontener style='box-shadow: inset 0 0 2px #ffffff;position:absolute;width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#menuContener').hide();
-
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
-				css: {
-					float: 'right',
-					padding: "3px 0px 0px 0px"
-				},
-
-			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
 			}
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor:default; color:white; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.contener').hide();
-				$('div.subcontener').hide();
-				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-				mainMenu.clicked = false;
-			}).click(functionOnClick);
 
-			jQuery('<span/>', {
-				html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-				css: {
-					fontSize:'9px',
-					color: 'rgba(255,255,255,0.7)',
-					float: 'right',
-					textAlign: "right",
-					padding: "2px 10px 0px 0px"
-				},
+		};
 
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
-		},
-
-
-		addSeparator: function addSeparator(groupLabel) {
-			$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
-		},
-		hideGroup: function hideGroup(groupLabel) {
-			$('#' + groupLabel).hide();
-		},
-
-		showGroup: function showGroup(groupLabel) {
-			$('#' + groupLabel).show();
-		},
-
-
-		hideOption: function hideOption(groupLabel, optionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
-
-		},
-
-		hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
-		},
-
-		showOption: function showOption(groupLabel, optionLabel) {
-			$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
-
-		},
-		close: function close(){
-			mainMenu.clicked = false;
-			$('div.contener').hide();
-			$('div.subcontener').hide();
-			$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-
-		}
-
+		return mainMenu;	
 	};
-
-	return mainMenu;	
-};
 	function tooltipper() {
 		var opacity = .95,
 			tooltip = {
@@ -431,7 +431,6 @@ function menu(x, y, addToDiv) {
 								return this;
 							}
 						});
-
 				},
 				createTriangle: function createTriangle(path){
 					var tr = paper.path(path);
@@ -739,21 +738,22 @@ function menu(x, y, addToDiv) {
 			)
 		);
 		
-		var switchMode = function(arg){
+		var switchMode = function switchMode(arg){
 			return (function(){
 				gui.controler.reactOnEvent("SwitchMode", {mode: arg})
 			});
 		};
-		var startStop = function(){
+		var startStop = function startStop(){
 			gui.controler.reactOnEvent("AddStartStopAutomatically");
 		};
-		var f3 = function(){alert("this is just for debugging")};
-
 		var editInputVariables = function editInputVariables(){
 			gui.view.form.editInputVariables();
-		}
+		};
 		var editNonFunctionalParameters = function editNonFunctionalParameters(){
 			gui.view.form.editGlobalNonFunctionalParameters();
+		};
+		var save = function save(){
+			gui.controler.saveNewGraph();
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);
@@ -761,6 +761,7 @@ function menu(x, y, addToDiv) {
 		result.addOption("Views", "CF", switchMode("CF"), "ControlFlow");
 		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
 		result.addGroup("Edit");
+		result.addOption("Edit", "Save", save, "SaveGraph");
 		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
 		result.addGroup("Graph Options");
 		result.addOption("Graph Options", "Input Variables", editInputVariables, "editInputVariables");
@@ -1222,7 +1223,7 @@ function menu(x, y, addToDiv) {
 					$("#f_addGlobalNFPropertyForm").dialog("close");	
 				}
 			},
-// ============================================================================================================-    ond of edit by Włodek
+		// ============================================================================================================-    ond of edit by Włodek
 			
 			initToEdit: function initToEdit(node){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
@@ -3046,6 +3047,7 @@ function menu(x, y, addToDiv) {
 				$.each(this.current_graph_view.edgesDF, function(){
 					this.switchMode(mode);
 				});
+				this.current_graph_view.mode = mode;
 				this.mode = mode;
 			}
 		},
@@ -3057,6 +3059,7 @@ function menu(x, y, addToDiv) {
 				;
 
 			if(n && n.length > 0){
+				// inner()
 				tab_XML.push( "<graphView>\n" );
 					tab_XML.push( "\t<graph_id>"+id+"</graph_id>\n" );
 					tab_XML.push( "\t<graphView_properties>\n");
@@ -3962,7 +3965,11 @@ function menu(x, y, addToDiv) {
 				id : "",
 				nodes : [],
 				edgesCF : [],
-				edgesDF : []
+				edgesDF : [],
+				xPos : 0,
+				yPos : 0,
+				scale : 100,
+				mode : "DF"
 			};
 		},
 		setBlankGraphAsCurrent : function setBlankGraphAsCurrent(){

@@ -361,11 +361,11 @@ function Controler(url, gui){
 			if(animation) clearInterval(animation);
 			buttonBG.animate({"fill-opacity": 0.75}, 500);
 			$('*').css('cursor','pointer');
-			bGlow = buttonBG.glow();
+			// bGlow = buttonBG.glow();
 		});
 		mask.mouseout(function(){
 			$('*').css('cursor','default');
-			bGlow.remove();
+			if(bGlow) bGlow.remove();
 		});
 
 		//context menu
@@ -1168,6 +1168,14 @@ function Controler(url, gui){
 						that.loadSSDL(e.url);
 					}
 				})(evtObj); break;
+				case "SAVE" : (function (e) {
+					var savedSSDL = that.convertJSON2XML();
+					
+					
+					
+					// save(sUrl, data, type, fun_success, dataType, fun_error)
+
+				})(); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
@@ -1452,27 +1460,17 @@ function Controler(url, gui){
 				}
 			});
 		},
-		save: function save(sUrl, data, fun_success, dataType, fun_error){
-			res = xmlToString(data);
-			res = "ssdl=" + res;
+		save: function save(sUrl, data, type, fun_success, dataType, fun_error){
 			$.ajax({
 				url: sUrl,
-				type: "POST",
+				type: type,
 				dataType : dataType || 'text',
-				data: res,
+				data: data,
 				success: fun_success || function(res, status, jqXHR){
-					// console.group("AJAX QUERY RESULTS:");
-					// console.info("Send data to "+sUrl+" with status: "+status);
-					// console.group("Response:");
-					// console.log(res);
-					// console.groupEnd();
-					// console.groupEnd();
+					// alert("saved");
 				},
 				error: fun_error || function(jqXHR, status, e){
-					// console.group("AJAX QUERY RESULTS:");
-					// console.error("Error while sending data to "+sUrl);
-					// console.log(status+": "+e);
-					// console.groupEnd();
+					// alert("error");
 				}
 			});
 		},
@@ -1713,7 +1711,7 @@ function Controler(url, gui){
 
 			return tab;
 		},
-		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {			
+		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
 			function parseGraph(subgraph, tabulacja){
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
@@ -1881,7 +1879,6 @@ function Controler(url, gui){
 				tabOutput.push(tabulacja+"\t</node>\n");
 			}
 
-
 			var tabOutput = [],
 				physicalDescription,
 				functionalDescription,
@@ -1895,8 +1892,10 @@ function Controler(url, gui){
 
 			var stringXML = tabOutput.join("");
 
-			if(!humanFriendly)
-				stringXML = stringXML.replace(/\t</g, "").replace(/\n/g, "");
+			if(!humanFriendly){
+				stringXML = stringXML.replace(/\t/g, "").replace(/\n/g, "");
+				alert(humanFriendly)
+			}
 
 			return stringXML;
 		},
@@ -2046,63 +2045,13 @@ function Controler(url, gui){
 
 			return result;
 		},
-		saveSSDL : function saveSSDL(){
-			// var idObj = {},
-			// 	gId,
-			// 	nId,
-			// 	that = this
-			// ;
-			// $.each(this.graphData_tab, function(key, graph){
-			// 	gId = graph.id;
-			// 	idObj[gId] = {
-			// 		graph : that.getGraphById(gId),
-			// 		ids : []
-			// 	};
-			// 	$.each(graph.nodes, function(){
-			// 		nId = this.nodeId;
-			// 		if(nId != "#Start" && nId != "#End"){
-			// 			idObj[gId].ids.push(this.nodeId);
-			// 		}
-
-			// 	})
-			// });
-
-			// var beenThere;
-			// $.each(idObj, function(key, val){
-			// 	beenThere = false;
-			// 	$.each(idObj, function(i, v){
-			// 		if(key !== i){
-			// 			$.each(v.ids, function(j, w){
-			// 				console.log(key, val, i, v, j, w)
-			// 				if(key === w){
-			// 					v.graph.subgraph = val;
-			// 					beenThere = true;
-			// 				}
-			// 			});	
-			// 		}
-			// 	});
-			// 	if(beenThere){
-			// 		delete idObj[key];
-			// 	}
-			// });
-
-			// tu przerwał i zobaczył, że każdy graf w tablicy i tak ma referencję do swojego subgraphu...
-			// zaczynamy inaczej:
-
+		saveSSDL : function saveSSDL(humanFriendly){
 			var root = this.getRoot();
-			var xml = this.convertJSON2XML(root, true);
-			// this.save(url, 'xml', function(txt){
-				// gui.logger.info("Zapisano SSDL "+root.id);
-			// }, 'text', function(txt){
-				// gui.logger.info("Nie udało się zapisać SSDL "+root.id);
-			// })
-
-			// raport(xml);
+			var xml = this.convertJSON2XML(root, humanFriendly);
 
 			return xml;
 		}
 	}
-	//var g = A.view.current_graph_view.edgesDF[0].arrow[1].glow({     color: '#ff0',     width: 5   });
 
 	$('body').click(function(){
 		controlerObject.reactOnEvent("ESCAPE");
