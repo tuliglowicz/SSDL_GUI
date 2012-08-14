@@ -3349,7 +3349,7 @@ function View(id, width, height, gui){
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
-							if(confirm("Czy chcesz dodaÄ‡ nowe wejÅ›cie w wierzchoÅ‚ku o etykiecie "+targetNode.label+" ?")){
+							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
 									targetId : targetNode.id,
@@ -3385,7 +3385,7 @@ function View(id, width, height, gui){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubujesz dodaÄ‡ krawÄ™dÅº, kr�?³ta juÅ¼ istnieje.");
+				gui.controler.reactOnEvent("error", "Prubójesz dodać krawędź, która już istnieje.");
 			}
 			else {
 				var edgeObject = {
