@@ -8,128 +8,118 @@
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
+
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
-	
+
+
 	// suppported by Matka Boska Partyzantcka 
-	function menu(x, y, addToDiv) {
-		var mainMenu = {
-			przesuwne: 0,
-			clicked: false,
-			menuContener: $("<div id='menuContener' style='top:" + y + "px; left:" + x + "px; position:absolute; z-index:1000; text-align:center;  width:100%;font-weight:bold; height:30px;'> </div>").appendTo('#'+addToDiv),
+function menu(x, y, addToDiv,lang) {
 
-			addGroup: function addGroup(label) {
+	function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
 
-				$("<div id=" + label + " class=menuGroup style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); cursor:default; top:0px; color:white; padding: 5px 0px 0px 0px; text-align:center; font-family:Sans-serif; float:left; font-size:11px; height:16px; width:90px; left:" + mainMenu.przesuwne + "'>" + label + "</div>").appendTo('#menuContener').mouseenter(function() {
+	var mainMenu = {
+		przesuwne: 0,
+		clicked: false,
+		menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
 
-					if (mainMenu.clicked) {
-						
-						$('div.contener').hide();
-						$('div.subcontener').hide();
-						$('#' + label + '_contener').show();
-						$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+		addGroup: function addGroup(label) {
+			$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
-					}
-					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-				}).mouseleave(function() {
-					if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
-				}).click(function() {
-					if (mainMenu.clicked) {
-						$('div.contener').hide();
-						mainMenu.clicked = !mainMenu.clicked;
-					} else {
-						outputView.menuList.getInstance().secure();
-						$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-						$('div.contener').hide();
-						$('#' + label + '_contener').show();
-						mainMenu.clicked = !mainMenu.clicked;
-					}
+				if (mainMenu.clicked) {
+					
+					$('div.mMenuContener').hide();
+					$('div.mMenuSubcontener').hide();
+					$('#' + label + '_contener').show();
+					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 
-
-				});
-
-				$("<div id=" + label + "_contener" + " class=contener style='box-shadow: inset 0 0 2px #ffffff; top:21px; position:absolute; width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x; left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
-				mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
-			},
-
-			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
-
-
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor=default; color:white; top:0px; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + optionLabel + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
-					$('div.subcontener').hide();
-					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
-					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
-					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-				}).mouseleave(function() {
-					$(this).css('background-image', "none");
-				}).click(function() {
-					$('div.contener').hide();
-					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					mainMenu.clicked = false;
-				}).click(functionOnClick);
-
-				jQuery('<span/>', {
-					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-					css: {
-						fontSize : '9px',
-						color: 'rgba(255,255,255,0.7)',
-						float: 'right',
-						textAlign: "right",
-						padding: "3px 10px 0px 0px"
-					},
-
-				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
-			},
-
-			addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
-				/*
-					wejdź do grupy
-					wejdź do opcji
-					jeżeli nie ma kontenera - stwórz go
-					wstaw podopcję do opcji
-				*/
-
-				//var x = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().left + parseInt($('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width"));
-				// var y = $('#' + groupLabel + "_" + optionLabel.replace(/ /g, "_")).position().top;
-
-				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
-					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + " class=subcontener style='box-shadow: inset 0 0 2px #ffffff;position:absolute;width:auto;height:auto;cursor:default; background-image :url(images/dropdown-list-bg.gif); background-repeat:repeat-x;left:150'></div>").appendTo('#menuContener').hide();
-
-				jQuery('<span/>', {
-					html: "&nbsp &nbsp &nbsp &nbsp" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
-					css: {
-						float: 'right',
-						padding: "3px 0px 0px 0px"
-					},
-
-				}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
 				}
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=" + groupLabel + 'Option' + " style=' cursor:default; color:white; padding:5px 0px 5px 10px; text-align:left; font-size:11px; width:auto; font-family:Sans-serif; height:14px; left=" + $('#' + groupLabel).position().left + "'>" + subOptionLabel + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
-					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-				}).mouseleave(function() {
-					$(this).css('background-image', "none");
-				}).click(function() {
-					$('div.contener').hide();
-					$('div.subcontener').hide();
-					$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					mainMenu.clicked = false;
-				}).click(functionOnClick);
+				$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
+			}).click(function() {
+				if (mainMenu.clicked) {
+					$('div.mMenuContener').hide();
+					mainMenu.clicked = !mainMenu.clicked;
+				} else {
+					outputView.menuList.getInstance().secure();
+					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+					$('div.mMenuContener').hide();
+					$('#' + label + '_contener').show();
+					mainMenu.clicked = !mainMenu.clicked;
+				}
 
-				jQuery('<span/>', {
-					html: "&nbsp &nbsp &nbsp &nbsp" + shortcutString,
-					css: {
-						fontSize:'9px',
-						color: 'rgba(255,255,255,0.7)',
-						float: 'right',
-						textAlign: "right",
-						padding: "2px 10px 0px 0px"
-					},
 
-				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
-			},
+			});
+
+			$("<div id=" + label + "_contener" + " class=mMenuContener style='left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
+		},
+
+		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+				$('div.mMenuSubcontener').hide();
+				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
+				var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
+				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				$(this).css('background-image', "none");
+			}).click(function() {
+				$('div.mMenuContener').hide();
+				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+				mainMenu.clicked = false;
+			}).click(functionOnClick);
+
+			jQuery('<span/>', {
+				class: 'mMenuShortcutDiv',
+				html: "&nbsp;&nbsp;&nbsp;&nbsp" + shortcutString,
+			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
+		},
+
+		addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
+
+			if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + "  class=mMenuSubcontener></div>").appendTo('#menuContener').hide();
+
+			jQuery('<div/>', {
+				html: "&nbsp;&nbsp;&nbsp;&nbsp;" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
+				css: {
+					float: 'right',
+					padding: "3px 0px 0px 0px"
+				},
+
+			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
+			}
+			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=mMenuSubOption  style='   left=" + $('#' + groupLabel).position().left + "'>" + "" + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
+				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+			}).mouseleave(function() {
+				$(this).css('background-image', "none");
+			}).click(function() {
+				$('div.mMenuContener').hide();
+				$('div.mMenuSubcontener').hide();
+				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+				mainMenu.clicked = false;
+			}).click(functionOnClick);
+
+			$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
+			
+			jQuery('<div/>', {
+				html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
+				class: 'mMenuShortcutDiv'
+
+			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
+
+
+		},
 
 
 			addSeparator: function addSeparator(groupLabel) {
@@ -341,7 +331,7 @@ function View(id, width, height, gui){
 		//addGroup(label) dodaje grupÄ™ o zadanym labelu
 		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
 		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
-		//Po dodaniu czegokolwiek nastÄ™puje automatyczne rozmieszczenie element�?³w na pasku.
+		//Po dodaniu czegokolwiek nastÄ™puje automatyczne rozmieszczenie element�?³w na pasku.
 		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
 		//Analogicznie pokazywanie elementu, PRZY CZYM:
 		//- showGroup() pokazuje grupÄ™ wraz ze wszystkimi opcjami
@@ -676,7 +666,7 @@ function View(id, width, height, gui){
 				},
 				relocate: function relocate(){
 					var sum = 10, that = this;
-					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separator�?³w, jeÅ¼eli
+					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separator�?³w, jeÅ¼eli
 					//uÅ¼ytkownik ma otwarty pasek podczas hide'owania czegoÅ›
 					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystÄ…piÄ‡?
 					$.each(this.separators, function(){
@@ -705,7 +695,7 @@ function View(id, width, height, gui){
 						});
 				},
 				generalResize: function generalResize(arg){
-					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label button�?³w, non-obligatory
+					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label button�?³w, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeChange(arg);
@@ -1760,7 +1750,7 @@ function View(id, width, height, gui){
 			// 	source.remove();
 			// },
 
-			//w tym jest bezczelna partyzantka - dop�?³ki nie znajdÄ™ sposobu na uzyskanie referencji do 
+			//w tym jest bezczelna partyzantka - dop�?³ki nie znajdÄ™ sposobu na uzyskanie referencji do 
 			//$('#physicalDescriptionTab'), majÄ…c tylko id taba
 			//var index = jQuery('#tabs').data('tabs').options.selected; 
 			//
@@ -2580,7 +2570,7 @@ function View(id, width, height, gui){
 				input_length = node.inputs.length;
 				output_length = node.outputs.length;
 
-				//obliczanie punkt�?³w na okrÄ™gu
+				//obliczanie punkt�?³w na okrÄ™gu
 				x1 = (node.x+node.r) - 10;
 				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
 				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
@@ -3401,7 +3391,7 @@ function View(id, width, height, gui){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubujesz dodaÄ‡ krawÄ™dÅº, kr�?³ta juÅ¼ istnieje.");
+				gui.controler.reactOnEvent("error", "Prubujesz dodaÄ‡ krawÄ™dÅº, kr�?³ta juÅ¼ istnieje.");
 			}
 			else {
 				var edgeObject = {
@@ -3723,7 +3713,7 @@ function View(id, width, height, gui){
 				for(j=0, jMax=targetConnectors.length; j<jMax; j++){
 					dx = sourceConnectors[i][0]-targetConnectors[j][0]; // odleglosc w poziomie
 					dy = sourceConnectors[i][1]-targetConnectors[j][1];	// odleglosc w pionie
-					dz = dx*dx + dy*dy;	// odleglo�?…â€º�?„â€¡
+					dz = dx*dx + dy*dy;	// odleglo�?…â€º�?„â€¡
 					if(dz < minOdl)
 					{
 						minI = i;
@@ -3755,7 +3745,7 @@ function View(id, width, height, gui){
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_menu_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp; <span> </span></div>");
+			html.push("<div id='top_menu_"+pf+"' style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); width: "+(this.width-2)+"px; height:"+heightOfTopBar+"px; border:1px solid black;'>&nbsp; <span> </span></div>");
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
@@ -4213,23 +4203,44 @@ function View(id, width, height, gui){
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(190,9,"top_menu_"+pf);
-	outputView.mainMenu.addGroup("New");
-	outputView.mainMenu.addGroup("Open");
+	outputView.mainMenu = menu(190,9,"top_menu_"+pf,"english");
+	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");								
-	outputView.mainMenu.addOption("New", "Node ", function(){}, "");
-	outputView.mainMenu.addSubOption("New", "Node ", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
-	outputView.mainMenu.addSubOption("New", "Node ", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("New", "Node ", "Testowanie czy moÅ¼e byÄ‡ odpowienio dÅ‚uga nazwa dodawanego node", function(){alert("New functional node added!")}, "CTRL+N+F");
-	outputView.mainMenu.addOption("Open", "Graph", function(){alert("Graph loaded!")}, "CTRL+G");
-	outputView.mainMenu.addSubOption("Open", "Graph", "Testing", function(){alert("Graph loaded!")}, "CTRL+G");
-	outputView.mainMenu.addOption("New","Start - Stop",function(){alert("Start and Stop added!")},"CTRL+S+A");
+	outputView.mainMenu.addGroup("Graph");
+	outputView.mainMenu.addGroup("View");
+	outputView.mainMenu.addGroup("Help");
+	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
+	outputView.mainMenu.addSeparator("File");
+	outputView.mainMenu.addOption("File", "Load", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Load","From DB", function(){},"" );
+	outputView.mainMenu.addSubOption("File","Load","From File", function(){},"" );
+	outputView.mainMenu.addOption("File", "Save", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Save","To DB", function(){},"" );
+	outputView.mainMenu.addSubOption("File","Save","To File", function(){},"" );
+	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){},"" );
+	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
+	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){alert("Start and Stop added!")},"CTRL+S+A");
+	outputView.mainMenu.addOption("Graph", "Validate", function(){}, "");
+	outputView.mainMenu.addOption("Graph", "Test", function(){}, "");
+	outputView.mainMenu.addOption("View", "Control Flow", function(){}, "");
+	outputView.mainMenu.addOption("View", "Data Flow" , function(){}, "");
+	outputView.mainMenu.addSeparator("View");
+	outputView.mainMenu.addOption("View", "Console" , function(){}, "");
 	outputView.mainMenu.addOption("Edit","Undo",function(){alert("programuje hardo!")},"");
 	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("One step behind...")}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Back to the begining...")}, "CTRL+Z+A");									
 	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("One step closer...")}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("The end...")}, "CTRL+Z+A");
+	outputView.mainMenu.addSeparator("Edit");
+	outputView.mainMenu.addOption("Edit","Input Variables",function(){alert("programuje hardo!")},"");
+	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){alert("programuje hardo!")},"");
+	outputView.mainMenu.addSeparator("Edit")
+	outputView.mainMenu.addOption("Edit","Clear",function(){alert("programuje hardo!")},"");
+	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
+	outputView.mainMenu.addSeparator("Help");
+	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
 	outputView.menuList.getInstance().push(outputView.mainMenu);
 
 	var	lastDragX,
@@ -4288,7 +4299,7 @@ function View(id, width, height, gui){
 			// gui.view.paper.rect(ox+x, oy+y, 2, 2).attr("fill", "red");
 				
 
-			// TUTAJ POWINNO BYC WYS�?…?ANIE EVENTU DO KONTROLERA Z 4MA WSP??â€œ�?…?�?…Â»�?„?DNYMI
+			// TUTAJ POWINNO BYC WYS�?…?ANIE EVENTU DO KONTROLERA Z 4MA WSP??â€œ�?…?�?…Â»�?„?DNYMI
 			gui.view.setBoldNodesInsideRect(x1,y1,x2,y2);			
 		},
 		bgStop = function(evt){
@@ -4309,7 +4320,7 @@ function View(id, width, height, gui){
 				else
 					y1+=lastDragY;
 				
-				// TUTAJ POWINNO BY�?„â€  WYS�?…?ANIE EVENTU DO KONTROLERA Z SELEKTEM
+				// TUTAJ POWINNO BY�?„â€  WYS�?…?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
 				gui.controler.reactOnEvent("SELECT", {
 					x1 : x1,
