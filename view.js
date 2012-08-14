@@ -14,147 +14,127 @@ function View(id, width, height, gui){
 
 
 	// suppported by Matka Boska Partyzantcka 
-function menu(x, y, addToDiv,lang) {
+	function menu(x, y, addToDiv,lang) {
+	
+		var mainMenu = {
+			przesuwne: 0,
+			clicked: false,
+			menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
 
-	function camelize(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-    return index == 0 ? match.toLowerCase() : match.toUpperCase();
-  });
-}
+			addGroup: function addGroup(label) {
+				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
-	var mainMenu = {
-		przesuwne: 0,
-		clicked: false,
-		menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
+					if (mainMenu.clicked) {
+						
+						$('div.mMenuContener').hide();
+						$('div.mMenuSubcontener').hide();
+						$('#' + label + '_contener').show();
+						$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 
-		addGroup: function addGroup(label) {
-			$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
+					}
+					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
+				}).click(function() {
+					if (mainMenu.clicked) {
+						$('div.mMenuContener').hide();
+						mainMenu.clicked = !mainMenu.clicked;
+					} else {
+						outputView.menuList.getInstance().secure();
+						$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+						$('div.mMenuContener').hide();
+						$('#' + label + '_contener').show();
+						mainMenu.clicked = !mainMenu.clicked;
+					}
 
-				if (mainMenu.clicked) {
-					
+
+				});
+
+				$("<div id=" + label + "_contener" + " class=mMenuContener style='left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
+				mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
+			},
+
+			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
+
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+					$('div.mMenuSubcontener').hide();
+					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
+					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
+					$('div.mMenuContener').hide();
+					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
+
+				jQuery('<span/>', {
+					class: 'mMenuShortcutDiv',
+					html: "&nbsp;&nbsp;&nbsp;&nbsp" + shortcutString,
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
+			},
+
+			addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
+
+				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
+					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + "  class=mMenuSubcontener></div>").appendTo('#menuContener').hide();
+
+				jQuery('<div/>', {
+					html: "&nbsp;&nbsp;&nbsp;&nbsp;" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
+					css: {
+						float: 'right',
+						padding: "3px 0px 0px 0px"
+					},
+
+				}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
+				}
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=mMenuSubOption  style='   left=" + $('#' + groupLabel).position().left + "'>" + "" + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
+					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+				}).mouseleave(function() {
+					$(this).css('background-image', "none");
+				}).click(function() {
 					$('div.mMenuContener').hide();
 					$('div.mMenuSubcontener').hide();
-					$('#' + label + '_contener').show();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					mainMenu.clicked = false;
+				}).click(functionOnClick);
 
-				}
-				$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				if (mainMenu.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
-			}).click(function() {
-				if (mainMenu.clicked) {
-					$('div.mMenuContener').hide();
-					mainMenu.clicked = !mainMenu.clicked;
-				} else {
-					outputView.menuList.getInstance().secure();
-					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-					$('div.mMenuContener').hide();
-					$('#' + label + '_contener').show();
-					mainMenu.clicked = !mainMenu.clicked;
-				}
+				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
+				
+				jQuery('<div/>', {
+					html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
+					class: 'mMenuShortcutDiv'
 
-
-			});
-
-			$("<div id=" + label + "_contener" + " class=mMenuContener style='left:" + mainMenu.przesuwne + "px'></div>").appendTo('#menuContener').hide();
-			mainMenu.przesuwne = mainMenu.przesuwne + $('#' + label).width();
-		},
-
-		addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
-
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
-				$('div.mMenuSubcontener').hide();
-				var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
-				var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.mMenuContener').hide();
-				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-				mainMenu.clicked = false;
-			}).click(functionOnClick);
-
-			jQuery('<span/>', {
-				class: 'mMenuShortcutDiv',
-				html: "&nbsp;&nbsp;&nbsp;&nbsp" + shortcutString,
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
-		},
-
-		addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
-
-			if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + "  class=mMenuSubcontener></div>").appendTo('#menuContener').hide();
-
-			jQuery('<div/>', {
-				html: "&nbsp;&nbsp;&nbsp;&nbsp;" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
-				css: {
-					float: 'right',
-					padding: "3px 0px 0px 0px"
-				},
-
-			}).appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
-			}
-			$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=mMenuSubOption  style='   left=" + $('#' + groupLabel).position().left + "'>" + "" + " </div>").appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener")).mouseenter(function() {
-				$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
-			}).mouseleave(function() {
-				$(this).css('background-image', "none");
-			}).click(function() {
-				$('div.mMenuContener').hide();
-				$('div.mMenuSubcontener').hide();
-				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-				mainMenu.clicked = false;
-			}).click(functionOnClick);
-
-			$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
-			
-			jQuery('<div/>', {
-				html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
-				class: 'mMenuShortcutDiv'
-
-			}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
-
-
-		},
-
-
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
+			},
 			addSeparator: function addSeparator(groupLabel) {
 				$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
 			},
 			hideGroup: function hideGroup(groupLabel) {
 				$('#' + groupLabel).hide();
 			},
-
 			showGroup: function showGroup(groupLabel) {
 				$('#' + groupLabel).show();
 			},
-
-
 			hideOption: function hideOption(groupLabel, optionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
-
 			},
-
 			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
 			},
-
 			showOption: function showOption(groupLabel, optionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
-
 			},
 			close: function close(){
 				mainMenu.clicked = false;
-				$('div.contener').hide();
-				$('div.subcontener').hide();
-				$('div.menuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-
+				$('div.mMenuContener').hide();
+				$('div.mMenuSubcontener').hide();
+				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 			}
-
 		};
 
 		return mainMenu;	
@@ -3349,7 +3329,7 @@ function menu(x, y, addToDiv,lang) {
 							 	CF_or_DF: "DF"
 							});
 						} else {
-							gui.logger.error("Error", "You tried to make connection between input and output od different data types")
+							gui.logger.error("Error", "You tried to make connection between input and output of different data types")
 						}
 					}
 					else {
@@ -4203,7 +4183,7 @@ function menu(x, y, addToDiv,lang) {
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(190,9,"top_menu_"+pf,"english");
+	outputView.mainMenu = menu(190,9,"top_menu_"+pf,"polish");
 	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addGroup("Graph");
@@ -4220,13 +4200,13 @@ function menu(x, y, addToDiv,lang) {
 	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){},"" );
 	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
 	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){alert("Start and Stop added!")},"CTRL+S+A");
+	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 	outputView.mainMenu.addOption("Graph", "Validate", function(){}, "");
 	outputView.mainMenu.addOption("Graph", "Test", function(){}, "");
-	outputView.mainMenu.addOption("View", "Control Flow", function(){}, "");
-	outputView.mainMenu.addOption("View", "Data Flow" , function(){}, "");
+	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
 	outputView.mainMenu.addSeparator("View");
-	outputView.mainMenu.addOption("View", "Console" , function(){}, "");
+	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
 	outputView.mainMenu.addOption("Edit","Undo",function(){alert("programuje hardo!")},"");
 	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("One step behind...")}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Back to the begining...")}, "CTRL+Z+A");									

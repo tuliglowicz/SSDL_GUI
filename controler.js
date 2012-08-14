@@ -1170,9 +1170,9 @@ function Controler(url, gui){
 				})(evtObj); break;
 				case "SAVE" : (function (e) {
 					var savedSSDL = that.convertJSON2XML();
+
 					
-					
-					
+
 					// save(sUrl, data, type, fun_success, dataType, fun_error)
 
 				})(); break;
@@ -2053,7 +2053,7 @@ function Controler(url, gui){
 		}
 	}
 
-	$('body').click(function(){
+	$('html').click(function(){
 		controlerObject.reactOnEvent("ESCAPE");
 	});
 	controlerObject.reactOnEvent("START");
