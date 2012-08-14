@@ -1,5 +1,15 @@
+
 var language = {
 	polish : {
+		alerts: {
+				errors: {
+					ioDiffType: "Próbowałeś połączyć wyjście i wejście o innych typach danych.",
+					shortcutAdded: " jest już używany!",
+					shortcut: " skrót ",
+					shortcutNotDefined: "nie jest jeszcze zdefiniowany"
+				}
+
+		},
 		forms: {
 			label: "etykieta",
 			description: "opis",
@@ -27,6 +37,19 @@ var language = {
 			inputs: "Wejścia",
 			outputs: "Wyjścia",
 			nonFunctionalDesc: "Opis niefunkcjonalny"
+		},
+
+		logger:{
+			console_CL: "Zamknij konsolę",
+			console_SA: "zaznacz wszystkie",
+			console_DA: "odznacz wszystkie",
+			console_D: "usuń zaznaczone",
+			show: "Pokaż: ",			
+			close: "Zamknij",
+			shInfo: "pokaż/ukryj informacje",
+			shWarning: "pokaż/ukryj ostrzeżenia",
+			shError: "pokaż/ukryj błędy",
+			delComm: "usuń komunikat"
 		},
 
 		mainMenu:{
@@ -77,6 +100,15 @@ var language = {
 		}
 	},
 	english: {
+		alerts: {
+				errors: {
+					ioDiffType: "You tried to make connection between input and output of different data types",
+					shortcutAdded: " is being used!",
+					shortcut: "shortcut",
+					shortcutNotDefined: "is not defined!"
+				}
+
+		},
 		forms: {
 			label: "label",
 			description: "description",
@@ -105,6 +137,21 @@ var language = {
 			outputs: "Outputs",
 			nonFunctionalDesc: "nonFunctionalDescription"
 		},
+
+		logger:{
+			console_CL: "Close console",
+			console_SA: "select all",
+			console_DA: "deselect all",
+			console_D: "delete selected",
+			show: "Show: ",			
+			close: "Close",
+			shInfo: "show/hide information",
+			shWarning: "show/hide warnings",
+			shError: "show/hide errors",
+			delComm: "delete communicate",
+
+		},
+
 		mainMenu:{
 			file: "File",
 			edit: "Edit",

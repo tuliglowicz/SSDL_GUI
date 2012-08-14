@@ -11,9 +11,8 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
-
 	// suppported by Matka Boska Partyzantcka 
-	function menu(x, y, addToDiv,lang) {
+	function menu(x, y, addToDiv) {
 	
 		var mainMenu = {
 			przesuwne: 0,
@@ -21,7 +20,7 @@ function View(id, width, height, gui){
 			menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
 
 			addGroup: function addGroup(label) {
-				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
+				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[gui.language].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
 					if (mainMenu.clicked) {
 						
@@ -55,7 +54,7 @@ function View(id, width, height, gui){
 
 			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
 
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[gui.language].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
 					$('div.mMenuSubcontener').hide();
 					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
 					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
@@ -102,7 +101,7 @@ function View(id, width, height, gui){
 					mainMenu.clicked = false;
 				}).click(functionOnClick);
 
-				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
+				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[gui.language].mainMenu[camelize(subOptionLabel)] || ""));
 				
 				jQuery('<div/>', {
 					html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
@@ -2231,6 +2230,7 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
+					menu : null,
 					removeView : function(){
 						function remove(){
 							if(this.remove)
@@ -2475,6 +2475,7 @@ function View(id, width, height, gui){
 						});
 					},
 					showNode : function showNode(){
+						this.buildMenu();
 						$.each(this.set, function(){
 							this.show();
 						});
@@ -2487,6 +2488,20 @@ function View(id, width, height, gui){
 						$.each(this.connectors, function(){
 							this.show();
 						});
+					},
+					buildMenu : function buildMenu(){
+						if(!this.menu){
+							this.menu = view.contextMenu(this.set);
+							this.menu.addOption('Properties');
+							this.menu.addOption('Edit subgraph');
+							this.menu.addOption('Test');
+							this.menu.addSeparator();
+							this.menu.addOption('Cut');
+							this.menu.addOption('Copy');
+							this.menu.addOption('Copy with reference');
+							this.menu.addOption('Paste');
+							this.menu.addOption('Delete');
+						}
 					}
 				}
 				
@@ -3333,7 +3348,7 @@ function View(id, width, height, gui){
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
-							if(confirm("Czy chcesz dodaÄ‡ nowe wejÅ›cie w wierzchoÅ‚ku o etykiecie "+targetNode.label+" ?")){
+							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
 									targetId : targetNode.id,
@@ -3369,7 +3384,7 @@ function View(id, width, height, gui){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubujesz dodaÄ‡ krawÄ™dÅº, kr�?³ta juÅ¼ istnieje.");
+				gui.controler.reactOnEvent("error", "Prubójesz dodać krawędź, która już istnieje.");
 			}
 			else {
 				var edgeObject = {
@@ -4054,9 +4069,9 @@ function View(id, width, height, gui){
 						top: y,
 						left: x,
 						'text-align': 'left',
-						padding: '3px',
+						padding: '6px',
 						cursor: 'pointer',
-						'box-shadow': '2px 2px 3px black'
+						'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.2)'
 					}				
 				});
 				div.append(txt);
@@ -4090,7 +4105,7 @@ function View(id, width, height, gui){
 					if(opt.invokedEvent){
 						if(typeof opt.invokedEvent == 'function'){
 							opt.invokedEvent(opt.eventObject);
-						}else{
+						}else if(typeof opt.invokedEvent == 'string'){
 							gui.controler.reactOnEvent(opt.invokedEvent, opt.eventObject);
 						}
 					}
@@ -4132,6 +4147,9 @@ function View(id, width, height, gui){
 				getOption: function(label){
 					return root.getOption(label);
 				},
+				addSeparator: function(){
+					root.addSeparator();
+				},
 				open: function(event){
 					if(!that.menuList.getInstance().isOpen() && opened.length == 0){
 						event = event || window.event;
@@ -4153,20 +4171,33 @@ function View(id, width, height, gui){
 				}
 			}
 
-			//event listeners
-			caller.onClick = function(event){
-				event = event || window.event;
-				if(event.button == 0){
-					menu.close();
-				}
-				return false;
-			}
-			caller.oncontextmenu = function(event){
+			//universal open with event
+			var checkNOpen = function(event){
 				event = event || window.event;
 				if(event.button == 2){
 					menu.open(event);
 				}
 				return false;
+			};
+			//event listeners for id or raphael set
+			if(typeof listenedObjId == 'string'){
+				var caller = document.getElementById(listenedObjId);
+				caller.oncontextmenu = function(event){
+					return checkNOpen(event);
+				}
+			}else{
+				var caller = listenedObjId;
+				if(!caller.items){
+					$(caller.node).bind("contextmenu", function(event){
+    					return checkNOpen(event);
+					});
+				}else{
+					$.each(caller.items, function(){
+						$(this.node).bind("contextmenu", function(event){
+		    				return checkNOpen(event);
+						});
+					});
+				}
 			}
 
 			//pushing into menu list
@@ -4190,32 +4221,38 @@ function View(id, width, height, gui){
 	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
 	outputView.mainMenu.addSeparator("File");
 	outputView.mainMenu.addOption("File", "Load", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Load","From DB", function(){},"" );
-	outputView.mainMenu.addSubOption("File","Load","From File", function(){},"" );
+	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
 	outputView.mainMenu.addOption("File", "Save", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Save","To DB", function(){},"" );
-	outputView.mainMenu.addSubOption("File","Save","To File", function(){},"" );
-	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){},"" );
-	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){alert("New service node added!")}, "CTRL+N+S");
-	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){alert("New functional node added!")}, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){alert("Start and Stop added!")},"CTRL+S+A");
-	outputView.mainMenu.addOption("Graph", "Validate", function(){}, "");
-	outputView.mainMenu.addOption("Graph", "Test", function(){}, "");
-	outputView.mainMenu.addOption("View", "Control Flow", function(){}, "");
-	outputView.mainMenu.addOption("View", "Data Flow" , function(){}, "");
+	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
+		var nodeType="Service";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
+			}, "CTRL+N+S");
+	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
+	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
 	outputView.mainMenu.addSeparator("View");
-	outputView.mainMenu.addOption("View", "Console" , function(){}, "");
-	outputView.mainMenu.addOption("Edit","Undo",function(){alert("programuje hardo!")},"");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("One step behind...")}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Back to the begining...")}, "CTRL+Z+A");									
-	outputView.mainMenu.addOption("Edit","Redo",function(){alert("programuje hardo!")},"");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("One step closer...")}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("The end...")}, "CTRL+Z+A");
+	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
+	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");									
+	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
 	outputView.mainMenu.addSeparator("Edit");
-	outputView.mainMenu.addOption("Edit","Input Variables",function(){alert("programuje hardo!")},"");
-	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){alert("programuje hardo!")},"");
+	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
+	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
 	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){alert("programuje hardo!")},"");
+	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy napewno? Ten clear nie działa jak trzeba!" ); if(clearer)gui.view.removeAllGraphs();},"");
 	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
 	outputView.mainMenu.addSeparator("Help");
 	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");

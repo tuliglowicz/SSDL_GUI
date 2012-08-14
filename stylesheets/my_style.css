@@ -17,23 +17,23 @@
 	}
 
 	.mMenuMainContener {
-
+		font-weight:  bold;
 		position:absolute; 
 		z-index:1000; 
 		text-align:center;  
 		width:100%;
-		font-weight:bold; 
 		height:30px;
 	
 	}
 
 	.mMenuGroup {
-
+		font-family: Sans-serif;
 		background-repeat:repeat-x; 
 		background-image: url(images/dropdown-bg.gif); 
-		font-weight:bold; cursor:default; 
+		font-weight: bold;
+		cursor:default; 
 		top:0px; 
-		color:white; padding: 5px 0px 0px 0px; 
+		color:white; padding: 3px 0px 0px 0px; 
 		text-align:center; 
 		font-family:Sans-serif; 
 		float:left; 
