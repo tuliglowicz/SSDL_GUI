@@ -155,7 +155,9 @@ function Controler(url, gui){
 				divString.push(curElCount);
 				divString.push("'><form><input type='checkbox' class='cCheck'/></form></div></td><td valign='top' style='width: 20px;'><div id='cCancel_");
 				divString.push(curElCount);
-				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='usuń komunikat' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table></div>");
+				divString.push("' style='cursor: pointer;'><img src='images/cancel.png' title='");
+				divString.push(language[gui.language].logger.delComm);
+				divString.push("' style='padding-left: 2px; padding-top: 3px;'/></div></td></tr></table></div>");
 				divString = divString.join("");
 				$(divString).prependTo($(eId));
 				var delId = "#cCancel_"+curElCount;
@@ -271,14 +273,25 @@ function Controler(url, gui){
 		w = w.slice(0, w.length - 2);
 		w = w - getScrollBarWidth();
 		divString.push(w);
-		divString.push("px;'><tr><td valign='top' style='float: left;'><div id='console_CL' class='logButton' style='margin-left: 5px; background-color: #FF7400; color: white;'>Zamknij konsolę</div></td>");
-		divString.push("<td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>zaznacz wszystkie</div>");
-		divString.push("<div id='console_DA' class='logButton' style='margin-left: 10px;'>odznacz wszystkie</div>");
-		divString.push("<div id='console_D' class='logButton' style='margin-left: 10px;'>usuń zaznaczone </div></td>");
-		divString.push("<td valign='top' style='width: 50px; text-align: right; cursor: default;'>Pokaż: </td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='pokaż/ukryj informacje' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='pokaż/ukryj ostrzeżenia' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
-		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='pokaż/ukryj błędy' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("px;'><tr><td valign='top' style='float: left;'><div id='console_CL' class='logButton' style='margin-left: 5px; background-color: #FF7400; color: white;'>");
+		divString.push(language[gui.language].logger.console_CL);
+		divString.push("</div></td><td valign='top' style='width: 400px; text-align: right;'><div id='console_SA' class='logButton'>");
+		divString.push(language[gui.language].logger.console_SA);
+		divString.push("</div><div id='console_DA' class='logButton' style='margin-left: 10px;'>");
+		divString.push(language[gui.language].logger.console_DA);
+		divString.push("</div><div id='console_D' class='logButton' style='margin-left: 10px;'>")
+		divString.push(language[gui.language].logger.console_D);
+		divString.push("</div></td><td valign='top' style='width: 50px; text-align: right; cursor: default;'>");
+		divString.push(language[gui.language].logger.show);
+		divString.push("</td><td valign='top' style='width: 20px;'><div id='console_I' style='cursor: pointer;'><img src='images/info.png' title='");
+		divString.push(language[gui.language].logger.shInfo);
+		divString.push("' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_W' style='cursor: pointer;'><img src='images/warning.png' title='");
+		divString.push(language[gui.language].logger.shWarning);
+		divString.push("' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
+		divString.push("<td valign='top' style='width: 20px;'><div id='console_E' style='cursor: pointer;'><img src='images/error.png' title='");
+		divString.push(language[gui.language].logger.shError);
+		divString.push("' style='padding-left: 2px; padding-top: 3px;'/></div></td>");
 		divString.push("</tr></table></div><div id='console_entries_"+pf+"' style='overflow-y:scroll; height:"+(h-25)+"px;'></div>");
 		divString = divString.join("");
 		$(divString).prependTo($(lId));
@@ -364,7 +377,7 @@ function Controler(url, gui){
 
 		//context menu
 		var menu = gui.view.contextMenu("console_" + pf);
-		menu.addOption('Zamknij', close);
+		menu.addOption(language[gui.language].logger.close, close);
 
 		//object return
 		return obj;
