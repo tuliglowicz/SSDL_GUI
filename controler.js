@@ -129,7 +129,6 @@ function Controler(url, gui){
 			bGlow = null,
 			animation = null,
 			curElCount = 0,
-			actionTaken = false,
 			colors = ['#FAFAFF','#FFFFE0','#FFFAFA'],
 			txtColors = ['white','yellow','orange'],
 			imgNames = ['info','warning','error'];
@@ -163,14 +162,10 @@ function Controler(url, gui){
 				var checkId = "#cCheck_"+curElCount;
 				var nr = curElCount;
 				$(delId).click(function(){
-					actionTaken = true;
 					counter[priority]--;
 					redrawCounter(priority);
 					delId = "#console_row_"+nr;
 					$(delId).remove();
-				});
-				$(checkId).click(function(){
-					actionTaken = true;
 				});
 			},
 			redrawCounter = function(priority){
@@ -347,14 +342,10 @@ function Controler(url, gui){
 		document.getElementById('console_D').onselectstart = function() { return(false); };
 		//main event handling
 		$('#console_CL').click(function(){
-			if(actionTaken){
-				actionTaken = false;
-			}else{
-				$(eId).css('overflow-y: hidden;');
-				$(lId).animate({
-					'height': 0
-				});
-			}
+			$(eId).css('overflow-y: hidden;');
+			$(lId).animate({
+				'height': 0
+			});
 		});
 		mask.click(function(){
 			obj.open();
