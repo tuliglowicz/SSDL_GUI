@@ -2232,6 +2232,7 @@ function View(id, width, height, gui){
 					highlighted : false,
 					highlightColor : "orange",
 					normalColor : "black",
+					menu : null,
 					removeView : function(){
 						function remove(){
 							if(this.remove)
@@ -2476,6 +2477,7 @@ function View(id, width, height, gui){
 						});
 					},
 					showNode : function showNode(){
+						this.buildMenu();
 						$.each(this.set, function(){
 							this.show();
 						});
@@ -2488,6 +2490,20 @@ function View(id, width, height, gui){
 						$.each(this.connectors, function(){
 							this.show();
 						});
+					},
+					buildMenu : function buildMenu(){
+						if(!this.menu){
+							this.menu = view.contextMenu(this.set);
+							this.menu.addOption('Properties');
+							this.menu.addOption('Edit subgraph');
+							this.menu.addOption('Test');
+							this.menu.addSeparator();
+							this.menu.addOption('Cut');
+							this.menu.addOption('Copy');
+							this.menu.addOption('Copy with reference');
+							this.menu.addOption('Paste');
+							this.menu.addOption('Delete');
+						}
 					}
 				}
 				
@@ -4058,7 +4074,7 @@ function View(id, width, height, gui){
 						'text-align': 'left',
 						padding: '3px',
 						cursor: 'pointer',
-						'box-shadow': '2px 2px 3px black'
+						'box-shadow': '2px 2px 3px rgba(0, 0, 0, 0.2)'
 					}				
 				});
 				div.append(txt);
@@ -4092,7 +4108,7 @@ function View(id, width, height, gui){
 					if(opt.invokedEvent){
 						if(typeof opt.invokedEvent == 'function'){
 							opt.invokedEvent(opt.eventObject);
-						}else{
+						}else if(typeof opt.invokedEvent == 'string'){
 							gui.controler.reactOnEvent(opt.invokedEvent, opt.eventObject);
 						}
 					}
@@ -4134,6 +4150,9 @@ function View(id, width, height, gui){
 				getOption: function(label){
 					return root.getOption(label);
 				},
+				addSeparator: function(){
+					root.addSeparator();
+				},
 				open: function(event){
 					if(!that.menuList.getInstance().isOpen() && opened.length == 0){
 						event = event || window.event;
@@ -4155,20 +4174,33 @@ function View(id, width, height, gui){
 				}
 			}
 
-			//event listeners
-			caller.onClick = function(event){
-				event = event || window.event;
-				if(event.button == 0){
-					menu.close();
-				}
-				return false;
-			}
-			caller.oncontextmenu = function(event){
+			//universal open with event
+			var checkNOpen = function(event){
 				event = event || window.event;
 				if(event.button == 2){
 					menu.open(event);
 				}
 				return false;
+			};
+			//event listeners for id or raphael set
+			if(typeof listenedObjId == 'string'){
+				var caller = document.getElementById(listenedObjId);
+				caller.oncontextmenu = function(event){
+					return checkNOpen(event);
+				}
+			}else{
+				var caller = listenedObjId;
+				if(!caller.items){
+					$(caller.node).bind("contextmenu", function(event){
+    					return checkNOpen(event);
+					});
+				}else{
+					$.each(caller.items, function(){
+						$(this.node).bind("contextmenu", function(event){
+		    				return checkNOpen(event);
+						});
+					});
+				}
 			}
 
 			//pushing into menu list
