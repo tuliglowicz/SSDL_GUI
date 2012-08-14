@@ -257,6 +257,13 @@ function Controler(url, gui){
 				//pulse
 				if(animation) clearInterval(animation);
 				animation = setInterval(fade, 750);
+			},
+			open : function open(){
+				$(lId).animate({
+					'height': h
+				}, 400, function(){
+					$(eId).css('overflow-y: scroll;');
+				});
 			}
 		};
 		//adding console HTML structure
@@ -350,22 +357,18 @@ function Controler(url, gui){
 			}
 		});
 		mask.click(function(){
-			$(lId).animate({
-				'height': h
-			}, 400, function(){
-				$(eId).css('overflow-y: scroll;');
-			});
+			obj.open();
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
 			if(animation) clearInterval(animation);
 			buttonBG.animate({"fill-opacity": 0.75}, 500);
-			$('*').css('cursor','pointer');
-			// bGlow = buttonBG.glow();
+			$(mask.node).css('cursor','pointer');
+			bGlow = buttonBG.glow();
 		});
 		mask.mouseout(function(){
-			$('*').css('cursor','default');
-			if(bGlow) bGlow.remove();
+			$(mask.node).css('cursor','default');
+			bGlow.remove();
 		});
 
 		//context menu
