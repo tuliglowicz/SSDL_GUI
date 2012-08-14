@@ -257,6 +257,13 @@ function Controler(url, gui){
 				//pulse
 				if(animation) clearInterval(animation);
 				animation = setInterval(fade, 750);
+			},
+			open : function open(){
+				$(lId).animate({
+					'height': h
+				}, 400, function(){
+					$(eId).css('overflow-y: scroll;');
+				});
 			}
 		};
 		//adding console HTML structure
@@ -350,11 +357,7 @@ function Controler(url, gui){
 			}
 		});
 		mask.click(function(){
-			$(lId).animate({
-				'height': h
-			}, 400, function(){
-				$(eId).css('overflow-y: scroll;');
-			});
+			obj.open();
 		});
 		mask.mouseover(function(){
 			if(bGlow) bGlow.remove();
