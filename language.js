@@ -1,3 +1,4 @@
+
 var language = {
 	polish : {
 		forms: {
@@ -27,6 +28,19 @@ var language = {
 			inputs: "Wejścia",
 			outputs: "Wyjścia",
 			nonFunctionalDesc: "Opis niefunkcjonalny"
+		},
+
+		logger:{
+			console_CL: "Zamknij konsolę",
+			console_SA: "zaznacz wszystkie",
+			console_DA: "odznacz wszystkie",
+			console_D: "usuń zaznaczone",
+			show: "Pokaż: ",			
+			close: "Zamknij",
+			shInfo: "pokaż/ukryj informacje",
+			shWarning: "pokaż/ukryj ostrzeżenia",
+			shError: "pokaż/ukryj błędy",
+			delComm: "usuń komunikat"
 		},
 
 		mainMenu:{
@@ -105,6 +119,21 @@ var language = {
 			outputs: "Outputs",
 			nonFunctionalDesc: "nonFunctionalDescription"
 		},
+
+		logger:{
+			console_CL: "Close console",
+			console_SA: "select all",
+			console_DA: "deselect all",
+			console_D: "delete selected",
+			show: "Show: ",			
+			close: "Close",
+			shInfo: "show/hide information",
+			shWarning: "show/hide warnings",
+			shError: "show/hide errors",
+			delComm: "delete communicate",
+
+		},
+
 		mainMenu:{
 			file: "File",
 			edit: "Edit",

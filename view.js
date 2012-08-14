@@ -11,10 +11,8 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 
 function View(id, width, height, gui){
 	var pf = gui.id_postfix;
-
-
 	// suppported by Matka Boska Partyzantcka 
-	function menu(x, y, addToDiv,lang) {
+	function menu(x, y, addToDiv) {
 	
 		var mainMenu = {
 			przesuwne: 0,
@@ -22,7 +20,7 @@ function View(id, width, height, gui){
 			menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
 
 			addGroup: function addGroup(label) {
-				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[lang].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
+				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[gui.language].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
 					if (mainMenu.clicked) {
 						
@@ -56,7 +54,7 @@ function View(id, width, height, gui){
 
 			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
 
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[lang].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( language[gui.language].mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
 					$('div.mMenuSubcontener').hide();
 					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
 					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
@@ -103,7 +101,7 @@ function View(id, width, height, gui){
 					mainMenu.clicked = false;
 				}).click(functionOnClick);
 
-				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[lang].mainMenu[camelize(subOptionLabel)] || ""));
+				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( language[gui.language].mainMenu[camelize(subOptionLabel)] || ""));
 				
 				jQuery('<div/>', {
 					html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
@@ -4255,7 +4253,7 @@ function View(id, width, height, gui){
 	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
 	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
 	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){alert("Not implemented yet!");},"");
+	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy napewno? Ten clear nie działa jak trzeba!" ); if(clearer)gui.view.removeAllGraphs();},"");
 	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
 	outputView.mainMenu.addSeparator("Help");
 	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
