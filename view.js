@@ -9,8 +9,29 @@
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 
-function View(id, width, height, gui){
+function View(id, width, height, gui, graphSaveParamsJSON){
 	var pf = gui.id_postfix;
+	graphSaveParamsJSON = graphSaveParamsJSON || {
+
+		tabLabel:"",
+		tabId: "",
+		formId: "graphSaveParams",
+		fields : [
+		{
+			label: "name",
+			id: "f_graphSaveParams_name",
+			inputType: "textbox",
+			validation: function(value){},
+			values: []
+		},
+		{
+			label: "description",
+			id: "f_graphSaveParams_description",
+			inputType: "textarea",
+			validation: function(value){},
+			values: []
+		}
+	]};
 	// suppported by Matka Boska Partyzantcka 
 	function menu(x, y, addToDiv) {
 	
@@ -303,7 +324,7 @@ function View(id, width, height, gui){
 		};
 		return tmp;
 	};
-	function drawBottomBar(paper){		
+	function drawBottomBar(paper){
 		//UÅ»YCIE WTYCZKI:
 		//ma defaultowo zdefiniowane buttony CF, DF i SS
 		//addGroup(label) dodaje grupÄ™ o zadanym labelu
@@ -721,7 +742,7 @@ function View(id, width, height, gui){
 			gui.view.form.editGlobalNonFunctionalParameters();
 		};
 		var save = function save(){
-			gui.controler.saveNewGraph();
+			gui.controler.reactOnEvent("SAVE");
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);
@@ -815,9 +836,16 @@ function View(id, width, height, gui){
 				tabId: "inputsTab",
 				formId: "inputForm",
 				fields: [
+				// {
+				// 	label: "id",
+				// 	id: "f_inputsTab_id",
+				// 	inputType: "textBox",
+				// 	validation: function(){},
+				// 	values:[]
+				// },
 				{
-					label: "id",
-					id: "f_inputsTab_id",
+					label: "label",
+					id: "f_inputsTab_label",
 					inputType: "textBox",
 					validation: function(){},
 					values:[]
@@ -857,9 +885,16 @@ function View(id, width, height, gui){
 				tabId: "outputsTab",
 				formId: "outputForm",
 				fields: [
+				// {
+				// 	label: "id",
+				// 	id: "f_outputsTab_id",
+				// 	inputType: "textBox",
+				// 	validation: function(){},
+				// 	values:[]
+				// },
 				{
-					label: "id",
-					id: "f_outputsTab_id",
+					label: "label",
+					id: "f_outputsTab_label",
 					inputType: "textBox",
 					validation: function(){},
 					values:[]
@@ -992,7 +1027,7 @@ function View(id, width, height, gui){
 					values:[]
 				}
 			]},
-		];		
+		];
 		var resultJSON = {
 			"nodeId":"",
 			"nodeLabel":"",
@@ -1030,6 +1065,9 @@ function View(id, width, height, gui){
 		$("#f_addNFPropertyForm").prepend(formGenerator("english", pf, formJSON[4]));
 		$("#f_addGlobalNFPropertyForm").prepend(formGenerator("english", pf, formJSON[5]));
 		$("#f_addInputVariableForm").prepend(formGenerator("english", pf, formJSON[6]));
+		// alert(graphSaveParamsJSON);
+		$("#f_graphSaveParamsForm").prepend(formGenerator("english", pf, graphSaveParamsJSON));
+
 		$("#form").dialog({
 			autoOpen: false,
 			modal: true,
@@ -1038,7 +1076,7 @@ function View(id, width, height, gui){
 		});
 		var $tabs = $( "#tabs" ).tabs();
 
-		// edit Włodek
+		// edited by Włodek
 		var inpVars = [],
 			globalNonFuncDesc = []
 		;
@@ -1053,8 +1091,27 @@ function View(id, width, height, gui){
 			selectedInputVariableIndex: -1,
 			selectedGlobalNFPropertyIndex: -1,
 
-			// ============================================================================================================-    edit by Włodek
+			// ============================================================================================================-	edit by Włodek
 
+
+			editGraphSaveParams : function editGraphSaveParams(){
+				$("#f_graphSaveParamsForm").dialog( "open" );
+			},
+			collectGraphSaveParams : function collectGraphSaveParams(){
+				var name = $("#f_graphSaveParams_name_"+pf).val();
+				var description = $("#f_graphSaveParams_description_"+pf).val();
+
+				console.log(name, description)
+
+				if(! ( name && description ) ){
+					return false;
+				} else {
+					return {
+						name : name,
+						description : description
+					}
+				}
+			},
 			// inpVar
 			editInputVariables : function editInputVariables(){
 				this.resetInpVars();
@@ -1104,8 +1161,7 @@ function View(id, width, height, gui){
 				
 
 				//TODO: checkIfExists(), ZAPISYWANIE JSONA GADEMYF
-				if(index==-1){	//Index = -1 => dodajemy nowy inputVariable
-					//TU jEST STAÅ?A 5 JAKO INDEKS I TO BEDZIE SYPAÄ† BÅ?Ä?DY
+				if(index==-1){
 					this.inputVariablesAppender(inputVariableJSON, inpVars.length);//this.COKOLWIEK.inputVariables.length);
 
 					inpVars[ inpVars.length ] = inputVariableJSON;
@@ -1191,7 +1247,7 @@ function View(id, width, height, gui){
 					$("#f_addGlobalNFPropertyForm").dialog("close");	
 				}
 			},
-		// ============================================================================================================-    ond of edit by Włodek
+		// ============================================================================================================-	ond of edit by Włodek
 			
 			initToEdit: function initToEdit(node){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
@@ -1411,7 +1467,7 @@ function View(id, width, height, gui){
 				var tempId = temp[0] +  "_" + temp[1] + "x" + temp[2] + number;
 				$( "#" + id ).append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
+						// "<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
 						"<td id=\"" + tempId + "_label\">" + input.label + "</td>" + 
 						"<td id=\"" + tempId + "_class\">" + input.class + "</td>" +
 						"<td id=\"" + tempId + "_dataType\">" + input.dataType + "</td>" + 
@@ -1458,51 +1514,6 @@ function View(id, width, height, gui){
 					if (array[namey] === obj) return namey;
 				}
 				return -1;
-			},
-			getSelectedInputIndex: function getSelectedInputIndex(){
-				return this.selectedInputIndex;
-			},
-			getSelectedOutputIndex: function getSelectedOutputIndex(){
-				return this.selectedOutputIndex;
-			},
-			getSelectedInputVariableIndex: function getSelectedInputVariableIndex(){
-				return this.selectedInputVariableIndex;
-			},
-			getSelectedNFPropertyIndex: function getSelectedNFPropertyIndex(){
-				return this.selectedNFPropertyIndex;
-			},
-			getSelectedGlobalNFPropertyIndex: function getSelectedGlobalNFPropertyIndex(){
-				return this.selectedGlobalNFPropertyIndex;
-			},
-			setSelectedInputIndex: function setSelectedInputIndex(index){
-				this.selectedInputIndex = index;
-			},
-			setSelectedOutputIndex: function setSelectedOutputIndex(index){
-				this.selectedOutputIndex = index;
-			},
-			setSelectedInputVariableIndex: function setSelectedInputVariableIndex(index){
-				this.selectedInputVariableIndex = index;
-			},
-			setSelectedNFPropertyIndex: function setSelectedNFPropertyIndex(index){
-				this.selectedNFPropertyIndex = index;
-			},
-			setSelectedGlobalNFPropertyIndex: function setSelectedGlobalNFPropertyIndex(index){
-				this.selectedGlobalNFPropertyIndex = index;
-			},
-			resetSelectedInputIndex: function resetSelectedInputIndex(){
-				this.selectedInputIndex = -1;
-			},
-			resetSelectedOutputIndex: function resetSelectedOutputIndex(){
-				this.selectedOutputIndex = -1;
-			},
-			resetSelectedInputVariableIndex: function resetSelectedInputVariableIndex(){
-				this.selectedInputVariableIndex = -1;
-			},
-			resetSelectedNFPropertyIndex: function resetSelectedNFPropertyIndex(){
-				this.selectedNFPropertyIndex = -1;
-			},
-			resetSelectedGlobalNFPropertyIndex: function resetSelectedGlobalNFPropertyIndex(){
-				this.selectedGlobalNFPropertyIndex = -1;
 			},
 			clearInputSelectionInTable: function clearInputSelectionInTable(){
 				$.each($("#f_inputsTab_inputs tbody").children(), function(){
@@ -1608,37 +1619,42 @@ function View(id, width, height, gui){
 			// },
 			addInput: function addInput(){
 				var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]},
-					index = this.getSelectedInputIndex();
+					index = this.getSelectedInputIndex()
+				;
 				inputJSON.class = $( "#f_inputsTab_class_" + pf ).val();
-				inputJSON.id = $( "#f_inputsTab_id_" + pf ).val();
+				// inputJSON.id = $( "#f_inputsTab_id_" + pf ).val();
 				inputJSON.label = $( "#f_inputsTab_label_" + pf ).val();
 				inputJSON.dataType = $( "#f_inputsTab_dataType_" + pf ).val();
 				// inputJSON.properties = $( "#f_inputsTab_properties" ).val();
-		
+
 				if(index==-1){	//Index = -1 => dodajemy nowy input
 					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
+						inputJSON.id = gui.controler.generateIOId(inputJSON.label);
 						this.inputAndOutputAppender(inputJSON, "f_inputsTab_inputs tbody", this.funcDescJSON.inputs.length);
 						this.funcDescJSON.inputs.push(inputJSON);
-						$("#f_addInputForm_" + pf ).dialog("close");	
+						$("#f_addInputForm").dialog("close");	// + pf
 					}
 					else alert("This input already exists!");	
 				}
 				else{	//edytujemy istniejÄ…cy input
 					var destinationId = "f_inputsTabxinputs" + index;
+					inputJSON.id = this.funcDescJSON.inputs[index].id;
 					this.funcDescJSON.inputs[index] = inputJSON;
-					$("#" + destinationId + "_id_" + pf ).text(inputJSON.id);
-					$("#" + destinationId + "_class_" + pf ).text(inputJSON.class);
-					$("#" + destinationId + "_label_" + pf ).text(inputJSON.label);
-					$("#" + destinationId + "_dataType_" + pf ).text(inputJSON.dataType);
-					$("#f_addInputForm_" + pf ).dialog("close");	
+					// $("#" + destinationId + "_id").text(inputJSON.id);
+					$("#" + destinationId + "_class").text(inputJSON.class);
+					$("#" + destinationId + "_label").text(inputJSON.label);
+					$("#" + destinationId + "_dataType").text(inputJSON.dataType);
+					$("#f_addInputForm").dialog("close");	// + pf
 				}
 			},
 			addOutput: function addOutput(){
 				var outputJSON = {"class":"","id":"","label":"","dataType":"","properties":""},
-					index = this.getSelectedOutputIndex();
+					index = this.getSelectedOutputIndex()
+				;
 				outputJSON.class = $( "#f_outputsTab_class_" + pf ).val();
-				outputJSON.id = $( "#f_outputsTab_id_" + pf ).val();
+				// outputJSON.id = $( "#f_outputsTab_id_" + pf ).val();
 				outputJSON.label = $( "#f_outputsTab_label_" + pf ).val();
+				outputJSON.id = gui.controler.generateIOId(outputJSON.label);
 				outputJSON.dataType = $( "#f_outputsTab_dataType_" + pf ).val();
 				// outputJSON.properties = $( "#f_outputsTab_outputProperties" ).val();
 				
@@ -1646,18 +1662,19 @@ function View(id, width, height, gui){
 					if(!this.ioExists(outputJSON, this.funcDescJSON.outputs)){
 						this.inputAndOutputAppender(outputJSON, "f_outputsTab_outputs tbody", this.funcDescJSON.outputs.length);
 						this.funcDescJSON.outputs.push(outputJSON);
-						$("#f_addOutputForm_" + pf ).dialog("close");	
+						$("#f_addOutputForm").dialog("close");	
 					}
 					else alert("This output already exists!"); //TODO: te alerciÄ…tka jako modal dialogs
 				}
 				else{	//edytujemy istniejÄ…cy output
 					var destinationId = "f_outputsTabxoutputs" + index;
+					outputJSON.id = this.funcDescJSON.outputs[index].id;
 					this.funcDescJSON.outputs[index] = outputJSON;
 					$("#" + destinationId + "_id_" + pf ).text(outputJSON.id);
 					$("#" + destinationId + "_class_" + pf ).text(outputJSON.class);
 					$("#" + destinationId + "_label_" + pf ).text(outputJSON.label);
 					$("#" + destinationId + "_dataType_" + pf ).text(outputJSON.dataType);
-					$("#f_addOutputForm_" + pf ).dialog("close");	
+					$("#f_addOutputForm").dialog("close");	
 				}
 			},
 			addNonFunctional: function addNonFunctional(){
@@ -1744,6 +1761,51 @@ function View(id, width, height, gui){
 			},
 			closeForm: function closeForm(){
 				$("#form").dialog("close");
+			},
+			getSelectedInputIndex: function getSelectedInputIndex(){
+				return this.selectedInputIndex;
+			},
+			getSelectedOutputIndex: function getSelectedOutputIndex(){
+				return this.selectedOutputIndex;
+			},
+			getSelectedInputVariableIndex: function getSelectedInputVariableIndex(){
+				return this.selectedInputVariableIndex;
+			},
+			getSelectedNFPropertyIndex: function getSelectedNFPropertyIndex(){
+				return this.selectedNFPropertyIndex;
+			},
+			getSelectedGlobalNFPropertyIndex: function getSelectedGlobalNFPropertyIndex(){
+				return this.selectedGlobalNFPropertyIndex;
+			},
+			setSelectedInputIndex: function setSelectedInputIndex(index){
+				this.selectedInputIndex = index;
+			},
+			setSelectedOutputIndex: function setSelectedOutputIndex(index){
+				this.selectedOutputIndex = index;
+			},
+			setSelectedInputVariableIndex: function setSelectedInputVariableIndex(index){
+				this.selectedInputVariableIndex = index;
+			},
+			setSelectedNFPropertyIndex: function setSelectedNFPropertyIndex(index){
+				this.selectedNFPropertyIndex = index;
+			},
+			setSelectedGlobalNFPropertyIndex: function setSelectedGlobalNFPropertyIndex(index){
+				this.selectedGlobalNFPropertyIndex = index;
+			},
+			resetSelectedInputIndex: function resetSelectedInputIndex(){
+				this.selectedInputIndex = -1;
+			},
+			resetSelectedOutputIndex: function resetSelectedOutputIndex(){
+				this.selectedOutputIndex = -1;
+			},
+			resetSelectedInputVariableIndex: function resetSelectedInputVariableIndex(){
+				this.selectedInputVariableIndex = -1;
+			},
+			resetSelectedNFPropertyIndex: function resetSelectedNFPropertyIndex(){
+				this.selectedNFPropertyIndex = -1;
+			},
+			resetSelectedGlobalNFPropertyIndex: function resetSelectedGlobalNFPropertyIndex(){
+				this.selectedGlobalNFPropertyIndex = -1;
 			}
 			/*
 			* EVENT HANDLERS END HERE
@@ -2038,11 +2100,11 @@ function View(id, width, height, gui){
 		// 		form.removeSource($(this));
 		// 	});
 		// }(result));
-		$('span[id^="sc_"]').live("click", function(form){
-			return (function(){
-				form.removeServiceClass($(this));
-			});
-		}(result));
+		// $('span[id^="sc_"]').live("click", function(form){
+		// 	return (function(){
+		// 		form.removeServiceClass($(this));
+		// 	});
+		// }(result));
 		// $('span[id^="mk_"]').live("click", function(form){
 		// 	return (function(){
 		// 		form.removeMetaKeyword($(this));
@@ -2196,6 +2258,26 @@ function View(id, width, height, gui){
 							globalNonFuncDesc.splice(i, 1);
 					gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
 					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+		$("#f_graphSaveParamsForm").dialog({
+			autoOpen: false,
+			modal: true,
+			height: 200,
+			width: 300,
+			buttons: {
+				"Save changes": function() {
+					var result = gui.view.form.collectGraphSaveParams();
+					if(result){
+						$( this ).dialog( "close" );
+						gui.controler.reactOnEvent("save", result)
+					} else {
+						alert("wprawadź dane");
+					}
 				},
 				Cancel: function() {
 					$( this ).dialog( "close" );
@@ -2838,7 +2920,6 @@ function View(id, width, height, gui){
 
 		return outputObject;
 	};
-	
 	var outputView = {
 		id : id,
 		width : width,
@@ -4132,10 +4213,10 @@ function View(id, width, height, gui){
 				});
 				$(subDiv).hover(
 					function () {
-					    $(this).css("color","red");
+						$(this).css("color","red");
 					},
 					function () {
-					    $(this).css("color","black");
+						$(this).css("color","black");
 					});
 			}
 
@@ -4190,12 +4271,12 @@ function View(id, width, height, gui){
 				var caller = listenedObjId;
 				if(!caller.items){
 					$(caller.node).bind("contextmenu", function(event){
-    					return checkNOpen(event);
+						return checkNOpen(event);
 					});
 				}else{
 					$.each(caller.items, function(){
 						$(this.node).bind("contextmenu", function(event){
-		    				return checkNOpen(event);
+							return checkNOpen(event);
 						});
 					});
 				}

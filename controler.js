@@ -2,7 +2,7 @@
 
 "use strict"; 
 //url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
-function Controler(url, gui){
+function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui){
 	var pf = gui.id_postfix;
 
 	function repoNodes(visualiser){
@@ -1120,8 +1120,8 @@ function Controler(url, gui){
 			this.initPlugins();
 		},
 		initPlugins : function initPlugins(){
-			this.repository = repository(gui.view.columnParams.rightCol.width);
-			this.repository.init();
+			// this.repository = repository(gui.view.columnParams.rightCol.width);
+			// this.repository.init();
 			this.repoNodes = repoNodes( gui.view.visualiser );
 			this.repoNodes.init();
 			this.navigator = navigator();
@@ -1163,7 +1163,7 @@ function Controler(url, gui){
 			}
 		},
 		generateIOId : function generateIOId(seed){
-			seed = seed || "xyz";
+			seed = seed || "id00";
 			return seed+Math.round(Math.random() * 10e5);
 		},
 		reactOnEvent : function reactOnEvent(evtType, evtObj){
@@ -1176,13 +1176,94 @@ function Controler(url, gui){
 					}
 				})(evtObj); break;
 				case "SAVE" : (function (e) {
-					var savedSSDL = that.convertJSON2XML();
+
+					// na szybko
+					// 
+					// 	$("#saveDialog").dialog("open");
+					// } else {
+					var savedSSDL = that.saveSSDL();
+					var validation = validatorObject.validateGraph( that.getRoot() );
+
+						// e = e || {};
+						// e.name = 1;
+						// e.description = 1;
+
+					if(that.current_graphData.nodes.length < 3){
+						alert("Cannot save empty graph!")
+					}
+					else if( !(e && e.name && e.description) && !graphToEditUrl){
+						// a("fghj")
+						gui.view.form.editGraphSaveParams();
+					}
+					else {
+						if(validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm("Validation not passend!\nAre you sure this graph is correct?\nclick OK if you're sure.") ){
+
+							// var savedSSDL = that.saveSSDL();
+							// console.log(savedSSDL)
+							// savedSSDL = that.xmlToString(savedSSDL);
+							var output = !graphToEditUrl ? "name="+e.name+"&description="+e.description+"&" : "";
+							output += "ssdl="+savedSSDL;
+							
+
+							console.log(output)
+							that.save(saveUrl, output, "POST", "xml", function(){
+								alert("Procedura zapisu przeszła poprawnie.")
+							}, function(){
+								alert("Procedura zapisu nie powiodła się.");
+							})
+						}
+					}
 
 					
 
 					// save(sUrl, data, type, fun_success, dataType, fun_error)
 
+				})(evtObj); break;
+				case "START" : (function(){
+					// that.load(url, function fun_success(list){
+					// 	that.repository.setData(list).draw();
+					// });
+					that.load(url, function fun_success(sdb){
+						var parsedSDB = that.parseSDBetaArray(sdb);
+						that.repoNodes.setData(parsedSDB).draw();
+					});
+					that.reactOnEvent("LoadAndEditCompoundService", {url: graphToEditUrl, title: graphToEditName});
 				})(); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+					//e = zwrócony JSONek
+					// jsonFormatter(e, 1,1)
+					if(!e.nodeId || e.nodeId==="") { //to jest blank
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+
+						if(wrongsList.length == 0){
+							e.nodeId = that.generateId();
+							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
+							graphNode.switchToDFMode();
+							gui.view.current_graph_view.nodes.push(graphNode);
+							that.current_graphData.nodes.push(e);
+							gui.view.form.closeForm();
+						}
+						else {
+							gui.view.form.handleErrors(wrongsList);
+						}
+					}
+					else{ //to nie jest blank
+						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						if(wrongsList.length === 0){
+							$.each(that.current_graphData.nodes, function(i, v){
+								if(v.nodeId == e.nodeId){
+									that.current_graphData.nodes[i] = e;
+									return false;
+								}
+							});
+							gui.view.updateNode(e);
+							gui.view.form.closeForm();
+						}
+						else {
+							gui.view.form.handleErrors(wrongsList);
+						}
+					}
+				})(evtObj); break;
 				case "SELECT" : (function (e) {
 					gui.view.selectNodesInsideRect(e.x1,e.y1,e.x2,e.y2,e.ctrl);
 				})(evtObj); break;
@@ -1233,7 +1314,6 @@ function Controler(url, gui){
 					}
 
 					// console.log(e)
-
 				})(evtObj);
 				break;
 				case "ADDINPUT" : (function(e){
@@ -1272,7 +1352,6 @@ function Controler(url, gui){
 					}
 
 					// console.log(e)
-
 				})(evtObj);
 				break;
 				case "ADDCFEDGE" : (function(e){
@@ -1322,15 +1401,6 @@ function Controler(url, gui){
 						gui.view.editNode(node);
 					}
 				})(evtObj); break;
-				case "START" : (function(){
-					that.load(url, function fun_success(list){
-						that.repository.setData(list).draw();
-					});
-					that.load("get_all_atomic_service.xml", function fun_success(sdb){
-						var parsedSDB = that.parseSDBetaArray(sdb);
-						that.repoNodes.setData(parsedSDB).draw();
-					});
-				})(); break;
 				case "LOADANDEDITCOMPOUNDSERVICE" : (function(e){
 					that.load(e.url, (function(ssdl){
 						var tab = [],
@@ -1369,7 +1439,6 @@ function Controler(url, gui){
 						gui.view.parseAndSetDataModelToView(this.graphData_tab);
 						
 						this.reactOnEvent("SSDLLoaded", ssdl);
-
 					}).bind(that) );
 				})(evtObj); break;
 				case "SWITCHCURRENTGRAPH" : (function (e) {
@@ -1405,41 +1474,6 @@ function Controler(url, gui){
 					that.navigator.setData(that.current_graphData)
 					that.navigator.draw();
 				})(evtObj); break;
-				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
-					//e = zwrócony JSONek
-					// jsonFormatter(e, 1,1)
-					if(!e.nodeId || e.nodeId==="") { //to jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-
-						if(wrongsList.length == 0){
-							e.nodeId = that.generateId();
-							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
-							graphNode.switchToDFMode();
-							gui.view.current_graph_view.nodes.push(graphNode);
-							that.current_graphData.nodes.push(e);
-							gui.view.form.closeForm();
-						}
-						else {
-							gui.view.form.handleErrors(wrongsList);
-						}
-					}
-					else{ //to nie jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-						if(wrongsList.length === 0){
-							$.each(that.current_graphData.nodes, function(i, v){
-								if(v.nodeId == e.nodeId){
-									that.current_graphData.nodes[i] = e;
-									return false;
-								}
-							});
-							gui.view.updateNode(e);
-							gui.view.form.closeForm();
-						}
-						else {
-							gui.view.form.handleErrors(wrongsList);
-						}
-					}
-				})(evtObj); break;
 				case "ADDBLANKNODE" : (function(e){
 					gui.view.addBlankNode(e); //
 				})(evtObj); break;
@@ -1467,7 +1501,8 @@ function Controler(url, gui){
 				}
 			});
 		},
-		save: function save(sUrl, data, type, fun_success, dataType, fun_error){
+		save: function save(sUrl, data, type, dataType, fun_success, fun_error){
+			// jsonFormatter(arguments, 1, 1);
 			$.ajax({
 				url: sUrl,
 				type: type,
@@ -1482,6 +1517,7 @@ function Controler(url, gui){
 			});
 		},
 		xmlToString: function xmlToString(xml){
+			console.log(xml)
 			return (new XMLSerializer()).serializeToString(xml);
 		},
 		updateNodeData: function updateNodeData(oldNode, newNode){
@@ -1652,8 +1688,8 @@ function Controler(url, gui){
 				node.nodeType = "Service";
 				node.physicalDescription = {
 					serviceName: node.nodeLabel,
-					serviceGlobalID: $physicalDescription.find("ns2\\:serviceGlobalID").text(),
-					adress: $physicalDescription.find("ns2\\:address").text(),
+					serviceGlobalId: $physicalDescription.find("ns2\\:serviceGlobalID").text(),
+					address: $physicalDescription.find("ns2\\:address").text(),
 					operation: $physicalDescription.find("ns2\\:operation").text()
 				};
 
@@ -1893,7 +1929,7 @@ function Controler(url, gui){
 				i = 0;
 			;
 			// console.log(jsonFormatter(json, true))
-			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			// tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 			parseGraph(json, "\t");
 			tabOutput.push("</graph>");
 
@@ -1901,7 +1937,7 @@ function Controler(url, gui){
 
 			if(!humanFriendly){
 				stringXML = stringXML.replace(/\t/g, "").replace(/\n/g, "");
-				alert(humanFriendly)
+				// alert(humanFriendly)
 			}
 
 			return stringXML;
