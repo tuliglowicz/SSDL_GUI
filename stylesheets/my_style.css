@@ -17,8 +17,8 @@
 	}
 
 	.mMenuMainContener {
+		position: absolute;
 		font-weight:  bold;
-		position:absolute; 
 		z-index:1000; 
 		text-align:center;  
 		width:100%;
