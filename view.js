@@ -131,7 +131,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
 			},
 			addSeparator: function addSeparator(groupLabel) {
-				$("<hr id=" + groupLabel + "_sep" + "style='height:1px; color:gray; box-shadow:1px 1px 1px #888'></hr>").appendTo('#' + groupLabel + '_contener');
+				$("<hr id=" + groupLabel + "_sep"  + " class = mMenuSeparator ></hr>").appendTo('#' + groupLabel + '_contener');
 			},
 			hideGroup: function hideGroup(groupLabel) {
 				$('#' + groupLabel).hide();
@@ -3820,7 +3820,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				canvas_width = (Math.floor(this.width * .7)),
 				left_plugins_width = (Math.floor(this.width * .15))
 			;
-			html.push("<div id='top_menu_"+pf+"' style=' background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); width: "+(this.width-2)+"px; height:"+heightOfTopBar+"px; border:1px solid black;'>&nbsp; <span> </span></div>");
+			html.push("<div id='top_menu_"+pf+"' style='position:relative;background-repeat:repeat-x; background-image: url(images/dropdown-bg.gif); width: "+(this.width-2)+"px; height:"+heightOfTopBar+"px; border:1px solid black;'>&nbsp; <span> </span></div>");
 			html.push("<div id='top_nav_"+pf+"' style='width: "+(this.width-2)+"px; height:"+heightOfTopBar+"; border:1px solid black;'>&nbsp;&gt; <span> </span></div>");
 			html.push("<div id='left_plugins_"+pf+"' style='width:"+left_plugins_width+"px; height:"+h+"px; float:left;border:1px solid black;'></div>");
 			html.push("<div id='canvas_holder_"+pf+"' style='width:"+canvas_width+"px; height:"+h+"px; float:left;border:1px solid black; overflow: hidden; '>");
@@ -4294,7 +4294,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(190,9,"top_menu_"+pf,"polish");
+	outputView.mainMenu = menu(189,0,"top_menu_"+pf,"polish");
 	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addGroup("Graph");
