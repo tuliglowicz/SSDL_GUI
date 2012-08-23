@@ -3247,7 +3247,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 						}
 						else {
-							// gui.controler.reactOnEvent("DESELECT");
+							gui.controler.reactOnEvent("DESELECT");
+							gui.controler.reactOnEvent("ESCAPE");
 							node.highlight2();
 							gui.controler.reactOnEvent("NODESELECTED", node);
 							node.selected = true;
@@ -3534,6 +3535,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						var that = this;
 						var selectArrow = function(e){
 							gui.controler.reactOnEvent("ESCAPE");
+							gui.controler.reactOnEvent("DESELECT");
 							that.arrowGlow.remove();
 							that.arrowGlow = gui.view.paper.set();
 							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
@@ -3633,6 +3635,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							var that = this;
 							var selectArrow = function(e){
 								gui.controler.reactOnEvent("ESCAPE");
+								gui.controler.reactOnEvent("DESELECT");
 								that.arrowGlow.remove();
 								that.arrowGlow = gui.view.paper.set();
 								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
