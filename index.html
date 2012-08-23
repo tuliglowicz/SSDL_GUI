@@ -1,61 +1,61 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<META charset="UTF-8"/>
-	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-	<title>Interface</title>
-	<script src="javascripts/jquery-1.7.2.js"></script>
-	<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
-	<script src="javascripts/raphael.js"></script>
-	<script src="javascripts/shortcut.js"></script>
-	<script src="javascripts/ontology.js"></script>
-	<script src="javascripts/jquery.tinyscrollbar.js"></script>
-	<script src="javascripts/Slider2.js"></script>
-	<script src="language.js"></script>
-	<script src="library.js"></script>
-	<script src="controler.js"></script>
-	<script src="view.js"></script>
-	<script src="lib.js"></script>
-	<script src="generators.js"></script>
-	<script src="validators.js"></script>
-	<script src="myValidator.js"></script>
-	<link href="stylesheets/my_style.css" rel="stylesheet">
-	<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
-</head>
-<body>
-<div id="sandbox" style="background-color:ivory;"> </div>
-<div id="raport" style='clear: both; display:block;'></div>
+	<head>
+		<META charset="UTF-8"/>
+		<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+		<title>Interface</title>
+		<script src="javascripts/jquery-1.7.2.js"></script>
+		<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="javascripts/raphael.js"></script>
+		<script src="javascripts/shortcut.js"></script>
+		<script src="javascripts/ontology.js"></script>
+		<script src="javascripts/jquery.tinyscrollbar.js"></script>
+		<script src="javascripts/Slider2.js"></script>
+		<script src="language.js"></script>
+		<script src="library.js"></script>
+		<script src="controler.js"></script>
+		<script src="view.js"></script>
+		<script src="lib.js"></script>
+		<script src="generators.js"></script>
+		<script src="validators.js"></script>
+		<script src="myValidator.js"></script>
+		<link type="text/css" href="stylesheets/my_style.css" rel="stylesheet">
+		<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id="sandbox" style="background-color:ivory;"> </div>
+		<div id="raport" style='clear: both; display:block;'></div>
 
-<script>
-	"use strict";
+		<script>
+			"use strict";
 
-	var A = Graph_GUI("sandbox", 1200, 600, undefined, "get_all_atomic_service.xml", "", "7_SLA_map.xml", "7_SLA_map");
+			var A = Graph_GUI("sandbox", 1200, 600, undefined, "get_all_atomic_service.xml", "", "7_SLA_map.xml", "7_SLA_map");
 
-	function Graph_GUI(id, width, height, graphSaveParams, sdbUrl, saveUrl, graphToEditUrl, graphToEditName){
-		skeletonAppender(); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
-		var r = {};
+			function Graph_GUI(id, width, height, graphSaveParams, sdbUrl, saveUrl, graphToEditUrl, graphToEditName){
+				skeletonAppender(); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
+				var r = {};
 
-		r.id_postfix = Math.round( Math.random() * 10e5 );
-		r.language = "polish";
-	
-		r.view = View(id, width, height, r, graphSaveParams);
-		r.view.blankNodes.init();
-		r.view.blankNodes.draw();
-		r.controler = Controler(sdbUrl, saveUrl, graphToEditUrl, graphToEditName, r);
-		r.logger = r.controler.initLogger(r.view.paper);
-		r.controler.init();
+				r.id_postfix = Math.round( Math.random() * 10e5 );
+				r.language = "english";
+			
+				r.view = View(id, width, height, r, graphSaveParams);
+				r.view.blankNodes.init();
+				r.view.blankNodes.draw();
+				r.controler = Controler(sdbUrl, saveUrl, graphToEditUrl, graphToEditName, r);
+				r.logger = r.controler.initLogger(r.view.paper);
+				r.controler.init();
 
-		$(function(){
-			$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")
-		});
+				$(function(){
+					$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")
+				});
 
-		return r;
-	}
+				return r;
+			}
 
-</script>
-<!--
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
--->
-</body>
+		</script>
+		<!--
+		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+		-->
+	</body>
 </html>
