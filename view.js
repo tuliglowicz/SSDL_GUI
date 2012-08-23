@@ -2582,7 +2582,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.menu.addOption('Copy');
 							this.menu.addOption('Copy with reference');
 							this.menu.addOption('Paste');
-							this.menu.addOption('Delete');
+							this.menu.addOption('Delete',"DELETEDNODE",this);
 						}
 					}
 				}
@@ -3067,7 +3067,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		editNode : function editNode(node){
 			this.form.initToEdit(node);
+			alert("Got it!" +node);
 		},
+
+		deleteNode : function deleteNode(node){
+			gui.controler.reactOnEvent("NodeDeleted");
+
+		},
+
 		addStartStop : function addStartStop(obj){
 			var start = obj.start,
 				stop = obj.stop
@@ -3231,6 +3238,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					that.hideEdges();
 
 				},
+				// stop kurwa
 				stop = function stop(x,y,evt){
 					ready2move = false;
 					if(itWasJustAClick){
@@ -3241,13 +3249,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 						}
 						else {
-							gui.controler.reactOnEvent("DESELECT");
+							// gui.controler.reactOnEvent("DESELECT");
 							node.highlight2();
+							gui.controler.reactOnEvent("NODESELECTED", node);
+							node.selected = true;
 						}
 						that.showEdges();
+						// evt.stopPropagation? evt.stopPropagation() : evt.cancelBubble = true;
+
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
+						gui.controler.reactOnEvent("DESELECT");
 					}
 				}
 
@@ -3727,7 +3740,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				try{
 					var deployerOutput = gui.controler.deploy(graph_json, paper.width);
 				} catch(e){
-					console.error();
+					console.error(e);
 				}
 
 				var tmpCoords, x, y;
@@ -3884,7 +3897,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		deselectAll : function deselectAll(){
 			$.each(this.current_graph_view.nodes, function(k, v){
-				v.removeHighlight();
+				if(v.selected){
+					v.selected = false;
+				}else{
+					v.removeHighlight();
+				}
 			});
 			this.tooltip.close();
 		},
@@ -3964,7 +3981,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			return result;
 		},
 		removeNode : function removeNode(id){
-			$.each(this.current_graph_view.nodes, function(k, v){
+			$.each(this.current_graph_view.nodes, function(i, v){
 				if(v.id === id){
 					v.remove();
 					return false;
@@ -3993,7 +4010,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				this.show();
 			});
 		},
-		removeCurrentGraph : function showCurrentGraph(){
+		removeCurrentGraph : function removeCurrentGraph(){
 			$.each(this.current_graph_view.nodes, function(){
 				this.removeNode();
 			});
@@ -4006,7 +4023,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					this.remove();
 				});
 		},
-		removeAllGraphs : function showCurrentGraph(){
+		removeAllGraphs : function removeAllGraphs(){
 			var that = this;
 			$.each(this.graph_views_tab, function(){
 				$.each(this.nodes, function(){
@@ -4223,8 +4240,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			var that = this;
 			var menu = {
 				//public functions
-				addOption: function(label, invokedEvent){
-					return root.addOption(label, invokedEvent);
+				addOption: function(label, invokedEvent, eventObject){
+					return root.addOption(label, invokedEvent, eventObject);
 				},
 				getOption: function(label){
 					return root.getOption(label);
