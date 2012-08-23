@@ -4,7 +4,7 @@
 
 function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	var pf = gui.id_postfix;
-
+	var selectednode=false;
 	function repoNodes(visualiser) {
 		var resultObject = {
 			currNodes: [],
@@ -1222,6 +1222,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		reactOnEvent: function reactOnEvent(evtType, evtObj) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
+
 			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SIĘ DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
@@ -1352,6 +1353,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					}
 					gui.view.showCurrentGraph();
 					gui.view.switchMode();
+					selectednode=false;
 				})(evtObj);
 				break;
 			case "SELECT":
@@ -1474,6 +1476,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "NODESELECTED":
 				(function(e) {
+					selectednode=true;
 					this.shortcut.add("delete", (function() {
 						reactOnEvent("DELETEDNODE", e);
 					}).bind(this));
@@ -2216,7 +2219,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 
 	$('html').click(function() {
-
+		 selectednode = selectednode || false;
+		if(!selectednode)
 		controlerObject.reactOnEvent("ESCAPE");
 
 	});
