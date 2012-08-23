@@ -3228,7 +3228,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					if(!node.highlighted){
 						if(!evt.ctrlKey)
 							gui.controler.reactOnEvent("DESELECT");
-
 						flag = true;
 						node.highlight2();
 					}
@@ -3245,7 +3244,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(ctrl){
 							if(!flag) {
 								node.highlight(ctrl);
-								//alert("");
 							}
 						}
 						else {
@@ -3255,8 +3253,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							node.selected = true;
 						}
 						that.showEdges();
-						// evt.stopPropagation? evt.stopPropagation() : evt.cancelBubble = true;
-
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
@@ -3484,6 +3480,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			else {
 				var edgeObject = {
 					arrow : undefined,
+					arrowGlow : gui.view.paper.set(),
 					source : data.source,
 					target : data.target,
 					view : this,
@@ -3494,14 +3491,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					hide: function hide(){
 						this.arrow[0].hide();
 						this.arrow[1].hide();
+						this.arrowGlow.hide();
 					},
 					show: function show(){
 						this.arrow[0].myShow(300);
 						this.arrow[1].myShow(300);
+						this.arrowGlow.show();
 					},
 					remove : function remove(){
 						this.arrow[0].remove();
 						this.arrow[1].remove();
+						this.arrowGlow.remove();
 					},
 					switchMode: function switchMode(mode){
 						if(mode === "CF"){
@@ -3530,10 +3530,27 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							// console.log(e);
 						}
 
-						this.arrow = this.view.visualiser.drawEdge( bestConnectors )
-
+						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
+						var that = this;
+						var selectArrow = function(e){
+							gui.controler.reactOnEvent("ESCAPE");
+							that.arrowGlow.remove();
+							that.arrowGlow = gui.view.paper.set();
+							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+							gui.controler.reactOnEvent("EDGESELECTED", that);
+							e = e || window.event;
+							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							return false;
+						}
 						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						this.arrowGlow.remove();
+						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
+						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
+						this.arrow[0].click(selectArrow);
+						this.arrow[1].click(selectArrow);
+						this.arrowGlow.click(selectArrow);
 					}
 				}
 				;
@@ -3553,6 +3570,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			else {
 				var	edgeObject = {
 						arrow : undefined,
+						arrowGlow : gui.view.paper.set(),
 						sourceId: data.sourceId,
 						targetId: data.targetId,
 						output : data.output,
@@ -3565,14 +3583,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						hide: function hide(){
 							this.arrow[0].hide();
 							this.arrow[1].hide();
+							this.arrowGlow.hide();
 						},
 						show: function show(){
 							this.arrow[0].myShow(300);
 							this.arrow[1].myShow(300);
+							this.arrowGlow.show();
 						},
 						remove : function remove(){
 							this.arrow[0].remove();
 							this.arrow[1].remove();
+							this.arrowGlow.remove();
 						},
 						switchMode: function switchMode(mode){
 							if(mode === "CF"){
@@ -3609,9 +3630,26 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								;
 
 							this.arrow = this.view.visualiser.drawEdge(coords);
-
+							var that = this;
+							var selectArrow = function(e){
+								gui.controler.reactOnEvent("ESCAPE");
+								that.arrowGlow.remove();
+								that.arrowGlow = gui.view.paper.set();
+								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+								gui.controler.reactOnEvent("EDGESELECTED", that);
+								e = e || window.event;
+								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+								return false;
+							}
 							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							this.arrowGlow.remove();
+							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
+							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
+							this.arrow[0].click(selectArrow);
+							this.arrow[1].click(selectArrow);
+							this.arrowGlow.click(selectArrow);
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)

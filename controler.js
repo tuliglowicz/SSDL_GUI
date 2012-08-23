@@ -1222,6 +1222,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		reactOnEvent: function reactOnEvent(evtType, evtObj) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
+			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SIĘ DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1370,6 +1371,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "ESCAPE":
 				(function() {
+					this.shortcut.remove("delete");
+					gui.view.updateEdges();
 					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
@@ -1475,6 +1478,17 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						reactOnEvent("DELETEDNODE", e);
 					}).bind(this));
 				})(evtObj);
+				break;
+			case "EDGESELECTED":
+				(function(e) {
+					this.shortcut.add("delete", (function() {
+						reactOnEvent("EDGEDELETED", e);
+					}).bind(this));
+				})(evtObj);
+				break;
+			case "EDGEDELETED":
+				this.shortcut.remove("delete");
+				alert('EDGU WYPIERDALAJ!!!');
 				break;
 			case "NODEMOVED":
 				(function(e) {
