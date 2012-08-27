@@ -1150,23 +1150,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
-<<<<<<< HEAD
-		plugins: [],
-		idCounter: 0,
-		graphData_tab: [],
-		current_graphData: {
-			id: "root",
-			nodes: []
-		},
-		// element modelu, ale celowo zawarty w kontrolerze
-		init: function init() {
-=======
 		plugins : [],
 		idCounter : 0,
 		graphData_tab : [],
 		current_graphData : {id: "root", nodes: [], isRoot : true}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
->>>>>>> drobne zmiany zwiazane z integracja z Łukaszem
 			this.initPlugins();
 		},
 		initPlugins: function initPlugins() {
@@ -1232,11 +1220,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-<<<<<<< HEAD
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SIĘ DZIEJE [NIE KASOWAĆ!!!]
-=======
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
->>>>>>> shortcut fix z nierozpoznawaniem ctrl i shift
+			// console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1282,8 +1266,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						}
 					}
 
-
-
 					// save(sUrl, data, type, fun_success, dataType, fun_error)
 				})(evtObj);
 				break;
@@ -1296,7 +1278,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						var parsedSDB = that.parseSDBetaArray(sdb);
 						that.repoNodes.setData(parsedSDB).draw();
 					});
-// <<<<<<< HEAD
 					that.reactOnEvent("LoadAndEditCompoundService", {
 						url: graphToEditUrl,
 						title: graphToEditName
@@ -1305,11 +1286,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "TRYTOSAVENODEAFTEREDIT":
 				(function(e) {
-// =======
-					that.reactOnEvent("LoadAndEditCompoundService", {url: "", title: ""});
-				})(); break;
-				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
-// >>>>>>> drobne zmiany zwiazane z integracja z Łukaszem
 					//e = zwrócony JSONek
 					// jsonFormatter(e, 1,1)
 					if (!e.nodeId || e.nodeId === "") { //to jest blank
@@ -1340,7 +1316,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else {
 							gui.view.form.handleErrors(wrongsList);
 						}
-						Deploying
+						// Deploying
 					}
 				})(evtObj);
 				break;
@@ -1356,7 +1332,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						}
 					});
 					$.each(gui.controler.current_graphData.nodes, function(i, v) {
-
 						if ((index = v.sources.indexOf(e.id)) != -1) {
 							gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
 						}
@@ -1372,7 +1347,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					}
 					gui.view.showCurrentGraph();
 					gui.view.switchMode();
-					selectednode=false;
+					selectednode = false;
 				})(evtObj);
 				break;
 			case "SELECT":
@@ -1392,11 +1367,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "ESCAPE":
 				(function() {
-					this.shortcut.remove("delete");
+					// this.shortcut.remove("delete");
 					gui.view.updateEdges();
 					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
-					gui.view.tooltip.close();
+					// gui.view.tooltip.close(); // to już się robi w deselectAll();
 				})();
 				break;
 			case "ADDOUTPUT":
@@ -1417,9 +1392,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						};
 
 						source.functionalDescription.outputs.push(output);
-
 						gui.view.updateNode(source);
-
 						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
 
 						// console.log(source)
