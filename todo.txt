@@ -1,0 +1,4 @@
+TODO:
+zmiana nazwy eventu SELECT na SELECTMANY
+event SELECT
+zrobienie czegoś z funkcją updateGraph
