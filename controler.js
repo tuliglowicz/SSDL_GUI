@@ -1083,13 +1083,17 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					var numberOfAZ = 0
 					$.each(stringTab, function(i) {
 						var noErrors = true;
-						if (!~validationTab.indexOf(this)) {
-							if (!/^[a-z]{1}$/.test(this)) {
+						that = this.toString();
+						if (!~validationTab.indexOf(that)) {
+							// alert(that+":"+(validationTab.indexOf(that)))
+							// console.log(validationTab, that.toString(), validationTab.indexOf(that.toString()))
+							// console.log(that)
+							if (!/^[a-z]{1}$/.test(that)) {
 								result.valid = false;
-								msgTab.push("\nnieprawidłowa wartość: " + this);
+								msgTab.push("\nnieprawidłowa wartość: " + that);
 							} else if (numberOfAZ > 0) {
 								result.valid = false;
-								msgTab.push("\nnieprawidłowa wartość: +" + this);
+								msgTab.push("\nnieprawidłowa wartość: +" + that);
 							} else {
 								numberOfAZ++;
 							}
@@ -1219,7 +1223,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI�? DZIEJE [NIE KASOWAĆ!!!]
+			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
