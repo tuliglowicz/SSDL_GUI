@@ -23,13 +23,14 @@
 		<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
 	</head>
 	<body>
+		
 		<div id="sandbox" style="background-color:ivory;"> </div>
 		<div id="raport" style='clear: both; display:block;'></div>
 
 		<script>
 			"use strict";
 
-			var A = Graph_GUI("sandbox", 1200, 600, undefined, "get_all_atomic_service.xml", "", "7_SLA_map.xml", "7_SLA_map");
+			var A = Graph_GUI("sandbox", 1200, 600, undefined, "get_all_atomic_service.xml", "", "7_SLA_map.xml", "7_SLA_map");// "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
 
 			function Graph_GUI(id, width, height, graphSaveParams, sdbUrl, saveUrl, graphToEditUrl, graphToEditName){
 				skeletonAppender(); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota

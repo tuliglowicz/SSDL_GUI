@@ -1115,7 +1115,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui){
 		plugins : [],
 		idCounter : 0,
 		graphData_tab : [],
-		current_graphData : {id: "root", nodes: []}, // element modelu, ale celowo zawarty w kontrolerze
+		current_graphData : {id: "root", nodes: [], isRoot : true}, // element modelu, ale celowo zawarty w kontrolerze
 		init: function init(){
 			this.initPlugins();
 		},
@@ -1227,7 +1227,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui){
 						var parsedSDB = that.parseSDBetaArray(sdb);
 						that.repoNodes.setData(parsedSDB).draw();
 					});
-					that.reactOnEvent("LoadAndEditCompoundService", {url: graphToEditUrl, title: graphToEditName});
+					that.reactOnEvent("LoadAndEditCompoundService", {url: "", title: ""});
 				})(); break;
 				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
 					//e = zwrócony JSONek
@@ -1929,7 +1929,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui){
 				i = 0;
 			;
 			// console.log(jsonFormatter(json, true))
-			// tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 			parseGraph(json, "\t");
 			tabOutput.push("</graph>");
 
