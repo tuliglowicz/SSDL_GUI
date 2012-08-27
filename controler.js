@@ -1149,6 +1149,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
+<<<<<<< HEAD
 		plugins: [],
 		idCounter: 0,
 		graphData_tab: [],
@@ -1158,6 +1159,13 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		},
 		// element modelu, ale celowo zawarty w kontrolerze
 		init: function init() {
+=======
+		plugins : [],
+		idCounter : 0,
+		graphData_tab : [],
+		current_graphData : {id: "root", nodes: [], isRoot : true}, // element modelu, ale celowo zawarty w kontrolerze
+		init: function init(){
+>>>>>>> drobne zmiany zwiazane z integracja z Łukaszem
 			this.initPlugins();
 		},
 		initPlugins: function initPlugins() {
@@ -1283,6 +1291,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						var parsedSDB = that.parseSDBetaArray(sdb);
 						that.repoNodes.setData(parsedSDB).draw();
 					});
+// <<<<<<< HEAD
 					that.reactOnEvent("LoadAndEditCompoundService", {
 						url: graphToEditUrl,
 						title: graphToEditName
@@ -1291,6 +1300,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "TRYTOSAVENODEAFTEREDIT":
 				(function(e) {
+// =======
+					that.reactOnEvent("LoadAndEditCompoundService", {url: "", title: ""});
+				})(); break;
+				case "TRYTOSAVENODEAFTEREDIT" : (function(e){
+// >>>>>>> drobne zmiany zwiazane z integracja z Łukaszem
 					//e = zwrócony JSONek
 					// jsonFormatter(e, 1,1)
 					if (!e.nodeId || e.nodeId === "") { //to jest blank
@@ -2088,7 +2102,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			var tabOutput = [],
 				physicalDescription, functionalDescription, nonFunctionalDescription, i = 0;;
 			// console.log(jsonFormatter(json, true))
-			// tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 			parseGraph(json, "\t");
 			tabOutput.push("</graph>");
 
