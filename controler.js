@@ -1473,6 +1473,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "NODESELECTED":
 				(function(e) {
+					//0o?
 					selectednode=true;
 					this.shortcut.add("delete", (function() {
 						reactOnEvent("DELETEDNODE", e);
