@@ -1367,7 +1367,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "ESCAPE":
 				(function() {
-					// this.shortcut.remove("delete");
+					this.shortcut.remove("delete");
 					gui.view.updateEdges();
 					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
