@@ -1085,9 +1085,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						var noErrors = true;
 						that = this.toString();
 						if (!~validationTab.indexOf(that)) {
-							// alert(that+":"+(validationTab.indexOf(that)))
-							// console.log(validationTab, that.toString(), validationTab.indexOf(that.toString()))
-							// console.log(that)
 							if (!/^[a-z]{1}$/.test(that)) {
 								result.valid = false;
 								msgTab.push("\nnieprawidłowa wartość: " + that);
