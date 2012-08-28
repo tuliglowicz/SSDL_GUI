@@ -3242,10 +3242,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							if(!flag) {
 								node.highlight(ctrl);
 							}
+							gui.controler.reactOnEvent("NODESELECTED");
 						}
 						else {
 							node.highlight2();
-							gui.controler.reactOnEvent("NODESELECTED");
+							
 							node.selected = true;
 						}
 						that.showEdges();
