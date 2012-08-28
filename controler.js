@@ -4,7 +4,8 @@
 
 function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	var pf = gui.id_postfix;
-	var selectednode=false;
+	var selectednode = false;
+
 	function repoNodes(visualiser) {
 		var resultObject = {
 			currNodes: [],
@@ -1150,11 +1151,16 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
-		plugins : [],
-		idCounter : 0,
-		graphData_tab : [],
-		current_graphData : {id: "root", nodes: [], isRoot : true}, // element modelu, ale celowo zawarty w kontrolerze
-		init: function init(){
+		plugins: [],
+		idCounter: 0,
+		graphData_tab: [],
+		current_graphData: {
+			id: "root",
+			nodes: [],
+			isRoot: true
+		},
+		// element modelu, ale celowo zawarty w kontrolerze
+		init: function init() {
 			this.initPlugins();
 		},
 		initPlugins: function initPlugins() {
@@ -1220,7 +1226,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-			// console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
+			 console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1321,29 +1327,35 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				})(evtObj);
 				break;
 			case "DELETEDNODE":
-				(function(e) {
+				(function() {
 					var index;
+					var e;
 					gui.view.hideCurrentGraph();
-					$.each(gui.controler.current_graphData.nodes, function(i, v) {
-						if (v.nodeId == e.id) {
-							gui.controler.current_graphData.nodes.splice(i, 1);
-							gui.view.current_graph_view.nodes.splice(i, 1);
-							return false;
-						}
-					});
-					$.each(gui.controler.current_graphData.nodes, function(i, v) {
-						if ((index = v.sources.indexOf(e.id)) != -1) {
-							gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
-						}
-					});
-					for (var i = gui.view.current_graph_view.edgesCF.length; i > 0; i--) {
-						if (gui.view.current_graph_view.edgesCF[i - 1].source.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
-						else if (gui.view.current_graph_view.edgesCF[i - 1].target.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
-					}
+					for(var q = gui.view.current_graph_view.nodes.length;q>0;q--){
+						e = gui.view.current_graph_view.nodes[q-1];
+						if (e.highlighted) {
+							$.each(gui.controler.current_graphData.nodes, function(i, v) {
+								if (v.nodeId == e.id) {
+									gui.controler.current_graphData.nodes.splice(i, 1);
+									gui.view.current_graph_view.nodes.splice(i, 1);
+									return false;
+								}
+							});
+							$.each(gui.controler.current_graphData.nodes, function(i, v) {
+								if ((index = v.sources.indexOf(e.id)) != -1) {
+									gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
+								}
+							});
+							for (var i = gui.view.current_graph_view.edgesCF.length; i > 0; i--) {
+								if (gui.view.current_graph_view.edgesCF[i - 1].source.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
+								else if (gui.view.current_graph_view.edgesCF[i - 1].target.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
+							}
 
-					for (var i = gui.view.current_graph_view.edgesDF.length; i > 0; i--) {
-						if (gui.view.current_graph_view.edgesDF[i - 1].sourceId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
-						else if (gui.view.current_graph_view.edgesDF[i - 1].targetId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+							for (var i = gui.view.current_graph_view.edgesDF.length; i > 0; i--) {
+								if (gui.view.current_graph_view.edgesDF[i - 1].sourceId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+								else if (gui.view.current_graph_view.edgesDF[i - 1].targetId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+							}
+						}
 					}
 					gui.view.showCurrentGraph();
 					gui.view.switchMode();
@@ -1353,6 +1365,9 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "SELECT":
 				(function(e) {
 					gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
+					this.shortcut.add("delete", (function() {
+						reactOnEvent("DELETEDNODE");
+					}).bind(this));
 				})(evtObj);
 				break;
 			case "DESELECT":
@@ -1467,11 +1482,10 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				})(evtObj);
 				break;
 			case "NODESELECTED":
-				(function(e) {
-					//0o?
-					selectednode=true;
+				(function() {
+					selectednode = true;
 					this.shortcut.add("delete", (function() {
-						reactOnEvent("DELETEDNODE", e);
+						reactOnEvent("DELETEDNODE");
 					}).bind(this));
 				})(evtObj);
 				break;
@@ -1485,37 +1499,37 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "EDGEDELETED":
 				(function(e) {
 					this.shortcut.remove("delete");
-					switch(e.type){
-						case 'DF':
-							var len = gui.view.current_graph_view.edgesDF.length;
-							for(var i = 0; i<len; i++){
-								if(gui.view.current_graph_view.edgesDF[i]===e){
-									gui.view.current_graph_view.edgesDF[i].remove();
-									gui.view.current_graph_view.edgesDF.splice(i, 1);
-									i = len;
-								}
+					switch (e.type) {
+					case 'DF':
+						var len = gui.view.current_graph_view.edgesDF.length;
+						for (var i = 0; i < len; i++) {
+							if (gui.view.current_graph_view.edgesDF[i] === e) {
+								gui.view.current_graph_view.edgesDF[i].remove();
+								gui.view.current_graph_view.edgesDF.splice(i, 1);
+								i = len;
 							}
-							break;
-						case 'CF':
-							var sId = e.source.id;
-							var tId = e.target.id;
-							var len = gui.controler.current_graphData.nodes.length;
-							for(var i = 0; i<len; i++){
-								if(gui.controler.current_graphData.nodes[i].nodeId == tId){
-									var index = gui.controler.current_graphData.nodes[i].sources.indexOf(sId);
-									gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
-									i = len;
-								}
+						}
+						break;
+					case 'CF':
+						var sId = e.source.id;
+						var tId = e.target.id;
+						var len = gui.controler.current_graphData.nodes.length;
+						for (var i = 0; i < len; i++) {
+							if (gui.controler.current_graphData.nodes[i].nodeId == tId) {
+								var index = gui.controler.current_graphData.nodes[i].sources.indexOf(sId);
+								gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
+								i = len;
 							}
-							len = gui.view.current_graph_view.edgesCF.length;
-							for(var i = 0; i<len; i++){
-								if(gui.view.current_graph_view.edgesCF[i]===e){
-									gui.view.current_graph_view.edgesCF[i].remove();
-									gui.view.current_graph_view.edgesCF.splice(i, 1);
-									i = len;
-								}
+						}
+						len = gui.view.current_graph_view.edgesCF.length;
+						for (var i = 0; i < len; i++) {
+							if (gui.view.current_graph_view.edgesCF[i] === e) {
+								gui.view.current_graph_view.edgesCF[i].remove();
+								gui.view.current_graph_view.edgesCF.splice(i, 1);
+								i = len;
 							}
-							break;
+						}
+						break;
 					}
 					e.remove();
 				})(evtObj);
@@ -2246,9 +2260,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 
 	$('html').click(function() {
-		 selectednode = selectednode || false;
-		if(!selectednode)
-		controlerObject.reactOnEvent("ESCAPE");
+		selectednode = selectednode || false;
+		if (!selectednode) controlerObject.reactOnEvent("ESCAPE");
 
 	});
 	controlerObject.reactOnEvent("START");
