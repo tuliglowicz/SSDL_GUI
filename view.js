@@ -3236,7 +3236,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					that.hideEdges();
 
 				},
-				// stop kurwa
 				stop = function stop(x,y,evt){
 					ready2move = false;
 					if(itWasJustAClick){
@@ -3246,7 +3245,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 						}
 						else {
-							// gui.controler.reactOnEvent("DESELECT");
 							node.highlight2();
 							gui.controler.reactOnEvent("NODESELECTED", node);
 							node.selected = true;
@@ -3257,6 +3255,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						gui.controler.reactOnEvent("NodeMoved");
 						gui.controler.reactOnEvent("DESELECT");
 					}
+					gui.controler.reactOnEvent("ESCAPE");
 				}
 
 				if(getType(element) === "array"){
