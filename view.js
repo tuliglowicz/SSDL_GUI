@@ -3067,12 +3067,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		editNode : function editNode(node){
 			this.form.initToEdit(node);
-			alert("Got it!" +node);
+			// alert("Got it!" +node);
 		},
 
 		deleteNode : function deleteNode(node){
 			gui.controler.reactOnEvent("NodeDeleted");
-
 		},
 
 		addStartStop : function addStartStop(obj){

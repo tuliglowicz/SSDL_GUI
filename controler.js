@@ -1228,434 +1228,432 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 			 console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
-			case "EDITSERVICE":
-				(function(e) {
-					if (e && e.url) {
-						that.loadSSDL(e.url);
-					}
-				})(evtObj);
-				break;
-			case "SAVE":
-				(function(e) {
-
-					// na szybko
-					// 
-					// 	$("#saveDialog").dialog("open");
-					// } else {
-					var savedSSDL = that.saveSSDL();
-					var validation = validatorObject.validateGraph(that.getRoot());
-
-					// e = e || {};
-					// e.name = 1;
-					// e.description = 1;
-					if (that.current_graphData.nodes.length < 3) {
-						alert("Cannot save empty graph!")
-					} else if (!(e && e.name && e.description) && !graphToEditUrl) {
-						// a("fghj")
-						gui.view.form.editGraphSaveParams();
-					} else {
-						if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm("Validation not passed!\nAre you sure this graph is correct?\nclick OK if you're sure.")) {
-
-							// var savedSSDL = that.saveSSDL();
-							// console.log(savedSSDL)
-							// savedSSDL = that.xmlToString(savedSSDL);
-							var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
-							output += "ssdl=" + savedSSDL;
-
-
-							console.log(output)
-							that.save(saveUrl, output, "POST", "xml", function() {
-								alert("Procedura zapisu przeszła poprawnie.")
-							}, function() {
-								alert("Procedura zapisu nie powiodła się.");
-							})
+				case "EDITSERVICE":
+					(function(e) {
+						if (e && e.url) {
+							that.loadSSDL(e.url);
 						}
-					}
+					})(evtObj);
+					break;
+				case "SAVE":
+					(function(e) {
+						// na szybko
+						// 
+						// 	$("#saveDialog").dialog("open");
+						// } else {
+						var savedSSDL = that.saveSSDL();
+						var validation = validatorObject.validateGraph(that.getRoot());
 
-					// save(sUrl, data, type, fun_success, dataType, fun_error)
-				})(evtObj);
-				break;
-			case "START":
-				(function() {
-					// that.load(url, function fun_success(list){
-					// 	that.repository.setData(list).draw();
-					// });
-					that.load(url, function fun_success(sdb) {
-						var parsedSDB = that.parseSDBetaArray(sdb);
-						that.repoNodes.setData(parsedSDB).draw();
-					});
-					that.reactOnEvent("LoadAndEditCompoundService", {
-						url: graphToEditUrl,
-						title: graphToEditName
-					});
-				})();
-				break;
-			case "TRYTOSAVENODEAFTEREDIT":
-				(function(e) {
-					//e = zwrócony JSONek
-					// jsonFormatter(e, 1,1)
-					if (!e.nodeId || e.nodeId === "") { //to jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-
-						if (wrongsList.length == 0) {
-							e.nodeId = that.generateId();
-							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
-							graphNode.switchToDFMode();
-							gui.view.current_graph_view.nodes.push(graphNode);
-							that.current_graphData.nodes.push(e);
-							gui.view.form.closeForm();
+						// e = e || {};
+						// e.name = 1;
+						// e.description = 1;
+						if (that.current_graphData.nodes.length < 3) {
+							alert("Cannot save empty graph!")
+						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
+							// a("fghj")
+							gui.view.form.editGraphSaveParams();
 						} else {
-							gui.view.form.handleErrors(wrongsList);
+							if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm("Validation not passed!\nAre you sure this graph is correct?\nclick OK if you're sure.")) {
+
+								// var savedSSDL = that.saveSSDL();
+								// console.log(savedSSDL)
+								// savedSSDL = that.xmlToString(savedSSDL);
+								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
+								output += "ssdl=" + savedSSDL;
+
+
+								console.log(output)
+								that.save(saveUrl, output, "POST", "xml", function() {
+									alert("Procedura zapisu przeszła poprawnie.")
+								}, function() {
+									alert("Procedura zapisu nie powiodła się.");
+								})
+							}
 						}
-					} else { //to nie jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-						if (wrongsList.length === 0) {
-							$.each(that.current_graphData.nodes, function(i, v) {
-								if (v.nodeId == e.nodeId) {
-									that.current_graphData.nodes[i] = e;
-									console.log(that.current_graphData.nodes);
-									return false;
+
+						// save(sUrl, data, type, fun_success, dataType, fun_error)
+					})(evtObj);
+					break;
+				case "START":
+					(function() {
+						// that.load(url, function fun_success(list){
+						// 	that.repository.setData(list).draw();
+						// });
+						that.load(url, function fun_success(sdb) {
+							var parsedSDB = that.parseSDBetaArray(sdb);
+							that.repoNodes.setData(parsedSDB).draw();
+						});
+						that.reactOnEvent("LoadAndEditCompoundService", {
+							url: graphToEditUrl,
+							title: graphToEditName
+						});
+					})();
+					break;
+				case "TRYTOSAVENODEAFTEREDIT":
+					(function(e) {
+						//e = zwrócony JSONek
+						// jsonFormatter(e, 1,1)
+						if (!e.nodeId || e.nodeId === "") { //to jest blank
+							var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+
+							if (wrongsList.length == 0) {
+								e.nodeId = that.generateId();
+								var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
+								graphNode.switchToDFMode();
+								gui.view.current_graph_view.nodes.push(graphNode);
+								that.current_graphData.nodes.push(e);
+								gui.view.form.closeForm();
+							} else {
+								gui.view.form.handleErrors(wrongsList);
+							}
+						} else { //to nie jest blank
+							var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+							if (wrongsList.length === 0) {
+								$.each(that.current_graphData.nodes, function(i, v) {
+									if (v.nodeId == e.nodeId) {
+										that.current_graphData.nodes[i] = e;
+										console.log(that.current_graphData.nodes);
+										return false;
+									}
+								});
+								gui.view.updateNode(e);
+								gui.view.form.closeForm();
+							} else {
+								gui.view.form.handleErrors(wrongsList);
+							}
+							// Deploying
+						}
+					})(evtObj);
+					break;
+				case "DELETEDNODE":
+					(function() {
+						var index;
+						var e;
+						gui.view.hideCurrentGraph();
+						for(var q = gui.view.current_graph_view.nodes.length;q>0;q--){
+							e = gui.view.current_graph_view.nodes[q-1];
+							if (e.highlighted) {
+								$.each(gui.controler.current_graphData.nodes, function(i, v) {
+									if (v.nodeId == e.id) {
+										gui.controler.current_graphData.nodes.splice(i, 1);
+										gui.view.current_graph_view.nodes.splice(i, 1);
+										return false;
+									}
+								});
+								$.each(gui.controler.current_graphData.nodes, function(i, v) {
+									if ((index = v.sources.indexOf(e.id)) != -1) {
+										gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
+									}
+								});
+								for (var i = gui.view.current_graph_view.edgesCF.length; i > 0; i--) {
+									if (gui.view.current_graph_view.edgesCF[i - 1].source.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
+									else if (gui.view.current_graph_view.edgesCF[i - 1].target.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
 								}
+
+								for (var i = gui.view.current_graph_view.edgesDF.length; i > 0; i--) {
+									if (gui.view.current_graph_view.edgesDF[i - 1].sourceId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+									else if (gui.view.current_graph_view.edgesDF[i - 1].targetId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+								}
+							}
+						}
+						gui.view.showCurrentGraph();
+						gui.view.switchMode();
+						selectednode = false;
+					})(evtObj);
+					break;
+				case "SELECT":
+					(function(e) {
+						gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
+						this.shortcut.add("delete", (function() {
+							reactOnEvent("DELETEDNODE");
+						}).bind(this));
+					})(evtObj);
+					break;
+				case "DESELECT":
+					(function() {
+						gui.view.deselectAll();
+					})();
+					break;
+				case "SELECTALL":
+					(function() {
+						gui.view.selectAll();
+					})();
+					break;
+				case "ESCAPE":
+					(function() {
+						this.shortcut.remove("delete");
+						gui.view.updateEdges();
+						gui.view.menuList.getInstance().close();
+						gui.view.deselectAll();
+						// gui.view.tooltip.close(); // to już się robi w deselectAll();
+					})();
+					break;
+				case "ADDOUTPUT":
+					(function(e) {
+						var source = that.getNodeById(e.sourceId),
+							input = e.input,
+							outputTmp, output, newId;
+						if (source) {
+							outputTmp = that.getOutputById(e.sourceId, input.id)
+							if (outputTmp) {
+								newId = that.generateIOId(input.id);
+							}
+							output = {
+								id: newId || input.id,
+								class: input.class,
+								label: input.label,
+								dataType: input.dataType
+							};
+
+							source.functionalDescription.outputs.push(output);
+							gui.view.updateNode(source);
+							output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
+
+							// console.log(source)
+							that.reactOnEvent("addDFEdge", {
+								sourceId: source.nodeId,
+								targetId: e.targetId,
+								input: e.input,
+								output: output,
+								CF_or_DF: "DF"
 							});
-							gui.view.updateNode(e);
-							gui.view.form.closeForm();
+						}
+
+						// console.log(e)
+					})(evtObj);
+					break;
+				case "ADDINPUT":
+					(function(e) {
+						// console.log(e);
+						var target = that.getNodeById(e.targetId),
+							output = e.output,
+							inputTmp, input, newId;
+						if (target) {
+							inputTmp = that.getInputById(e.targetId, output.id)
+							if (inputTmp) {
+								newId = that.generateIOId(output.id);
+							}
+							input = {
+								id: newId || output.id,
+								class: output.class,
+								label: output.label,
+								dataType: output.dataType
+							};
+
+							target.functionalDescription.inputs.push(input);
+
+							gui.view.updateNode(target);
+
+							input = gui.view.getNodeById(e.targetId).getInputById(input.id);
+
+							that.reactOnEvent("addDFEdge", {
+								sourceId: e.sourceId,
+								targetId: e.targetId,
+								input: input,
+								output: e.output,
+								CF_or_DF: "DF"
+							});
+						}
+
+						// console.log(e)
+					})(evtObj);
+					break;
+				case "ADDCFEDGE":
+					(function(e) {
+						var target = gui.controler.getNodeById(e.target.id);
+						// alert(e.target.id)
+						target.sources.push(e.source.id);
+						var edge = gui.view.addCFEdge(e);
+						gui.view.current_graph_view.edgesCF.push(edge);
+					})(evtObj);
+					break;
+				case "ADDDFEDGE":
+					(function(e) {
+						// console.log(e)
+						var input = gui.controler.getInputById(e.targetId, e.input.id);
+						if (input) {
+							input.source = [e.sourceId, e.output.id];
 						} else {
-							gui.view.form.handleErrors(wrongsList);
+							a(e.targetId + ":" + e.input.id);
 						}
-						// Deploying
-					}
-				})(evtObj);
-				break;
-			case "DELETEDNODE":
-				(function() {
-					var index;
-					var e;
-					gui.view.hideCurrentGraph();
-					for(var q = gui.view.current_graph_view.nodes.length;q>0;q--){
-						e = gui.view.current_graph_view.nodes[q-1];
-						if (e.highlighted) {
-							$.each(gui.controler.current_graphData.nodes, function(i, v) {
-								if (v.nodeId == e.id) {
-									gui.controler.current_graphData.nodes.splice(i, 1);
-									gui.view.current_graph_view.nodes.splice(i, 1);
-									return false;
+						var edge = gui.view.addDFEdge(e);
+						gui.view.current_graph_view.edgesDF.push(edge);
+					})(evtObj);
+					break;
+				case "NODESELECTED":
+					(function() {
+						selectednode = true;
+						this.shortcut.add("delete", (function() {
+							reactOnEvent("DELETEDNODE");
+						}).bind(this));
+					})(evtObj);
+					break;
+				case "EDGESELECTED":
+					(function(e) {
+						this.shortcut.add("delete", (function() {
+							reactOnEvent("EDGEDELETED", e);
+						}).bind(this));
+					})(evtObj);
+					break;
+				case "EDGEDELETED":
+					(function(e) {
+						this.shortcut.remove("delete");
+						switch (e.type) {
+						case 'DF':
+							var len = gui.view.current_graph_view.edgesDF.length;
+							for (var i = 0; i < len; i++) {
+								if (gui.view.current_graph_view.edgesDF[i] === e) {
+									gui.view.current_graph_view.edgesDF[i].remove();
+									gui.view.current_graph_view.edgesDF.splice(i, 1);
+									i = len;
 								}
-							});
-							$.each(gui.controler.current_graphData.nodes, function(i, v) {
-								if ((index = v.sources.indexOf(e.id)) != -1) {
+							}
+							break;
+						case 'CF':
+							var sId = e.source.id;
+							var tId = e.target.id;
+							var len = gui.controler.current_graphData.nodes.length;
+							for (var i = 0; i < len; i++) {
+								if (gui.controler.current_graphData.nodes[i].nodeId == tId) {
+									var index = gui.controler.current_graphData.nodes[i].sources.indexOf(sId);
 									gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
+									i = len;
 								}
-							});
-							for (var i = gui.view.current_graph_view.edgesCF.length; i > 0; i--) {
-								if (gui.view.current_graph_view.edgesCF[i - 1].source.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
-								else if (gui.view.current_graph_view.edgesCF[i - 1].target.id == e.id) gui.view.current_graph_view.edgesCF.splice(i - 1, 1);
 							}
-
-							for (var i = gui.view.current_graph_view.edgesDF.length; i > 0; i--) {
-								if (gui.view.current_graph_view.edgesDF[i - 1].sourceId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
-								else if (gui.view.current_graph_view.edgesDF[i - 1].targetId == e.id) gui.view.current_graph_view.edgesDF.splice(i - 1, 1);
+							len = gui.view.current_graph_view.edgesCF.length;
+							for (var i = 0; i < len; i++) {
+								if (gui.view.current_graph_view.edgesCF[i] === e) {
+									gui.view.current_graph_view.edgesCF[i].remove();
+									gui.view.current_graph_view.edgesCF.splice(i, 1);
+									i = len;
+								}
 							}
+							break;
 						}
-					}
-					gui.view.showCurrentGraph();
-					gui.view.switchMode();
-					selectednode = false;
-				})(evtObj);
-				break;
-			case "SELECT":
-				(function(e) {
-					gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
-					this.shortcut.add("delete", (function() {
-						reactOnEvent("DELETEDNODE");
-					}).bind(this));
-				})(evtObj);
-				break;
-			case "DESELECT":
-				(function() {
-					gui.view.deselectAll();
-				})();
-				break;
-			case "SELECTALL":
-				(function() {
-					gui.view.selectAll();
-				})();
-				break;
-			case "ESCAPE":
-				(function() {
-					this.shortcut.remove("delete");
-					gui.view.updateEdges();
-					gui.view.menuList.getInstance().close();
-					gui.view.deselectAll();
-					// gui.view.tooltip.close(); // to już się robi w deselectAll();
-				})();
-				break;
-			case "ADDOUTPUT":
-				(function(e) {
-					var source = that.getNodeById(e.sourceId),
-						input = e.input,
-						outputTmp, output, newId;
-					if (source) {
-						outputTmp = that.getOutputById(e.sourceId, input.id)
-						if (outputTmp) {
-							newId = that.generateIOId(input.id);
+						e.remove();
+					})(evtObj);
+					break;
+				case "NODEMOVED":
+					(function(e) {
+
+					})(evtObj);
+					break;
+				case "SWITCHMODE":
+					(function(e) {
+						gui.view.switchMode(e.mode);
+					})(evtObj);
+					break;
+				case "ADDSTARTSTOPAUTOMATICALLY":
+					(function() {
+						var result = that.addStartStop();
+						if (result) {
+							gui.view.addStartStop(result);
 						}
-						output = {
-							id: newId || input.id,
-							class: input.class,
-							label: input.label,
-							dataType: input.dataType
-						};
-
-						source.functionalDescription.outputs.push(output);
-						gui.view.updateNode(source);
-						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
-
-						// console.log(source)
-						that.reactOnEvent("addDFEdge", {
-							sourceId: source.nodeId,
-							targetId: e.targetId,
-							input: e.input,
-							output: output,
-							CF_or_DF: "DF"
-						});
-					}
-
-					// console.log(e)
-				})(evtObj);
-				break;
-			case "ADDINPUT":
-				(function(e) {
-					// console.log(e);
-					var target = that.getNodeById(e.targetId),
-						output = e.output,
-						inputTmp, input, newId;
-					if (target) {
-						inputTmp = that.getInputById(e.targetId, output.id)
-						if (inputTmp) {
-							newId = that.generateIOId(output.id);
-						}
-						input = {
-							id: newId || output.id,
-							class: output.class,
-							label: output.label,
-							dataType: output.dataType
-						};
-
-						target.functionalDescription.inputs.push(input);
-
-						gui.view.updateNode(target);
-
-						input = gui.view.getNodeById(e.targetId).getInputById(input.id);
-
-						that.reactOnEvent("addDFEdge", {
-							sourceId: e.sourceId,
-							targetId: e.targetId,
-							input: input,
-							output: e.output,
-							CF_or_DF: "DF"
-						});
-					}
-
-					// console.log(e)
-				})(evtObj);
-				break;
-			case "ADDCFEDGE":
-				(function(e) {
-					var target = gui.controler.getNodeById(e.target.id);
-					// alert(e.target.id)
-					target.sources.push(e.source.id);
-					var edge = gui.view.addCFEdge(e);
-					gui.view.current_graph_view.edgesCF.push(edge);
-				})(evtObj);
-				break;
-			case "ADDDFEDGE":
-				(function(e) {
-					// console.log(e)
-					var input = gui.controler.getInputById(e.targetId, e.input.id);
-					if (input) {
-						input.source = [e.sourceId, e.output.id];
-					} else {
-						a(e.targetId + ":" + e.input.id);
-					}
-					var edge = gui.view.addDFEdge(e);
-					gui.view.current_graph_view.edgesDF.push(edge);
-				})(evtObj);
-				break;
-			case "NODESELECTED":
-				(function() {
-					selectednode = true;
-					this.shortcut.add("delete", (function() {
-						reactOnEvent("DELETEDNODE");
-					}).bind(this));
-				})(evtObj);
-				break;
-			case "EDGESELECTED":
-				(function(e) {
-					this.shortcut.add("delete", (function() {
-						reactOnEvent("EDGEDELETED", e);
-					}).bind(this));
-				})(evtObj);
-				break;
-			case "EDGEDELETED":
-				(function(e) {
-					this.shortcut.remove("delete");
-					switch (e.type) {
-					case 'DF':
-						var len = gui.view.current_graph_view.edgesDF.length;
-						for (var i = 0; i < len; i++) {
-							if (gui.view.current_graph_view.edgesDF[i] === e) {
-								gui.view.current_graph_view.edgesDF[i].remove();
-								gui.view.current_graph_view.edgesDF.splice(i, 1);
-								i = len;
-							}
-						}
-						break;
-					case 'CF':
-						var sId = e.source.id;
-						var tId = e.target.id;
-						var len = gui.controler.current_graphData.nodes.length;
-						for (var i = 0; i < len; i++) {
-							if (gui.controler.current_graphData.nodes[i].nodeId == tId) {
-								var index = gui.controler.current_graphData.nodes[i].sources.indexOf(sId);
-								gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
-								i = len;
-							}
-						}
-						len = gui.view.current_graph_view.edgesCF.length;
-						for (var i = 0; i < len; i++) {
-							if (gui.view.current_graph_view.edgesCF[i] === e) {
-								gui.view.current_graph_view.edgesCF[i].remove();
-								gui.view.current_graph_view.edgesCF.splice(i, 1);
-								i = len;
-							}
-						}
-						break;
-					}
-					e.remove();
-				})(evtObj);
-				break;
-			case "NODEMOVED":
-				(function(e) {
-
-				})(evtObj);
-				break;
-			case "SWITCHMODE":
-				(function(e) {
-					gui.view.switchMode(e.mode);
-				})(evtObj);
-				break;
-			case "ADDSTARTSTOPAUTOMATICALLY":
-				(function() {
-					var result = that.addStartStop();
-					if (result) {
-						gui.view.addStartStop(result);
-					}
-				})();
-				break;
-			case "ADDSERVICEFROMREPOTOCANVAS":
-				(function(e) {
-					e.nodeId = gui.controler.generateId();
-					// alert(e.nodeId)
-					e = $.extend(true, {}, e);
-					e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
-					e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
-
-					that.current_graphData.nodes.push(e)
-					gui.view.addNodeFromRepo(e);
-				})(evtObj);
-				break;
-			case "EDITNODE":
-				(function(e) {
-					if (e && e.nodeId) {
+					})();
+					break;
+				case "ADDSERVICEFROMREPOTOCANVAS":
+					(function(e) {
+						e.nodeId = gui.controler.generateId();
 						// alert(e.nodeId)
-						var node = that.getNodeById(e.nodeId);
-						gui.view.editNode(node);
-					}
-				})(evtObj);
-				break;
-			case "LOADANDEDITCOMPOUNDSERVICE":
-				(function(e) {
-					that.load(e.url, (function(ssdl) {
-						var tab = [],
-							ssdl_json = this.convert(ssdl, e.title);
-						// raport(this.convertJSON2XML(ssdl_json, true));
-						// var afterValidation = that.validator.
-						// if( true )
-						// 	this.current_graphData = ssdl_json;
-						// rozwal na tablice
-						(function splitOnSubgraph(graph, id, isRoot) {
-							$.each(graph.nodes, function() {
-								if (this.subgraph.nodes) {
-									splitOnSubgraph(this.subgraph, this.nodeId);
-								}
+						e = $.extend(true, {}, e);
+						e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
+						e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
+
+						that.current_graphData.nodes.push(e)
+						gui.view.addNodeFromRepo(e);
+					})(evtObj);
+					break;
+				case "EDITNODE":
+					(function(e) {
+						if (e && e.nodeId) {
+							// alert(e.nodeId)
+							var node = that.getNodeById(e.nodeId);
+							gui.view.editNode(node);
+						}
+					})(evtObj);
+					break;
+				case "LOADANDEDITCOMPOUNDSERVICE":
+					(function(e) {
+						that.load(e.url, (function(ssdl) {
+							var tab = [],
+								ssdl_json = this.convert(ssdl, e.title);
+							// raport(this.convertJSON2XML(ssdl_json, true));
+							// var afterValidation = that.validator.
+							// if( true )
+							// 	this.current_graphData = ssdl_json;
+							// rozwal na tablice
+							(function splitOnSubgraph(graph, id, isRoot) {
+								$.each(graph.nodes, function() {
+									if (this.subgraph.nodes) {
+										splitOnSubgraph(this.subgraph, this.nodeId);
+									}
+								});
+								graph.id = (id || graph.id);
+								graph.isRoot = isRoot;
+								//delete graph.subgraph;
+								tab.push(graph);
+
+							})(ssdl_json, e.title, true);
+
+							//walidacja
+							//save current data, graph_view
+							//delete all graphViews
+							// gui.view.
+							gui.view.removeAllGraphs();
+							gui.view.setBlankGraphAsCurrent()
+
+							this.graphData_tab = tab;
+							this.current_graphData = tab[tab.length - 1];
+
+							gui.view.parseAndSetDataModelToView(this.graphData_tab);
+
+							this.reactOnEvent("SSDLLoaded", ssdl);
+						}).bind(that));
+					})(evtObj);
+					break;
+				case "SWITCHCURRENTGRAPH":
+					(function(e) {
+						// --- kod dla wtyczki navigator
+						if (e && e.id && (typeof e.id === "string") && e.id.substring(e.id.lastIndexOf("|") + 1 !== that.current_graphData.id)) {
+							var tab_nav = e.id.split("|");
+							tab_nav.splice(0, 1);
+							var tab_copy = $.extend(true, [], tab_nav),
+								id = tab_nav[tab_nav.length - 1],
+								id_string = "",
+								labels = that.navigator.currentIdsAndLabels;
+							$.each(tab_nav, function(k, v) {
+								id_string += "|" + v;
+								tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem" + id_string + "'>" + (labels[v] || v) + "</a>";
 							});
-							graph.id = (id || graph.id);
-							graph.isRoot = isRoot;
-							//delete graph.subgraph;
-							tab.push(graph);
+							tab_nav = tab_nav.join(" \\ ");
 
-						})(ssdl_json, e.title, true);
+							$("div#top_nav_" + pf + " span").html(tab_nav);
 
-						//walidacja
-						//save current data, graph_view
-						//delete all graphViews
-						// gui.view.
-						gui.view.removeAllGraphs();
-						gui.view.setBlankGraphAsCurrent()
-
-						this.graphData_tab = tab;
-						this.current_graphData = tab[tab.length - 1];
-
-						gui.view.parseAndSetDataModelToView(this.graphData_tab);
-
-						this.reactOnEvent("SSDLLoaded", ssdl);
-					}).bind(that));
-				})(evtObj);
-				break;
-			case "SWITCHCURRENTGRAPH":
-				(function(e) {
-					// --- kod dla wtyczki navigator
-					if (e && e.id && (typeof e.id === "string") && e.id.substring(e.id.lastIndexOf("|") + 1 !== that.current_graphData.id)) {
-						var tab_nav = e.id.split("|");
-						tab_nav.splice(0, 1);
-						var tab_copy = $.extend(true, [], tab_nav),
-							id = tab_nav[tab_nav.length - 1],
-							id_string = "",
-							labels = that.navigator.currentIdsAndLabels;
-						$.each(tab_nav, function(k, v) {
-							id_string += "|" + v;
-							tab_nav[k] = "<a href='#' class='top_nav_element' id='top_nav_elem" + id_string + "'>" + (labels[v] || v) + "</a>";
-						});
-						tab_nav = tab_nav.join(" \\ ");
-
-						$("div#top_nav_" + pf + " span").html(tab_nav);
-
-						$("a.top_nav_element").click(function() {
-							var lastIndexOf = this.id.lastIndexOf("|"),
-								id = this.id.substring(lastIndexOf + 1);
-							that.reactOnEvent("SWITCHCURRENTGRAPH", {
-								id: this.id
+							$("a.top_nav_element").click(function() {
+								var lastIndexOf = this.id.lastIndexOf("|"),
+									id = this.id.substring(lastIndexOf + 1);
+								that.reactOnEvent("SWITCHCURRENTGRAPH", {
+									id: this.id
+								});
+								that.navigator.setCurrent(id)
 							});
-							that.navigator.setCurrent(id)
-						});
 
-						gui.view.changeCurrentGraphView(id);
-						that.changeCurrentGraphData(id);
-					}
-				})(evtObj);
-				break;
-			case "SSDLLOADED":
-				(function(e) {
-					that.navigator.setData(that.current_graphData)
-					that.navigator.draw();
-				})(evtObj);
-				break;
-			case "ADDBLANKNODE":
+							gui.view.changeCurrentGraphView(id);
+							that.changeCurrentGraphData(id);
+						}
+					})(evtObj);
+					break;
+				case "SSDLLOADED":
+					(function(e) {
+						that.navigator.setData(that.current_graphData)
+						that.navigator.draw();
+					})(evtObj);
+					break;
+				case "ADDBLANKNODE":
 				(function(e) {
 					gui.view.addBlankNode(e); //
 				})(evtObj);
 				break;
-
 			}
 		},
 		load: function load(sUrl, fun_success, dataType, fun_error) {
