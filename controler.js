@@ -1474,9 +1474,58 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					gui.view.current_graph_view.edgesDF.push(edge);
 				})(evtObj);
 				break;
+			case "NODESELECTED":
+				(function(e) {
+					selectednode=true;
+					this.shortcut.add("delete", (function() {
+						reactOnEvent("DELETEDNODE", e);
+					}).bind(this));
+				})(evtObj);
+				break;
+			case "EDGESELECTED":
+				(function(e) {
+					this.shortcut.add("delete", (function() {
+						reactOnEvent("EDGEDELETED", e);
+					}).bind(this));
+				})(evtObj);
+				break;
 			case "EDGEDELETED":
-				this.shortcut.remove("delete");
-				// alert('EDGU WYPIERDALAJ!!!');
+				(function(e) {
+					this.shortcut.remove("delete");
+					switch(e.type){
+						case 'DF':
+							var len = gui.view.current_graph_view.edgesDF.length;
+							for(var i = 0; i<len; i++){
+								if(gui.view.current_graph_view.edgesDF[i]===e){
+									gui.view.current_graph_view.edgesDF[i].remove();
+									gui.view.current_graph_view.edgesDF.splice(i, 1);
+									i = len;
+								}
+							}
+							break;
+						case 'CF':
+							var sId = e.source.id;
+							var tId = e.target.id;
+							var len = gui.controler.current_graphData.nodes.length;
+							for(var i = 0; i<len; i++){
+								if(gui.controler.current_graphData.nodes[i].nodeId == tId){
+									var index = gui.controler.current_graphData.nodes[i].sources.indexOf(sId);
+									gui.controler.current_graphData.nodes[i].sources.splice(index, 1);
+									i = len;
+								}
+							}
+							len = gui.view.current_graph_view.edgesCF.length;
+							for(var i = 0; i<len; i++){
+								if(gui.view.current_graph_view.edgesCF[i]===e){
+									gui.view.current_graph_view.edgesCF[i].remove();
+									gui.view.current_graph_view.edgesCF.splice(i, 1);
+									i = len;
+								}
+							}
+							break;
+					}
+					e.remove();
+				})(evtObj);
 				break;
 			case "NODEMOVED":
 				(function(e) {
@@ -2203,7 +2252,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	}
 
 	$('html').click(function() {
-		controlerObject.reactOnEvent("ESCAPE");
+		selectednode = selectednode || false;
+		if (!selectednode) controlerObject.reactOnEvent("ESCAPE");
 	});
 	controlerObject.reactOnEvent("START");
 
