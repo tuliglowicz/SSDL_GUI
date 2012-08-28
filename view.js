@@ -3248,7 +3248,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							gui.controler.reactOnEvent("DESELECT");
-							gui.controler.reactOnEvent("ESCAPE");
+							// gui.controler.reactOnEvent("ESCAPE");
 							node.highlight2();
 							gui.controler.reactOnEvent("NODESELECTED", node);
 							node.selected = true;
