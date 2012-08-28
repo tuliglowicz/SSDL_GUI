@@ -3479,6 +3479,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var edgeObject = {
 					arrow : undefined,
 					arrowGlow : gui.view.paper.set(),
+					highlighted : false,
 					source : data.source,
 					target : data.target,
 					view : this,
@@ -3531,6 +3532,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
 						var that = this;
 						var selectArrow = function(e){
+							that.highlighted = true;
 							gui.controler.reactOnEvent("ESCAPE");
 							that.arrowGlow.remove();
 							that.arrowGlow = gui.view.paper.set();
@@ -3569,6 +3571,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var	edgeObject = {
 						arrow : undefined,
 						arrowGlow : gui.view.paper.set(),
+						highlighted : false,
 						sourceId: data.sourceId,
 						targetId: data.targetId,
 						output : data.output,
@@ -3630,6 +3633,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow = this.view.visualiser.drawEdge(coords);
 							var that = this;
 							var selectArrow = function(e){
+								that.highlighted = true;
 								gui.controler.reactOnEvent("ESCAPE");
 								that.arrowGlow.remove();
 								that.arrowGlow = gui.view.paper.set();
