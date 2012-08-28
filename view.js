@@ -12,7 +12,6 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui, graphSaveParamsJSON){
 	var pf = gui.id_postfix;
 	graphSaveParamsJSON = graphSaveParamsJSON || {
-
 		tabLabel:"",
 		tabId: "",
 		formId: "graphSaveParams",
@@ -3246,16 +3245,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							node.highlight2();
-							gui.controler.reactOnEvent("NODESELECTED", node);
-							node.selected = true;
+							// gui.controler.reactOnEvent("NODESELECTED", node);
+							// node.selected = true;
 						}
 						that.showEdges();
+						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
 						gui.controler.reactOnEvent("DESELECT");
 					}
-					gui.controler.reactOnEvent("ESCAPE");
 				}
 
 				if(getType(element) === "array"){
@@ -3317,7 +3316,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						arrow[0].remove();
 						arrow[1].remove();
 					} catch(e){
-						console.log(e);
+						// console.log(e);
 					}
 
 					if(gui.view.mode === "CF"){
@@ -4351,7 +4350,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(189,0,"top_menu_"+pf,"polish");
+	outputView.mainMenu = menu(189, 0, "top_menu_"+pf, "polish");
 	outputView.mainMenu.addGroup("File");
 	outputView.mainMenu.addGroup("Edit");								
 	outputView.mainMenu.addGroup("Graph");

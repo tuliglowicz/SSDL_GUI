@@ -1,5 +1,5 @@
 // ocb z exeptions i parameters w graphie ???
-// "use strict";
+"use strict";
 //url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
 
 function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
@@ -1082,8 +1082,9 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 					var numberOfAZ = 0
 					$.each(stringTab, function(i) {
-						var noErrors = true;
-						that = this.toString();
+						var noErrors = true,
+							that = this.toString()
+						;
 						if (!~validationTab.indexOf(that)) {
 							if (!/^[a-z]{1}$/.test(that)) {
 								result.valid = false;
@@ -1225,7 +1226,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI�? DZIEJE [NIE KASOWAĆ!!!]
+			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1236,9 +1237,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "SAVE":
 				(function(e) {
-
 					// na szybko
-					// 
 					// 	$("#saveDialog").dialog("open");
 					// } else {
 					var savedSSDL = that.saveSSDL();
@@ -1250,14 +1249,9 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					if (that.current_graphData.nodes.length < 3) {
 						alert("Cannot save empty graph!")
 					} else if (!(e && e.name && e.description) && !graphToEditUrl) {
-						// a("fghj")
 						gui.view.form.editGraphSaveParams();
 					} else {
 						if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm("Validation not passed!\nAre you sure this graph is correct?\nclick OK if you're sure.")) {
-
-							// var savedSSDL = that.saveSSDL();
-							// console.log(savedSSDL)
-							// savedSSDL = that.xmlToString(savedSSDL);
 							var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 							output += "ssdl=" + savedSSDL;
 
@@ -1270,8 +1264,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							})
 						}
 					}
-
-
 
 					// save(sUrl, data, type, fun_success, dataType, fun_error)
 				})(evtObj);
@@ -1366,9 +1358,9 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				case "SELECT":
 					(function(e) {
 						gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
-						this.shortcut.add("delete", (function() {
-							reactOnEvent("DELETEDNODE");
-						}).bind(this));
+						// this.shortcut.add("delete", (function() {
+						// 	reactOnEvent("DELETEDNODE");
+						// }).bind(that));
 				})(evtObj);
 				break;
 			case "DESELECT":
@@ -1383,7 +1375,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "ESCAPE":
 				(function() {
-					this.shortcut.remove("delete");
+					// that.shortcut.remove("delete");
 					gui.view.updateEdges();
 					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
@@ -1491,11 +1483,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				})(evtObj);
 				break;
 			case "EDGESELECTED":
-				(function(e) {
-					this.shortcut.add("delete", (function() {
-						reactOnEvent("EDGEDELETED", e);
-					}).bind(this));
-				})(evtObj);
 				break;
 			case "EDGEDELETED":
 				(function(e) {
@@ -2262,7 +2249,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	$('html').click(function() {
 		selectednode = selectednode || false;
 		if (!selectednode) controlerObject.reactOnEvent("ESCAPE");
-
 	});
 	controlerObject.reactOnEvent("START");
 
