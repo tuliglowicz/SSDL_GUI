@@ -3245,8 +3245,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							node.highlight2();
-							// gui.controler.reactOnEvent("NODESELECTED", node);
-							// node.selected = true;
+							gui.controler.reactOnEvent("NODESELECTED");
+							node.selected = true;
 						}
 						that.showEdges();
 						// gui.controler.reactOnEvent("ESCAPE");
@@ -3513,7 +3513,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							// console.log(Wrong Argument)
 						}
 					},
-					update : function(){
+					update : function(evt){
 						var bestConnectors = this.view.getBestConnectors(
 							this.source.getPossiblePositionsOfConnectors(),
 							this.target.getPossiblePositionsOfConnectors()
@@ -3531,7 +3531,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
 						var that = this;
 						var selectArrow = function(e){
-							that.highlighted = true;
 							gui.controler.reactOnEvent("ESCAPE");
 							that.arrowGlow.remove();
 							that.arrowGlow = gui.view.paper.set();
@@ -3540,6 +3539,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							gui.controler.reactOnEvent("EDGESELECTED", that);
 							e = e || window.event;
 							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							that.highlighted = true;
 							return false;
 						}
 						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
@@ -3550,6 +3550,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow[0].click(selectArrow);
 						this.arrow[1].click(selectArrow);
 						this.arrowGlow.click(selectArrow);
+						// evt = evt || window.event;
+						// var ctrl = false;
+						// if(evt&&evt.ctrlKey) ctrl = true;
+						// this.highlighted = ctrl || false;
 					}
 				}
 				;
@@ -3632,7 +3636,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow = this.view.visualiser.drawEdge(coords);
 							var that = this;
 							var selectArrow = function(e){
-								that.highlighted = true;
 								gui.controler.reactOnEvent("ESCAPE");
 								that.arrowGlow.remove();
 								that.arrowGlow = gui.view.paper.set();
@@ -3641,6 +3644,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								gui.controler.reactOnEvent("EDGESELECTED", that);
 								e = e || window.event;
 								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+								that.highlighted = true;
 								return false;
 							}
 							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
@@ -3651,6 +3655,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow[0].click(selectArrow);
 							this.arrow[1].click(selectArrow);
 							this.arrowGlow.click(selectArrow);
+							this.highlighted = false;
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
