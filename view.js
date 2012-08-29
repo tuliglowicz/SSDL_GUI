@@ -3299,7 +3299,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						if( gui.view.mode == "CF" ){
 							$.each(gui.view.current_graph_view.nodes, function(i, v){
-								if(this != sourceNode && !gui.view.getCFEdge(sourceNode.id, this.id) && (typeof this.controlType != "string" || this.controlType.toLowerCase() != "#start") )
+								console.log(this.id, sourceNode.id)
+								if(this != sourceNode && !gui.view.getCFEdge(sourceNode.id, this.id) && (this.type.toLowerCase() != "control" || (typeof this.controlType != "string" || this.controlType.toLowerCase() != "#start" ) ) )
 								glows.push( this.mainShape.glow({color: "green"}) );
 							});
 						}
