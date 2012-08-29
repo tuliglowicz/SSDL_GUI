@@ -13,7 +13,7 @@
 		cursor:crosshair;
 	}
 	.repository_element {
-		cursor: move;
+		cursor: pointer;
 	}
 
 	.mMenuMainContener {

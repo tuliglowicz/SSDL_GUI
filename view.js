@@ -1,10 +1,6 @@
 //toDo
 // done // walidacja, edycja, json2ssdl, startstop
 
-// toDo globalParams:
-// szerokość node-a,
-// wysokość node-a,
-
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
@@ -3245,22 +3241,20 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							node.highlight2();
-							// gui.controler.reactOnEvent("NODESELECTED", node);
-							// node.selected = true;
 						}
 						that.showEdges();
-						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
 						gui.controler.reactOnEvent("DESELECT");
 					}
+					gui.controler.reactOnEvent("ESCAPE");
 				}
 
 				if(getType(element) === "array"){
 					$.each(element, function(){
 						this.drag(move, start, stop);
-					})
+					});
 				} else
 					element.drag(move, start, stop);
 		},
@@ -3334,7 +3328,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
 							// alert("HURA");
 
-							if(confirm("Czy chcesz dodaÄ‡ nowe wyjÅ›cie w wierzchoÅ‚ku o etykiecie "+sourceNode.label+" ?")){
+							if(confirm("Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie "+sourceNode.label+" ?")){
 								gui.controler.reactOnEvent("addOutput", {
 									sourceId : sourceNode.id,
 									targetId : resultObj.targetId,
@@ -3387,7 +3381,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						if(v.id != sourceNode.id)
+						if(v.id != sourceNode.id && v.type.toLowerCase() == "functionality")
 							glows.push( v.mainShape.glow({width: "1", color: "purple"}) );
 						$.each(v.inputs, function(){
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
@@ -3435,7 +3429,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
+						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && targetNode.type.toLowerCase() == "functionality"){
 							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
@@ -3446,7 +3440,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 
 						// $("#f_addInputForm")
-						// wyrmularz, z uzupeÅ‚nionymi polami
+						// wyrmularz, z uzupełnionymi polami
 						// confirm -> controler i update node
 						// addConnectionDF
 					}
@@ -3545,8 +3539,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(selectArrow);
-						this.arrow[1].click(selectArrow);
+						// this.arrow[0].click(selectArrow);
+						// this.arrow[1].click(selectArrow);
 						this.arrowGlow.click(selectArrow);
 					}
 				}
@@ -4134,13 +4128,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		})(),
 		contextMenu : function contextMenu(listenedObjId){
-			/* ContextMenu v2.0
-				* by BÅ‚aÅ¼ej WolaÅ„czyk (blazejwolanczyk@gmail.com)
-				* "Lasciate ogni speranza, voi ch'entrate"
-				* SUBMITTED: 02.08.2012
-				* REQUIRED PARAMS: 
+			/* 
+				REQUIRED PARAMS: 
 				* - listenedObjId (id of object to witch we attach menu)
-				* OUTPUT:
+				OUTPUT:
 				* - object
 				* -> open (function([mouse event]) displaying menu)
 				* -> close (function() hiding menu)
@@ -4148,7 +4139,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
 				* -> addSeparator (function() adding separator to current level of menu)
 				* -> getOption (function(label) returning option with specified label at currrent level of option tree)
-				*/
+			*/
 
 			//structure holder object
 			function option(id, label, invokedEvent, eventObject, display, level){
@@ -4348,7 +4339,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.blankNodes = blankNode();
 	outputView.mainMenu = menu(189, 0, "top_menu_"+pf, "polish");
 	outputView.mainMenu.addGroup("File");
-	outputView.mainMenu.addGroup("Edit");								
+	outputView.mainMenu.addGroup("Edit");
 	outputView.mainMenu.addGroup("Graph");
 	outputView.mainMenu.addGroup("View");
 	outputView.mainMenu.addGroup("Help");
@@ -4378,7 +4369,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
 	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
 	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");									
+	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
 	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
 	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
