@@ -515,7 +515,7 @@ To Do:
 										innerBoolTestObj = boolTestObj[l][m][n]
 										if (!innerBoolTestObj && idObject[i][j][0][m]) {
 											if (typeof(idObject[i][j][0][m]) == "string") {
-												errTab.push("f_" + j + "Tab" + "x" + j + indexer + "_" + idObject[i][j][0][m] + "_" + errMsg[n] + "_" + postfix);
+												errTab.push("f_" + j + "Tab" + "x" + j + "-" + indexer + "_" + idObject[i][j][0][m] + "_" + errMsg[n] + "_" + postfix);
 												if (n == "present") break;
 											}
 										}
@@ -536,7 +536,7 @@ To Do:
 						for (var l in validationNode.validationObject[i][j][k]) {
 							boolTestObj = validationNode.validationObject[i][j][k][l];
 							if (!boolTestObj && idObject[i][0][k]) {
-								errTab.push("f_" + tabId + "x" + indexer + "_" + idObject[i][0][k] + "_" + errMsg[l] + "_" + postfix);
+								errTab.push("f_" + tabId + "xNFProps-" + indexer + "_" + idObject[i][0][k] + "_" + errMsg[l] + "_" + postfix);
 								if (l == "present") break;
 							}
 

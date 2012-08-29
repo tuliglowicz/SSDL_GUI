@@ -313,8 +313,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.attr({fill:"#ffffff"})
 					.dblclick(onDblClick("Mediator"));
 					// .hide();
-
-				window.repo_mediator = repo_mediator;
 				repo_mediator.node.setAttribute("class","repository_element");	
 				this.dataSet.push(repo_mediator);
 			}
@@ -3240,7 +3238,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 				},
 				stop = function stop(evt){
-					console.log(evt);
 					ready2move = false;
 					gui.controler.reactOnEvent("NODESELECTED");
 					if(itWasJustAClick){
@@ -3251,8 +3248,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							gui.controler.reactOnEvent("DESELECT");
-							node.highlight2();							
-							// node.selected = true;
+							node.highlight2();
 						}
 						that.showEdges();
 						// gui.controler.reactOnEvent("ESCAPE");
@@ -3559,8 +3555,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							that.highlighted = true;
 							return false;
 						}
-						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
@@ -3662,8 +3658,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								that.highlighted = true;
 								return false;
 							}
-							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
