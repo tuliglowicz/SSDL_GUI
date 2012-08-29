@@ -515,7 +515,7 @@ To Do:
 										innerBoolTestObj = boolTestObj[l][m][n]
 										if (!innerBoolTestObj && idObject[i][j][0][m]) {
 											if (typeof(idObject[i][j][0][m]) == "string") {
-												errTab.push("f_" + j + "Tab" + "x" + j + indexer + "_" + idObject[i][j][0][m] + "_" + errMsg[n] + "_" + postfix);
+												errTab.push("f_" + j + "Tab" + "x" + j + "-" + indexer + "_" + idObject[i][j][0][m] + "_" + errMsg[n] + "_" + postfix);
 												if (n == "present") break;
 											}
 										}
