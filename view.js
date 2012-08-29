@@ -3532,8 +3532,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
 						var that = this;
 						var selectArrow = function(e){
-							gui.controler.reactOnEvent("ESCAPE");
-							that.arrowGlow.remove();
+							if(!e.ctrlKey){
+								gui.controler.reactOnEvent("ESCAPE");
+								that.arrowGlow.remove();
+							}
 							that.arrowGlow = gui.view.paper.set();
 							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
 							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
@@ -3551,10 +3553,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow[0].click(selectArrow);
 						this.arrow[1].click(selectArrow);
 						this.arrowGlow.click(selectArrow);
-						// evt = evt || window.event;
-						// var ctrl = false;
-						// if(evt&&evt.ctrlKey) ctrl = true;
-						// this.highlighted = ctrl || false;
 					}
 				}
 				;
@@ -3637,8 +3635,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow = this.view.visualiser.drawEdge(coords);
 							var that = this;
 							var selectArrow = function(e){
-								gui.controler.reactOnEvent("ESCAPE");
-								that.arrowGlow.remove();
+								if(!e.ctrlKey){
+									gui.controler.reactOnEvent("ESCAPE");
+									that.arrowGlow.remove();
+								}
 								that.arrowGlow = gui.view.paper.set();
 								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
 								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
