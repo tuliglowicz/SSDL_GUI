@@ -297,24 +297,26 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
-				var text_functionality = this.paper.text(textHorizontalPosition,80,"Functionality");
+				var text_functionality = this.paper.text(textHorizontalPosition,70,"Functionality");
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
-				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
+				var repo_functionality = this.paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
 					.attr({fill:"#a6c9e2"})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
 
-				var text_mediator = this.paper.text(textHorizontalPosition,150,"Mediator")
-					.hide();
-					// text_mediator.node.setAttribute("class","repository_text"));
-				var repo_mediator = this.paper.rect(nodeHorizontalPosition,600,nodeLength,nodeHeight,5)
-					.attr({fill:"white"})
-					.dblclick(onDblClick("Mediator"))
-					.hide();
+				var text_mediator = this.paper.text(textHorizontalPosition,130,"Mediator");
+					// .hide();
+					text_mediator.node.setAttribute("class","repository_text");
+				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
+					.attr({fill:"#ffffff"})
+					.dblclick(onDblClick("Mediator"));
+					// .hide();
+
+				window.repo_mediator = repo_mediator;
 				repo_mediator.node.setAttribute("class","repository_element");	
-				// this.dataSet.push(repo_mediator);
+				this.dataSet.push(repo_mediator);
 			}
 		};
 		return tmp;
@@ -2603,6 +2605,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
+				newNode.hasSubgraph = !isEmpty(node.subgraph);
 				//TU BYDEM DZIABAÅ? [BÅ‚aÅ¼ej] (PorzÄ…dkowanie wyÅ›wietlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
@@ -2732,8 +2735,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				// 	a(node.id)
 				var id = node.id,
 					radius = 4,
+					color = ( node.type.toLowerCase() == "mediator" ? "white" : "#fbec88" ),
 					paper = paper || view.paper,
-					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#fbec88"),
+					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
 					i, j, k, l,
@@ -2746,7 +2750,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				;
 				node.mainShape = rect;
 				node.raph_label = label;
-								
+
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: id});
@@ -2765,21 +2769,24 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"});
+					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill': color});
 					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
 				}
 				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"});
+					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill': color});
 					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
 				if(!drawNotForRepo){
-					var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
-					img_subgraph.node.setAttribute("class", id+" subgraph");
-					img_subgraph.dblclick(function(){
-						// a("subgraph");
-						gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
-					});
+
+					if( node.hasSubgraph ){
+						var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
+						img_subgraph.node.setAttribute("class", id+" subgraph");
+						img_subgraph.dblclick(function(){
+							// a("subgraph");
+							gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
+						});
+					}
 
 					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
 						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
@@ -2912,6 +2919,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		};
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
@@ -3231,28 +3239,28 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					that.hideEdges();
 
 				},
-				stop = function stop(x,y,evt){
+				stop = function stop(evt){
+					console.log(evt);
 					ready2move = false;
+					gui.controler.reactOnEvent("NODESELECTED");
 					if(itWasJustAClick){
 						if(ctrl){
 							if(!flag) {
 								node.highlight(ctrl);
 							}
-							gui.controler.reactOnEvent("NODESELECTED");
 						}
 						else {
-							node.highlight2();
-							
-							node.selected = true;
+							gui.controler.reactOnEvent("DESELECT");
+							node.highlight2();							
+							// node.selected = true;
 						}
 						that.showEdges();
 						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
-						gui.controler.reactOnEvent("NodeMoved");
-						gui.controler.reactOnEvent("DESELECT");
+						// gui.controler.reactOnEvent("NodeMoved");
 					}
-					gui.controler.reactOnEvent("ESCAPE");
+					that.updateEdges();
 				}
 
 				if(getType(element) === "array"){
@@ -3272,7 +3280,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				glows = [],
 				bbox,
 				start = function start(){
-					if(gui.view.mode === "CF" || isStartNode){
+					if(gui.view.mode == "CF" || isStartNode){
 						var canvas = $(gui.view.paper.canvas);
 						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
@@ -3283,7 +3291,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
 
-						if( isStartNode ){
+						if( isStartNode && gui.view.mode == "DF" ){
 							$.each(gui.view.current_graph_view.nodes, function(i, v){
 								$.each(v.inputs, function(){
 									// console.log(v.id, this.id);
@@ -3291,6 +3299,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 										glows.push( this.node.glow({color: "purple"}) );
 									// }
 								});
+							});
+						}
+						if( gui.view.mode == "CF" ){
+							$.each(gui.view.current_graph_view.nodes, function(i, v){
+								if(this != sourceNode && !gui.view.getCFEdge(sourceNode.id, this.id) && (typeof this.controlType != "string" || this.controlType.toLowerCase() != "#start") )
+								glows.push( this.mainShape.glow({color: "green"}) );
 							});
 						}
 					}
@@ -3385,7 +3399,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						if(v.id != sourceNode.id && v.type.toLowerCase() == "functionality")
+						if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || v.type.toLowerCase() == "control"))
 							glows.push( v.mainShape.glow({width: "1", color: "purple"}) );
 						$.each(v.inputs, function(){
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
@@ -3433,7 +3447,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && targetNode.type.toLowerCase() == "functionality"){
+						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
 							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
@@ -3469,8 +3483,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		addCFEdge : function addCFEdge(data, firstLoad){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
-			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubójesz dodać krawędź, która już istnieje.");
+			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
+				gui.logger.warning("Nie można przekazać kontroli do wierzchołka startowego.");
+			}
+			else if(foundedEdge){
+				gui.logger.warning("Próbujesz dodać krawędź, która już istnieje.");
 			}
 			else {
 				var edgeObject = {
@@ -3939,11 +3956,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		deselectAll : function deselectAll(){
 			$.each(this.current_graph_view.nodes, function(k, v){
-				if(v.selected){
-					v.selected = false;
-				}else{
-					v.removeHighlight();
-				}
+				v.removeHighlight();
 			});
 			this.tooltip.close();
 		},

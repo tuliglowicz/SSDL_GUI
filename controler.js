@@ -1292,7 +1292,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						if (wrongsList.length == 0) {
 							e.nodeId = that.generateId();
 							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
-							graphNode.switchToDFMode();
+							graphNode.switchMode( gui.view.mode );
 							gui.view.current_graph_view.nodes.push(graphNode);
 							that.current_graphData.nodes.push(e);
 							gui.view.form.closeForm();
@@ -1509,7 +1509,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					// alert(e.target.id)
 					target.sources.push(e.source.id);
 					var edge = gui.view.addCFEdge(e);
-					gui.view.current_graph_view.edgesCF.push(edge);
+					if(edge)
+						gui.view.current_graph_view.edgesCF.push(edge);
 				})(evtObj);
 				break;
 			case "ADDDFEDGE":
@@ -1832,17 +1833,18 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		},
 		generateId: function generateId() {
 			this.idCounter++;
-			var num = this.current_graphData.nodes.length + this.idCounter,
+			var num = this.idCounter,
 				tab = ["node---"],
 				digitMax = 6,
 				digits = Math.ceil(Math.log(num) / Math.log(10)),
 				digitMax = (digitMax - digits >= 0 ? digitMax : digits);
 
 			for (var i = 0; i < digitMax - digits; i++)
-			tab.push("0");
+				tab.push("0");
 			tab.push(num);
 
 			var outputId = tab.join("");
+
 			return tab.join("");
 		},
 		parseSDBetaArray: function parseSDBetaArray(sdb) {
