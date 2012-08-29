@@ -3396,8 +3396,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || v.type.toLowerCase() == "control"))
-							glows.push( v.mainShape.glow({width: "1", color: "purple"}) );
+						// if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || (v.type.toLowerCase() == "control" && typeof v.controlType == "string" && v.controlType.toLowerCase() != "#start")))
+						if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" )))
+							glows.push( v.mainShape.glow({color: "purple"}) );
 						$.each(v.inputs, function(){
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "green"}) );
