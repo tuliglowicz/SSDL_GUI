@@ -536,7 +536,7 @@ To Do:
 						for (var l in validationNode.validationObject[i][j][k]) {
 							boolTestObj = validationNode.validationObject[i][j][k][l];
 							if (!boolTestObj && idObject[i][0][k]) {
-								errTab.push("f_" + tabId + "x" + indexer + "_" + idObject[i][0][k] + "_" + errMsg[l] + "_" + postfix);
+								errTab.push("f_" + tabId + "xNFProps-" + indexer + "_" + idObject[i][0][k] + "_" + errMsg[l] + "_" + postfix);
 								if (l == "present") break;
 							}
 

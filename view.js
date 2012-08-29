@@ -3244,15 +3244,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							node.highlight2();
 							
 							node.selected = true;
-						}
+						}						
 						that.showEdges();
 						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
 						gui.controler.reactOnEvent("NodeMoved");
 						gui.controler.reactOnEvent("DESELECT");
+						gui.controler.reactOnEvent("ESCAPE");	
 					}
-					gui.controler.reactOnEvent("ESCAPE");
+					
 				}
 
 				if(getType(element) === "array"){
