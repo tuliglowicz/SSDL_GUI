@@ -3543,8 +3543,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							that.highlighted = true;
 							return false;
 						}
-						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
@@ -3646,8 +3646,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								that.highlighted = true;
 								return false;
 							}
-							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
