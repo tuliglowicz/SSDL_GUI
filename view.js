@@ -4396,7 +4396,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
 	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
 	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy napewno? Ten clear nie działa jak trzeba!" ); if(clearer)gui.view.removeAllGraphs();},"");
+	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
 	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
 	outputView.mainMenu.addSeparator("Help");
 	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");

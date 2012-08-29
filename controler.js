@@ -1330,8 +1330,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					switch (gui.view.mode) {
 					case 'DF':
 						var len = gui.view.current_graph_view.edgesDF.length;
-						for (var i = len; i > 0; i--){
-							e = gui.view.current_graph_view.edgesDF[i-1];
+						for (var i = len; i > 0; i--) {
+							e = gui.view.current_graph_view.edgesDF[i - 1];
 							if (e.highlighted) {
 								for (var j = 0; j < gui.view.current_graph_view.edgesDF.length; j++) {
 									if (gui.view.current_graph_view.edgesDF[j] === e) {
@@ -1345,8 +1345,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						break;
 					case 'CF':
 						len = gui.view.current_graph_view.edgesCF.length;
-						for (i = len; i >0; i--) {
-							e = gui.view.current_graph_view.edgesCF[i-1];
+						for (i = len; i > 0; i--) {
+							e = gui.view.current_graph_view.edgesCF[i - 1];
 							if (e.highlighted) {
 								var sId = e.source.id;
 								var tId = e.target.id;
@@ -1408,6 +1408,17 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "SELECT":
 				(function(e) {
 					gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
+				})(evtObj);
+				break;
+			case "CLEARGRAPH":
+				(function() {
+					gui.view.hideCurrentGraph();
+					gui.view.current_graph_view.edgesDF = [];
+					gui.view.current_graph_view.nodes = [];
+					gui.view.current_graph_view.edgesCF = [];
+					gui.controler.current_graphData.nodes = [];
+					gui.view.showCurrentGraph();
+					gui.view.switchMode();
 				})(evtObj);
 				break;
 			case "DESELECT":
