@@ -95,7 +95,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 		return resultObject;
 	}
-
 	function initLogger(paper) {
 		var h = paper.height,
 			lId = "#console_" + pf,
@@ -406,7 +405,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		//object return
 		return obj;
 	}
-
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* 
 		 * REQUIRED PARAMS:
@@ -869,7 +867,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		//-PLUGIN-RUN------------------------>>>
 		return run();
 	}
-
 	function navigator() {
 		var tmp = {
 			name: "navigator",
@@ -985,7 +982,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 		return tmp;
 	}
-
 	function repository() {
 		var tmp = {
 			name: "repository",
@@ -1043,7 +1039,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 		return tmp;
 	}
-
 	function shortcut() {
 		var memoryTab = [],
 			validationTab = ["ctrl", "delete", "shift", "esc", "f1", "home", "alt", "backspace", "space", "enter", "home", "end"],
@@ -1149,7 +1144,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 		return result;
 	}
-	// window.shortcut.add("ctrl+a", function(){alert("a")})
 	var controlerObject = {
 		plugins: [],
 		idCounter: 0,
