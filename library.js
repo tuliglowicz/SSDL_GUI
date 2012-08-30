@@ -62,28 +62,33 @@ function formAppender(pf){
 function formGenerator(lang, postfix, json){
 	var html = ["<form id=\"" + json.formId + "_" + postfix + "\"><table>"];
 	$.each(json.fields, function(i){
-		html.push("<tr><td><label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label></td>");
+		html.push("<tr><td><label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label></td><td>");
 		switch(this.inputType.toLowerCase()){
 			case "textbox" :
-				html.push("<td><input type=\"text\" id=\"" + this.id + "_" + postfix + "\" class=\"text ui-widget-content ui-corner-all textfield\" /></td>");
+				html.push("<input type=\"text\" id=\"" + this.id + "_" + postfix + "\" class=\"text ui-widget-content ui-corner-all textfield\" />");
 			break;
 			case "textarea" :
-				html.push("<td><textarea id=\"" + this.id + "_" + postfix + "\" class=\"text ui-widget-content ui-corner-all textfield\" ></textarea></td>");
+			//height 60, width 360
+				html.push("<textarea id=\"" + this.id + "_" + postfix + "\" class=\"text ui-widget-content ui-corner-all bigTextfield\" ></textarea>");
 			break;
 			case "select" :
-				html.push("<td><select id=\"" + this.id + "_" + postfix + "\" >");
+				html.push("<select id=\"" + this.id + "_" + postfix + "\" >");
 					$.each(this.values, function(){
 						html.push("<option value=\""+this+"\">"+this+"</option>")
 					});
-				html.push("</select></td>")
+				html.push("</select>");
 			break;
 			case "radio" :
 				// html.push("ra");
 			break;
+		};
+		if(this.button){
+			html.push("<button id=\""+this.id+"_addButton_"+postfix+"\">Add "+ this.label +"</button></td></tr>");
+			html.push("<tr><td colspan='2'><p id=\""+this.id+"_list_"+postfix+"\"></p></td></tr><tr>");
 		}
-		html.push("<td><span id=\"" + this.id + "_validation_" + postfix + "\" style='color:#c0402a' ></span></td>");
+		html.push("<td><span id=\"" + this.id + "_validation_" + postfix + "\" style='color:#c0402a' ></span>");
 	});
-	html.push("</table></form>")
+	html.push("</td></tr></table></form>")
 
 	return html.join("");
 };

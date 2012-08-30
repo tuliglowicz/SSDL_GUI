@@ -122,6 +122,10 @@
 	.longTextfield{
 		width: 325px;
 	}
+	.bigTextfield{
+		width: 350px;
+		height: 60px;
+	}
 	.tabField{
 		width: 120px;
 		max-width: 120px;

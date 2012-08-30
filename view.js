@@ -154,49 +154,49 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 
 				outputView.mainMenu.addGroup("File");
-	outputView.mainMenu.addGroup("Edit");
-	outputView.mainMenu.addGroup("Graph");
-	outputView.mainMenu.addGroup("View");
-	outputView.mainMenu.addGroup("Help");
-	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
-	outputView.mainMenu.addSeparator("File");
-	outputView.mainMenu.addOption("File", "Load", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addOption("File", "Save", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
-		var nodeType="Service";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
-			}, "CTRL+N+S");
-	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
-	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
-	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
-	outputView.mainMenu.addSeparator("View");
-	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
-	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
-	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
-	outputView.mainMenu.addSeparator("Edit");
-	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
-	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
-	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
-	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
-	outputView.mainMenu.addSeparator("Help");
-	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
-	outputView.menuList.getInstance().push(outputView.mainMenu);
+				outputView.mainMenu.addGroup("Edit");
+				outputView.mainMenu.addGroup("Graph");
+				outputView.mainMenu.addGroup("View");
+				outputView.mainMenu.addGroup("Help");
+				outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
+				outputView.mainMenu.addSeparator("File");
+				outputView.mainMenu.addOption("File", "Load", function(){}, "");
+				outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
+				outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
+				outputView.mainMenu.addOption("File", "Save", function(){}, "");
+				outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
+				outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
+				outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
+				outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
+					var nodeType="Service";
+					var label = prompt("Enter a label for the new node:");
+					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
+						}, "CTRL+N+S");
+				outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
+					var label = prompt("Enter a label for the new node:");
+					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
+				outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
+				outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
+				outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+				outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
+				outputView.mainMenu.addSeparator("View");
+				outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
+				outputView.mainMenu.addOption("Edit","Undo",function(){},"");
+				outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+				outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+				outputView.mainMenu.addOption("Edit","Redo",function(){},"");
+				outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+				outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+				outputView.mainMenu.addSeparator("Edit");
+				outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
+				outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
+				outputView.mainMenu.addSeparator("Edit")
+				outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
+				outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
+				outputView.mainMenu.addSeparator("Help");
+				outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
+				outputView.menuList.getInstance().push(outputView.mainMenu);
 
 
 			}
@@ -1038,7 +1038,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					id: "f_mainTab_serviceClass",
 					inputType: "textBox",
 					validation: function(){},
-					values:[]
+					values:[],
+					button: true
 				}
 			]},
 			{
@@ -1300,7 +1301,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			"preconditions":"",
 			"effects":""
 		};
-		var maxL = 18;
+		
 		formAppender(pf);
 		$("#tabs-1_" + pf).prepend(formGenerator("english", pf, formJSON[0]));	
 		$("#tabs-2_" + pf).prepend(formGenerator("english", pf, formJSON[1]));	
@@ -1318,9 +1319,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			height: 400,
 			width: 700
 		});
-		var $tabs = $( "#tabs_" + pf ).tabs();
 
-		// edited by Włodek
+		var maxL = 18;
+		var $tabs = $( "#tabs_" + pf ).tabs();
+		
 		var inpVars = [],
 			globalNonFuncDesc = []
 		;
@@ -1339,7 +1341,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var titleText = 'Viewing a ' + node.nodeType + ' type node';
 				this.clearErrors();
 				this.cleanForm(true);
-				$('#ui-dialog-title-form').text(titleText);
+				$('#ui-dialog-title-form_'+pf).text(titleText);
 				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
 				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
 				this.adjustForm(node.nodeType);
@@ -1380,7 +1382,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				this.cleanForm(true);
 				this.resultJSON.nodeLabel = nodeData.label;
 				this.resultJSON.nodeType = nodeData.nodeType;
-				$('#ui-dialog-title-form').text(titleText);
+				$('#ui-dialog-title-form_' + pf).text(titleText);
 				this.adjustForm(nodeData.nodeType);
 				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
 				$( "#f_mainTab_nodeType_" + pf ).val(nodeData.nodeType);
@@ -1392,24 +1394,21 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
 						$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
-						$('#f_button_addServiceClass_' + pf).hide();
-						$('#f_mainTab_scInfo_' + pf).hide();
+						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
 						$('#tabs-2_' + pf).hide();
 						break;
 					case "functionality" : 
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
 						$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_button_addServiceClass_' + pf).show();
-						$('#f_mainTab_scInfo_' + pf).show();
+						$('#f_mainTab_serviceClass_addButton_' + pf).show();
 						$('#tabs-2_' + pf).hide();
 						break;
 					default: 
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_button_addServiceClass_' + pf).show();
-						$('#f_mainTab_scInfo_' + pf).show();
+						$('#f_mainTab_serviceClass_addButton_' + pf).show();
 						$('#tabs-2_' + pf).show();				
 						break;
 					}
@@ -1477,158 +1476,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_mainTab_controlType_" + pf ).val("");
 				$tabs.tabs('select', 0);
 			},
-
-			// ============================================================================================================-	edit by Włodek
-
-			editGraphSaveParams : function editGraphSaveParams(){
-				$("#f_graphSaveParamsForm_" + pf).dialog( "open" );
-			},
-			collectGraphSaveParams : function collectGraphSaveParams(){
-				var name = $("#f_graphSaveParams_name_"+pf).val();
-				var description = $("#f_graphSaveParams_description_"+pf).val();
-
-				console.log(name, description)
-
-				if(! ( name && description ) ){
-					return false;
-				} else {
-					return {
-						name : name,
-						description : description
-					}
-				}
-			},
-			// inpVar
-			editInputVariables : function editInputVariables(){
-				this.resetInpVars();
-				this.appendInpVar(gui.controler.current_graphData.inputVariables);
-				$("#f_inputVariablesForm_" + pf).dialog("open");
-			},
-			resetInpVars : function resetInpVars(){
-				inpVars = [];
-				$( "#f_inputVariables_" + pf + " tbody").html("");
-			},
-			appendInpVar : function appendInpVar(inpVar){
-				// console.log(arguments)
-				for( var v in inpVar ){
-					inpVars.push(inpVar[v]);
-					this.inputVariablesAppender(inpVar[v], v);
-				}
-			},
-			inputVariablesAppender: function inputVariablesAppender(input, index){
-				// console.log(arguments);
-				var tempId = "f_inputVariables-" + index;
-				$( "#f_inputVariables_" + pf + " tbody").append( 
-					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_type\" class='tabField'>" + cutString(input.type, maxL) + "</td>" +
-					"</tr>"
-				);
-			},
-			removeInputVariable: function removeInputVariable(){
-				var index = this.getSelectedInputVariableIndex();
-				if(inpVars[index]){
-					inpVars[index] = undefined;
-					$( "#f_inputVariables-" + index).remove();
-				}
-				this.resetSelectedInputVariableIndex();
-			},
-			addInputVariable: function addInputVariable(){
-				var inputVariableJSON = {"name":"","value":"","type":""},
-					index = this.getSelectedInputVariableIndex();
-				;
-
-				// console.log("adasdas", index);
-
-				inputVariableJSON.name = $( "#f_inputVariable_name_" + pf ).val();
-				inputVariableJSON.value = $( "#f_inputVariable_value_" + pf ).val();
-				inputVariableJSON.type = $("#f_inputVariable_type_" + pf).val();
-				
-				if(index==-1){
-					this.inputVariablesAppender(inputVariableJSON, inpVars.length);
-
-					inpVars[ inpVars.length ] = inputVariableJSON;
-
-					$("#f_addInputVariableForm_" + pf).dialog("close");
-				}
-				else{	//edytujemy istniejący inputVariable
-					var destinationId = "f_inputVariables-" + index;
-					$("#" + destinationId + "_name").text(inputVariableJSON.name);
-					$("#" + destinationId + "_value").text(inputVariableJSON.value);
-					$("#" + destinationId + "_type").text(inputVariableJSON.type);
-
-					inpVars[index] = inputVariableJSON;
-
-					$("#f_addInputVariableForm_" + pf).dialog("close");	
-				}
-			},
-			editGlobalNonFunctionalParameters : function editNonFunctionalParameters(){
-				this.resetGlobalNonFunDesc();
-				this.appendGlobalNonFuncDesc(gui.controler.current_graphData.nonFunctionalParameters);
-				$("#f_globalNFPropertiesForm_" + pf).dialog("open");
-			},
-			resetGlobalNonFunDesc : function resetGlobalNonFunDesc(){
-				inpVars = [];
-				$( "#f_globalNFProps_" + pf + " tbody").html("");
-			},
-			appendGlobalNonFuncDesc : function appendGlobalNonFuncDesc(globNonFuncDesc){
-				console.log(globNonFuncDesc)
-				for( var prop in globNonFuncDesc ){
-					inpVars.push(globNonFuncDesc[prop]);
-					this.globalNonFunPropsAppender(globNonFuncDesc[prop], prop);
-				}				
-			},
-			globalNonFunPropsAppender: function globalNFPropsAppender(input, index){
-				// console.log("input", input)
-				var tempId = "f_globalNFProps-" + index;
-				$( "#f_globalNFProps_" + pf + " tbody").append( 
-					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, maxL) + "</td>" +
-						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" +
-					"</tr>" );
-			},
-			removeGlobalNonFunc: function removeNonFunc(nfProp){
-				var index = this.getSelectedGlobalNFPropertyIndex();
-				if(inpVars[index]){
-					globalNonFuncDesc[index] = undefined;
-					$( "#f_globalNFProps-" + index).remove();
-				}
-
-				this.resetSelectedGlobalNFPropertyIndex();
-			},
-			addGlobalNonFunctional: function addGlobalNonFunctionalVariable(){
-				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
-					index = this.getSelectedGlobalNFPropertyIndex();
-					nonFuncDescJSON.weight = $( "#f_globalNonFunctionalDescription_weight_" + pf ).val();
-					nonFuncDescJSON.name = $( "#f_globalNonFunctionalDescription_name_" + pf ).val();
-					nonFuncDescJSON.relation = $( "#f_globalNonFunctionalDescription_relation_" + pf ).val();
-					nonFuncDescJSON.unit = $( "#f_globalNonFunctionalDescription_unit_" + pf ).val();
-					nonFuncDescJSON.value = $( "#f_globalNonFunctionalDescription_value_" + pf ).val();
-				
-				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
-					this.globalNonFunPropsAppender(nonFuncDescJSON, globalNonFuncDesc.length);
-
-					globalNonFuncDesc[ globalNonFuncDesc.length ] = nonFuncDescJSON;
-					$("#f_addGlobalNFPropertyForm_" + pf).dialog("close");
-				}
-				else{	//edytujemy istniejący globalNFProperty
-					globalNonFuncDesc[ index ] = nonFuncDescJSON;
-
-					var destinationId = "f_globalNFProps-" + index;
-					$("#" + destinationId + "_weight" ).text(nonFuncDescJSON.weight);
-					$("#" + destinationId + "_name" ).text(nonFuncDescJSON.name);
-					$("#" + destinationId + "_relation" ).text(nonFuncDescJSON.relation);
-					$("#" + destinationId + "_unit" ).text(nonFuncDescJSON.unit);
-					$("#" + destinationId + "_value" ).text(nonFuncDescJSON.value);
-					$("#f_addGlobalNFPropertyForm_" + pf).dialog("close");	
-				}
-			},
-		// ============================================================================================================-	ond of edit by Włodek
-			
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){
@@ -1674,7 +1521,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$.each(array, function(){
 						input = this;
 						that.funcDescJSON.serviceClasses.push(input);
-						$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
+						$( "#f_mainTab_serviceClass_list_" + pf ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
 					});
 				}
 				// else if(type === "metaKeywords"){
@@ -1700,6 +1547,20 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					this.NFPropsAppender(nonFuncDescJSON, no);
 				}
 			},
+			appendInpVar : function appendInpVar(inpVar){
+				// console.log(arguments)
+				for( var v in inpVar ){
+					inpVars.push(inpVar[v]);
+					this.inputVariablesAppender(inpVar[v], v);
+				}
+			},
+			appendGlobalNonFuncDesc : function appendGlobalNonFuncDesc(globNonFuncDesc){
+				console.log(globNonFuncDesc)
+				for( var prop in globNonFuncDesc ){
+					inpVars.push(globNonFuncDesc[prop]);
+					this.globalNonFunPropsAppender(globNonFuncDesc[prop], prop);
+				}				
+			},
 		//Poniższe funkcje "przyklejają" nowo dodane inputy/outputy/non functional properties
 		//do tabeli w formularzu
 			inputAndOutputAppender: function inputAndOutputAppender(input, id, number){
@@ -1718,6 +1579,29 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			NFPropsAppender: function NFPropsAppender(input, number){
 				var tempId = "f_nonFunctionalDescriptionTabxNFProps-" + number;
 				$( "#f_nonFunctionalDescriptionTab_NFProps_" + pf + " tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, maxL) + "</td>" +
+						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" +
+					"</tr>" );
+			},
+			inputVariablesAppender: function inputVariablesAppender(input, index){
+				// console.log(arguments);
+				var tempId = "f_inputVariables-" + index;
+				$( "#f_inputVariables_" + pf + " tbody").append( 
+					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
+						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_type\" class='tabField'>" + cutString(input.type, maxL) + "</td>" +
+					"</tr>"
+				);
+			},
+			globalNonFunPropsAppender: function globalNFPropsAppender(input, index){
+				// console.log("input", input)
+				var tempId = "f_globalNFProps-" + index;
+				$( "#f_globalNFProps_" + pf + " tbody").append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
 						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, maxL) + "</td>" + 
 						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
@@ -1779,24 +1663,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				});
 			},
 			removeUndefinedElements: function removeUndefinedElements(){
-				for(var i = 0; i < this.funcDescJSON.inputs.length; i++){
-					if(this.funcDescJSON.inputs[i] === undefined){ 
+				for(var i in this.funcDescJSON.inputs)
+					if(!this.funcDescJSON.inputs[i])
 						this.funcDescJSON.inputs.splice(i, 1);
-						i--;
-					}
-				}
-				for(var i = 0; i < this.funcDescJSON.outputs.length; i++){
-					if(this.funcDescJSON.outputs[i] === undefined) {
+				for(var i in this.funcDescJSON.outputs)
+					if(!this.funcDescJSON.outputs[i])
 						this.funcDescJSON.outputs.splice(i, 1);
-						i--;
-					}
-				}
-				for(var i = 0; i < this.resultJSON.nonFunctionalDescription.length; i++){
-					if(this.resultJSON.nonFunctionalDescription[i] === undefined){ 
+				for(var i in this.resultJSON.nonFunctionalDescription)
+					if(!this.resultJSON.nonFunctionalDescription[i]) 
 						this.resultJSON.nonFunctionalDescription.splice(i, 1);
-						i--;
-					}
-				}
+				for(var i in this.funcDescJSON.serviceClasses)
+					if(!this.funcDescJSON.serviceClasses[i]) 
+						this.funcDescJSON.serviceClasses.splice(i, 1);
 			},
 			getSelectedInputIndex: function getSelectedInputIndex(){
 				return this.selectedInputIndex;
@@ -1878,10 +1756,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
 			addServiceClass: function addServiceClass(){
-				var input = $("#f_mainTab_serviceClass_" + pf ).val();
+				var input = $("#f_mainTab_serviceClass_" + pf ).val(), index;
 				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
 					this.funcDescJSON.serviceClasses.push(input);
-					$( "#f_mainTab_sClasses" ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
+					index = this.funcDescJSON.serviceClasses.length;
+					$( "#f_mainTab_serviceClass_list_" + pf ).append("<span id=\"f_sc_"+ index + "_" + pf + "\" class=\"clickable\">" + input + ", </span>"); 	
 				}
 				$("#f_mainTab_serviceClass_" + pf ).val("");
 			},
@@ -1902,6 +1781,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			// 	}
 			// 	$( "#f_mainTab_source" ).val(""); 
 			// },
+		// Addy
 			addInput: function addInput(){
 				var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]},
 					index = this.getSelectedInputIndex();
@@ -1988,6 +1868,75 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$("#f_addNFPropertyForm_" + pf ).dialog("close");	
 				}
 			},
+			addInputVariable: function addInputVariable(){
+				var inputVariableJSON = {"name":"","value":"","type":""},
+					index = this.getSelectedInputVariableIndex();
+				inputVariableJSON.name = $( "#f_inputVariable_name_" + pf ).val();
+				inputVariableJSON.value = $( "#f_inputVariable_value_" + pf ).val();
+				inputVariableJSON.type = $("#f_inputVariable_type_" + pf).val();
+				
+				if(index==-1){
+					this.inputVariablesAppender(inputVariableJSON, inpVars.length);
+
+					inpVars[ inpVars.length ] = inputVariableJSON;
+
+					$("#f_addInputVariableForm_" + pf).dialog("close");
+				}
+				else{	//edytujemy istniejący inputVariable
+					var destinationId = "f_inputVariables-" + index;
+					$("#" + destinationId + "_name").text(inputVariableJSON.name);
+					$("#" + destinationId + "_value").text(inputVariableJSON.value);
+					$("#" + destinationId + "_type").text(inputVariableJSON.type);
+
+					inpVars[index] = inputVariableJSON;
+
+					$("#f_addInputVariableForm_" + pf).dialog("close");	
+				}
+			},
+			addGlobalNonFunctional: function addGlobalNonFunctionalVariable(){
+				var nonFuncDescJSON = {"weight":"","name":"","relation":"","unit":"","value":""},
+					index = this.getSelectedGlobalNFPropertyIndex();
+					nonFuncDescJSON.weight = $( "#f_globalNonFunctionalDescription_weight_" + pf ).val();
+					nonFuncDescJSON.name = $( "#f_globalNonFunctionalDescription_name_" + pf ).val();
+					nonFuncDescJSON.relation = $( "#f_globalNonFunctionalDescription_relation_" + pf ).val();
+					nonFuncDescJSON.unit = $( "#f_globalNonFunctionalDescription_unit_" + pf ).val();
+					nonFuncDescJSON.value = $( "#f_globalNonFunctionalDescription_value_" + pf ).val();
+				
+				if(index==-1){	//Index = -1 => dodajemy nowy NFProperty
+					this.globalNonFunPropsAppender(nonFuncDescJSON, globalNonFuncDesc.length);
+
+					globalNonFuncDesc[ globalNonFuncDesc.length ] = nonFuncDescJSON;
+					$("#f_addGlobalNFPropertyForm_" + pf).dialog("close");
+				}
+				else{	//edytujemy istniejący globalNFProperty
+					globalNonFuncDesc[ index ] = nonFuncDescJSON;
+
+					var destinationId = "f_globalNFProps-" + index;
+					$("#" + destinationId + "_weight" ).text(nonFuncDescJSON.weight);
+					$("#" + destinationId + "_name" ).text(nonFuncDescJSON.name);
+					$("#" + destinationId + "_relation" ).text(nonFuncDescJSON.relation);
+					$("#" + destinationId + "_unit" ).text(nonFuncDescJSON.unit);
+					$("#" + destinationId + "_value" ).text(nonFuncDescJSON.value);
+					$("#f_addGlobalNFPropertyForm_" + pf).dialog("close");	
+				}
+			},
+			//coś Włodkowatego
+			collectGraphSaveParams : function collectGraphSaveParams(){
+				var name = $("#f_graphSaveParams_name_"+pf).val();
+				var description = $("#f_graphSaveParams_description_"+pf).val();
+
+				console.log(name, description)
+
+				if(! ( name && description ) ){
+					return false;
+				} else {
+					return {
+						name : name,
+						description : description
+					}
+				}
+			},
+		// Edity
 			openEditInput: function openEditInput(index){
 				// $("#f_inputsTab_id_" + pf ).val(this.funcDescJSON.inputs[index].id);
 				$("#f_inputsTab_label_" + pf ).val(this.funcDescJSON.inputs[index].label);
@@ -2013,9 +1962,54 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text("Edit existing non functional property");
 				$("#f_addNFPropertyForm_" + pf).dialog("open");
 			},
+			openEditInputVariable: function openEditInputVariable(index){
+				var sourceId = "f_inputVariables-" + index;
+				$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
+				$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
+				$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text("Edit existing input variable");
+				this.clearInputVariableSelectionInTable();
+				$("#f_addInputVariableForm_" + pf).dialog("open");
+			},
+			openEditGlobalNonFunc: function openEditGlobalNonFunc(index){
+				var sourceId = "f_globalNFProps-" + index;
+				// console.log("asdasda", $("#f_globalNonFunctionalDescriptionTab_weight_" + pf ).length )
+				// console.log("#f_globalNonFunctionalDescriptionTab_weight_" + pf, "#" + sourceId + "_weight")
+				$("#f_globalNonFunctionalDescription_weight_" + pf ).val($("#" + sourceId + "_weight").text());
+				$("#f_globalNonFunctionalDescription_name_" + pf ).val($("#" + sourceId + "_name").text());
+				$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
+				$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
+				$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text("Edit existing graph non functional property");
+				this.clearGlobalNFPropertySelectionInTable();
+				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
+			},
+			editInputVariables : function editInputVariables(){
+				this.resetInpVars();
+				this.appendInpVar(gui.controler.current_graphData.inputVariables);
+				$("#f_inputVariablesForm_" + pf).dialog("open");
+			},
+			editGlobalNonFunctionalParameters : function editNonFunctionalParameters(){
+				this.resetGlobalNonFunDesc();
+				this.appendGlobalNonFuncDesc(gui.controler.current_graphData.nonFunctionalParameters);
+				$("#f_globalNFPropertiesForm_" + pf).dialog("open");
+			},
+			editGraphSaveParams : function editGraphSaveParams(){
+				$("#f_graphSaveParamsForm_" + pf).dialog( "open" );
+			},
+		// Resety
+			resetInpVars : function resetInpVars(){
+				inpVars = [];
+				$( "#f_inputVariables_" + pf + " tbody").html("");
+			},
+			resetGlobalNonFunDesc : function resetGlobalNonFunDesc(){
+				inpVars = [];
+				$( "#f_globalNFProps_" + pf + " tbody").html("");
+			},
 			resetAll: function resetAll(){
 				this.cleanForm();
 			},
+		// Delety
 			removeInput: function removeInput(){
 				var index = this.getSelectedInputIndex();
 				this.funcDescJSON.inputs[index] = undefined;
@@ -2034,10 +2028,27 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_nonFunctionalDescriptionTabxNFProps-"+index).remove();
 				this.resetSelectedNFPropertyIndex();
 			},
+			removeInputVariable: function removeInputVariable(){
+				var index = this.getSelectedInputVariableIndex();
+				if(inpVars[index]){
+					inpVars[index] = undefined;
+					$( "#f_inputVariables-" + index).remove();
+				}
+				this.resetSelectedInputVariableIndex();
+			},
+			removeGlobalNonFunc: function removeNonFunc(nfProp){
+				var index = this.getSelectedGlobalNFPropertyIndex();
+				if(inpVars[index]){
+					globalNonFuncDesc[index] = undefined;
+					$( "#f_globalNFProps-" + index).remove();
+				}
+
+				this.resetSelectedGlobalNFPropertyIndex();
+			},
 			removeServiceClass: function removeServiceClass(serviceClass){
-				var id = serviceClass.attr("id").split("_").pop();
+				var id = serviceClass.attr("id").split("_")[2];
 				var index = this.stringExistsIndex(id, this.funcDescJSON.serviceClasses);
-				this.funcDescJSON.serviceClasses.splice(index, 1);
+				this.funcDescJSON.serviceClasses[index] = undefined; // :)
 				serviceClass.remove();
 			},
 			// removeMetaKeyword: function removeMetaKeyword(metaKeyword){
@@ -2077,7 +2088,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			result.submitAll();
 		});
 		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
-		$("#f_button_addServiceClass_" + pf).button().click(
+		$("#f_mainTab_serviceClass_addButton_" + pf).button().click(
 			function(event) {
 				event.preventDefault();
 				result.addServiceClass();
@@ -2166,13 +2177,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				if(index == -1)
 					alert("No input variable selected!");
 				else{
-					var sourceId = "f_inputVariables-" + index;
-					$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
-					$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
-					$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
-					$('#ui-dialog-title-f_addInputVariableForm_' + pf).text("Edit existing input variable");
-					result.clearInputVariableSelectionInTable();
-					$("#f_addInputVariableForm_" + pf).dialog("open");
+					result.openEditInputVariable(index);
 				}
 			}
 		);
@@ -2182,17 +2187,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				if(index == -1)
 					alert("No graph non functional property selected!");
 				else{
-					var sourceId = "f_globalNFProps-" + index;
-					// console.log("asdasda", $("#f_globalNonFunctionalDescriptionTab_weight_" + pf ).length )
-					// console.log("#f_globalNonFunctionalDescriptionTab_weight_" + pf, "#" + sourceId + "_weight")
-					$("#f_globalNonFunctionalDescription_weight_" + pf ).val($("#" + sourceId + "_weight").text());
-					$("#f_globalNonFunctionalDescription_name_" + pf ).val($("#" + sourceId + "_name").text());
-					$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
-					$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
-					$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
-					$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text("Edit existing graph non functional property");
-					result.clearGlobalNFPropertySelectionInTable();
-					$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
+					result.openEditGlobalNonFunc(index);
 				}
 			}
 		);
@@ -2293,8 +2288,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		});
 		$('tr[id^="f_inputsTabxinputs"]').live("dblclick", function(event){
-			var index = event.target.id.split("_")[1].split("-")[1],
-			t = setTimeout(function(){result.setSelectedInputIndex(index);},1000);
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedInputIndex(index);},1000);
 			result.openEditInput(index);
 		});
 		$('tr[id^="f_outputsTabxoutputs"]').live("click", function(event){
@@ -2308,8 +2303,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		});
 		$('tr[id^="f_outputsTabxoutputs"]').live("dblclick", function(event){
-			var index = event.target.id.split("_")[1].split("-")[1],
-			t = setTimeout(function(){result.setSelectedOutputIndex(index);},1000);
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedOutputIndex(index);},1000);
 			result.openEditOutput(index);
 		});
 		$('tr[id^="f_inputVariables"]').live("click", function(event){
@@ -2323,10 +2318,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$(this).addClass("ui-state-active");
 			}
 		});
-		$('tr[id^="f_inputVariables"]').live("click", function(event){
-			//TODO
-			// var index = event.target.id.split("_")[1].split("-")[1];
-			// result.editInputVariables(index);
+		$('tr[id^="f_inputVariables"]').live("dblclick", function(event){
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedInputVariableIndex(index);},1000);
+			result.openEditInputVariable(index);
 		});
 		$('tr[id^="f_globalNFProps"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
@@ -2339,9 +2334,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		});
 		$('tr[id^="f_globalNFProps"]').live("dblclick", function(event){
-			//TODO
-			// var index = event.target.id.split("_")[1].split("-")[1];
-			// result.editGlobalNonFunctionalParameters(index);
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedGlobalNFPropertyIndex(index);},1000);
+			result.openEditGlobalNonFunc(index);
 		});
 		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
@@ -2354,8 +2349,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		});
 		$('tr[id^="f_nonFunctionalDescriptionTabxNFProps"]').live("dblclick", function(event){
-			var index = event.target.id.split("_")[1].split("-")[1],
-			t = setTimeout(function(){result.setSelectedNFPropertyIndex(index);},1000);
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedNFPropertyIndex(index);},1000);
 			result.openEditNonFunc(index);
 		});
 		//spany z source'ami, service classes i meta keywords
@@ -2364,11 +2359,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		// 		form.removeSource($(this));
 		// 	});
 		// }(result));
-		// $('span[id^="sc_"]').live("click", function(form){
-		// 	return (function(){
-		// 		form.removeServiceClass($(this));
-		// 	});
-		// }(result));
+		$('span[id^="f_sc_"]').live("click", function(form){
+			return (function(){
+				form.removeServiceClass($(this));
+			});
+		}(result));
 		// $('span[id^="mk_"]').live("click", function(form){
 		// 	return (function(){
 		// 		form.removeMetaKeyword($(this));
