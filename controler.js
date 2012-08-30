@@ -2260,7 +2260,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 	$('html').click(function() {
 		selectednode = selectednode || false;
-		console.log(selectednode);
 		if (!selectednode) controlerObject.reactOnEvent("ESCAPE");
 	});
 	controlerObject.reactOnEvent("START");
