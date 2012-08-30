@@ -986,7 +986,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				{
 					label: "relation",
 					id: "f_nonFunctionalDescriptionTab_relation",
-					inputType: "textBox",
+					inputType: "select",
 					validation: function(){},
 					values:["eq", "gt", "le", "leq", "geq"]
 				},
@@ -1158,7 +1158,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form_" + pf ).dialog( "open" );
 				
-				//  pola obecnie nieuÅ¼ywane:
+				//  pola obecnie nieużywane:
 				//
 				// var condition = [];
 				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
@@ -1239,16 +1239,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$("#" + tabId).addClass("ui-state-error");
 					if(tabId==="inputsTab_"+pf || tabId==="outputsTab_"+pf || tabId==="nonFunctionalDescriptionTab_"+pf){
 						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
+						$( id ).addClass( "ui-state-error" );
 						inputId = "#" + splitty[0] + "_" + tabId.split("_")[0] + "_" + splitty[2];
-						$(inputId+"_"+pf).addClass("ui-state-error");
+						$(inputId+"_"+pf).addClass("ui-state-error-B");
 						$(inputId+"_validation_" +pf ).text(splitty[3]);
 					}
 					else{
 						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
 						$( id+"_validation_" + pf ).text(splitty[3]);
 						id = id +"_"+pf;
+						$( id ).addClass( "ui-state-error-B" );
 					}	
-					$( id ).addClass( "ui-state-error" );
 				});
 			},
 			clearErrors: function clearErrors(){
@@ -1428,145 +1429,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			},
 		// ============================================================================================================-	ond of edit by Włodek
 			
-			initToEdit: function initToEdit(node){
-				var titleText = 'Viewing a ' + node.nodeType + ' type node';
-				this.clearErrors();
-				this.cleanForm(true);
-				$('#ui-dialog-title-form').text(titleText);
-				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
-				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
-				this.adjustForm(node.nodeType);
-				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
-				$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName);
-				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId);
-				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address);
-				$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation);
-				
-				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
-				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
-				this.appendIO(node.functionalDescription.inputs, "inputs");
-				this.appendIO(node.functionalDescription.outputs, "outputs");
-				this.appendNonFuncDesc(node.nonFunctionalDescription);
-				this.resultJSON.nodeId = node.nodeId;
-				this.resultJSON.nodeType = node.nodeType;
-				$( "#form" ).dialog( "open" );
-				
-				//  pola obecnie nieuÅ¼ywane:
-				//
-				// var condition = [];
-				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
-				// $( "#f_mainTab_alternatives" ).val(node.alternatives);
-				// if(node.condition){
-				// 	condition = node.condition.split(" ");
-				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
-				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
-				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
-				// }
-				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
-				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
-				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
-				// this.appendList(node.sources, "sources");
-			},
-			initBlank: function initBlank(nodeData){
-				var titleText = "Create a " + nodeData.nodeType + " type node";
-				this.clearErrors();
-				this.cleanForm(true);
-				this.resultJSON.nodeLabel = nodeData.label;
-				this.resultJSON.nodeType = nodeData.nodeType;
-				$('#ui-dialog-title-form').text(titleText);
-				this.adjustForm(nodeData.nodeType);
-				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
-				$( "#f_mainTab_nodeType_" + pf ).val(nodeData.nodeType);
-				$( "#form" ).dialog( "open" );
-			},
-			adjustForm: function adjustForm(nodeType){
-				switch(nodeType.toLowerCase()){
-					case "control" : 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
-						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
-						$('#f_button_addServiceClass').hide();
-						$('#f_mainTab_scInfo').hide();
-						$('#tabs-2').hide();
-						break;
-					case "functionality" : 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
-						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_button_addServiceClass').show();
-						$('#f_mainTab_scInfo').show();
-						$('#tabs-2').hide();
-						break;
-					default: 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
-						$('#physicalDescriptionTab').removeClass("ui-tabs-hide");
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_button_addServiceClass').show();
-						$('#f_mainTab_scInfo').show();
-						$('#tabs-2').show();				
-						break;
-					}
-			},
-			//funkcje czyszczÄ…ce elementy formularza
-			clearNF: function clearNF(){
-				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
-				$( "#nonFuncDescForm_" + pf )[0].reset();
-				this.resetSelectedNFPropertyIndex();
-			},
-			clearInputs: function clearInputs(){
-				$( "#inputForm_" + pf )[0].reset();
-				$( "#f_inputsTab_inputs tbody" ).empty();
-				this.resetSelectedInputIndex();
-			},
-			clearOutputs: function clearOutputs(){
-				$( "#outputForm_" + pf )[0].reset(); 	
-				$( "#f_outputsTab_outputs tbody" ).empty();
-				this.resetSelectedOutputIndex();
-			},
-			handleErrors: function handleErrors(array){
-				$.each(array, function(){						
-					var splitty = this.split("_"), 
-						id,
-						tabId = splitty[1].split("x")[0],
-						inputId;
-					$("#" + tabId).addClass("ui-state-error");
-					if(tabId==="inputsTab" || tabId==="outputsTab" || tabId==="nonFunctionalDescriptionTab"){
-						id = "#" + splitty[0] + "_" + splitty[1];
-						inputId = "#" + splitty[0] + "_" + tabId + "_" + splitty[2];
-						$(inputId).addClass("ui-state-error");
-						$(inputId+"_validation_" +pf ).text(splitty[3]);
-					}
-					else{
-						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
-						$( id+"_validation_" + pf ).text(splitty[3]);
-					}	
-					$( id + "_" + pf ).addClass( "ui-state-error" );
-				});
-			},
-			clearErrors: function clearErrors(){
-				$("*").removeClass("ui-state-error");
-				$('td[id$="_validation_' + pf + '"]').text("");
-			},
-			//argument total decyduje, czy ma byÄ‡ skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
-			cleanForm: function cleanForm(total){
-				if( !total )
-					var temp = this.resultJSON.nodeId;
-				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
-				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
-				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
-				this.clearInputs();
-				this.clearOutputs();
-				this.clearNF();
-				if( !total )
-					this.resultJSON.nodeId = temp;
-				// $( "#f_mainTab_source" ).val("");
-				// $( "#f_mainTab_sources" ).empty();
-				$( "#f_mainTab_sClasses" ).empty();
-				// $( "#f_functionalDescription_mKeywords" ).empty();
-				$( "#mainForm_" + pf )[0].reset();
-				$( "#physDescForm_" + pf )[0].reset();
-				$tabs.tabs('select', 0);
-			},
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){

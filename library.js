@@ -4,7 +4,7 @@ var a = alert;
 var jstr = JSON.stringify;
 // eof pomocnicze skróty
 
-	// W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
+// W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
 function skeletonAppender(pf){
 	var content = "<div id='form_" + pf + "' class='ui-dialog-content ui-widget-content'></div>"
 		+ "<div id='f_dialog_confirm1_" + pf + "' title='Remove all data?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You are about to clear the entire form. Are you sure?</span></p></div>"
@@ -81,7 +81,7 @@ function formGenerator(lang, postfix, json){
 				// html.push("ra");
 			break;
 		}
-		html.push("<td><span id=\"" + this.id + "_validation_" + postfix + "\" style='color:red' ></span></td>");
+		html.push("<td><span id=\"" + this.id + "_validation_" + postfix + "\" style='color:#c0402a' ></span></td>");
 	});
 	html.push("</table></form>")
 
