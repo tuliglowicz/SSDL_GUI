@@ -2841,7 +2841,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.menu.addOption('Copy');
 							this.menu.addOption('Copy with reference');
 							this.menu.addOption('Paste');
-							this.menu.addOption('Delete',"DELETEDNODE",this);
+							this.menu.addOption('Delete',"DELETE");
 						}
 					}
 				}
@@ -2868,7 +2868,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				newNode.hasSubgraph = !isEmpty(node.subgraph);
-				//TU BYDEM DZIABAÅ? [BÅ‚aÅ¼ej] (PorzÄ…dkowanie wyÅ›wietlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
 					newNode.inputs.push( $.extend(true, {}, this) );
@@ -4262,6 +4261,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							return false;
 					}
 				});
+				//TU BYDEM DZIABAŁ (Błażej)
 			}
 			else {
 				// console.trace();
