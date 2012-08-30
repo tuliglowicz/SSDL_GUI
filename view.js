@@ -4266,6 +4266,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							return false;
 					}
 				});
+				//TU BYDEM DZIABAŁ (Błażej)
 			}
 			else {
 				// console.trace();
