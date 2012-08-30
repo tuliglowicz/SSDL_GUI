@@ -534,12 +534,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
-							var label = prompt("Enter a label for the new node:");
+							var label = prompt(language[gui.language].alerts.addLabelNewNode);
 							if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 					}
 				}
 
-				var text_service = this.paper.text(textHorizontalPosition,10,"Service");
+				var text_service = this.paper.text(textHorizontalPosition,10, language[gui.language].nodes.service);
+
 				text_service.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
@@ -547,7 +548,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
-				var text_functionality = this.paper.text(textHorizontalPosition,70,"Functionality");
+				var text_functionality = this.paper.text(textHorizontalPosition,70,language[gui.language].nodes.functionality);
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
@@ -556,7 +557,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
 
-				var text_mediator = this.paper.text(textHorizontalPosition,130,"Mediator");
+				var text_mediator = this.paper.text(textHorizontalPosition,130,language[gui.language].nodes.mediator);
 					// .hide();
 					text_mediator.node.setAttribute("class","repository_text");
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
@@ -740,7 +741,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							},
 							createGraphic: function createGraphic(){
 								var temp, bbox;
-								temp = paper.text(0, this.y+5, this.label)
+								temp = paper.text(0, this.y+5, language[gui.language].bottombar.group[camelize(this.label)])
 								.attr({"font-size":10, fill:"black", opacity: 0});
 								bbox = temp.getBBox();
 								temp.attr("x", this.x+bbox.width/2+this.margin);
@@ -848,7 +849,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						},
 						createGraphic: function createGraphic(){
 							var temp1, temp2, cover, bbox, set, labelX, labelY;
-							temp1 = paper.text(0, 0, this.label)
+							temp1 = paper.text(0, 0, language[gui.language].bottombar.options[camelize(this.label)])
 							.attr({
 								"font-size" : this.fontsize+"px",
 								"font-weight" : "bold",
@@ -1302,16 +1303,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			"effects":""
 		};
 		
-		formAppender(pf);
-		$("#tabs-1_" + pf).prepend(formGenerator("english", pf, formJSON[0]));	
-		$("#tabs-2_" + pf).prepend(formGenerator("english", pf, formJSON[1]));	
-		$("#f_addInputForm_" + pf).prepend(formGenerator("english", pf, formJSON[2]));	
-		$("#f_addOutputForm_" + pf).prepend(formGenerator("english", pf, formJSON[3]));	
-		$("#f_addNFPropertyForm_" + pf).prepend(formGenerator("english", pf, formJSON[4]));
-		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator("english", pf, formJSON[5]));
-		$("#f_addInputVariableForm_" + pf).prepend(formGenerator("english", pf, formJSON[6]));
+		formAppender(gui.language,pf);
+		$("#tabs-1_" + pf).prepend(formGenerator(gui.language, pf, formJSON[0]));	
+		$("#tabs-2_" + pf).prepend(formGenerator(gui.language, pf, formJSON[1]));	
+		$("#f_addInputForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[2]));	
+		$("#f_addOutputForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[3]));	
+		$("#f_addNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[4]));
+		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[5]));
+		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[6]));
 		// alert(graphSaveParamsJSON);
-		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator("english", pf, graphSaveParamsJSON));
+		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator(gui.language, pf, graphSaveParamsJSON));
 
 		$("#form_" + pf).dialog({
 			autoOpen: false,
@@ -1377,7 +1378,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				// this.appendList(node.sources, "sources");
 			},
 			initBlank: function initBlank(nodeData){
-				var titleText = "Create a " + nodeData.nodeType + " type node";
+				var titleText =  language[gui.language].forms.createA + nodeData.nodeType + language[gui.language].forms.typeNode ; 
 				this.clearErrors();
 				this.cleanForm(true);
 				this.resultJSON.nodeLabel = nodeData.label;
@@ -1792,7 +1793,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.funcDescJSON.inputs.push(inputJSON);
 						$("#f_addInputForm_" + pf).dialog("close");	
 					}
-					else alert("This input already exists!");	
+					else alert(language[gui.language].alerts.errors.inputExists);		
 				}
 				else{	//edytujemy istniejÄ…cy input
 					var destinationId = "f_inputsTabxinputs-" + index;
@@ -1821,7 +1822,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.funcDescJSON.outputs.push(outputJSON);
 						$("#f_addOutputForm_" + pf).dialog("close");	
 					}
-					else alert("This output already exists!"); //TODO: te alerciątka jako modal dialogs
+					else alert(language[gui.language].alerts.errors.outputExists); //TODO: te alerciątka jako modal dialogs
 				}
 				else{	//edytujemy istniejący output
 					var destinationId = "f_outputsTabxoutputs-" + index;
@@ -1849,7 +1850,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
 						$("#f_addNFPropertyForm_" + pf ).dialog("close");
 					}
-					else alert("This non functional property already exists!");
+					else alert(language[gui.language].alerts.errors.nFPropExists);
 				}
 				else{	//edytujemy istniejący NFProperty
 					var destinationId = "f_nonFunctionalDescriptionTabxNFProps-" + index;
@@ -1936,7 +1937,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_inputsTab_label_" + pf ).val(this.funcDescJSON.inputs[index].label);
 				$("#f_inputsTab_class_" + pf ).val(this.funcDescJSON.inputs[index].class);
 				$("#f_inputsTab_dataType_" + pf ).val(this.funcDescJSON.inputs[index].dataType);
-				$('#ui-dialog-title-f_addInputForm_' + pf).text("Edit existing input");
+				$('#ui-dialog-title-f_addInputForm_' + pf).text(language[gui.language].forms.editExistingInput);
 				$("#f_addInputForm_" + pf).dialog("open");
 			},
 			openEditOutput: function openEditOutput(index){
@@ -1944,7 +1945,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_outputsTab_label_" + pf ).val(this.funcDescJSON.outputs[index].label);
 				$("#f_outputsTab_class_" + pf ).val(this.funcDescJSON.outputs[index].class);
 				$("#f_outputsTab_dataType_" + pf ).val(this.funcDescJSON.outputs[index].dataType);
-				$('#ui-dialog-title-f_addOutputForm_' + pf).text("Edit existing output");
+				$('#ui-dialog-title-f_addOutputForm_' + pf).text(language[gui.language].forms.editExistingOutput);	
 				$("#f_addOutputForm_" + pf).dialog("open");
 			},
 			openEditNonFunc: function openEditNonFunc(index){
@@ -1953,7 +1954,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_nonFunctionalDescriptionTab_relation_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].relation);
 				$("#f_nonFunctionalDescriptionTab_unit_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].unit);
 				$("#f_nonFunctionalDescriptionTab_value_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].value);
-				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text("Edit existing non functional property");
+				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(language[gui.language].forms.editExistingNonFunctionalProperty);
 				$("#f_addNFPropertyForm_" + pf).dialog("open");
 			},
 			openEditInputVariable: function openEditInputVariable(index){
@@ -2104,7 +2105,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#inputForm_" + pf )[0].reset();
 				result.resetSelectedInputIndex();
 				result.clearInputSelectionInTable();
-				$('#ui-dialog-title-f_addInputForm_' + pf).text("New input");
+				$('#ui-dialog-title-f_addInputForm_' + pf).text(language[gui.language].forms.newInput);
 				$("#f_addInputForm_" + pf).dialog("open");
 			}
 		);
@@ -2113,7 +2114,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#outputForm_" + pf  )[0].reset();
 				result.resetSelectedOutputIndex();
 				result.clearOutputSelectionInTable();
-				$('#ui-dialog-title-f_addOutputForm_' + pf).text("New output");
+				$('#ui-dialog-title-f_addOutputForm_' + pf).text(language[gui.language].forms.newOutput);
 				$("#f_addOutputForm_" + pf).dialog("open");	
 			}
 		);
@@ -2122,7 +2123,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#inputVariableForm_" + pf )[0].reset();
 				result.resetSelectedInputVariableIndex();
 				result.clearInputVariableSelectionInTable();
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text("New input variable");
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.language].forms.newInputVariable);
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			}
 		);
@@ -2131,7 +2132,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#nonFuncDescForm_" + pf  )[0].reset();
 				result.resetSelectedNFPropertyIndex();
 				result.clearNFPropertySelectionInTable();
-				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text("New non functional property");
+				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(language[gui.language].forms.newNonFunctionalProperty);
 				$("#f_addNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
@@ -2140,7 +2141,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#globalNonFuncDescForm_" + pf  )[0].reset();
 				result.resetSelectedGlobalNFPropertyIndex();
 				result.clearGlobalNFPropertySelectionInTable();
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text("New graph non functional property");
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.language].forms.newGraphNonFunctionalProperty);
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
@@ -2148,7 +2149,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedInputIndex();
 				if(index == -1)
-					alert("No input selected!");
+					alert(language[gui.language].alerts.errors.noInputSelected);
 				else{
 					result.openEditInput(index);
 				}
@@ -2158,7 +2159,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedOutputIndex();
 				if(index == -1)
-					alert("No output selected!");
+					alert(language[gui.language].alerts.errors.noOutputSelected);
 				else{
 					result.openEditOutput(index);
 				}
@@ -2168,7 +2169,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
 				if(index == -1)
-					alert("No input variable selected!");
+					alert(language[gui.language].alerts.errors.noInputVariableSelected);
 				else{
 					result.openEditInputVariable(index);
 				}
@@ -2188,7 +2189,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert("No entry selected!");
+					alert(language[gui.language].alerts.errors.noEntrySelected);
 				else{
 					result.openEditNonFunc(index);
 				}
@@ -2198,7 +2199,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedInputIndex();
 				if(index == -1)
-					alert("No input selected!");
+					alert(language[gui.language].alerts.errors.noInputSelected);
 				else{
 					result.removeInput();
 				}
@@ -2208,7 +2209,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedOutputIndex();
 				if(index == -1)
-					alert("No output selected!");
+					alert(language[gui.language].alerts.errors.noOutputSelected);
 				else{
 					result.removeOutput();
 				}
@@ -2218,7 +2219,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
 				if(index == -1)
-					alert("No input variable selected!");
+					alert(language[gui.language].alerts.errors.noInputVariableSelected);
 				else{
 					result.clearInputVariableSelectionInTable();
 					result.removeInputVariable();
@@ -2229,7 +2230,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert("No entry selected!");
+					alert(language[gui.language].alerts.errors.noEntrySelected);
 				else{
 					result.removeNonFunc();
 				}
@@ -2239,7 +2240,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedGlobalNFPropertyIndex();
 				if(index == -1)
-					alert("No entry selected!");
+					alert(language[gui.language].alerts.errors.noEntrySelected);
 				else{
 					result.clearGlobalNFPropertySelectionInTable();
 					result.removeGlobalNonFunc();
@@ -2528,7 +2529,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$( this ).dialog( "close" );
 						gui.controler.reactOnEvent("save", result)
 					} else {
-						alert("wprowadź dane");
+						alert(language[gui.language].alerts.inputData);
 					}
 				},
 				Cancel: function() {
@@ -3598,7 +3599,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
 							// alert("HURA");
 
-							if(confirm("Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie "+sourceNode.label+" ?")){
+							if(confirm(language[gui.language].alerts.addOutputS+sourceNode.label+language[gui.language].alerts.addOutputE)){
 								gui.controler.reactOnEvent("addOutput", {
 									sourceId : sourceNode.id,
 									targetId : resultObj.targetId,
@@ -3695,13 +3696,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							 	CF_or_DF: "DF"
 							});
 						} else {
-							gui.logger.error("Error", "You tried to make connection between input and output of different data types")
+							gui.logger.error(language[gui.language].alerts.errors.error, language[gui.language].alerts.errors.ioDiffType)
 						}
 					}
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
-							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
+							if(confirm(language[gui.language].alerts.addInputS +  targetNode.label+ language[gui.language].alerts.addInputE)){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
 									targetId : targetNode.id,
@@ -3737,10 +3738,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
-				gui.logger.warning("Nie można przekazać kontroli do wierzchołka startowego.");
+				gui.logger.warning(language[gui.language].alerts.errors.startCantPassControl);
 			}
 			else if(foundedEdge){
-				gui.logger.warning("Próbujesz dodać krawędź, która już istnieje.");
+				gui.logger.warning(language[gui.language].alerts.errors.edgeExists);
 			}
 			else {
 				var edgeObject = {
@@ -4039,7 +4040,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			graph_view.id = graph_json.id;
 
 			if(!this.paper){
-				gui.error("you have to run init() function first");
+				gui.error(language[gui.language].alerts.errors.noinit);
 			}
 			else {
 				var paper = this.paper,

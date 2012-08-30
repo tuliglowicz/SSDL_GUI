@@ -5,61 +5,61 @@ var jstr = JSON.stringify;
 // eof pomocnicze skróty
 
 // W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
-function skeletonAppender(pf){
+function skeletonAppender(lang,pf){
 	var content = "<div id='form_" + pf + "' class='ui-dialog-content ui-widget-content'></div>"
 		+ "<div id='f_dialog_confirm1_" + pf + "' title='Remove all data?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You are about to clear the entire form. Are you sure?</span></p></div>"
 		+ "<div id='f_dialog_confirm2_" + pf + "' title='Are you sure?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You will lose all data and this action cannot be cancelled. Do you really want to do this?</span></p></div><div id='f_dialog_fine_" + pf + "' title='As you wish.'><p>FINE.</p></div>"
 		+ "<div id='f_addInputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new input'></div><div id='f_addOutputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new output'></div>"
 		+ "<div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'></div><div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'></div><div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'></div>"
-		+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='Graph non functional properties'></div><div id='f_inputVariablesForm_" + pf + "' title='Input variables'></div>"
+		+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='"+language[lang].mainMenu.nonFunctionalParameters+"'></div><div id='f_inputVariablesForm_" + pf + "' title='"+language[lang].mainMenu.inputVariables+"'></div>"
 		+ "<div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'></div>";
 
 	$("body").append(content);
 };
-function formAppender(pf){
+function formAppender(lang,pf){
 	var mainContent = "<div id='tabs_" + pf + "' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>"
 		 + "<ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'>"
-			 + "<li class='ui-state-default ui-corner-top ui-tabs-selected ui-state-active' id='mainTab_" + pf + "'><a href='#tabs-1_" + pf + "'>Main</a></li>"
-			 + "<li id='physicalDescriptionTab_" + pf + "'><a href='#tabs-2_" + pf + "'>Service description</a></li>"
-			 + "<li id='inputsTab_" + pf + "'><a href='#tabs-3_" + pf + "'>Inputs</a></li>"
-			 + "<li id='outputsTab_" + pf + "'><a href='#tabs-4_" + pf + "'>Outputs</a></li>"
-			 + "<li id='nonFunctionalDescriptionTab_" + pf + "'><a href='#tabs-5_" + pf + "'>Non-functional description</a></li>"
+			 + "<li class='ui-state-default ui-corner-top ui-tabs-selected ui-state-active' id='mainTab_" + pf + "'><a href='#tabs-1_" + pf + "'>"+language[lang].formTabs.main+"</a></li>"
+			 + "<li id='physicalDescriptionTab_" + pf + "'><a href='#tabs-2_" + pf + "'>"+language[lang].formTabs.serviceDesc+"</a></li>"
+			 + "<li id='inputsTab_" + pf + "'><a href='#tabs-3_" + pf + "'>"+language[lang].formTabs.inputs+"</a></li>"
+			 + "<li id='outputsTab_" + pf + "'><a href='#tabs-4_" + pf + "'>"+language[lang].formTabs.outputs+"</a></li>"
+			 + "<li id='nonFunctionalDescriptionTab_" + pf + "'><a href='#tabs-5_" + pf + "'>"+language[lang].formTabs.nonFunctionalDesc+"</a></li>"
 		 + "</ul><div id='tabs-1_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
-			 + "</br><button id='f_mainTab_nextButton_" + pf + "' style='float:right'>NEXT</button></br></div>"
+			 + "</br><button id='f_mainTab_nextButton_" + pf + "' style='float:right'>"+language[lang].forms.next+"</button></br></div>"
 		 + "<div id='tabs-2_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
-			 + "</br><button id='f_physicalDescriptionTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_physicalDescriptionTab_backButton_" + pf + "' style='float: right'>BACK</button></br></div>"
+			 + "</br><button id='f_physicalDescriptionTab_nextButton_" + pf + "' style='float: right'>"+language[lang].forms.next+"</button><button id='f_physicalDescriptionTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></div>"
 		 + "<div id='tabs-3_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='inputs-content_" + pf + "' class='ui-widget'>"
-					 + "<p>Defined inputs:</p><table id='f_inputsTab_inputs_" + pf + "' class='text ui-widget-content ui-corner-all'>" //<th>Id</th>
-						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Label</th><th class='tabField'>Class</th><th class='tabField'>DataType</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-					 + "<button id='f_inputsTab_openAddInputForm_" + pf + "'>Add new</button><button id='f_inputsTab_openEditInputForm_" + pf + "'>Edit</button><button id='f_inputsTab_deleteThisInput_" + pf + "'>Delete</button>"
-				 + "</div></br><button id='f_inputsTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_inputsTab_backButton_" + pf + "' style='float: right'>BACK</button></br>"
+					 + "<p>"+language[lang].forms.definedInputs+"</p><table id='f_inputsTab_inputs_" + pf + "' class='text ui-widget-content ui-corner-all'>" //<th>Id</th>
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.label+"</th><th class='tabField'>"+language[lang].forms.class+"</th><th class='tabField'>"+language[lang].forms.dataType+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+					 + "<button id='f_inputsTab_openAddInputForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_inputsTab_openEditInputForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_inputsTab_deleteThisInput_" + pf + "'>"+language[lang].forms.delete+"</button>"
+				 + "</div></br><button id='f_inputsTab_nextButton_" + pf + "' style='float: right'>"+language[lang].forms.next+"</button><button id='f_inputsTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br>"
 			 + "</p></div><div id='tabs-4_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
-				 + "<div id='outputs-content_" + pf + "' class='ui-widget'><p>Defined outputs:</p>"
+				 + "<div id='outputs-content_" + pf + "' class='ui-widget'><p>"+language[lang].forms.definedOutputs+"</p>"
 					 + "<table id='f_outputsTab_outputs_" + pf + "' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Label</th><th class='tabField'>Class</th><th class='tabField'>DataType</th></tr></thead><tbody></tbody></table></br>" //<th>Id</th>
-					 + "<button id='f_outputsTab_openAddOutputForm_" + pf + "'>Add new</button><button id='f_outputsTab_openEditOutputForm_" + pf + "'>Edit</button><button id='f_outputsTab_deleteThisOutput_" + pf + "'>Delete</button>"	
-				 + "</div></br><button id='f_outputsTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_outputsTab_backButton_" + pf + "' style='float: right'>BACK</button></br>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.label+"</th><th class='tabField'>"+language[lang].forms.class+"</th><th class='tabField'>"+language[lang].forms.dataType+"</th></tr></thead><tbody></tbody></table></br>" //<th>Id</th>
+					 + "<button id='f_outputsTab_openAddOutputForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_outputsTab_openEditOutputForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_outputsTab_deleteThisOutput_" + pf + "'>"+language[lang].forms.delete+"</button>"	
+				 + "</div></br><button id='f_outputsTab_nextButton_" + pf + "' style='float: right'>"+language[lang].forms.next+"</button><button id='f_outputsTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br>"
 			 + "</p></div><div id='tabs-5_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
-				 + "<div id='nonFunctionalProperties-content_" + pf + "' class='ui-widget'><p>Defined Non Functional Properties:</p>"
+				 + "<div id='nonFunctionalProperties-content_" + pf + "' class='ui-widget'><p>"+language[lang].forms.definedNonFunctionalProperties+"</p>"
 					 + "<table id='f_nonFunctionalDescriptionTab_NFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Weight</th><th class='tabField'>Name</th><th class='tabField'>Relation</th><th class='tabField'>Unit</th><th class='tabField'>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-				 + "<button id='f_nonFunctionalDescriptionTab_openAddNFPropertyForm_" + pf + "'>Add new</button><button id='f_nonFunctionalDescriptionTab_openEditNFPropertyForm_" + pf + "'>Edit</button><button id='f_nonFunctionalDescriptionTab_deleteThisNFProperty_" + pf + "'>Delete</button>"	
-				 + "</div></br><button id='f_nonFunctionalDescriptionTab_backButton_" + pf + "' style='float: right'>BACK</button></br></p></div></div>"
-	 + "<input type='submit' name='f_button_sumbitAllButton' id='f_button_sumbitAllButton_" + pf + "' value='Submit all' style='float:right;'/>"
-	 + "<input type='reset' name='f_button_resetAllButton' id='f_button_resetAllButton_" + pf + "' value='Reset all' style='float:right;'/></br>";
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.weight+"</th><th class='tabField'>"+language[lang].forms.name+"</th><th class='tabField'>"+language[lang].forms.relation+"</th><th class='tabField'>"+language[lang].forms.unit+"</th><th class='tabField'>"+language[lang].forms.value+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+				 + "<button id='f_nonFunctionalDescriptionTab_openAddNFPropertyForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_nonFunctionalDescriptionTab_openEditNFPropertyForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_nonFunctionalDescriptionTab_deleteThisNFProperty_" + pf + "'>"+language[lang].forms.delete+"</button>"	
+				 + "</div></br><button id='f_nonFunctionalDescriptionTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></p></div></div>"
+	 + "<input type='submit' name='f_button_sumbitAllButton' id='f_button_sumbitAllButton_" + pf + "' value='"+language[lang].forms.submitAll+"' style='float:right;'/>"
+	 + "<input type='reset' name='f_button_resetAllButton' id='f_button_resetAllButton_" + pf + "' value='"+language[lang].forms.resetAll+"' style='float:right;'/></br>";
 	$("#form_" + pf).prepend(mainContent);
 
-	var inputVariables = "<p>Defined input variables:</p><table id='f_inputVariables_" + pf + "' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Name</th><th class='tabField'>Value</th><th class='tabField'>Type</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-						 + "<button id='f_openAddInputVariableForm_" + pf + "'>Add new</button><button id='f_openEditInputVariableForm_" + pf + "'>Edit</button><button id='f_deleteThisInputVariable_" + pf + "'>Delete</button>";
+	var inputVariables = "<p>"+language[lang].forms.definedInputVariables+":</p><table id='f_inputVariables_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.name+"</th><th class='tabField'>"+language[lang].forms.value+"</th><th class='tabField'>"+language[lang].forms.type+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+						 + "<button id='f_openAddInputVariableForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_openEditInputVariableForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_deleteThisInputVariable_" + pf + "'>"+language[lang].forms.delete+"</button>";
 	$("#f_inputVariablesForm_" + pf).append(inputVariables);
 
-	var gNFProps = "<p>Defined graph non functional properties:</p><table id='f_globalNFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Weight</th><th class='tabField'>Name</th><th class='tabField'>Relation</th><th class='tabField'>Unit</th><th class='tabField'>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-						 + "<button id='f_openAddGlobalNFPropertyForm_" + pf + "'>Add new</button><button id='f_openEditGlobalNFPropertyForm_" + pf + "'>Edit</button><button id='f_deleteThisGlobalNFProperty_" + pf + "'>Delete</button>";
+	var gNFProps = "<p>"+language[lang].forms.definedGraphNonFunctionalProperties+":</p><table id='f_globalNFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.weight+"</th><th class='tabField'>"+language[lang].forms.name+"</th><th class='tabField'>"+language[lang].forms.relation+"</th><th class='tabField'>"+language[lang].forms.unit+"</th><th class='tabField'>"+language[lang].forms.value+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+						 + "<button id='f_openAddGlobalNFPropertyForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_openEditGlobalNFPropertyForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_deleteThisGlobalNFProperty_" + pf + "'>"+language[lang].forms.delete+"</button>";
 	$("#f_globalNFPropertiesForm_" + pf).append(gNFProps);
 };
-function formGenerator(lang, postfix, json){
+function formGenerator(lang, postfix, json){	
 	var html = ["<form id=\"" + json.formId + "_" + postfix + "\"><table>"];
 	$.each(json.fields, function(i){
 		html.push("<tr><td><label for=\"" + this.id + "_" + postfix + "\">" + ( language[lang].forms[this.label] || "") +	": </label></td><td>");

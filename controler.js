@@ -105,7 +105,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		* REQUIRED DOM ELEMENTS:
 		* - div with id 'console_'+pf
 		* AVIABLE FUNCTIONS:
-		* - info(information string [, title string])
+		* - info(in`ation string [, title string])
 		* - warning(warning string [, title string])
 		* - error(error string [, title string])
 		*/
@@ -1105,7 +1105,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					if (!validationObj.valid) {
 						gui.logger.error("shortcut.add", validationObj.msg.replace(/\n/g, "<br/>"));
 					} else if (exists(shortcut)) {
-						gui.logger.error("shortcut.add", shortcut + " jest już używany");
+						gui.logger.error("shortcut.add", shortcut + language[gui.language].alerts.errors.shortcutAdded);
 					} else {
 						memoryTab.push(shortcut);
 						// console.log(opt)
@@ -1123,7 +1123,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					var result = true;
 
 					if (!~index) {
-						gui.logger.error("shortcut.remove", "skrót \"" + shortcut + "\" nie jest jeszcze zdefiniowany");
+						gui.logger.error("shortcut.remove", language[gui.language].alerts.errors.shortcut + shortcut + "\"" + language[gui.language].alerts.errors.shorcutNotDefined);
 						result = false;
 					} else {
 						memoryTab.splice(index, 1);
@@ -1239,20 +1239,20 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					// e.name = 1;
 					// e.description = 1;
 					if (that.current_graphData.nodes.length < 3) {
-						alert("Cannot save empty graph!")
+						alert(language[gui.language].alerts.emptyGraph)
 					} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 						gui.view.form.editGraphSaveParams();
 					} else {
-						if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm("Validation not passed!\nAre you sure this graph is correct?\nclick OK if you're sure.")) {
+						if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm(language[gui.language].alerts.graphNotPassedValidation)) {
 							var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 							output += "ssdl=" + savedSSDL;
 
 
 							console.log(output)
 							that.save(saveUrl, output, "POST", "xml", function() {
-								alert("Procedura zapisu przeszła poprawnie.")
+								alert(language[gui.language].alerts.saveOK);
 							}, function() {
-								alert("Procedura zapisu nie powiodła się.");
+								alert(language[gui.language].alerts.saveNotOK);
 							})
 						}
 					}
