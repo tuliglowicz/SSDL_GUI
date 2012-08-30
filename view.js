@@ -1,10 +1,6 @@
 //toDo
 // done // walidacja, edycja, json2ssdl, startstop
 
-// toDo globalParams:
-// szerokość node-a,
-// wysokość node-a,
-
 "use strict";
 var c = -1;
 var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
@@ -12,7 +8,6 @@ var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
 function View(id, width, height, gui, graphSaveParamsJSON){
 	var pf = gui.id_postfix;
 	graphSaveParamsJSON = graphSaveParamsJSON || {
-
 		tabLabel:"",
 		tabId: "",
 		formId: "graphSaveParams",
@@ -153,6 +148,57 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$('div.mMenuContener').hide();
 				$('div.mMenuSubcontener').hide();
 				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+			},
+
+			init: function init(){
+
+
+				outputView.mainMenu.addGroup("File");
+	outputView.mainMenu.addGroup("Edit");
+	outputView.mainMenu.addGroup("Graph");
+	outputView.mainMenu.addGroup("View");
+	outputView.mainMenu.addGroup("Help");
+	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
+	outputView.mainMenu.addSeparator("File");
+	outputView.mainMenu.addOption("File", "Load", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addOption("File", "Save", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
+		var nodeType="Service";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
+			}, "CTRL+N+S");
+	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
+	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
+	outputView.mainMenu.addSeparator("View");
+	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
+	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+	outputView.mainMenu.addSeparator("Edit");
+	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
+	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
+	outputView.mainMenu.addSeparator("Edit")
+	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
+	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
+	outputView.mainMenu.addSeparator("Help");
+	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
+	outputView.menuList.getInstance().push(outputView.mainMenu);
+
+
 			}
 		};
 
@@ -301,24 +347,24 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
-				var text_functionality = this.paper.text(textHorizontalPosition,80,"Functionality");
+				var text_functionality = this.paper.text(textHorizontalPosition,70,"Functionality");
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
-				var repo_functionality = this.paper.rect(nodeHorizontalPosition,90,nodeLength,nodeHeight,5)
+				var repo_functionality = this.paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
 					.attr({fill:"#a6c9e2"})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
 
-				var text_mediator = this.paper.text(textHorizontalPosition,150,"Mediator")
-					.hide();
-					// text_mediator.node.setAttribute("class","repository_text"));
-				var repo_mediator = this.paper.rect(nodeHorizontalPosition,600,nodeLength,nodeHeight,5)
-					.attr({fill:"white"})
-					.dblclick(onDblClick("Mediator"))
-					.hide();
+				var text_mediator = this.paper.text(textHorizontalPosition,130,"Mediator");
+					// .hide();
+					text_mediator.node.setAttribute("class","repository_text");
+				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
+					.attr({fill:"#ffffff"})
+					.dblclick(onDblClick("Mediator"));
+					// .hide();
 				repo_mediator.node.setAttribute("class","repository_element");	
-				// this.dataSet.push(repo_mediator);
+				this.dataSet.push(repo_mediator);
 			}
 		};
 		return tmp;
@@ -1381,7 +1427,146 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			},
 		// ============================================================================================================-	ond of edit by Włodek
-
+			
+			initToEdit: function initToEdit(node){
+				var titleText = 'Viewing a ' + node.nodeType + ' type node';
+				this.clearErrors();
+				this.cleanForm(true);
+				$('#ui-dialog-title-form').text(titleText);
+				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
+				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
+				this.adjustForm(node.nodeType);
+				$( "#f_mainTab_description" ).val(node.functionalDescription.description);
+				$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName);
+				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId);
+				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address);
+				$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation);
+				
+				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
+				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
+				this.appendIO(node.functionalDescription.inputs, "inputs");
+				this.appendIO(node.functionalDescription.outputs, "outputs");
+				this.appendNonFuncDesc(node.nonFunctionalDescription);
+				this.resultJSON.nodeId = node.nodeId;
+				this.resultJSON.nodeType = node.nodeType;
+				$( "#form" ).dialog( "open" );
+				
+				//  pola obecnie nieuÅ¼ywane:
+				//
+				// var condition = [];
+				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
+				// $( "#f_mainTab_alternatives" ).val(node.alternatives);
+				// if(node.condition){
+				// 	condition = node.condition.split(" ");
+				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
+				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
+				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
+				// }
+				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
+				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
+				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
+				// this.appendList(node.sources, "sources");
+			},
+			initBlank: function initBlank(nodeData){
+				var titleText = "Create a " + nodeData.nodeType + " type node";
+				this.clearErrors();
+				this.cleanForm(true);
+				this.resultJSON.nodeLabel = nodeData.label;
+				this.resultJSON.nodeType = nodeData.nodeType;
+				$('#ui-dialog-title-form').text(titleText);
+				this.adjustForm(nodeData.nodeType);
+				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
+				$( "#f_mainTab_nodeType_" + pf ).val(nodeData.nodeType);
+				$( "#form" ).dialog( "open" );
+			},
+			adjustForm: function adjustForm(nodeType){
+				switch(nodeType.toLowerCase()){
+					case "control" : 
+						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
+						$('#f_button_addServiceClass').hide();
+						$('#f_mainTab_scInfo').hide();
+						$('#tabs-2').hide();
+						break;
+					case "functionality" : 
+						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
+						$('#physicalDescriptionTab').addClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').hide();
+						break;
+					default: 
+						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
+						$('#physicalDescriptionTab').removeClass("ui-tabs-hide");
+						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
+						$('#f_button_addServiceClass').show();
+						$('#f_mainTab_scInfo').show();
+						$('#tabs-2').show();				
+						break;
+					}
+			},
+			//funkcje czyszczÄ…ce elementy formularza
+			clearNF: function clearNF(){
+				$( "#f_nonFunctionalDescriptionTab_NFProps tbody" ).empty();
+				$( "#nonFuncDescForm_" + pf )[0].reset();
+				this.resetSelectedNFPropertyIndex();
+			},
+			clearInputs: function clearInputs(){
+				$( "#inputForm_" + pf )[0].reset();
+				$( "#f_inputsTab_inputs tbody" ).empty();
+				this.resetSelectedInputIndex();
+			},
+			clearOutputs: function clearOutputs(){
+				$( "#outputForm_" + pf )[0].reset(); 	
+				$( "#f_outputsTab_outputs tbody" ).empty();
+				this.resetSelectedOutputIndex();
+			},
+			handleErrors: function handleErrors(array){
+				$.each(array, function(){						
+					var splitty = this.split("_"), 
+						id,
+						tabId = splitty[1].split("x")[0],
+						inputId;
+					$("#" + tabId).addClass("ui-state-error");
+					if(tabId==="inputsTab" || tabId==="outputsTab" || tabId==="nonFunctionalDescriptionTab"){
+						id = "#" + splitty[0] + "_" + splitty[1];
+						inputId = "#" + splitty[0] + "_" + tabId + "_" + splitty[2];
+						$(inputId).addClass("ui-state-error");
+						$(inputId+"_validation_" +pf ).text(splitty[3]);
+					}
+					else{
+						id = "#" + splitty[0] + "_" + splitty[1] + "_" + splitty[2];
+						$( id+"_validation_" + pf ).text(splitty[3]);
+					}	
+					$( id + "_" + pf ).addClass( "ui-state-error" );
+				});
+			},
+			clearErrors: function clearErrors(){
+				$("*").removeClass("ui-state-error");
+				$('td[id$="_validation_' + pf + '"]').text("");
+			},
+			//argument total decyduje, czy ma byÄ‡ skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
+			cleanForm: function cleanForm(total){
+				if( !total )
+					var temp = this.resultJSON.nodeId;
+				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
+				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
+				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
+				this.clearInputs();
+				this.clearOutputs();
+				this.clearNF();
+				if( !total )
+					this.resultJSON.nodeId = temp;
+				// $( "#f_mainTab_source" ).val("");
+				// $( "#f_mainTab_sources" ).empty();
+				$( "#f_mainTab_sClasses" ).empty();
+				// $( "#f_functionalDescription_mKeywords" ).empty();
+				$( "#mainForm_" + pf )[0].reset();
+				$( "#physDescForm_" + pf )[0].reset();
+				$tabs.tabs('select', 0);
+			},
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){
@@ -2625,6 +2810,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				newNode.controlType = node.controlType;
 				newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
+				newNode.hasSubgraph = !isEmpty(node.subgraph);
 				//TU BYDEM DZIABAÅ? [BÅ‚aÅ¼ej] (PorzÄ…dkowanie wyÅ›wietlania data flow)
 				newNode.inputs = [];
 				$.each(node.functionalDescription.inputs, function(){
@@ -2754,8 +2940,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				// 	a(node.id)
 				var id = node.id,
 					radius = 4,
+					color = ( node.type.toLowerCase() == "mediator" ? "white" : "#fbec88" ),
 					paper = paper || view.paper,
-					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#fbec88"),
+					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
 					i, j, k, l,
@@ -2768,7 +2955,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				;
 				node.mainShape = rect;
 				node.raph_label = label;
-								
+
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: id});
@@ -2787,21 +2974,24 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				oDist = node.width/(output_length+1);
 
 				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#fbec88"});
+					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill': color});
 					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
 				}
 				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#fbec88"});
+					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill': color});
 					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
 				}
 
 				if(!drawNotForRepo){
-					var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
-					img_subgraph.node.setAttribute("class", id+" subgraph");
-					img_subgraph.dblclick(function(){
-						// a("subgraph");
-						gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
-					});
+
+					if( node.hasSubgraph ){
+						var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
+						img_subgraph.node.setAttribute("class", id+" subgraph");
+						img_subgraph.dblclick(function(){
+							// a("subgraph");
+							gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
+						});
+					}
 
 					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
 						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
@@ -2934,6 +3124,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		};
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
@@ -3088,7 +3279,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		deleteNode : function deleteNode(node){
 			gui.controler.reactOnEvent("NodeDeleted");
-
 		},
 
 		addStartStop : function addStartStop(obj){
@@ -3253,9 +3443,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					that.hideEdges();
 
 				},
-				// stop kurwa
-				stop = function stop(x,y,evt){
+				stop = function stop(evt){
 					ready2move = false;
+					gui.controler.reactOnEvent("NODESELECTED");
 					if(itWasJustAClick){
 						if(ctrl){
 							if(!flag) {
@@ -3264,23 +3454,21 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 						else {
 							gui.controler.reactOnEvent("DESELECT");
-							// gui.controler.reactOnEvent("ESCAPE");
 							node.highlight2();
-							gui.controler.reactOnEvent("NODESELECTED", node);
-							node.selected = true;
 						}
 						that.showEdges();
+						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
-						gui.controler.reactOnEvent("NodeMoved");
-						gui.controler.reactOnEvent("DESELECT");
+						// gui.controler.reactOnEvent("NodeMoved");
 					}
+					that.updateEdges();
 				}
 
 				if(getType(element) === "array"){
 					$.each(element, function(){
 						this.drag(move, start, stop);
-					})
+					});
 				} else
 					element.drag(move, start, stop);
 		},
@@ -3294,7 +3482,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				glows = [],
 				bbox,
 				start = function start(){
-					if(gui.view.mode === "CF" || isStartNode){
+					if(gui.view.mode == "CF" || isStartNode){
 						var canvas = $(gui.view.paper.canvas);
 						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
 						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
@@ -3305,7 +3493,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						arrow = gui.view.paper.arrow(cx, cy, cx, cy, 4);
 
-						if( isStartNode ){
+						if( isStartNode && gui.view.mode == "DF" ){
 							$.each(gui.view.current_graph_view.nodes, function(i, v){
 								$.each(v.inputs, function(){
 									// console.log(v.id, this.id);
@@ -3313,6 +3501,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 										glows.push( this.node.glow({color: "purple"}) );
 									// }
 								});
+							});
+						}
+						if( gui.view.mode == "CF" ){
+							$.each(gui.view.current_graph_view.nodes, function(i, v){
+								console.log(this.id, sourceNode.id)
+								if(this != sourceNode && !gui.view.getCFEdge(sourceNode.id, this.id) && (this.type.toLowerCase() != "control" || (typeof this.controlType != "string" || this.controlType.toLowerCase() != "#start" ) ) )
+								glows.push( this.mainShape.glow({color: "green"}) );
 							});
 						}
 					}
@@ -3336,7 +3531,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						arrow[0].remove();
 						arrow[1].remove();
 					} catch(e){
-						console.log(e);
+						// console.log(e);
 					}
 
 					if(gui.view.mode === "CF"){
@@ -3354,7 +3549,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
 							// alert("HURA");
 
-							if(confirm("Czy chcesz dodaÄ‡ nowe wyjÅ›cie w wierzchoÅ‚ku o etykiecie "+sourceNode.label+" ?")){
+							if(confirm("Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie "+sourceNode.label+" ?")){
 								gui.controler.reactOnEvent("addOutput", {
 									sourceId : sourceNode.id,
 									targetId : resultObj.targetId,
@@ -3407,8 +3602,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					output = sourceNode.getOutputById(this.node.classList[2]);
 
 					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						if(v.id != sourceNode.id)
-							glows.push( v.mainShape.glow({width: "1", color: "purple"}) );
+						// if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || (v.type.toLowerCase() == "control" && typeof v.controlType == "string" && v.controlType.toLowerCase() != "#start")))
+						if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" )))
+							glows.push( v.mainShape.glow({color: "purple"}) );
 						$.each(v.inputs, function(){
 							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
 								glows.push( this.node.glow({color: "green"}) );
@@ -3455,7 +3651,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 					else {
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
+						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
 							if(confirm("Czy chcesz dodać nowe wejście w wierzchołku o etykiecie "+targetNode.label+" ?")){
 								gui.controler.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
@@ -3466,7 +3662,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 
 						// $("#f_addInputForm")
-						// wyrmularz, z uzupeÅ‚nionymi polami
+						// wyrmularz, z uzupełnionymi polami
 						// confirm -> controler i update node
 						// addConnectionDF
 					}
@@ -3491,13 +3687,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		addCFEdge : function addCFEdge(data, firstLoad){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
-			if(foundedEdge){
-				gui.controler.reactOnEvent("error", "Prubójesz dodać krawędź, która już istnieje.");
+			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
+				gui.logger.warning("Nie można przekazać kontroli do wierzchołka startowego.");
+			}
+			else if(foundedEdge){
+				gui.logger.warning("Próbujesz dodać krawędź, która już istnieje.");
 			}
 			else {
 				var edgeObject = {
 					arrow : undefined,
 					arrowGlow : gui.view.paper.set(),
+					highlighted : false,
 					source : data.source,
 					target : data.target,
 					view : this,
@@ -3532,7 +3732,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							// console.log(Wrong Argument)
 						}
 					},
-					update : function(){
+					update : function(evt){
 						var bestConnectors = this.view.getBestConnectors(
 							this.source.getPossiblePositionsOfConnectors(),
 							this.target.getPossiblePositionsOfConnectors()
@@ -3550,19 +3750,21 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
 						var that = this;
 						var selectArrow = function(e){
-							gui.controler.reactOnEvent("ESCAPE");
-							gui.controler.reactOnEvent("DESELECT");
-							that.arrowGlow.remove();
+							if(!e.ctrlKey){
+								gui.controler.reactOnEvent("ESCAPE");
+								that.arrowGlow.remove();
+							}
 							that.arrowGlow = gui.view.paper.set();
 							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
 							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
 							gui.controler.reactOnEvent("EDGESELECTED", that);
 							e = e || window.event;
 							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							that.highlighted = true;
 							return false;
 						}
-						this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
@@ -3589,6 +3791,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var	edgeObject = {
 						arrow : undefined,
 						arrowGlow : gui.view.paper.set(),
+						highlighted : false,
 						sourceId: data.sourceId,
 						targetId: data.targetId,
 						output : data.output,
@@ -3650,25 +3853,28 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow = this.view.visualiser.drawEdge(coords);
 							var that = this;
 							var selectArrow = function(e){
-								gui.controler.reactOnEvent("ESCAPE");
-								gui.controler.reactOnEvent("DESELECT");
-								that.arrowGlow.remove();
+								if(!e.ctrlKey){
+									gui.controler.reactOnEvent("ESCAPE");
+									that.arrowGlow.remove();
+								}
 								that.arrowGlow = gui.view.paper.set();
 								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
 								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
 								gui.controler.reactOnEvent("EDGESELECTED", that);
 								e = e || window.event;
 								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+								that.highlighted = true;
 								return false;
 							}
-							this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
 							this.arrow[0].click(selectArrow);
 							this.arrow[1].click(selectArrow);
 							this.arrowGlow.click(selectArrow);
+							this.highlighted = false;
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
@@ -3954,11 +4160,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		deselectAll : function deselectAll(){
 			$.each(this.current_graph_view.nodes, function(k, v){
-				if(v.selected){
-					v.selected = false;
-				}else{
-					v.removeHighlight();
-				}
+				v.removeHighlight();
 			});
 			this.tooltip.close();
 		},
@@ -4156,13 +4358,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		})(),
 		contextMenu : function contextMenu(listenedObjId){
-			/* ContextMenu v2.0
-				* by BÅ‚aÅ¼ej WolaÅ„czyk (blazejwolanczyk@gmail.com)
-				* "Lasciate ogni speranza, voi ch'entrate"
-				* SUBMITTED: 02.08.2012
-				* REQUIRED PARAMS: 
+			/* 
+				REQUIRED PARAMS: 
 				* - listenedObjId (id of object to witch we attach menu)
-				* OUTPUT:
+				OUTPUT:
 				* - object
 				* -> open (function([mouse event]) displaying menu)
 				* -> close (function() hiding menu)
@@ -4170,7 +4369,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
 				* -> addSeparator (function() adding separator to current level of menu)
 				* -> getOption (function(label) returning option with specified label at currrent level of option tree)
-				*/
+			*/
 
 			//structure holder object
 			function option(id, label, invokedEvent, eventObject, display, level){
@@ -4368,51 +4567,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.bottomBar = drawBottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(189,0,"top_menu_"+pf,"polish");
-	outputView.mainMenu.addGroup("File");
-	outputView.mainMenu.addGroup("Edit");								
-	outputView.mainMenu.addGroup("Graph");
-	outputView.mainMenu.addGroup("View");
-	outputView.mainMenu.addGroup("Help");
-	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
-	outputView.mainMenu.addSeparator("File");
-	outputView.mainMenu.addOption("File", "Load", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addOption("File", "Save", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
-		var nodeType="Service";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
-			}, "CTRL+N+S");
-	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
-	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
-	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
-	outputView.mainMenu.addSeparator("View");
-	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
-	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");									
-	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
-	outputView.mainMenu.addSeparator("Edit");
-	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
-	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
-	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy napewno? Ten clear nie działa jak trzeba!" ); if(clearer)gui.view.removeAllGraphs();},"");
-	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
-	outputView.mainMenu.addSeparator("Help");
-	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
-	outputView.menuList.getInstance().push(outputView.mainMenu);
+	outputView.mainMenu = menu(189, 0, "top_menu_"+pf, "polish");
+	outputView.mainMenu.init(); 
 
 	var	lastDragX,
 		lastDragY,
