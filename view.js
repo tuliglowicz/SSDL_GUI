@@ -148,6 +148,57 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$('div.mMenuContener').hide();
 				$('div.mMenuSubcontener').hide();
 				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+			},
+
+			init: function init(){
+
+
+				outputView.mainMenu.addGroup("File");
+	outputView.mainMenu.addGroup("Edit");
+	outputView.mainMenu.addGroup("Graph");
+	outputView.mainMenu.addGroup("View");
+	outputView.mainMenu.addGroup("Help");
+	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
+	outputView.mainMenu.addSeparator("File");
+	outputView.mainMenu.addOption("File", "Load", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addOption("File", "Save", function(){}, "");
+	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
+	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
+		var nodeType="Service";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
+			}, "CTRL+N+S");
+	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
+		var label = prompt("Enter a label for the new node:");
+		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
+	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
+	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
+	outputView.mainMenu.addSeparator("View");
+	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
+	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
+	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
+	outputView.mainMenu.addSeparator("Edit");
+	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
+	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
+	outputView.mainMenu.addSeparator("Edit")
+	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
+	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
+	outputView.mainMenu.addSeparator("Help");
+	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
+	outputView.menuList.getInstance().push(outputView.mainMenu);
+
+
 			}
 		};
 
@@ -4362,50 +4413,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
 	outputView.mainMenu = menu(189, 0, "top_menu_"+pf, "polish");
-	outputView.mainMenu.addGroup("File");
-	outputView.mainMenu.addGroup("Edit");
-	outputView.mainMenu.addGroup("Graph");
-	outputView.mainMenu.addGroup("View");
-	outputView.mainMenu.addGroup("Help");
-	outputView.mainMenu.addOption("File", "New Node" , function(){}, "");
-	outputView.mainMenu.addSeparator("File");
-	outputView.mainMenu.addOption("File", "Load", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Load","From DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Load","From File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addOption("File", "Save", function(){}, "");
-	outputView.mainMenu.addSubOption("File","Save","To DB", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To File", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
-	outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
-		var nodeType="Service";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
-			}, "CTRL+N+S");
-	outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-		var label = prompt("Enter a label for the new node:");
-		if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
-	outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
-	outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
-	outputView.mainMenu.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
-	outputView.mainMenu.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
-	outputView.mainMenu.addSeparator("View");
-	outputView.mainMenu.addOption("View", "Console" , function(){gui.logger.open()}, "");
-	outputView.mainMenu.addOption("Edit","Undo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Undo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
-	outputView.mainMenu.addOption("Edit","Redo",function(){},"");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "One step", function(){alert("Not implemented yet!");}, "CTRL+Z");
-	outputView.mainMenu.addSubOption("Edit", "Redo", "All", function(){alert("Not implemented yet!");}, "CTRL+Z+A");
-	outputView.mainMenu.addSeparator("Edit");
-	outputView.mainMenu.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
-	outputView.mainMenu.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
-	outputView.mainMenu.addSeparator("Edit")
-	outputView.mainMenu.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
-	outputView.mainMenu.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
-	outputView.mainMenu.addSeparator("Help");
-	outputView.mainMenu.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
-	outputView.menuList.getInstance().push(outputView.mainMenu);
+	outputView.mainMenu.init(); 
 
 	var	lastDragX,
 		lastDragY,
