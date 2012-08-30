@@ -1457,16 +1457,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			},
 			//argument total decyduje, czy ma być skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
 			cleanForm: function cleanForm(total){
-				if( !total )
-					var temp = this.resultJSON.nodeId;
+				if( !total ) var temp = this.resultJSON.nodeId;
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
 				this.clearInputs();
 				this.clearOutputs();
 				this.clearNF();
-				if( !total )
-					this.resultJSON.nodeId = temp;
+				if( !total ) this.resultJSON.nodeId = temp;
 				// $( "#f_mainTab_source" ).val("");
 				// $( "#f_mainTab_sources" ).empty();
 				$( "#f_mainTab_sClasses_" + pf ).empty();
@@ -1474,6 +1472,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#mainForm_" + pf )[0].reset();
 				$( "#physDescForm_" + pf )[0].reset();
 				$( "#f_mainTab_controlType_" + pf ).val("");
+				$( "#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
 			},
 			appendIO: function appendIO(array, type){
@@ -1509,7 +1508,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			},
 			appendList: function appendList(array, type){
-				var input, that = this;
+				var that = this, index;
 				// if(type === "sources"){
 				// 	$.each(array, function(){
 				// 		input = this;
@@ -1519,9 +1518,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				// } else 
 				if(type === "serviceClasses"){
 					$.each(array, function(){
-						input = this;
-						that.funcDescJSON.serviceClasses.push(input);
-						$( "#f_mainTab_serviceClass_list_" + pf ).append("<span id=\"sc_"+ input + "\" class=\"clickable\">" + input + ", </span>"); 	
+						index = that.funcDescJSON.serviceClasses.length;
+						that.funcDescJSON.serviceClasses.push(this);
+						$( "#f_mainTab_serviceClass_list_" + pf ).append("<span id=\"f_sc_"+ index + "_" + pf + "\" class=\"clickable\">" + this + ", </span>"); 	
 					});
 				}
 				// else if(type === "metaKeywords"){
@@ -1612,30 +1611,25 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			},
 		//Poniższe funkcje sprawdzają, czy string/input/output/non functional property istnieje na zadanej liście
 			stringExists: function stringExists(obj, array){
+				var result = false;
 				$.each(array, function(){
-					if (this && this === obj) return true;
+					if (obj === this) result = true;
 				});
-				return false;
+				return result;
 			},
 			ioExists: function ioExists(obj, array){
+				var result = false;
 				$.each(array, function(){
-					if (this && this.id === obj.id) return true;
+					if (this && this.id == obj.id) result = true;
 				});
-				return false;
+				return result;
 			},
 			nonFuncExists: function nonFuncExists(obj, array){
+				var result = false;
 				$.each(array, function(){
-					if (this && this.name === obj.name) return true;
+					if (this && this.name == obj.name) result = true;
 				});
-				return false;
-			},
-		//poniższa funkcja zwraca indeks elementu o zadanym id/name na liście
-			stringExistsIndex: function stringExistsIndex(obj, array){
-				var namey;
-				for(namey in array){
-					if (array[namey] === obj) return namey;
-				}
-				return -1;
+				return result;
 			},
 			clearInputSelectionInTable: function clearInputSelectionInTable(){
 				$.each($("#f_inputsTab_inputs_" + pf + " tbody").children(), function(){
@@ -1758,8 +1752,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			addServiceClass: function addServiceClass(){
 				var input = $("#f_mainTab_serviceClass_" + pf ).val(), index;
 				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
-					this.funcDescJSON.serviceClasses.push(input);
 					index = this.funcDescJSON.serviceClasses.length;
+					this.funcDescJSON.serviceClasses.push(input);
 					$( "#f_mainTab_serviceClass_list_" + pf ).append("<span id=\"f_sc_"+ index + "_" + pf + "\" class=\"clickable\">" + input + ", </span>"); 	
 				}
 				$("#f_mainTab_serviceClass_" + pf ).val("");
@@ -2046,8 +2040,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				this.resetSelectedGlobalNFPropertyIndex();
 			},
 			removeServiceClass: function removeServiceClass(serviceClass){
-				var id = serviceClass.attr("id").split("_")[2];
-				var index = this.stringExistsIndex(id, this.funcDescJSON.serviceClasses);
+				var index = serviceClass.attr("id").split("_")[2];
 				this.funcDescJSON.serviceClasses[index] = undefined; // :)
 				serviceClass.remove();
 			},
