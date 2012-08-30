@@ -2846,7 +2846,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.menu.addOption('Copy');
 							this.menu.addOption('Copy with reference');
 							this.menu.addOption('Paste');
-							this.menu.addOption('Delete',"DELETEDNODE",this);
+							this.menu.addOption('Delete',"DELETE");
 						}
 					}
 				}
