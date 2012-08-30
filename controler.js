@@ -96,10 +96,27 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		return resultObject;
 	}
 	function initLogger(paper) {
+		/* Logger 2.0 (Błażej)
+		* SUBMITTED: 23.08.2012
+		* REQUIRED PARAMS: 
+		* - paper (on which we will draw button opening the console)
+		* REQUIRED VARIABLES SET BY HIGHER LEVEL:
+		* - pf (number for id randomization)
+		* REQUIRED DOM ELEMENTS:
+		* - div with id 'console_'+pf
+		* AVIABLE FUNCTIONS:
+		* - info(information string [, title string])
+		* - warning(warning string [, title string])
+		* - error(error string [, title string])
+		*/
 		var h = paper.height,
 			lId = "#console_" + pf,
 			eId = "#console_entries_" + pf,
 			bPath = 'M' + (paper.width - 170) + ' 0 Q' + (paper.width - 170) + ' 25 ' + (paper.width - 145) + ' 25 L' + (paper.width - 45) + ' 25 Q' + (paper.width - 20) + ' 25 ' + (paper.width - 20) + ' 0 Z',
+			alertbg = paper.path(bPath).attr({
+				fill: "#FF0",
+				"fill-opacity": 0.0
+			}),
 			buttonBG = paper.path(bPath).attr({
 				fill: "#222",
 				"fill-opacity": .75
@@ -130,7 +147,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			bImgs = [iImg, wImg, eImg],
 			bCount = [iCounter, wCounter, eCounter],
 			buttonBG = buttonBG,
-			bGlow = null,
 			animation = null,
 			curElCount = 0,
 			colors = ['#FAFAFF', '#FFFFE0', '#FFFAFA'],
@@ -208,7 +224,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			fade = function() {
 				if (buttonBG.attr("fill-opacity") == 1) {
 					buttonBG.animate({
-						"fill-opacity": 0.4
+						"fill-opacity": 0.5
 					}, 700);
 				} else {
 					buttonBG.animate({
@@ -246,9 +262,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				if (title) text = "<b>" + title + "</b><br/>" + text;
 				counter[1]++;
 				redrawCounter(1);
-				if (bGlow) bGlow.remove();
-				bGlow = buttonBG.glow().attr({
-					fill: "#FFFF00"
+				alertbg.animate({
+					"fill-opacity": 1.0
 				});
 				//here adding to div and dTabs
 				addMessage(text, 1);
@@ -258,9 +273,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				if (title) text = "<b>" + title + "</b><br/>" + text;
 				counter[2]++;
 				redrawCounter(2);
-				if (bGlow) bGlow.remove();
-				bGlow = buttonBG.glow(10, true).attr({
-					fill: "#FFFF00"
+				alertbg.animate({
+					"fill-opacity": 1.0
 				});
 				//here adding to div and dTabs
 				addMessage(text, 2);
@@ -385,28 +399,26 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			obj.open();
 		});
 		mask.mouseover(function() {
-			if (bGlow) bGlow.remove();
 			if (animation) clearInterval(animation);
 			buttonBG.animate({
 				"fill-opacity": 0.75
 			}, 500);
+			alertbg.animate({
+				"fill-opacity": 0.0
+			});
 			$(mask.node).css('cursor', 'pointer');
-			bGlow = buttonBG.glow();
 		});
 		mask.mouseout(function() {
 			$(mask.node).css('cursor', 'default');
-			bGlow.remove();
 		});
-
 		//context menu
-		var menu = gui.view.contextMenu("console_" + pf);
+		var menu = gui.view.contextMenu("console_" + pf, gui.view);
 		menu.addOption(language[gui.language].logger.close, close);
-
 		//object return
 		return obj;
-	}
+	};
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
-		/* 
+		/* DEPLOYER 2.0 (Błażej)
 		 * REQUIRED PARAMS:
 		 * - ssdlJson (jSon form of SSDL XML)
 		 * - canvasW (width of canvas we will be drawing on)
@@ -421,8 +433,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		 * -> coords (array{nodeID, nodeX, nodeY})
 		 * -> getCoords (function(id) returning array{nodeX, nodeY} for specified ID)
 		 */
-		//-MAIN-FUNCTION--------------------->>>
 
+		//-MAIN-FUNCTION--------------------->>>
 		function run() { //deploying main ssdl graph
 			var jnodes = ssdlJson.nodes,
 				nodeArr = getNodes(jnodes);
@@ -462,9 +474,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 			}
 			return outObj;
-		}
+		};
 		//-PARSING-FUNCTIONS----------------->>>
-
 		function node(id, sources) { //NODE OBJECT
 			this.id = id;
 			this.parents = [];
@@ -472,8 +483,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			this.sources = sources;
 			this.level = -1;
 			this.column = -1;
-		}
-
+		};
 		function getNodes(jsonNodes) { //building nodes list basing on JSon form of SSDL
 			var nodes = [];
 			var i = 0;
@@ -482,8 +492,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				i++;
 			});
 			return nodes;
-		}
-
+		};
 		function getNodeById(nodeArray, nId) { //searching nodes list for node with specific id
 			var ret = null
 			$.each(nodeArray, function() {
@@ -493,8 +502,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 			});
 			return ret;
-		}
-
+		};
 		function processNodes(nodeArray) { //setting flow for each node
 			$.each(nodeArray, function() {
 				var tempObj = this;
@@ -508,8 +516,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					}
 				});
 			});
-		}
-
+		};
 		function postProcessNode(node) { //assigning node level to node and its parents/children
 			if (node.id == "#Start") { //if in root assigning level 0
 				node.level = 0;
@@ -524,8 +531,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					this.level = lowerLevel + 1;
 				}
 			});
-		}
-
+		};
 		function postProcessNodes(nodeArray) { //creating graphMatrix and subgraph Matrixes
 			var graphMatrix = [
 				[]
@@ -548,17 +554,15 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			graphMatrix[stop.level] = [stop];
 			stop.column = 0;
 			return graphMatrix;
-		}
+		};
 		//-AUXILIARY-FUNCTIONS--------------->>>
-
 		function clone(tab) { //array shallow cloning function
 			var result = [];
 			$.each(tab, function(i, v) {
 				result.push(v);
 			});
 			return result;
-		}
-
+		};
 		function cloneObj(obj) { //object deep cloning function
 			var object = {};
 			object.o = obj;
@@ -568,14 +572,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			var clone = jQuery.extend(true, {}, object);
 			var result = clone.o;
 			return result;
-		}
+		};
 		//-DEPLOYMENT-ALGORITHM-FUNCTIONS---->>>
-
 		function individual(deploymentMatrix) { //INDIVIDUAL OBJECT
 			this.deploymentMatrix = deploymentMatrix;
 			this.rating = null;
-		}
-
+		};
 		function rate(individual, graphMatrix) { //rating individual by square criterion
 			var deploymentMatrix = individual.deploymentMatrix,
 				len = deploymentMatrix.length,
@@ -611,9 +613,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			}
 			individual.rating = rating;
 			return rating;
-		}
+		};
 		//-BRUTEFORCE-VERSION---------------->>>
-
 		function bruteForce(graphMatrix) { //searching for best deployment by bruteForce
 			var len = graphMatrix.length,
 				matrix = [
@@ -665,8 +666,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 			}
 			return bestIndividual;
-		}
-
+		};
 		function generatePossibleRows(possibleIds, combination, output, left) { //generating table of possible rows
 			if (left == 0) { //if combination was completed
 				output.push(combination); //add it to output matrix
@@ -681,8 +681,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					generatePossibleRows(ids, newCombination, output, left - 1); //send combination further
 				}
 			}
-		}
-
+		};
 		function generateDepMat(bfMatrix, combination, output, row) { //generating deployment matrixes for individuals
 			if (row == bfMatrix.length) { //if combination was completed
 				output.push(combination); //add it to output table
@@ -694,9 +693,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					generateDepMat(bfMatrix, newCombination, output, row + 1); //send combination further
 				}
 			}
-		}
+		};
 		//-GENETIC-VERSION------------------->>>
-
 		function genetic(graphMatrix, generationsAmount, individualsAmount, rivalsAmount, mutationRatio, hybridizationRatio) {
 			var individuals = [];
 			var oldIndividuals = null;
@@ -751,8 +749,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			}
 			// console.info("Best deployment discovered in " + bestGen + "/" + generationsAmount + " generation");
 			return bestIndividual;
-		}
-
+		};
 		function select(individuals, indAm, rivalsAmount) { //selection by tournament
 			rand = Math.floor((Math.random() * indAm));
 			bestIndividual = individuals[rand];
@@ -766,8 +763,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 			}
 			return new individual(bestIndividual.deploymentMatrix.slice());
-		}
-
+		};
 		function mute(individual1) { //mutation by switching 2 elements of random level
 			deploymentMatrix = individual1.deploymentMatrix.slice();
 			individual2 = new individual(deploymentMatrix);
@@ -778,8 +774,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			individual2.deploymentMatrix[rand][rand2] = individual2.deploymentMatrix[rand][rand3];
 			individual2.deploymentMatrix[rand][rand3] = temp;
 			return individual2;
-		}
-
+		};
 		function hybridize(individual1, individual2) { //hybridization
 			len = individual2.deploymentMatrix.length;
 			rand1 = Math.floor((Math.random() * len));
@@ -787,8 +782,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			for (var i = rand1; i < rand2; i++) {
 				individual2.deploymentMatrix[i] = clone(individual1.deploymentMatrix[i]);
 			}
-		}
-
+		};
 		function generateRandom(graphMatrix) { //generating random deployment matrix
 			len = graphMatrix.length;
 			matrix = [
@@ -813,9 +807,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				matrix[i] = tab2;
 			}
 			return matrix;
-		}
+		};
 		//-COMMON-FINISH--------------------->>>
-
 		function generateCoords(graphMatrix, bestInd) { //generating ID's -> coordinates table
 			var w = canvasW;
 			var width, height, spacing, hSpacing;
@@ -866,7 +859,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		}
 		//-PLUGIN-RUN------------------------>>>
 		return run();
-	}
+	};
 	function navigator() {
 		var tmp = {
 			name: "navigator",
