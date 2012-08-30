@@ -1,64 +1,63 @@
 
-// pomocnicze skrĂłty
+// pomocnicze skróty
 var a = alert;
 var jstr = JSON.stringify;
-// eof pomocnicze skrĂłty
+// eof pomocnicze skróty
 
 	// W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
-function skeletonAppender(){
-	var content = "<div id='form' class='ui-dialog-content ui-widget-content'></div>"
-		+ "<div id='f_dialog_confirm1' title='Remove all data?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You are about to clear the entire form. Are you sure?</span></p></div>"
-		+ "<div id='f_dialog_confirm2' title='Are you sure?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You will lose all data and this action cannot be cancelled. Do you really want to do this?</span></p></div><div id='f_dialog_fine' title='As you wish.'><p>FINE.</p></div>"
-		+ "<div id='f_addInputForm' class='ui-dialog-content ui-widget-content' title='Add a new input'></div><div id='f_addOutputForm' class='ui-dialog-content ui-widget-content' title='Add a new output'></div>"
-		+ "<div id='f_addNFPropertyForm' title='Add a new non functional property'></div><div id='f_addGlobalNFPropertyForm' title='Add a new graph non functional property'></div><div id='f_addInputVariableForm' title='Add a new non functional property'></div>"
-		+ "<div id='f_globalNFPropertiesForm' title='Graph non functional properties'></div><div id='f_inputVariablesForm' title='Input variables'></div>"
-		+ "<div id='f_graphSaveParamsForm' title='Graph name & description'></div>";
+function skeletonAppender(pf){
+	var content = "<div id='form_" + pf + "' class='ui-dialog-content ui-widget-content'></div>"
+		+ "<div id='f_dialog_confirm1_" + pf + "' title='Remove all data?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You are about to clear the entire form. Are you sure?</span></p></div>"
+		+ "<div id='f_dialog_confirm2_" + pf + "' title='Are you sure?'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>You will lose all data and this action cannot be cancelled. Do you really want to do this?</span></p></div><div id='f_dialog_fine_" + pf + "' title='As you wish.'><p>FINE.</p></div>"
+		+ "<div id='f_addInputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new input'></div><div id='f_addOutputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new output'></div>"
+		+ "<div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'></div><div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'></div><div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'></div>"
+		+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='Graph non functional properties'></div><div id='f_inputVariablesForm_" + pf + "' title='Input variables'></div>"
+		+ "<div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'></div>";
 
 	$("body").append(content);
 };
-function formAppender(){
-	var mainContent = "<div id='tabs' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>"
+function formAppender(pf){
+	var mainContent = "<div id='tabs_" + pf + "' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>"
 		 + "<ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'>"
-			 + "<li class='ui-state-default ui-corner-top ui-tabs-selected ui-state-active' id='mainTab'><a href='#tabs-1'>Main</a></li>"
-			 + "<li id='physicalDescriptionTab'><a href='#tabs-2'>Service description</a></li>"
-			 + "<li id='inputsTab'><a href='#tabs-3'>Inputs</a></li>"
-			 + "<li id='outputsTab'><a href='#tabs-4'>Outputs</a></li>"
-			 + "<li id='nonFunctionalDescriptionTab'><a href='#tabs-5'>Non-functional description</a></li>"
-		 + "</ul><div id='tabs-1' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
-			 + "</br><button id='f_mainTab_nextButton' style='float:right'>NEXT</button></br></div>"
-		 + "<div id='tabs-2' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
-			 + "</br><button id='f_physicalDescriptionTab_nextButton' style='float: right'>NEXT</button><button id='f_physicalDescriptionTab_backButton' style='float: right'>BACK</button></br></div>"
-		 + "<div id='tabs-3' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='inputs-content' class='ui-widget'>"
-					 + "<p>Defined inputs:</p><table id='f_inputsTab_inputs' class='text ui-widget-content ui-corner-all'>" //<th>Id</th>
-						 + "<thead><tr class='ui-widget-header '><th>Label</th><th>Class</th><th>DataType</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-					 + "<button id='f_inputsTab_openAddInputForm'>Add new</button><button id='f_inputsTab_openEditInputForm'>Edit</button><button id='f_inputsTab_deleteThisInput'>Delete</button>"
-				 + "</div></br><button id='f_inputsTab_nextButton' style='float: right'>NEXT</button><button id='f_inputsTab_backButton' style='float: right'>BACK</button></br>"
-			 + "</p></div><div id='tabs-4' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
-				 + "<div id='outputs-content' class='ui-widget'><p>Defined outputs:</p>"
-					 + "<table id='f_outputsTab_outputs' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th>Label</th><th>Class</th><th>DataType</th></tr></thead><tbody></tbody></table></br>" //<th>Id</th>
-					 + "<button id='f_outputsTab_openAddOutputForm'>Add new</button><button id='f_outputsTab_openEditOutputForm'>Edit</button><button id='f_outputsTab_deleteThisOutput'>Delete</button>"	
-				 + "</div></br><button id='f_outputsTab_nextButton' style='float: right'>NEXT</button><button id='f_outputsTab_backButton' style='float: right'>BACK</button></br>"
-			 + "</p></div><div id='tabs-5' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
-				 + "<div id='nonFunctionalProperties-content' class='ui-widget'><p>Defined Non Functional Properties:</p>"
-					 + "<table id='f_nonFunctionalDescriptionTab_NFProps' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th>Weight</th><th>Name</th><th>Relation</th><th>Unit</th><th>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-				 + "<button id='f_nonFunctionalDescriptionTab_openAddNFPropertyForm'>Add new</button><button id='f_nonFunctionalDescriptionTab_openEditNFPropertyForm'>Edit</button><button id='f_nonFunctionalDescriptionTab_deleteThisNFProperty'>Delete</button>"	
-				 + "</div></br><button id='f_nonFunctionalDescriptionTab_backButton' style='float: right'>BACK</button></br></p></div></div>"
-	 + "<input type='submit' name='f_button_sumbitAllButton' id='f_button_sumbitAllButton' value='Submit all' style='float:right;'/>"
-	 + "<input type='reset' name='f_button_resetAllButton' id='f_button_resetAllButton' value='Reset all' style='float:right;'/></br>";
-	$("#form").prepend(mainContent);
+			 + "<li class='ui-state-default ui-corner-top ui-tabs-selected ui-state-active' id='mainTab_" + pf + "'><a href='#tabs-1_" + pf + "'>Main</a></li>"
+			 + "<li id='physicalDescriptionTab_" + pf + "'><a href='#tabs-2_" + pf + "'>Service description</a></li>"
+			 + "<li id='inputsTab_" + pf + "'><a href='#tabs-3_" + pf + "'>Inputs</a></li>"
+			 + "<li id='outputsTab_" + pf + "'><a href='#tabs-4_" + pf + "'>Outputs</a></li>"
+			 + "<li id='nonFunctionalDescriptionTab_" + pf + "'><a href='#tabs-5_" + pf + "'>Non-functional description</a></li>"
+		 + "</ul><div id='tabs-1_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
+			 + "</br><button id='f_mainTab_nextButton_" + pf + "' style='float:right'>NEXT</button></br></div>"
+		 + "<div id='tabs-2_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
+			 + "</br><button id='f_physicalDescriptionTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_physicalDescriptionTab_backButton_" + pf + "' style='float: right'>BACK</button></br></div>"
+		 + "<div id='tabs-3_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='inputs-content_" + pf + "' class='ui-widget'>"
+					 + "<p>Defined inputs:</p><table id='f_inputsTab_inputs_" + pf + "' class='text ui-widget-content ui-corner-all'>" //<th>Id</th>
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Label</th><th class='tabField'>Class</th><th class='tabField'>DataType</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+					 + "<button id='f_inputsTab_openAddInputForm_" + pf + "'>Add new</button><button id='f_inputsTab_openEditInputForm_" + pf + "'>Edit</button><button id='f_inputsTab_deleteThisInput_" + pf + "'>Delete</button>"
+				 + "</div></br><button id='f_inputsTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_inputsTab_backButton_" + pf + "' style='float: right'>BACK</button></br>"
+			 + "</p></div><div id='tabs-4_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
+				 + "<div id='outputs-content_" + pf + "' class='ui-widget'><p>Defined outputs:</p>"
+					 + "<table id='f_outputsTab_outputs_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Label</th><th class='tabField'>Class</th><th class='tabField'>DataType</th></tr></thead><tbody></tbody></table></br>" //<th>Id</th>
+					 + "<button id='f_outputsTab_openAddOutputForm_" + pf + "'>Add new</button><button id='f_outputsTab_openEditOutputForm_" + pf + "'>Edit</button><button id='f_outputsTab_deleteThisOutput_" + pf + "'>Delete</button>"	
+				 + "</div></br><button id='f_outputsTab_nextButton_" + pf + "' style='float: right'>NEXT</button><button id='f_outputsTab_backButton_" + pf + "' style='float: right'>BACK</button></br>"
+			 + "</p></div><div id='tabs-5_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p>"
+				 + "<div id='nonFunctionalProperties-content_" + pf + "' class='ui-widget'><p>Defined Non Functional Properties:</p>"
+					 + "<table id='f_nonFunctionalDescriptionTab_NFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Weight</th><th class='tabField'>Name</th><th class='tabField'>Relation</th><th class='tabField'>Unit</th><th class='tabField'>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+				 + "<button id='f_nonFunctionalDescriptionTab_openAddNFPropertyForm_" + pf + "'>Add new</button><button id='f_nonFunctionalDescriptionTab_openEditNFPropertyForm_" + pf + "'>Edit</button><button id='f_nonFunctionalDescriptionTab_deleteThisNFProperty_" + pf + "'>Delete</button>"	
+				 + "</div></br><button id='f_nonFunctionalDescriptionTab_backButton_" + pf + "' style='float: right'>BACK</button></br></p></div></div>"
+	 + "<input type='submit' name='f_button_sumbitAllButton' id='f_button_sumbitAllButton_" + pf + "' value='Submit all' style='float:right;'/>"
+	 + "<input type='reset' name='f_button_resetAllButton' id='f_button_resetAllButton_" + pf + "' value='Reset all' style='float:right;'/></br>";
+	$("#form_" + pf).prepend(mainContent);
 
-	var inputVariables = "<p>Defined input variables:</p><table id='f_inputVariables' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-						 + "<button id='f_openAddInputVariableForm'>Add new</button><button id='f_openEditInputVariableForm'>Edit</button><button id='f_deleteThisInputVariable'>Delete</button>";
-	$("#f_inputVariablesForm").append(inputVariables);
+	var inputVariables = "<p>Defined input variables:</p><table id='f_inputVariables_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Name</th><th class='tabField'>Value</th><th class='tabField'>Type</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+						 + "<button id='f_openAddInputVariableForm_" + pf + "'>Add new</button><button id='f_openEditInputVariableForm_" + pf + "'>Edit</button><button id='f_deleteThisInputVariable_" + pf + "'>Delete</button>";
+	$("#f_inputVariablesForm_" + pf).append(inputVariables);
 
-	var gNFProps = "<p>Defined graph non functional properties:</p><table id='f_globalNFProps' class='text ui-widget-content ui-corner-all'>"
-						 + "<thead><tr class='ui-widget-header '><th>Weight</th><th>Name</th><th>Relation</th><th>Unit</th><th>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
-						 + "<button id='f_openAddGlobalNFPropertyForm'>Add new</button><button id='f_openEditGlobalNFPropertyForm'>Edit</button><button id='f_deleteThisGlobalNFProperty'>Delete</button>";
-	$("#f_globalNFPropertiesForm").append(gNFProps);
-
+	var gNFProps = "<p>Defined graph non functional properties:</p><table id='f_globalNFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
+						 + "<thead><tr class='ui-widget-header '><th class='tabField'>Weight</th><th class='tabField'>Name</th><th class='tabField'>Relation</th><th class='tabField'>Unit</th><th class='tabField'>Value</th></tr></thead><tbody><tr></tr></tbody></table></br>"
+						 + "<button id='f_openAddGlobalNFPropertyForm_" + pf + "'>Add new</button><button id='f_openEditGlobalNFPropertyForm_" + pf + "'>Edit</button><button id='f_deleteThisGlobalNFProperty_" + pf + "'>Delete</button>";
+	$("#f_globalNFPropertiesForm_" + pf).append(gNFProps);
 };
 function formGenerator(lang, postfix, json){
 	var html = ["<form id=\"" + json.formId + "_" + postfix + "\"><table>"];
@@ -74,7 +73,6 @@ function formGenerator(lang, postfix, json){
 			case "select" :
 				html.push("<td><select id=\"" + this.id + "_" + postfix + "\" >");
 					$.each(this.values, function(){
-						// a("a")
 						html.push("<option value=\""+this+"\">"+this+"</option>")
 					});
 				html.push("</select></td>")
@@ -88,6 +86,9 @@ function formGenerator(lang, postfix, json){
 	html.push("</table></form>")
 
 	return html.join("");
+};
+function cutString( str, maxLen){
+	return ( str.length > maxLen ? str.substring(0, maxLen-3)+"..." : str );
 };
 Raphael.fn.arrow = function (x1, y1, x2, y2, size) {
 	var angle = (Math.atan2(x1-x2,y2-y1) / Math.PI) * 180,

@@ -116,8 +116,16 @@
 		cursor: pointer;
 	}
 	.textfield{
-		width: 135px;
+		width: 165px;
 		height: 17px;
+	}
+	.longTextfield{
+		width: 325px;
+	}
+	.tabField{
+		width: 120px;
+		max-width: 120px;
+		overflow: hidden;
 	}
 	path.input {
 		#cursor: crosshair;

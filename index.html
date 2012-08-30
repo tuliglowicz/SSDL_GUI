@@ -33,11 +33,12 @@
 			var A = Graph_GUI("sandbox", 1200, 600, undefined, "get_all_atomic_service.xml", "", "7_SLA_map.xml", "7_SLA_map");// "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
 
 			function Graph_GUI(id, width, height, graphSaveParams, sdbUrl, saveUrl, graphToEditUrl, graphToEditName){
-				skeletonAppender(); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
 				var r = {};
 
 				r.id_postfix = Math.round( Math.random() * 10e5 );
 				r.language = "english";
+
+				skeletonAppender(r.id_postfix); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
 			
 				r.view = View(id, width, height, r, graphSaveParams);
 				r.view.blankNodes.init();
