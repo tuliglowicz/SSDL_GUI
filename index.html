@@ -36,9 +36,9 @@
 				var r = {};
 
 				r.id_postfix = Math.round( Math.random() * 10e5 );
-				r.language = "english";
+				r.language = "polish";
 
-				skeletonAppender(r.id_postfix); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
+				skeletonAppender(r.language,r.id_postfix); // funkcja wrzuca szkielet dla wszystkich formularzy do body. -- Dorota
 			
 				r.view = View(id, width, height, r, graphSaveParams);
 				r.view.blankNodes.init();
