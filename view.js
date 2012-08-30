@@ -1474,6 +1474,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#mainForm_" + pf )[0].reset();
 				$( "#physDescForm_" + pf )[0].reset();
 				$( "#f_mainTab_controlType_" + pf ).val("");
+				$("#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
 			},
 			appendIO: function appendIO(array, type){
