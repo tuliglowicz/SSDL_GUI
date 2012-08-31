@@ -23,6 +23,12 @@ bottombar:{
 
 		},
 		alerts: {
+			asYouWish: "Jak sobie chcesz!",
+			fine: "OSTRZEGAŁEM!",
+			removeAll: "Usunąć wszystkie dane?",
+			areYouSure:"Czy jesteś pewien?",
+			areYouSureText:"Stracisz wprowadzone dane, tej czynności nie można przywrócić. Jesteś pewien, że chcesz to zrobić?",
+			removeAllText:"Zaraz usuniesz wszystkie wprowadzone do formularza dane. Jesteś pewien, że chcesz to zrobić?",
 			addLabelNewNode: "Wpisz etykietę dla nowego wierzchołka:",
 			addInputS: "Czy chcesz dodać nowe wejście w wierzchołku o etykiecie ",
 			addInputE: " ?",
@@ -99,6 +105,7 @@ bottombar:{
 			editExistingNonFunctionalProperty:"Edytuj istniejącą własność niefunkcjonalną",
 			createA:"Stwórz wierzchołek typu: ",
 			typeNode: "",
+			viewing: "Przeglądanie wierzchołka typu: ",
 
 		},
 		formTabs: {
@@ -194,6 +201,12 @@ bottombar:{
 
 		},
 		alerts: {
+			asYouWish: "As you wish",
+			fine: "FINE!",
+			areYouSure:"Are you sure?",
+			areYouSureText:"You will lose all data and this action cannot be cancelled. Do you really want to do this?",
+			removeAll: "Remove all data?",
+			removeAlltext:"You are about to clear the entire form. Are you sure?",
 			addLabelNewNode: "Enter a label for the new node:",
 			addInputS: "Do you want to add new input to: ",
 			addInputE: " node ?",
@@ -269,7 +282,8 @@ bottombar:{
 			editExistingOutput:"Edit existing output",
 			editExistingNonFunctionalProperty:"Edit existing non functional property",
 			createA:"Create a",
-			typeNode: "type node",
+			typeNode: " type node",
+			viewing: "Viewing a "
 
 		},
 		formTabs: {
