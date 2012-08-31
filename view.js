@@ -1339,7 +1339,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			selectedGlobalNFPropertyIndex: -1,
 
 			initToEdit: function initToEdit(node){
-				var titleText = 'Viewing a ' + node.nodeType + ' type node';
+				var titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode;
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
