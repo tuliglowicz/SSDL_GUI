@@ -1228,7 +1228,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				{
 					label: "relation",
 					id: "f_globalNonFunctionalDescription_relation",
-					inputType: "textBox",
+					inputType: "select",
 					validation: function(){},
 					values:["eq", "gt", "le", "leq", "geq"]
 				},
@@ -1962,7 +1962,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
 				$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
 				$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.lang].forms.editExistingInputVariable);
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.language].forms.editExistingInputVariable);
 				this.clearInputVariableSelectionInTable();
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			},
@@ -1975,7 +1975,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
 				$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
 				$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.lang].forms.editExistingGraphNonFunctionalProperty);
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.language].forms.editExistingGraphNonFunctionalProperty);
 				this.clearGlobalNFPropertySelectionInTable();
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
 			},
