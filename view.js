@@ -1962,7 +1962,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
 				$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
 				$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text("Edit existing input variable");
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.lang].forms.editExistingInputVariable);
 				this.clearInputVariableSelectionInTable();
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			},
@@ -1975,7 +1975,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
 				$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
 				$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text("Edit existing graph non functional property");
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.lang].forms.editExistingGraphNonFunctionalProperty);
 				this.clearGlobalNFPropertySelectionInTable();
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
 			},
@@ -2179,7 +2179,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedGlobalNFPropertyIndex();
 				if(index == -1)
-					alert("No graph non functional property selected!");
+					alert(language[gui.language].alerts.errors.noGraphNonFunctionalPropertySelected);
 				else{
 					result.openEditGlobalNonFunc(index);
 				}
@@ -2189,7 +2189,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noEntrySelected);
+					alert(language[gui.language].alerts.errors.noNonFunctionalPropertySelected);
 				else{
 					result.openEditNonFunc(index);
 				}
