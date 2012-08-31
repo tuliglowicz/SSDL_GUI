@@ -2695,6 +2695,64 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						return result;
 					},
+					drawInputs : function drawInputs(paper, color){
+						// alert(jsonFormatter(this, true, true));
+						var length = this.inputs.length;
+						if(this.type.toLowerCase() === "control"){
+							var mult = 1/1.41,	//odwrotność pierwiastka z 2
+								nx = this.x, ny = this.y, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
+								coordsList = [
+								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
+								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
+								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
+							//na razie wersja dla <= 8 i/o. potem ją rozszerzę
+							for(var i = 0; i < length; i++){	//INDEKS BĘDZIE POTRZEBNY.
+								this.inputs[i].node = paper.path(this.inputPathString(coordsList[i][0], coordsList[i][1])).attr({'fill': color});
+								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
+							}
+						}
+						else {
+							var spacing = this.width/(length+1),
+								x, y;
+							for(var i = 0; i < length; i++){
+								x = this.x + (i+1)*spacing; y = this.y-10;
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
+								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+							}
+						}
+					},
+					drawOutputs : function drawOutputs(paper, color){
+						var length = this.outputs.length;
+						if(this.type.toLowerCase() === "control"){
+							var mult = 1/1.41,	//odwrotność pierwiastka z 2
+								//nx, ny = współrzędne node'a, nr = promień. przesunięcie o 5 uwzględnia rozmiar i/o
+								nx = this.x-5, ny = this.y-5, nr = this.r,
+								coordsList = [
+								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
+								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
+								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
+							//na razie wersja dla <= 8 i/o. potem ją rozszerzę
+							for(var i = 0; i < length; i++){	//INDEKS BĘDZIE POTRZEBNY.
+								this.outputs[i].node = paper.path(this.outputPathString(coordsList[i][0], coordsList[i][1])).attr({'fill': "white"});
+								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
+							}
+						}
+						else {
+							var spacing = this.width/(length+1),
+								x, y;
+							for(var i = 0; i < length; i++){
+								x = this.x + (i+1)*spacing; y = this.y+this.height;
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': color});
+								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
+							}
+						}
+					},
+					inputPathString: function inputPathString(x, y){
+						return("M " + x + " " + y + " l 0 10 l 10 0 l 0 -10 l -5 5 z");
+					},
+					outputPathString: function outputPathString(x, y){
+						return("M " + x + " " + y + " l 0 5 l 5 5 l 5 -5 l 0 -5 z");
+					},
 					setBold : function setBold(flag){
 						if(flag)
 							this.set[0].attr("stroke-width", "2px");
@@ -2882,67 +2940,24 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
-					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
-					input_length, output_length, i_tab = [], o_tab = [],
-					multX = 1, multY = 1, x1, y1, x2, y2
+					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
 					;
 				node.mainShape = c;
 				if(node.controlType.toLowerCase() == "#start")
 					node.mainShape.attr({cursor: "crosshair"});
 				node.raph_label = label;
-
-
 				node.raph_label.dblclick(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: node.id});
 				})
-
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
-
-				//obliczanie punkt�?³w na okrÄ™gu
-				x1 = (node.x+node.r) - 10;
-				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
-				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
-				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
-
-				var currIO;
-				for(var k = 0; k < input_length; k++){
-					currIO = node.inputs[k];
-					if(k < 4){
-						multX = ((k % 2) === 0) ? -1 : 1;
-						multY = (k < 2) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
-					}
-					else{
-						multX = ((k % 2) === 0) ? -1 : 1;
-						multY = (k < 6) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
-					}
-				}
-				multX = 1; multY = 1;
-				for(var l = 0; l < output_length; l++){
-					currIO = node.outputs[l];
-					if(l < 4){
-						multX = ((l % 2) === 0) ? -1 : 1;
-						multY = (l < 2) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
-					}
-					else{
-						multX = ((l % 2) === 0) ? -1 : 1;
-						multY = (l < 6) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"});
-						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
-					}
-				}
 
 				c.node.setAttribute("class", node.id);
 						
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
+
+				node.drawInputs(view.paper, "white");
+				node.drawOutputs(view.paper, "white");
 
 				node.isInside = function(x1,y1,x2,y2){
 					return this.x+this.r > x1 &&
@@ -2995,9 +3010,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
-					i, j, k, l,
-					input_length, output_length,
-					iDist, oDist,
+					i, j,
 					serviceName = node.serviceName,
 					shortenServiceName,
 					serviceNameShown,
@@ -3015,22 +3028,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
-				label.node.setAttribute("class", id+" label");				
-			
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
+				label.node.setAttribute("class", id+" label");
 
-				iDist = node.width/(input_length+1);
-				oDist = node.width/(output_length+1);
-
-				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill': color});
-					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
-				}
-				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill': color});
-					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
-				}
+				node.drawInputs(paper, color);
+				node.drawOutputs(paper, color);
 
 				if(!drawNotForRepo){
 
@@ -3080,27 +3081,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					input_length, output_length,
-					i, j=0,
-					iDist, oDist
+					i, j=0
 					;
 				node.mainShape = rect;
 				node.raph_label = label;
-
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
-
-				iDist = node.width/(input_length+1);
-				oDist = node.width/(output_length+1);
-
-				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#a6c9e2"});
-					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
-				}
-				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#a6c9e2"});
-					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
-				}
 
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
@@ -3108,6 +3092,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				})
 				
 				node.mainShape.node.setAttribute("class", id);
+
+				node.drawInputs(view.paper, "#a6c9e2");
+				node.drawOutputs(view.paper, "#a6c9e2");
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
