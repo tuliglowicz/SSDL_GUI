@@ -1218,7 +1218,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
+			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SIĘ DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1278,12 +1278,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "TRYTOSAVENODEAFTEREDIT":
 				(function(e) {
 					//e = zwrócony JSONek
-					// jsonFormatter(e, 1,1)
 					if (!e.nodeId || e.nodeId === "") { //to jest blank
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-
 						if (wrongsList.length == 0) {
 							e.nodeId = that.generateId();
+							//WTF CZY NAPRAWDĘ NIKT TEGO JESZCZE NIE ZAUWAŻYŁ JEZU LUDZIE :(
 							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
 							graphNode.switchMode( gui.view.mode );
 							gui.view.current_graph_view.nodes.push(graphNode);

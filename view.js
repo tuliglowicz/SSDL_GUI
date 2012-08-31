@@ -2696,24 +2696,23 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						return result;
 					},
 					drawInputs : function drawInputs(paper, color){
-						// alert(jsonFormatter(this, true, true));
-						var length = this.inputs.length;
+						var length = this.inputs.length, x, y;
 						if(this.type.toLowerCase() === "control"){
 							var mult = 1/1.41,	//odwrotność pierwiastka z 2
-								nx = this.x, ny = this.y, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
+								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
 								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
 								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
 								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
-							//na razie wersja dla <= 8 i/o. potem ją rozszerzę
-							for(var i = 0; i < length; i++){	//INDEKS BĘDZIE POTRZEBNY.
-								this.inputs[i].node = paper.path(this.inputPathString(coordsList[i][0], coordsList[i][1])).attr({'fill': color});
+							for(var i = 0; i < length; i++){	//INDEKS JEST POTRZEBNY.
+								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); }
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 							}
 						}
 						else {
-							var spacing = this.width/(length+1),
-								x, y;
+							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
@@ -2722,7 +2721,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 					},
 					drawOutputs : function drawOutputs(paper, color){
-						var length = this.outputs.length;
+						var length = this.outputs.length, x, y;
 						if(this.type.toLowerCase() === "control"){
 							var mult = 1/1.41,	//odwrotność pierwiastka z 2
 								//nx, ny = współrzędne node'a, nr = promień. przesunięcie o 5 uwzględnia rozmiar i/o
@@ -2731,15 +2730,15 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
 								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
 								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
-							//na razie wersja dla <= 8 i/o. potem ją rozszerzę
 							for(var i = 0; i < length; i++){	//INDEKS BĘDZIE POTRZEBNY.
-								this.outputs[i].node = paper.path(this.outputPathString(coordsList[i][0], coordsList[i][1])).attr({'fill': "white"});
+								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); }
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': "white"});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 							}
 						}
 						else {
-							var spacing = this.width/(length+1),
-								x, y;
+							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': color});
