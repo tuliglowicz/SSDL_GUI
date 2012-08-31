@@ -2077,7 +2077,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		*/
 		};
 		
-	//SUBMITY			
+		//SUBMITY			
 		$("#f_button_sumbitAllButton_" + pf).button().click(function() {
 			result.submitAll();
 		});
@@ -2252,7 +2252,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		$("#f_button_resetAllButton_" + pf).button().click(
 			function(event) {
 				event.preventDefault();
-				$( "#f_dialog_confirm1" ).dialog("open");
+				$( "#f_dialog_confirm1_" + pf ).dialog("open");
 			}
 		);
 		$("#f_button_clearNonFunctional_" + pf).button().click(
