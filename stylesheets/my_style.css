@@ -131,6 +131,11 @@
 		max-width: 120px;
 		overflow: hidden;
 	}
+	.formButton{
+		float:right;
+		position:relative;
+		top: 40px;
+	}
 	path.input {
 		#cursor: crosshair;
 	}
