@@ -24,7 +24,7 @@ bottombar:{
 		},
 		alerts: {
 			asYouWish: "Jak sobie chcesz!",
-			fine: "OSTRZEGAŁEM!",
+			fine: "OSTRZEGA�?EM!",
 			removeAll: "Usunąć wszystkie dane?",
 			areYouSure:"Czy jesteś pewien?",
 			areYouSureText:"Stracisz wprowadzone dane, tej czynności nie można przywrócić. Jesteś pewien, że chcesz to zrobić?",
@@ -108,8 +108,6 @@ bottombar:{
 			typeNode: "",
 			viewing: "Przeglądanie wierzchołka typu: ",
 			saveChanges: "Zapisz zmiany",
-			clearAll1:"Tak, wyczyść formularz",
-			clearAll2: "Jestem pewien na 100%",
 
 		},
 		formTabs: {
@@ -140,7 +138,7 @@ bottombar:{
 			view: "Widok",
 			help: "Pomoc",
 			newNode: "Nowy Wierzchołek",
-			load: "Ładuj",
+			load: "�?aduj",
 			save: "Zapisz",
 			serviceNode: "Wiechrzołek Usługi",
 			functionalityNode: "Wierzchołek Funkcjonalny",
