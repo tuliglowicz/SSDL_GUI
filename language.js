@@ -292,7 +292,6 @@ bottombar:{
 			saveChanges: "Save changes",
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
-
 		},
 		formTabs: {
 			main: "Main",
