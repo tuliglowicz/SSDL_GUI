@@ -1005,7 +1005,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		return result;
 	};
-	//sidescroller -> moved to library.js
 	function form() {
 		var formJSON = [
 			{
@@ -1430,6 +1429,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_outputsTab_outputs_" + pf + " tbody" ).empty();
 				this.resetSelectedOutputIndex();
 			},
+		//obsługa błędów walidacji i czyszczenie
 			handleErrors: function handleErrors(array){
 				$.each(array, function(){						
 					var splitty = this.split("_"), 
@@ -1476,6 +1476,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
 			},
+		//dodawanie elementów
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){
@@ -1632,6 +1633,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				});
 				return result;
 			},
+		//obsługa zaznaczenia w tabeli
 			clearInputSelectionInTable: function clearInputSelectionInTable(){
 				$.each($("#f_inputsTab_inputs_" + pf + " tbody").children(), function(){
 					$(this).removeClass("ui-state-active");
@@ -1657,6 +1659,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$(this).removeClass("ui-state-active");
 				});
 			},
+		//usuwanie undefinedów z tablic i/o/nfp
 			removeUndefinedElements: function removeUndefinedElements(){
 				for(var i in this.funcDescJSON.inputs)
 					if(!this.funcDescJSON.inputs[i])
@@ -1671,6 +1674,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					if(!this.funcDescJSON.serviceClasses[i]) 
 						this.funcDescJSON.serviceClasses.splice(i, 1);
 			},
+		//obsługa zmiennych określających zaznaczone elementy w tabelach
 			getSelectedInputIndex: function getSelectedInputIndex(){
 				return this.selectedInputIndex;
 			},
@@ -1750,6 +1754,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
+		// Addy
 			addServiceClass: function addServiceClass(){
 				var input = $("#f_mainTab_serviceClass_" + pf ).val(), index;
 				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
@@ -1759,24 +1764,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 				$("#f_mainTab_serviceClass_" + pf ).val("");
 			},
-			// addMetaKeyword: function addMetaKeyword(){
-			// 	var input = $("#f_inputOutputTab_metaKeyword").val();
-			// 	if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
-			// 		this.funcDescJSON.metaKeywords.push(input);
-			// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-			// 	}
-			// 	$("#f_inputOutputTab_metaKeyword").val("");
-			// },
-			// addSource: function addSource(){
-			// 	$( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
-			// 	var input = $("#f_mainTab_source").val();
-			// 	if(!this.stringExists(input, this.resultJSON.sources)){
-			// 		this.resultJSON.sources.push(input);
-			// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
-			// 	}
-			// 	$( "#f_mainTab_source" ).val(""); 
-			// },
-		// Addy
 			addInput: function addInput(){
 				var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]},
 					index = this.getSelectedInputIndex();
@@ -2077,27 +2064,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		*/
 		};
 		
-		//SUBMITY			
+		//Obsługa przycisków, kliknięć, etc. 		
 		$("#f_button_sumbitAllButton_" + pf).button().click(function() {
 			result.submitAll();
 		});
-		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
+		//Addy
 		$("#f_mainTab_serviceClass_addButton_" + pf).button().click(
 			function(event) {
-				event.preventDefault();
 				result.addServiceClass();
-			}
-		);
-		$("#f_button_addMetaKeyword_" + pf).button().click(
-			function(event) {
-				event.preventDefault();
-				result.addMetaKeyword();
-			}
-		);
-		$("#f_button_addSource_" + pf).button().click(
-			function(event) {
-				event.preventDefault();
-				result.addSource();
 			}
 		);
 		$("#f_inputsTab_openAddInputForm_" + pf).button().click(
@@ -2145,6 +2119,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
+		//Edity
 		$("#f_inputsTab_openEditInputForm_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputIndex();
@@ -2195,6 +2170,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			}
 		);
+		//Delety
 		$("#f_inputsTab_deleteThisInput_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputIndex();
@@ -2270,7 +2246,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				result.previousTab();
 			}
 		);
-		//Zaznaczanie wybranego I/O/NFProperty w tabelce
+		//Zaznaczanie wybranego I/O/NFProperty w tabelce; dblclick -> edit selected
 		$('tr[id^="f_inputsTabxinputs"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
 			result.clearInputSelectionInTable();
@@ -2347,57 +2323,107 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			setTimeout(function(){result.setSelectedNFPropertyIndex(index);},1000);
 			result.openEditNonFunc(index);
 		});
-		//spany z source'ami, service classes i meta keywords
-		// $('span[id^="src_"]').live("click", function(form){
-		// 	return (function(){
-		// 		form.removeSource($(this));
-		// 	});
-		// }(result));
+		//usuwanie SC via kliknięce na niej; TODO: małe iksiki zamiast klikania na span
 		$('span[id^="f_sc_"]').live("click", function(form){
 			return (function(){
 				form.removeServiceClass($(this));
 			});
 		}(result));
-		// $('span[id^="mk_"]').live("click", function(form){
-		// 	return (function(){
-		// 		form.removeMetaKeyword($(this));
-		// 	});
-		// }(result));
+
+		//przyciski w oknach modalnych nie związane bezpośrednio z CRUD: confirmy i cancele
+		$("#f_button_resetConfirm1_" + pf).button().click(
+			function(event) {
+				$( "#f_dialog_confirm1_" + pf );
+				$( "#f_dialog_confirm2_" + pf ).dialog("open");
+			}
+		);
+		$("#f_button_resetConfirm2_" + pf).button().click(
+			function(event) {
+				$( "#f_dialog_fine_" + pf ).dialog("open");
+				$( "#f_dialog_confirm2_" + pf ).dialog("close");
+				result.resetAll();
+			}
+		);
+		$("#f_addInputForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addInput();
+			}			
+		);
+		$("#f_addOutputForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addOutput();
+			}			
+		);
+		$("#f_addNFPropertyForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addNonFunctional();
+			}		
+		);
+		$("#f_addGlobalNFPropertyForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addGlobalNonFunctional();
+			}
+		);
+		$("#f_addInputVariableForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addInputVariable();
+			}	
+		);
+		$("#f_inputVariablesForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				for(var i in inpVars)
+					if(!inpVars[i])
+						inpVars.splice(i, 1);
+				console.log(inpVars)
+				gui.controler.current_graphData.inputVariables = inpVars;
+				$( "#f_inputVariablesForm_" + pf ).dialog( "close" );
+			}		
+		);
+		$("#f_globalNFPropertiesForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				for(var i in globalNonFuncDesc)
+					if(!globalNonFuncDesc[i])
+						globalNonFuncDesc.splice(i, 1);
+				gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
+				$( "#f_globalNFPropertiesForm_" + pf ).dialog( "close" );
+			}	
+		);
+		$("#f_graphSaveParamsForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				var result = gui.view.form.collectGraphSaveParams();
+				if(result){
+					$( "#f_graphSaveParamsForm_" + pf ).dialog( "close" );
+					gui.controler.reactOnEvent("save", result)
+				} else {
+					alert(language[gui.language].alerts.inputData);
+				}
+			}	
+		);
+		$('button[id^="f_button_resetCancel"]').button().click(
+			function(event) {
+				$(this).dialog("close");
+				return false;
+			}
+		);
+		$('button[id$="Form_changesCancel_' + pf + '"]').button().click(function() {
+				$( this ).dialog( "close" );
+			}
+		);
+
+		//OBSŁUGA OKIEN MODALNYCH		
 		$( "#f_dialog_confirm1_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 200,
 			width: 320,
-			modal: true,
-			buttons: {
-				"Yes, clear the form": function() {
-					$(this).dialog("close");
-					$( "#f_dialog_confirm2_" + pf ).dialog("open");
-
-				},
-				Cancel: function() {
-					$(this).dialog("close");
-					return false;
-				}
-			}
+			modal: true
 		});
 		$( "#f_dialog_confirm2_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 200,
 			width: 320,
-			modal: true,
-			buttons: {
-				"Yes, I'm 100% sure": function() {
-					$( "#f_dialog_fine_" + pf ).dialog("open");
-					$(this).dialog("close");
-					result.resetAll();
-				},
-				Cancel: function() {
-					return false;
-					$(this).dialog("close");
-				}
-			}
+			modal: true
 		});
 		$( "#f_dialog_fine_" + pf ).dialog({
 			autoOpen: false,
@@ -2413,129 +2439,49 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			autoOpen: false,
 			modal: true,
 			height: 250,
-			width: 450,
-			buttons: {
-				"Confirm": function() {
-					result.addInput();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 450
 		});
 		$("#f_addOutputForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 250,
-			width: 450,
-			buttons: {
-				"Confirm": function() {
-					result.addOutput();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 450
 		});
 		$("#f_addNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 500,
-			buttons: {
-				"Confirm": function() {
-					result.addNonFunctional();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_addGlobalNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 350,
-			buttons: {
-				"Confirm": function() {
-					result.addGlobalNonFunctional();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 350
 		});
 		$("#f_addInputVariableForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 350,
-			buttons: {
-				"Confirm": function() {
-					result.addInputVariable();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 350
 		});
 		$("#f_inputVariablesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 350,
-			width: 500,
-			buttons: {
-				"Save changes": function() {
-					// gui.controler.current_graphData.
-					for(var i in inpVars)
-						if(!inpVars[i])
-							inpVars.splice(i, 1);
-					console.log(inpVars)
-					gui.controler.current_graphData.inputVariables = inpVars;
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_globalNFPropertiesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 350,
-			width: 500,
-			buttons: {
-				"Save changes": function() {
-					for(var i in globalNonFuncDesc)
-						if(!globalNonFuncDesc[i])
-							globalNonFuncDesc.splice(i, 1);
-					gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_graphSaveParamsForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 200,
-			width: 300,
-			buttons: {
-				"Save changes": function() {
-					var result = gui.view.form.collectGraphSaveParams();
-					if(result){
-						$( this ).dialog( "close" );
-						gui.controler.reactOnEvent("save", result)
-					} else {
-						alert(language[gui.language].alerts.inputData);
-					}
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 300
 		});
 
 		return result;
@@ -2695,8 +2641,23 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						return result;
 					},
-					drawInputs : function drawInputs(paper, color){
-						var length = this.inputs.length, x, y;
+					drawIO : function drawIO(paper, color){
+						var length = this.inputs.length, x, y, that = this,
+							start = function(){
+								gui.view.hideEdges();
+								this.ox = 0;
+							},
+							//HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
+							move = function(dx){
+								var nx = this.getBBox().x + dx; //WTF this is SO broken
+								if(nx > that.x && nx < (that.x + that.width)){
+									this.translate(dx - this.ox);
+									this.dist1 += (dx - this.ox); this.dist2 -= (dx - this.ox); this.ox = dx; 
+								}
+							},
+							end = function(){
+								gui.view.updateEdges();
+							};
 						if(this.type.toLowerCase() === "control"){
 							var mult = 1/1.41,	//odwrotność pierwiastka z 2
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
@@ -2704,35 +2665,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
 								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
 								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
-							for(var i = 0; i < length; i++){	//INDEKS JEST POTRZEBNY.
+							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
-								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 							}
-						}
-						else {
-							var spacing = this.width/(length+1);
+							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
-								x = this.x + (i+1)*spacing; y = this.y-10;
-								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
-								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
-							}
-						}
-					},
-					drawOutputs : function drawOutputs(paper, color){
-						var length = this.outputs.length, x, y;
-						if(this.type.toLowerCase() === "control"){
-							var mult = 1/1.41,	//odwrotność pierwiastka z 2
-								//nx, ny = współrzędne node'a, nr = promień. przesunięcie o 5 uwzględnia rozmiar i/o
-								nx = this.x-5, ny = this.y-5, nr = this.r,
-								coordsList = [
-								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
-								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
-								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
-							for(var i = 0; i < length; i++){	//INDEKS BĘDZIE POTRZEBNY.
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
-								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': "white"});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 							}
@@ -2740,11 +2682,27 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						else {
 							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
+								x = this.x + (i+1)*spacing; y = this.y-10;
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
+								this.inputs[i].node.drag(move, start, end);
+								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+							}
+							length = this.outputs.length; spacing = this.width/(length+1);
+							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': color});
+								this.outputs[i].node.drag(move, start, end);
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
+					},
+					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
+					// pozwala przerysować IO bez przerysowywania całego node'a
+					clearIO: function clearIO(){
+						for(var i in this.inputs)
+							this.inputs[i].node.remove();
+						for(var o in this.outputs)
+							this.outputs[o].node.remove();
 					},
 					inputPathString: function inputPathString(x, y){
 						return("M " + x + " " + y + " l 0 10 l 10 0 l 0 -10 l -5 5 z");
@@ -2955,8 +2913,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
 
-				node.drawInputs(view.paper, "white");
-				node.drawOutputs(view.paper, "white");
+				node.drawIO(view.paper, "white");
 
 				node.isInside = function(x1,y1,x2,y2){
 					return this.x+this.r > x1 &&
@@ -3029,8 +2986,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");
 
-				node.drawInputs(paper, color);
-				node.drawOutputs(paper, color);
+				node.drawIO(paper, color);
 
 				if(!drawNotForRepo){
 
@@ -3092,8 +3048,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				node.mainShape.node.setAttribute("class", id);
 
-				node.drawInputs(view.paper, "#a6c9e2");
-				node.drawOutputs(view.paper, "#a6c9e2");
+				node.drawIO(view.paper, "#a6c9e2");
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");

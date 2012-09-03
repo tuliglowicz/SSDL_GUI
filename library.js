@@ -5,14 +5,21 @@ var jstr = JSON.stringify;
 // eof pomocnicze skróty
 
 // W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
+//te serie konkatenacji są mega nieoptymalne, ale dopóki coś się w tym grzebie, proponuję je zostawić - jak będziemy pewni, że nie trzeba tutaj
+//nic zmieniać/dodawać, to można z tego zrobić pojedynczą linijkę i chociaż trochę oszczędzić na sklejaniu stringów
 function skeletonAppender(lang,pf){
-	var content = "<div id='form_" + pf + "' class='ui-dialog-content ui-widget-content'></div>"
-		+ "<div id='f_dialog_confirm1_" + pf + "' title='"+language[lang].alerts.removeAll+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.removeAllText+"</span></p></div>"
-		+ "<div id='f_dialog_confirm2_" + pf + "' title='"+language[lang].alerts.areYouSure+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.areYouSureText+"</span></p></div><div id='f_dialog_fine_" + pf + "' title='"+language[lang].alerts.asYouWish+"'><p>"+language[lang].alerts.fine+".</p></div>"
-		+ "<div id='f_addInputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new input'></div><div id='f_addOutputForm_" + pf + "' class='ui-dialog-content ui-widget-content' title='Add a new output'></div>"
-		+ "<div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'></div><div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'></div><div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'></div>"
-		+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='"+language[lang].mainMenu.nonFunctionalParameters+"'></div><div id='f_inputVariablesForm_" + pf + "' title='"+language[lang].mainMenu.inputVariables+"'></div>"
-		+ "<div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'></div>";
+	var content = "<div id='form_" + pf + "'></div>"
+		+ "<div id='f_dialog_confirm1_" + pf + "' title='"+language[lang].alerts.removeAll+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.removeAllText+"</span></p><button id='f_button_resetConfirm1_"+pf+"'>Yes, clear the form</button><button id='f_button_resetCancel1_"+pf+"'>Cancel</button></div>"
+		+ "<div id='f_dialog_confirm2_" + pf + "' title='"+language[lang].alerts.areYouSure+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.areYouSureText+"</span></p><button id='f_button_resetConfirm2_"+pf+"'>Yes, I'm 100% sure</button><button id='f_button_resetCancel2_"+pf+"'>Cancel</button></div>"
+		+ "<div id='f_dialog_fine_" + pf + "' title='"+language[lang].alerts.asYouWish+"'><p>"+language[lang].alerts.fine+".</p></div>"
+		+ "<div id='f_addInputForm_" + pf + "' title='Add a new input'><button id='f_addInputForm_changesConfirm_"+ pf +"'>Confirm</button><button id='f_addInputForm_changesCancel_"+ pf +"'>Cancel</button></div>"
+		+ "<div id='f_addOutputForm_" + pf + "' title='Add a new output'><button id='f_addOutputForm_changesConfirm_"+ pf +"'>Confirm</button><button id='f_addOutputForm_changesCancel_"+ pf +"'>Cancel</button></div>"
+		+ "<div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'><button id='f_addNFPropertyForm_changesConfirm_"+ pf +"'>Confirm</button><button id='f_addNFPropertyForm_changesCancel_"+ pf +"'>Cancel</button></div>"
+		+ "<div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'><button id='f_addGlobalNFPropertyForm_changesConfirm_"+ pf +"'>Confirm</button><button id='f_addGlobalNFPropertyForm_changesCancel_"+ pf +"'>Cancel</button></div>"
+		+ "<div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'><button id='f_addInputVariableForm_changesConfirm_"+ pf +"'>Confirm</button><button id='f_addInputVariableForm_changesCancel_"+ pf +"'>Cancel</button></div>"
+		+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='"+language[lang].mainMenu.nonFunctionalParameters+"'><br><button id='f_globalNFPropertiesForm_changesConfirm_" + pf +"'>Save changes</button><button id='f_globalNFPropertiesForm_changesCancel_" + pf +"'>Cancel</button></div>"
+		+ "<div id='f_inputVariablesForm_" + pf + "' title='"+language[lang].mainMenu.inputVariables+"'><br><button id='f_inputVariablesForm_changesConfirm_" + pf +"'>Save changes</button><button id='f_inputVariablesForm_changesCancel_" + pf +"'>Cancel</button></div>"
+		+ "<div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'><br><button id='f_graphSaveParamsForm_changesConfirm_" + pf +"'>Save changes</button><button id='f_graphSaveParamsForm_changesCancel_" + pf +"'>Cancel</button></div>";
 
 	$("body").append(content);
 };
@@ -52,12 +59,12 @@ function formAppender(lang,pf){
 	var inputVariables = "<p>"+language[lang].forms.definedInputVariables+":</p><table id='f_inputVariables_" + pf + "' class='text ui-widget-content ui-corner-all'>"
 						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.name+"</th><th class='tabField'>"+language[lang].forms.value+"</th><th class='tabField'>"+language[lang].forms.type+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
 						 + "<button id='f_openAddInputVariableForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_openEditInputVariableForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_deleteThisInputVariable_" + pf + "'>"+language[lang].forms.delete+"</button>";
-	$("#f_inputVariablesForm_" + pf).append(inputVariables);
+	$("#f_inputVariablesForm_" + pf).prepend(inputVariables);
 
 	var gNFProps = "<p>"+language[lang].forms.definedGraphNonFunctionalProperties+":</p><table id='f_globalNFProps_" + pf + "' class='text ui-widget-content ui-corner-all'>"
 						 + "<thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.weight+"</th><th class='tabField'>"+language[lang].forms.name+"</th><th class='tabField'>"+language[lang].forms.relation+"</th><th class='tabField'>"+language[lang].forms.unit+"</th><th class='tabField'>"+language[lang].forms.value+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
 						 + "<button id='f_openAddGlobalNFPropertyForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_openEditGlobalNFPropertyForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_deleteThisGlobalNFProperty_" + pf + "'>"+language[lang].forms.delete+"</button>";
-	$("#f_globalNFPropertiesForm_" + pf).append(gNFProps);
+	$("#f_globalNFPropertiesForm_" + pf).prepend(gNFProps);
 };
 function formGenerator(lang, postfix, json){	
 	var html = ["<form id=\"" + json.formId + "_" + postfix + "\"><table>"];
