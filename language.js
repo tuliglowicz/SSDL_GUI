@@ -108,6 +108,8 @@ bottombar:{
 			typeNode: "",
 			viewing: "Przeglądanie wierzchołka typu: ",
 			saveChanges: "Zapisz zmiany",
+			clearAll1:"Tak, wyczyść formularz",
+			clearAll2: "Jestem pewien na 100%",
 
 		},
 		formTabs: {
@@ -288,6 +290,11 @@ bottombar:{
 			typeNode: " type node",
 			viewing: "Viewing a ",
 			saveChanges: "Save changes",
+<<<<<<< HEAD
+			clearAll1:"Yes, clear the form",
+			clearAll2:"I'm 100% sure.",
+=======
+>>>>>>> origin/master
 		},
 		formTabs: {
 			main: "Main",

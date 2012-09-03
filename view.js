@@ -2045,7 +2045,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			// 	source.remove();
 			// },
 
-		//TODO: PORZĄDNIE zrealizować pomijanie ukrytych tabów
+			//TODO: PORZĄDNIE zrealizować pomijanie ukrytych tabów
 			nextTab: function nextTab(){
 				var selected = $tabs.tabs('option', 'selected');
 				if(selected==0 && $('#physicalDescriptionTab_' + pf).hasClass("ui-tabs-hide")) selected++;
@@ -2333,7 +2333,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		//przyciski w oknach modalnych nie związane bezpośrednio z CRUD: confirmy i cancele
 		$("#f_button_resetConfirm1_" + pf).button().click(
 			function(event) {
-				$( "#f_dialog_confirm1_" + pf ).dialog("close");
+				$( "#f_dialog_confirm1_" + pf );
 				$( "#f_dialog_confirm2_" + pf ).dialog("open");
 			}
 		);
@@ -2342,18 +2342,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_dialog_fine_" + pf ).dialog("open");
 				$( "#f_dialog_confirm2_" + pf ).dialog("close");
 				result.resetAll();
-			}
-		);
-		$("#f_button_resetCancel1_" + pf).button().click(
-			function(event) {
-				$("#f_dialog_confirm1_" + pf ).dialog("close");
-				return false;
-			}
-		);
-		$("#f_button_resetCancel2_" + pf).button().click(
-			function(event) {
-				$("#f_dialog_confirm2_" + pf ).dialog("close");
-				return false;
 			}
 		);
 		$("#f_addInputForm_changesConfirm_" + pf).button().click(
@@ -2411,8 +2399,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			}	
 		);
-		$('button[id$="Form_changesCancel_' + pf + '"]').button().click(function(event) {
-				$( "#f_" + event.target.id.split("_")[1] + "_" + pf ).dialog( "close" );
+		$('button[id^="f_button_resetCancel"]').button().click(
+			function(event) {
+				$(this).dialog("close");
+				return false;
+			}
+		);
+		$('button[id$="Form_changesCancel_' + pf + '"]').button().click(function() {
+				$( this ).dialog( "close" );
 			}
 		);
 
