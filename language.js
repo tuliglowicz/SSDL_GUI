@@ -107,6 +107,7 @@ bottombar:{
 			createA:"Stwórz wierzchołek typu: ",
 			typeNode: "",
 			viewing: "Przeglądanie wierzchołka typu: ",
+			saveChanges: "Zapisz zmiany",
 
 		},
 		formTabs: {
@@ -285,8 +286,8 @@ bottombar:{
 			editExistingNonFunctionalProperty:"Edit existing non functional property",
 			createA:"Create a",
 			typeNode: " type node",
-			viewing: "Viewing a "
-
+			viewing: "Viewing a ",
+			saveChanges: "Save changes",
 		},
 		formTabs: {
 			main: "Main",
