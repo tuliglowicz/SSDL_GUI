@@ -290,11 +290,9 @@ bottombar:{
 			typeNode: " type node",
 			viewing: "Viewing a ",
 			saveChanges: "Save changes",
-<<<<<<< HEAD
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
-=======
->>>>>>> origin/master
+
 		},
 		formTabs: {
 			main: "Main",
