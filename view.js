@@ -540,7 +540,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 
 				var text_service = this.paper.text(textHorizontalPosition,10, language[gui.language].nodes.service);
-
 				text_service.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
@@ -556,10 +555,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
-
 				var text_mediator = this.paper.text(textHorizontalPosition,130,language[gui.language].nodes.mediator);
 					// .hide();
 					text_mediator.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_mediator);
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
 					.attr({fill:"#ffffff"})
 					.dblclick(onDblClick("Mediator"));
@@ -1385,7 +1384,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$('#ui-dialog-title-form_' + pf).text(titleText);
 				this.adjustForm(nodeData.nodeType);
 				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
-				$( "#f_mainTab_nodeType_" + pf ).val(nodeData.nodeType);
 				$( "#form_" + pf ).dialog( "open" );
 			},
 			adjustForm: function adjustForm(nodeType){
@@ -1556,9 +1554,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			},
 			appendGlobalNonFuncDesc : function appendGlobalNonFuncDesc(globNonFuncDesc){
-				console.log(globNonFuncDesc)
+				console.log(globNonFuncDesc);
 				for( var prop in globNonFuncDesc ){
-					inpVars.push(globNonFuncDesc[prop]);
+					globalNonFuncDesc.push(globNonFuncDesc[prop]);
+					// alert(jsonFormatter(globalNonFuncDesc, true, true)); //Włodku, tu było inpVars, to CHYBA ŹLE
 					this.globalNonFunPropsAppender(globNonFuncDesc[prop], prop);
 				}				
 			},
@@ -1985,7 +1984,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_inputVariables_" + pf + " tbody").html("");
 			},
 			resetGlobalNonFunDesc : function resetGlobalNonFunDesc(){
-				inpVars = [];
+				globalNonFuncDesc = [];
 				$( "#f_globalNFProps_" + pf + " tbody").html("");
 			},
 			resetAll: function resetAll(){
@@ -2279,7 +2278,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		});
 		$('tr[id^="f_inputVariables"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
-			console.log(index);
 			result.clearInputVariableSelectionInTable();
 			if(result.getSelectedInputVariableIndex() == index)
 				result.resetSelectedInputVariableIndex();
@@ -2386,7 +2384,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				for(var i in inpVars)
 					if(!inpVars[i])
 						inpVars.splice(i, 1);
-				console.log(inpVars)
 				gui.controler.current_graphData.inputVariables = inpVars;
 				$( "#f_inputVariablesForm_" + pf ).dialog( "close" );
 			}		
@@ -2494,10 +2491,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
-			color : {
-				service : "#fbec88",
-				functionality: "#fbec88"
-			},
+			// color : {
+			// 	service : "#fbec88",
+			// 	functionality: "#fbec88"
+			// },
 			getBlankNode : function getBlankNode(x, y){
 				var blankNode = {
 					id : "", //inputNode.nodeId,
@@ -2647,7 +2644,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						return result;
 					},
-					drawIO : function drawIO(paper, color){
+					drawIO : function drawIO(paper){
 						var length = this.inputs.length, x, y, that = this,
 							start = function(){
 								gui.view.hideEdges();
@@ -2674,14 +2671,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
-								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
-								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': "white"});
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 							}
 						}
@@ -2689,15 +2686,15 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
-								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': color});
-								this.inputs[i].node.drag(move, start, end);
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
+								// this.inputs[i].node.drag(move, start, end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
-								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': color});
-								this.outputs[i].node.drag(move, start, end);
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
+								// this.outputs[i].node.drag(move, start, end);
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
@@ -2715,6 +2712,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					},
 					outputPathString: function outputPathString(x, y){
 						return("M " + x + " " + y + " l 0 5 l 5 5 l 5 -5 l 0 -5 z");
+					},
+					getBBox : function getBBox(){
+						var result = { x: this.x, y: this.y, width: this.width, height: this.height};
+						if(this.inputs.length > 0) result.height+=10;
+						if(this.outputs.length > 0) result.height+=10;
+						return result;
 					},
 					setBold : function setBold(flag){
 						if(flag)
@@ -2902,7 +2905,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			draw_controlNode : function draw_controlNode(node){
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
-				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
+				node.color = "white";
+				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
 					;
 				node.mainShape = c;
@@ -2919,7 +2923,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
 
-				node.drawIO(view.paper, "white");
+				node.drawIO(view.paper);
 
 				node.isInside = function(x1,y1,x2,y2){
 					return this.x+this.r > x1 &&
@@ -2978,6 +2982,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					serviceNameShown,
 					maxLength = 25
 				;
+				node.color = color;
 				node.mainShape = rect;
 				node.raph_label = label;
 
@@ -2992,7 +2997,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");
 
-				node.drawIO(paper, color);
+				node.drawIO(paper);
 
 				if(!drawNotForRepo){
 
@@ -3034,8 +3039,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				return node;
 			},
 			draw_functionalityNode : function draw_functionalityNode(node){
+				node.color = "#a6c9e2";
 				var id = node.id,
-					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#a6c9e2"),
+					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", node.color),
 					label = view.paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = view.paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
 					c1 = view.paper.circle(node.x+node.width/2, node.y, 4),
@@ -3054,7 +3060,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				node.mainShape.node.setAttribute("class", id);
 
-				node.drawIO(view.paper, "#a6c9e2");
+				node.drawIO(view.paper);
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
@@ -3169,7 +3175,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 				if(oldNode.mainShape.type == "circle"){
 					y -= oldNode.r;
-					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokoÅ›Ä‡ node-a
+					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
 				}
 				oldNode.removeView();
 				
@@ -3199,7 +3205,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					// console.log("aaa", this.sourceId, id, i)
 					if(this && this.sourceId === id){
 						io_tmp = newNode.getOutputById(this.output.id)
-						console.log("bbb", io_tmp);
+						// console.log("bbb", io_tmp);
 						if(io_tmp){
 							this.output = io_tmp;
 							this.update();
@@ -3249,7 +3255,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		updateGraph : function updateGraph(nodeId){
 			var node = this.getNodeById(nodeId);
 			if(node){
-				node.update();  //WÅ?ODKU WTF?!
+				node.update();
 			}
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
@@ -3518,7 +3524,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						} catch(e){
 							console.log(e);
 						}
-						// to  to jest dopuki bÅ‚aÅ¼ej nie poprawi czegoÅ›tam u siebie
+						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}

@@ -4,7 +4,6 @@ var a = alert;
 var jstr = JSON.stringify;
 // eof pomocnicze skróty
 
-// W tych dwóch funkcjach siedzą straszne ściany tekstu, które jednakowoż DZIAŁAJĄ i jak mi ktoś coś tam ruszy, to ma undefinedem w dziób.
 //te serie konkatenacji są mega nieoptymalne, ale dopóki coś się w tym grzebie, proponuję je zostawić - jak będziemy pewni, że nie trzeba tutaj
 //nic zmieniać/dodawać, to można z tego zrobić pojedynczą linijkę i chociaż trochę oszczędzić na sklejaniu stringów
 function skeletonAppender(lang,pf){
@@ -278,7 +277,7 @@ function isEmpty(obj){
 }
 function addSideScroller(paper){
 	// TODO: dobrze byłoby upgrade'ować to jakoś tak, żeby wywołanie nie miało 20 linijek...
-	var invisible = 0,
+	var multiplier = 0,
 		visible = .4,
 		animationTime = 100,
 		visibleHeight = paper.height,
@@ -292,7 +291,7 @@ function addSideScroller(paper){
 			});
 			return max - min + 10; //10 dodaję jako margines
 		},
-		isValid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
+		isInvalid = function(set){	//sprawdza, czy tablica obiektów może zostać użyta
 			return
 				set.some(function(elem){
 					return (getType(elem.getBBox) != "function" || getType(elem.translate) != "function")
@@ -301,27 +300,33 @@ function addSideScroller(paper){
 		scroll = {
 			move: function move(set, mult){
 				return function(dx, dy){
-					var newY = this.oy + dy, altDy; 
+					var newY = this.oy + dy, altDy, blockDy;
 					if(newY >= 0 && newY + this.attr("height") <= visibleHeight){
-						this.transform("t0,"+dy);
+						this.attr({'y': newY});;
+						blockDy = newY - this.lastPos;
 						$.each(set, function(){
-							this.translate(0, (-1*dy/mult)); //this.transform("t0,"+(-1*dy/mult))
+							this.translate(0, (-1*blockDy/mult));
 						});
+						this.lastPos = newY;
 					}
-					else{ 
+					else{
 						if(newY < 0)
 							altDy = this.oy;
 						else
-							altDy = visibleHeight - this.oy - this.attr("height");
-						this.transform("t0,"+altDy);
+							altDy = visibleHeight - this.attr("height");
+						// console.log('altDy: '+altDy);
+						this.attr({'y': altDy});
+						blockDy = altDy - this.lastPos;
 						$.each(set, function(){
-							this.translate(0, (-1*(altDy/mult+5))); //this.transform("t0,"+(-1*(altDy/mult+5)));
+							this.translate(0, (-1*(blockDy/mult)));
 						});
+						this.lastPos = altDy;
 					}
 				}
 			},
 			start: function start(){
 				this.oy = this.attr("y");
+				this.lastPos = this.attr("y");
 			},
 			stop: function stop(){},
 			init: function init(){
@@ -333,20 +338,20 @@ function addSideScroller(paper){
 			//update musi być wywoływany przy każdorazowej zmianie zawartości kanwy, na której siedzi sobie scroll
 			update: function update(set){
 				var result = false;
-				if(isValid(set)){
+				if(!isInvalid(set)){
 					this.set = set;
 					var setHeight = checkHeight(set);
-					this.multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
-					this.slider.attr({height: visibleHeight*this.multiplier});
-					this.slider.drag(this.move(this.set, this.multiplier), this.start, this.stop);
+					multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
+					this.slider.attr({height: visibleHeight*multiplier});
+					this.slider.drag(this.move(this.set, multiplier), this.start, this.stop);
 					result = true;
 				}
 				else
-					;// console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
+					console.log("Invalid object array passed to the addSideScroller() function. There will be NO side scroller for you! :[");
 				return result;
 			},
 			showYourself: function showYourself(){
-				if(this.multiplier !== 1)
+				if(multiplier !== 1)
 					this.slider.show();
 			},
 			goHide: function goHide(){
