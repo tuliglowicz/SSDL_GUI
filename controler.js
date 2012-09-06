@@ -14,22 +14,25 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			require: "sdb_json_array div raphael_x_500".split(" "),
 			init: function init() {
 				if ($("#repoNodes_" + pf).length === 0) {
-					var that, left, top;
 					$("#right_plugins_" + pf).append("<div id='repoNodes_" + pf + "' class='plugin_" + pf + "'> </div>");
 					this.paper = Raphael("repoNodes_" + pf, gui.view.columnParams.rightCol.width - 1, 500);
 					this.scroller = addSideScroller(this.paper);
-					left = $("#repoNodes_" + pf).position().left;
-					that = this;
-					this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height).attr({
-						opacity: 0,
-						fill: "ivory"
-					}).mouseover(function() {
-						that.scroller.showYourself();
-					}).mouseout(function(evt, x, y) {
-						top = $("#navigator_" + pf).position().top + $("#navigator_" + pf).height();
-						if (!that.cover.isPointInside(x - left, y - top)) that.scroller.goHide();
-					}).toBack();
+					this.createCover();					
 				}
+			},
+			createCover: function createCover(){
+				var that, left, top;
+				left = $("#repoNodes_" + pf).position().left;
+				that = this;
+				this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height).attr({
+					opacity: 0,
+					fill: "ivory"
+				}).mouseover(function() {
+					that.scroller.showYourself();
+				}).mouseout(function(evt, x, y) {
+					top = $("#navigator_" + pf).position().top + $("#navigator_" + pf).height();
+					if (!that.cover.isPointInside(x - left, y - top)) that.scroller.goHide();
+				}).toFront();
 			},
 			convertData: function generateData(node, n) {
 				var result = visualiser.getBlankNode();
@@ -79,6 +82,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					that.currNodes.push(tmp);
 				});
 
+				this.scroller.init();
 				this.scroller.update(this.currNodes);
 
 				return this;
@@ -87,8 +91,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				if (this.paper) {
 					this.paper.clear();
 					this.currNodes.length = 0;
+					this.createCover();
 				}
-
 				return this;
 			}
 		}
@@ -1282,8 +1286,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
 						if (wrongsList.length == 0) {
 							e.nodeId = that.generateId();
-							//WTF CZY NAPRAWDĘ NIKT TEGO JESZCZE NIE ZAUWAŻYŁ JEZU LUDZIE :(
-							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
+							var graphNode = gui.view.visualiser.visualiseNode(e);
 							graphNode.switchMode( gui.view.mode );
 							gui.view.current_graph_view.nodes.push(graphNode);
 							that.current_graphData.nodes.push(e);
@@ -1306,7 +1309,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else {
 							gui.view.form.handleErrors(wrongsList);
 						}
-						Deploying
+						// Deploying
 					}
 				})(evtObj);
 				break;
@@ -1445,6 +1448,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 						source.functionalDescription.outputs.push(output);
 						gui.view.updateNode(source);
+
 						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
 
 						// console.log(source)
