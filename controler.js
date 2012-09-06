@@ -1394,6 +1394,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "SELECT":
 				(function(e) {
 					gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
+					gui.view.selectEdgesInsideRect(e);
 				})(evtObj);
 				break;
 			case "CLEARGRAPH":

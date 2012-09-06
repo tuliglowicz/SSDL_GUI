@@ -205,8 +205,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		return mainMenu;	
 	};
 	function contextMenu(listenedObjId, guiView){
-		/* ContextMenu 2.1 (Błażej)
-			* SUBMITTED: 30.08.2012
+		/* ContextMenu 2.2 (Błażej)
+			* SUBMITTED: 06.09.2012
 			* REQUIRED PARAMS: 
 			* - listenedObjId (id of object to witch we attach menu)
 			* - guiView (GUI View object)
@@ -218,6 +218,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
 			* -> addSeparator (function() adding separator to current level of menu)
 			* -> getOption (function(label) returning option with specified label at currrent level of option tree)
+			* -> refresh(function(listenedObject) changing listened object)
 		*/
 
 		//structure holder object
@@ -249,7 +250,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		}
 		//private variables
-		var caller = document.getElementById(listenedObjId),
+		var caller,
 			root = new option(listenedObjId+'CM', 'menuRoot', null, null, false, 0),
 			width = $('body').width(),
 			margin = 10,
@@ -300,7 +301,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$(div).css('display', 'block');
 			}
 			return div;
-		}
+		};
 		var attachListeners = function(div, subDiv, opt){
 			$(subDiv).mousedown(function(){
 				// console.log(typeof opt.invokedEvent);
@@ -338,7 +339,29 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function () {
 					$(this).css("color","black");
 				});
-		}
+		};
+		var refresh = function(listenedObjId){
+			//event listeners for id or raphael set
+			if(typeof listenedObjId == 'string'){
+				var caller = document.getElementById(listenedObjId);
+				caller.oncontextmenu = function(event){
+					return checkNOpen(event);
+				}
+			}else{
+				var caller = listenedObjId;
+				if(!caller.items){
+					$(caller.node).bind("contextmenu", function(event){
+						return checkNOpen(event);
+					});
+				}else{
+					$.each(caller.items, function(){
+						$(this.node).bind("contextmenu", function(event){
+							return checkNOpen(event);
+						});
+					});
+				}
+			}
+		};
 		var that = this;
 		var menu = {
 			//public functions
@@ -369,7 +392,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					return true;
 				}
 				return false;
-			}
+			},
+			refresh: refresh
 		}
 		//universal open with event
 		var checkNOpen = function(event){
@@ -379,26 +403,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 			return false;
 		};
-		//event listeners for id or raphael set
-		if(typeof listenedObjId == 'string'){
-			var caller = document.getElementById(listenedObjId);
-			caller.oncontextmenu = function(event){
-				return checkNOpen(event);
-			}
-		}else{
-			var caller = listenedObjId;
-			if(!caller.items){
-				$(caller.node).bind("contextmenu", function(event){
-					return checkNOpen(event);
-				});
-			}else{
-				$.each(caller.items, function(){
-					$(this.node).bind("contextmenu", function(event){
-						return checkNOpen(event);
-					});
-				});
-			}
-		}
+		//setting listeners and callerObj
+		refresh(listenedObjId);
 		//pushing into menu list
 		guiView.menuList.getInstance().push(menu);
 		//object return
@@ -3745,29 +3751,30 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
-						var that = this;
-						var selectArrow = function(e){
-							if(!e.ctrlKey){
-								gui.controler.reactOnEvent("ESCAPE");
-								that.arrowGlow.remove();
-							}
-							that.arrowGlow = gui.view.paper.set();
-							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-							gui.controler.reactOnEvent("EDGESELECTED", that);
-							e = e || window.event;
-							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-							that.highlighted = true;
-							return false;
-						}
 						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(selectArrow);
-						this.arrow[1].click(selectArrow);
-						this.arrowGlow.click(selectArrow);
+						this.arrow[0].click(this.selectArrow);
+						this.arrow[1].click(this.selectArrow);
+						this.arrowGlow.click(this.selectArrow);
+					},
+					selectArrow : function(e){
+						console.log(this, ' != ', edgeObject, '???'); // jakim cudem raphael object???!!!
+						// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+						e = e || window.event;
+						if(!e.ctrlKey){
+							gui.controler.reactOnEvent("ESCAPE");
+							edgeObject.arrowGlow.remove();
+						}
+						edgeObject.arrowGlow = gui.view.paper.set();
+						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+						gui.controler.reactOnEvent("EDGESELECTED", edgeObject);
+						e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+						edgeObject.highlighted = true;
+						return false;
 					}
 				}
 				;
@@ -3795,6 +3802,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						input : data.input,
 						view : this,
 						type : "DF",
+						visible : true,
 						toString : function toString(){
 							return "SSDL_DFEdge object";
 						},
@@ -3802,11 +3810,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow[0].hide();
 							this.arrow[1].hide();
 							this.arrowGlow.hide();
+							this.visible = false;
 						},
 						show: function show(){
 							this.arrow[0].myShow(300);
 							this.arrow[1].myShow(300);
 							this.arrowGlow.show();
+							this.visible = true;
 						},
 						remove : function remove(){
 							this.arrow[0].remove();
@@ -3817,7 +3827,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							if(mode === "CF"){
 								this.hide();
 							} else if(mode === "DF"){
-								this.update();
+								this.update(this.highlighted);
 								this.show();
 							} else if(mode === "H"){
 
@@ -3825,7 +3835,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								// console.log(Wrong Argument)
 							}
 						},						
-						update : function(){
+						update : function(modeSwitch){
 							var extraTime = 0;
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
@@ -3838,44 +3848,53 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 							// try{
 							var bboxInput = this.input.node.getBBox(),
-								bboxOutput = this.output.node.getBBox(),
-								coords = {
+								bboxOutput = this.output.node.getBBox();
+								this.coords = {
 									x1 : bboxOutput.x + bboxOutput.width / 2,
 									y1 : bboxOutput.y + bboxOutput.height / 2,
 									x2 : bboxInput.x + bboxInput.width / 2,
 									y2 : bboxInput.y + bboxInput.height / 2
-								}
-								;
+								};
 
-							this.arrow = this.view.visualiser.drawEdge(coords);
-							var that = this;
-							var selectArrow = function(e){
-								if(!e.ctrlKey){
-									gui.controler.reactOnEvent("ESCAPE");
-									that.arrowGlow.remove();
-								}
-								that.arrowGlow = gui.view.paper.set();
-								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-								gui.controler.reactOnEvent("EDGESELECTED", that);
-								e = e || window.event;
-								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-								that.highlighted = true;
-								return false;
-							}
-							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							this.arrow = this.view.visualiser.drawEdge(this.coords);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-							this.arrow[0].click(selectArrow);
-							this.arrow[1].click(selectArrow);
-							this.arrowGlow.click(selectArrow);
-							this.highlighted = false;
+							this.arrow[0].click(this.selectArrow);
+							this.arrow[1].click(this.selectArrow);
+							this.arrowGlow.click(this.selectArrow);
+							if(!modeSwitch) this.highlighted = false;
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
 							// }
+						},
+						isInside : function(e){
+							var x1 = e.x1,
+								y1 = e.y1,
+								x2 = e.x2,
+								y2 = e.y2,
+								x3 = this.coords.x1,
+								y3 = this.coords.y1,
+								x4 = this.coords.x2,
+								y4 = this.coords.y2;
+							if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
+						},
+						selectArrow : function(e, multiselect){
+							if(this!=edgeObject) console.log(this, ' != ', edgeObject, '???CENSORED??? (this!=this xD)'); // jakim cudem raphael object???!!!
+							// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+							e = e || window.event;
+							if(!e.ctrlKey&&!multiselect){
+								gui.controler.reactOnEvent("ESCAPE");
+								edgeObject.arrowGlow.remove();
+							}
+							edgeObject.arrowGlow = gui.view.paper.set();
+							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+							gui.controler.reactOnEvent("EDGESELECTED", this);
+							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							edgeObject.highlighted = true;
+							return false;
 						}
 					}
 				;
@@ -4174,8 +4193,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				else if(!ctrl){
 					v.removeHighlight();
 				}
-
 			});	
+		},
+		selectEdgesInsideRect : function selectEdgesInsideRect(e){
+			$.each(this.current_graph_view.edgesDF, function(k, v){
+				if(v.isInside(e)) v.selectArrow(e, true);
+			});
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
