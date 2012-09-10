@@ -1602,8 +1602,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						gui.view.removeAllGraphs();
 						gui.view.setBlankGraphAsCurrent()
 
-						this.graphData_tab = tab;
-						this.current_graphData = tab[tab.length - 1];
+						if(tab.length == 0){
+							this.graphData_tab = [ current_graphData ];
+						} else {
+							this.graphData_tab = tab;
+							this.current_graphData = tab[tab.length - 1];
+						}
 
 						gui.view.parseAndSetDataModelToView(this.graphData_tab);
 
@@ -1930,7 +1934,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			function parseGraph(subgraph, tabulacja) {
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
-				if (subgraph.nodes && subgraph.nodes.length > 0) {
+				if (subgraph && subgraph.nodes && subgraph.nodes.length > 0) {
 					tabOutput.push(tabulacja + "<nodes>\n");
 					$.each(subgraph.nodes, function(key, node) {
 						parseNode(key, node, tabulacja);
