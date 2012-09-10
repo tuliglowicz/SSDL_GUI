@@ -205,8 +205,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		return mainMenu;	
 	};
 	function contextMenu(listenedObjId, guiView){
-		/* ContextMenu 2.1 (Błażej)
-			* SUBMITTED: 30.08.2012
+		/* ContextMenu 2.2 (Błażej)
+			* SUBMITTED: 06.09.2012
 			* REQUIRED PARAMS: 
 			* - listenedObjId (id of object to witch we attach menu)
 			* - guiView (GUI View object)
@@ -218,6 +218,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
 			* -> addSeparator (function() adding separator to current level of menu)
 			* -> getOption (function(label) returning option with specified label at currrent level of option tree)
+			* -> refresh(function(listenedObject) changing listened object)
 		*/
 
 		//structure holder object
@@ -249,7 +250,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		}
 		//private variables
-		var caller = document.getElementById(listenedObjId),
+		var caller,
 			root = new option(listenedObjId+'CM', 'menuRoot', null, null, false, 0),
 			width = $('body').width(),
 			margin = 10,
@@ -300,7 +301,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$(div).css('display', 'block');
 			}
 			return div;
-		}
+		};
 		var attachListeners = function(div, subDiv, opt){
 			$(subDiv).mousedown(function(){
 				// console.log(typeof opt.invokedEvent);
@@ -338,7 +339,29 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function () {
 					$(this).css("color","black");
 				});
-		}
+		};
+		var refresh = function(listenedObjId){
+			//event listeners for id or raphael set
+			if(typeof listenedObjId == 'string'){
+				var caller = document.getElementById(listenedObjId);
+				caller.oncontextmenu = function(event){
+					return checkNOpen(event);
+				}
+			}else{
+				var caller = listenedObjId;
+				if(!caller.items){
+					$(caller.node).bind("contextmenu", function(event){
+						return checkNOpen(event);
+					});
+				}else{
+					$.each(caller.items, function(){
+						$(this.node).bind("contextmenu", function(event){
+							return checkNOpen(event);
+						});
+					});
+				}
+			}
+		};
 		var that = this;
 		var menu = {
 			//public functions
@@ -369,7 +392,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					return true;
 				}
 				return false;
-			}
+			},
+			refresh: refresh
 		}
 		//universal open with event
 		var checkNOpen = function(event){
@@ -379,26 +403,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 			return false;
 		};
-		//event listeners for id or raphael set
-		if(typeof listenedObjId == 'string'){
-			var caller = document.getElementById(listenedObjId);
-			caller.oncontextmenu = function(event){
-				return checkNOpen(event);
-			}
-		}else{
-			var caller = listenedObjId;
-			if(!caller.items){
-				$(caller.node).bind("contextmenu", function(event){
-					return checkNOpen(event);
-				});
-			}else{
-				$.each(caller.items, function(){
-					$(this.node).bind("contextmenu", function(event){
-						return checkNOpen(event);
-					});
-				});
-			}
-		}
+		//setting listeners and callerObj
+		refresh(listenedObjId);
 		//pushing into menu list
 		guiView.menuList.getInstance().push(menu);
 		//object return
@@ -540,7 +546,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 
 				var text_service = this.paper.text(textHorizontalPosition,10, language[gui.language].nodes.service);
-
 				text_service.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
@@ -556,10 +561,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
-
 				var text_mediator = this.paper.text(textHorizontalPosition,130,language[gui.language].nodes.mediator);
 					// .hide();
 					text_mediator.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_mediator);
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
 					.attr({fill:"#ffffff"})
 					.dblclick(onDblClick("Mediator"));
@@ -1005,7 +1010,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		return result;
 	};
-	//sidescroller -> moved to library.js
 	function form() {
 		var formJSON = [
 			{
@@ -1228,7 +1232,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				{
 					label: "relation",
 					id: "f_globalNonFunctionalDescription_relation",
-					inputType: "textBox",
+					inputType: "select",
 					validation: function(){},
 					values:["eq", "gt", "le", "leq", "geq"]
 				},
@@ -1339,7 +1343,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			selectedGlobalNFPropertyIndex: -1,
 
 			initToEdit: function initToEdit(node){
-				var titleText = 'Viewing a ' + node.nodeType + ' type node';
+				var titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode;
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
@@ -1386,7 +1390,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$('#ui-dialog-title-form_' + pf).text(titleText);
 				this.adjustForm(nodeData.nodeType);
 				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
-				$( "#f_mainTab_nodeType_" + pf ).val(nodeData.nodeType);
 				$( "#form_" + pf ).dialog( "open" );
 			},
 			adjustForm: function adjustForm(nodeType){
@@ -1430,6 +1433,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_outputsTab_outputs_" + pf + " tbody" ).empty();
 				this.resetSelectedOutputIndex();
 			},
+		//obsługa błędów walidacji i czyszczenie
 			handleErrors: function handleErrors(array){
 				$.each(array, function(){						
 					var splitty = this.split("_"), 
@@ -1476,6 +1480,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
 			},
+		//dodawanie elementów
 			appendIO: function appendIO(array, type){
 				var input;
 				if(type==="inputs"){
@@ -1555,9 +1560,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			},
 			appendGlobalNonFuncDesc : function appendGlobalNonFuncDesc(globNonFuncDesc){
-				console.log(globNonFuncDesc)
+				console.log(globNonFuncDesc);
 				for( var prop in globNonFuncDesc ){
-					inpVars.push(globNonFuncDesc[prop]);
+					globalNonFuncDesc.push(globNonFuncDesc[prop]);
+					// alert(jsonFormatter(globalNonFuncDesc, true, true)); //Włodku, tu było inpVars, to CHYBA ŹLE
 					this.globalNonFunPropsAppender(globNonFuncDesc[prop], prop);
 				}				
 			},
@@ -1632,6 +1638,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				});
 				return result;
 			},
+		//obsługa zaznaczenia w tabeli
 			clearInputSelectionInTable: function clearInputSelectionInTable(){
 				$.each($("#f_inputsTab_inputs_" + pf + " tbody").children(), function(){
 					$(this).removeClass("ui-state-active");
@@ -1657,6 +1664,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$(this).removeClass("ui-state-active");
 				});
 			},
+		//usuwanie undefinedów z tablic i/o/nfp
 			removeUndefinedElements: function removeUndefinedElements(){
 				for(var i in this.funcDescJSON.inputs)
 					if(!this.funcDescJSON.inputs[i])
@@ -1671,6 +1679,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					if(!this.funcDescJSON.serviceClasses[i]) 
 						this.funcDescJSON.serviceClasses.splice(i, 1);
 			},
+		//obsługa zmiennych określających zaznaczone elementy w tabelach
 			getSelectedInputIndex: function getSelectedInputIndex(){
 				return this.selectedInputIndex;
 			},
@@ -1750,6 +1759,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
+		// Addy
 			addServiceClass: function addServiceClass(){
 				var input = $("#f_mainTab_serviceClass_" + pf ).val(), index;
 				if(input!=="" && !this.stringExists(input, this.funcDescJSON.serviceClasses)){
@@ -1759,24 +1769,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 				$("#f_mainTab_serviceClass_" + pf ).val("");
 			},
-			// addMetaKeyword: function addMetaKeyword(){
-			// 	var input = $("#f_inputOutputTab_metaKeyword").val();
-			// 	if(!this.stringExists(input, this.funcDescJSON.metaKeywords)){
-			// 		this.funcDescJSON.metaKeywords.push(input);
-			// 		$( "#f_inputOutputTab_mKeywords" ).append("<span id=\"mk_"+ input + "\">" + input + ", </span>"); 	
-			// 	}
-			// 	$("#f_inputOutputTab_metaKeyword").val("");
-			// },
-			// addSource: function addSource(){
-			// 	$( "#f_mainTab_source" ).removeClass( "ui-state-error" ); 
-			// 	var input = $("#f_mainTab_source").val();
-			// 	if(!this.stringExists(input, this.resultJSON.sources)){
-			// 		this.resultJSON.sources.push(input);
-			// 		$( "#f_mainTab_sources" ).append("<span id=\"src_"+ input + "\">" + input + ", </span>"); 	
-			// 	}
-			// 	$( "#f_mainTab_source" ).val(""); 
-			// },
-		// Addy
 			addInput: function addInput(){
 				var inputJSON = {"class":"","id":"","label":"","dataType":"","properties":"","source":[]},
 					index = this.getSelectedInputIndex();
@@ -1962,7 +1954,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
 				$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
 				$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text("Edit existing input variable");
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.language].forms.editExistingInputVariable);
 				this.clearInputVariableSelectionInTable();
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			},
@@ -1975,7 +1967,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
 				$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
 				$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text("Edit existing graph non functional property");
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.language].forms.editExistingGraphNonFunctionalProperty);
 				this.clearGlobalNFPropertySelectionInTable();
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
 			},
@@ -1998,7 +1990,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$( "#f_inputVariables_" + pf + " tbody").html("");
 			},
 			resetGlobalNonFunDesc : function resetGlobalNonFunDesc(){
-				inpVars = [];
+				globalNonFuncDesc = [];
 				$( "#f_globalNFProps_" + pf + " tbody").html("");
 			},
 			resetAll: function resetAll(){
@@ -2077,27 +2069,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		*/
 		};
 		
-	//SUBMITY			
+		//Obsługa przycisków, kliknięć, etc. 		
 		$("#f_button_sumbitAllButton_" + pf).button().click(function() {
 			result.submitAll();
 		});
-		//preventDefault() w tych submitach zapobiega zamknięciu całego formularza po submitnieciu czegokolwiek
+		//Addy
 		$("#f_mainTab_serviceClass_addButton_" + pf).button().click(
 			function(event) {
-				event.preventDefault();
 				result.addServiceClass();
-			}
-		);
-		$("#f_button_addMetaKeyword_" + pf).button().click(
-			function(event) {
-				event.preventDefault();
-				result.addMetaKeyword();
-			}
-		);
-		$("#f_button_addSource_" + pf).button().click(
-			function(event) {
-				event.preventDefault();
-				result.addSource();
 			}
 		);
 		$("#f_inputsTab_openAddInputForm_" + pf).button().click(
@@ -2145,6 +2124,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
+		//Edity
 		$("#f_inputsTab_openEditInputForm_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputIndex();
@@ -2179,7 +2159,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedGlobalNFPropertyIndex();
 				if(index == -1)
-					alert("No graph non functional property selected!");
+					alert(language[gui.language].alerts.errors.noGraphNonFunctionalPropertySelected);
 				else{
 					result.openEditGlobalNonFunc(index);
 				}
@@ -2189,12 +2169,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noEntrySelected);
+					alert(language[gui.language].alerts.errors.noNonFunctionalPropertySelected);
 				else{
 					result.openEditNonFunc(index);
 				}
 			}
 		);
+		//Delety
 		$("#f_inputsTab_deleteThisInput_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputIndex();
@@ -2252,7 +2233,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		$("#f_button_resetAllButton_" + pf).button().click(
 			function(event) {
 				event.preventDefault();
-				$( "#f_dialog_confirm1" ).dialog("open");
+				$( "#f_dialog_confirm1_" + pf ).dialog("open");
 			}
 		);
 		$("#f_button_clearNonFunctional_" + pf).button().click(
@@ -2270,7 +2251,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				result.previousTab();
 			}
 		);
-		//Zaznaczanie wybranego I/O/NFProperty w tabelce
+		//Zaznaczanie wybranego I/O/NFProperty w tabelce; dblclick -> edit selected
 		$('tr[id^="f_inputsTabxinputs"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
 			result.clearInputSelectionInTable();
@@ -2303,7 +2284,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		});
 		$('tr[id^="f_inputVariables"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
-			console.log(index);
 			result.clearInputVariableSelectionInTable();
 			if(result.getSelectedInputVariableIndex() == index)
 				result.resetSelectedInputVariableIndex();
@@ -2347,57 +2327,112 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			setTimeout(function(){result.setSelectedNFPropertyIndex(index);},1000);
 			result.openEditNonFunc(index);
 		});
-		//spany z source'ami, service classes i meta keywords
-		// $('span[id^="src_"]').live("click", function(form){
-		// 	return (function(){
-		// 		form.removeSource($(this));
-		// 	});
-		// }(result));
+		//usuwanie SC via kliknięce na niej; TODO: małe iksiki zamiast klikania na span
 		$('span[id^="f_sc_"]').live("click", function(form){
 			return (function(){
 				form.removeServiceClass($(this));
 			});
 		}(result));
-		// $('span[id^="mk_"]').live("click", function(form){
-		// 	return (function(){
-		// 		form.removeMetaKeyword($(this));
-		// 	});
-		// }(result));
+
+		//przyciski w oknach modalnych nie związane bezpośrednio z CRUD: confirmy i cancele
+		$("#f_button_resetConfirm1_" + pf).button().click(
+			function(event) {
+				$( "#f_dialog_confirm1_" + pf ).dialog("close");
+				$( "#f_dialog_confirm2_" + pf ).dialog("open");
+			}
+		);
+		$("#f_button_resetConfirm2_" + pf).button().click(
+			function(event) {
+				$( "#f_dialog_fine_" + pf ).dialog("open");
+				$( "#f_dialog_confirm2_" + pf ).dialog("close");
+				result.resetAll();
+			}
+		);
+		$("#f_button_resetCancel1_"+pf).button().click(
+			function(event) {
+				$( "#f_dialog_confirm1_" + pf ).dialog("close");
+				return false;
+			}
+		);
+		$("#f_button_resetCancel2_"+pf).button().click(
+			function(event) {
+				$( "#f_dialog_confirm2_" + pf ).dialog("close");
+				return false;
+			}
+		);
+		$("#f_addInputForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addInput();
+			}			
+		);
+		$("#f_addOutputForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addOutput();
+			}			
+		);
+		$("#f_addNFPropertyForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addNonFunctional();
+			}		
+		);
+		$("#f_addGlobalNFPropertyForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addGlobalNonFunctional();
+			}
+		);
+		$("#f_addInputVariableForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addInputVariable();
+			}	
+		);
+		$("#f_inputVariablesForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				for(var i in inpVars)
+					if(!inpVars[i])
+						inpVars.splice(i, 1);
+				gui.controler.current_graphData.inputVariables = inpVars;
+				$( "#f_inputVariablesForm_" + pf ).dialog( "close" );
+			}		
+		);
+		$("#f_globalNFPropertiesForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				for(var i in globalNonFuncDesc)
+					if(!globalNonFuncDesc[i])
+						globalNonFuncDesc.splice(i, 1);
+				gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
+				$( "#f_globalNFPropertiesForm_" + pf ).dialog( "close" );
+			}	
+		);
+		$("#f_graphSaveParamsForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				var result = gui.view.form.collectGraphSaveParams();
+				if(result){
+					$( "#f_graphSaveParamsForm_" + pf ).dialog( "close" );
+					gui.controler.reactOnEvent("save", result)
+				} else {
+					alert(language[gui.language].alerts.inputData);
+				}
+			}	
+		);
+		$('button[id$="Form_changesCancel_' + pf + '"]').button().click(function(event) {
+				$( "#f_" + event.target.id.split("_")[1] + "_" + pf ).dialog( "close" );
+			}
+		);
+
+		//OBSŁUGA OKIEN MODALNYCH		
 		$( "#f_dialog_confirm1_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 200,
 			width: 320,
-			modal: true,
-			buttons: {
-				"Yes, clear the form": function() {
-					$(this).dialog("close");
-					$( "#f_dialog_confirm2_" + pf ).dialog("open");
-
-				},
-				Cancel: function() {
-					$(this).dialog("close");
-					return false;
-				}
-			}
+			modal: true
 		});
 		$( "#f_dialog_confirm2_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 200,
 			width: 320,
-			modal: true,
-			buttons: {
-				"Yes, I'm 100% sure": function() {
-					$( "#f_dialog_fine_" + pf ).dialog("open");
-					$(this).dialog("close");
-					result.resetAll();
-				},
-				Cancel: function() {
-					return false;
-					$(this).dialog("close");
-				}
-			}
+			modal: true
 		});
 		$( "#f_dialog_fine_" + pf ).dialog({
 			autoOpen: false,
@@ -2413,139 +2448,60 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			autoOpen: false,
 			modal: true,
 			height: 250,
-			width: 450,
-			buttons: {
-				"Confirm": function() {
-					result.addInput();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 450
 		});
 		$("#f_addOutputForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 250,
-			width: 450,
-			buttons: {
-				"Confirm": function() {
-					result.addOutput();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 450
 		});
 		$("#f_addNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 500,
-			buttons: {
-				"Confirm": function() {
-					result.addNonFunctional();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_addGlobalNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 350,
-			buttons: {
-				"Confirm": function() {
-					result.addGlobalNonFunctional();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 350
 		});
 		$("#f_addInputVariableForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
-			width: 350,
-			buttons: {
-				"Confirm": function() {
-					result.addInputVariable();
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 350
 		});
 		$("#f_inputVariablesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 350,
-			width: 500,
-			buttons: {
-				"Save changes": function() {
-					// gui.controler.current_graphData.
-					for(var i in inpVars)
-						if(!inpVars[i])
-							inpVars.splice(i, 1);
-					console.log(inpVars)
-					gui.controler.current_graphData.inputVariables = inpVars;
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_globalNFPropertiesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 350,
-			width: 500,
-			buttons: {
-				"Save changes": function() {
-					for(var i in globalNonFuncDesc)
-						if(!globalNonFuncDesc[i])
-							globalNonFuncDesc.splice(i, 1);
-					gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
-					$( this ).dialog( "close" );
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 500
 		});
 		$("#f_graphSaveParamsForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 200,
-			width: 300,
-			buttons: {
-				"Save changes": function() {
-					var result = gui.view.form.collectGraphSaveParams();
-					if(result){
-						$( this ).dialog( "close" );
-						gui.controler.reactOnEvent("save", result)
-					} else {
-						alert(language[gui.language].alerts.inputData);
-					}
-				},
-				Cancel: function() {
-					$( this ).dialog( "close" );
-				}
-			}
+			width: 300
 		});
 
 		return result;
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
-			color : {
-				service : "#fbec88",
-				functionality: "#fbec88"
-			},
+			// poniższe rodzi pytanie, ile jeszcze takich kwiatków mamy w kodzie?
+			// color : {	// 1. po co to tutaj jest? 2. nie lepiej utworzyć plik settings albo dać to do library? 3. TO W OGÓLE NIE JEST UŻYWANE, prawda?
+			// 	service : "#fbec88",
+			// 	functionality: "#fbec88"
+			// },
 			getBlankNode : function getBlankNode(x, y){
 				var blankNode = {
 					id : "", //inputNode.nodeId,
@@ -2693,6 +2649,123 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 						});
 
+						return result;
+					},
+					addInput : function addInput(input){
+						this.clearIO();
+						this.inputs.push( $.extend(true, {}, input) );
+						// console.log(jsonFormatter(input,true,true));
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
+					addOutput : function addOutput(output){
+						this.clearIO();
+						this.outputs.push( $.extend(true, {}, output) );
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
+					drawIO : function drawIO(paper){
+						var length = this.inputs.length, x, y, that = this,
+							start = function(){
+								gui.view.hideEdges();
+								this.ox = 0;
+							},
+							//HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
+							move = function(dx){
+								var nx = this.getBBox().x + dx; //WTF this is SO broken
+								if(nx > that.x && nx < (that.x + that.width)){
+									this.translate(dx - this.ox);
+									this.dist1 += (dx - this.ox); this.dist2 -= (dx - this.ox); this.ox = dx; 
+								}
+							},
+							end = function(){
+								gui.view.updateEdges();
+							};
+						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
+							var mult = 1/1.41,	//odwrotność pierwiastka z 2
+								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
+								coordsList = [
+								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
+								[nx+nr*mult, ny+nr*mult], [nx+nr*mult, ny-nr*mult],
+								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
+							for(var i = 0; i < length; i++){
+								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
+								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
+							}
+							length = this.outputs.length;
+							for(var i = 0; i < length; i++){
+								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
+								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
+								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
+							}
+						}
+						else {
+							var spacing = this.width/(length+1);
+							for(var i = 0; i < length; i++){
+								x = this.x + (i+1)*spacing; y = this.y-10;
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
+								// this.inputs[i].node.drag(move, start, end);
+								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+							}
+							length = this.outputs.length; spacing = this.width/(length+1);
+							for(var i = 0; i < length; i++){
+								x = this.x + (i+1)*spacing; y = this.y+this.height;
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
+								// this.outputs[i].node.drag(move, start, end);
+								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
+							}
+						}
+						view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
+						this.addInputTooltips();
+						this.addOutputTooltips();
+					},
+					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
+					// pozwala przerysować IO bez przerysowywania całego node'a
+					clearIO: function clearIO(){
+						for(var i in this.inputs)
+							this.inputs[i].node.remove();
+						for(var o in this.outputs)
+							this.outputs[o].node.remove();
+					},
+					inputPathString: function inputPathString(x, y){
+						return("M " + x + " " + y + " l 0 10 l 10 0 l 0 -10 l -5 5 z");
+					},
+					outputPathString: function outputPathString(x, y){
+						return("M " + x + " " + y + " l 0 5 l 5 5 l 5 -5 l 0 -5 z");
+					},
+					addInputTooltips: function addInputTooltips(){
+						var that = this;
+						$.each(this.inputs, function(){
+							this.description = that.prepareDescriptionForInput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
+					},
+					addOutputTooltips: function addOutputTooltips(){
+						var that = this;
+						$.each(this.outputs, function(){
+							this.description = that.prepareDescriptionForOutput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
+					},
+					getBBox : function getBBox(){
+						var result = { x: this.x, y: this.y, width: this.width, height: this.height};
+						if(this.inputs.length > 0) result.height+=10;
+						if(this.outputs.length > 0) result.height+=10;
 						return result;
 					},
 					setBold : function setBold(flag){
@@ -2881,68 +2954,25 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			draw_controlNode : function draw_controlNode(node){
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
-				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: "white"}),
-					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333"),
-					input_length, output_length, i_tab = [], o_tab = [],
-					multX = 1, multY = 1, x1, y1, x2, y2
+				node.color = "white";
+				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color}),
+					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
 					;
 				node.mainShape = c;
 				if(node.controlType.toLowerCase() == "#start")
 					node.mainShape.attr({cursor: "crosshair"});
 				node.raph_label = label;
-
-
 				node.raph_label.dblclick(function(){
 					gui.controler.reactOnEvent("EditNode", {nodeId: node.id});
 				})
-
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
-
-				//obliczanie punkt�?³w na okrÄ™gu
-				x1 = (node.x+node.r) - 10;
-				y1 = Math.sqrt(Math.abs(node.r*node.r - (x1 - node.x)*(x1 - node.x) - (node.y*node.y - 2*node.y)));
-				x2 = Math.abs(x1-node.x); y2 = Math.abs(y1-node.y);
-				// alert(node.x + ":" + node.y + ":" + x1 + ":" + y1 + ":" + x2 + ":" + y2)
-
-				var currIO;
-				for(var k = 0; k < input_length; k++){
-					currIO = node.inputs[k];
-					if(k < 4){
-						multX = ((k % 2) === 0) ? -1 : 1;
-						multY = (k < 2) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(y2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
-					}
-					else{
-						multX = ((k % 2) === 0) ? -1 : 1;
-						multY = (k < 6) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+k : -15-k)) + " " + parseInt(node.y+(x2*multY)) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" input "+currIO.id);
-					}
-				}
-				multX = 1; multY = 1;
-				for(var l = 0; l < output_length; l++){
-					currIO = node.outputs[l];
-					if(l < 4){
-						multX = ((l % 2) === 0) ? -1 : 1;
-						multY = (l < 2) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(x2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(y2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({'fill':"white"});
-						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
-					}
-					else{
-						multX = ((l % 2) === 0) ? -1 : 1;
-						multY = (l < 6) ? 1 : -1;
-						currIO.node = view.paper.path("M " + parseInt(node.x+(y2*multX)+((multX>0) ? 7+l : -15-l)) + " " + parseInt(node.y+(x2*multY)) + " l 10 0 l 0 -5 l -5 -5 l -5 5 z").attr({fill: "white"});
-						currIO.node.node.setAttribute("class", node.id+" output "+currIO.id);
-					}
-				}
 
 				c.node.setAttribute("class", node.id);
 						
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
+
+				node.drawIO(view.paper);
 
 				node.isInside = function(x1,y1,x2,y2){
 					return this.x+this.r > x1 &&
@@ -2981,7 +3011,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(c, node, isStartNode);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -2995,14 +3025,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
-					i, j, k, l,
-					input_length, output_length,
-					iDist, oDist,
+					i, j,
 					serviceName = node.serviceName,
 					shortenServiceName,
 					serviceNameShown,
 					maxLength = 25
 				;
+				node.color = color;
 				node.mainShape = rect;
 				node.raph_label = label;
 
@@ -3015,22 +3044,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
-				label.node.setAttribute("class", id+" label");				
-			
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
+				label.node.setAttribute("class", id+" label");
 
-				iDist = node.width/(input_length+1);
-				oDist = node.width/(output_length+1);
-
-				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill': color});
-					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
-				}
-				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill': color});
-					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
-				}
+				node.drawIO(paper);
 
 				if(!drawNotForRepo){
 
@@ -3064,7 +3080,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					view.dragCFArrow(node.connectors, node);
 
 					// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-					view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+					// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 				}
 
 				node.set.push(rect, label, img_gear, img_subgraph, serviceNameShown);
@@ -3072,35 +3088,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				return node;
 			},
 			draw_functionalityNode : function draw_functionalityNode(node){
+				node.color = "#a6c9e2";
 				var id = node.id,
-					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", "#a6c9e2"),
+					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", node.color),
 					label = view.paper.text(node.x + node.width/2, node.y + 10, node.label),
 					img_gear = view.paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
 					c1 = view.paper.circle(node.x+node.width/2, node.y, 4),
 					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
 					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
 					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					input_length, output_length,
-					i, j=0,
-					iDist, oDist
+					i, j=0
 					;
 				node.mainShape = rect;
 				node.raph_label = label;
-
-				input_length = node.inputs.length;
-				output_length = node.outputs.length;
-
-				iDist = node.width/(input_length+1);
-				oDist = node.width/(output_length+1);
-
-				for(var k = 0; k < input_length; k++){
-					node.inputs[k].node = view.paper.path("M " + parseInt(node.x+(k+1)*iDist) + " " + parseInt(node.y-10) + " l 0 10 l 10 0 l 0 -10 l -5 5 z").attr({'fill':"#a6c9e2"});
-					node.inputs[k].node.node.setAttribute("class", node.id+" input " + node.inputs[k].id);
-				}
-				for(var l = 0; l < output_length; l++){
-					node.outputs[l].node = view.paper.path("M " + parseInt(node.x+(l+1)*oDist) + " " + parseInt(node.y+node.height) + " l 0 5 l 5 5 l 5 -5 l 0 -5 z").attr({'fill':"#a6c9e2"});
-					node.outputs[l].node.node.setAttribute("class", node.id+" output " + node.outputs[l].id);
-				}
 
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
@@ -3108,6 +3108,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				})
 				
 				node.mainShape.node.setAttribute("class", id);
+
+				node.drawIO(view.paper);
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
@@ -3123,7 +3125,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(node.connectors, node);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -3137,29 +3139,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function close(){
 					view.tooltip.close();
 				}
-				$.each(visualizedNode.inputs, function(){
-					this.description = visualizedNode.prepareDescriptionForInput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-				$.each(visualizedNode.outputs, function(){
-					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-
+				//te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
+				// visualizedNode.addInputTooltips();
+				// visualizedNode.addOutputTooltips();
 				visualizedNode
 				.prepareNodeDescription()
 				.mainShape.mouseover(
@@ -3223,7 +3205,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 				if(oldNode.mainShape.type == "circle"){
 					y -= oldNode.r;
-					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokoÅ›Ä‡ node-a
+					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
 				}
 				oldNode.removeView();
 				
@@ -3253,7 +3235,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					// console.log("aaa", this.sourceId, id, i)
 					if(this && this.sourceId === id){
 						io_tmp = newNode.getOutputById(this.output.id)
-						console.log("bbb", io_tmp);
+						// console.log("bbb", io_tmp);
 						if(io_tmp){
 							this.output = io_tmp;
 							this.update();
@@ -3303,7 +3285,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		updateGraph : function updateGraph(nodeId){
 			var node = this.getNodeById(nodeId);
 			if(node){
-				node.update();  //WÅ?ODKU WTF?!
+				node.update();
 			}
 		},
 		changeCurrentGraphView : function changeCurrentGraphView(id){
@@ -3572,7 +3554,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						} catch(e){
 							console.log(e);
 						}
-						// to  to jest dopuki bÅ‚aÅ¼ej nie poprawi czegoÅ›tam u siebie
+						// to  to jest dopuki błażej nie poprawi czegośtam u siebie
 						arrow = gui.view.paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
 						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
@@ -3799,29 +3781,30 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
-						var that = this;
-						var selectArrow = function(e){
-							if(!e.ctrlKey){
-								gui.controler.reactOnEvent("ESCAPE");
-								that.arrowGlow.remove();
-							}
-							that.arrowGlow = gui.view.paper.set();
-							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-							gui.controler.reactOnEvent("EDGESELECTED", that);
-							e = e || window.event;
-							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-							that.highlighted = true;
-							return false;
-						}
 						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(selectArrow);
-						this.arrow[1].click(selectArrow);
-						this.arrowGlow.click(selectArrow);
+						this.arrow[0].click(this.selectArrow);
+						this.arrow[1].click(this.selectArrow);
+						this.arrowGlow.click(this.selectArrow);
+					},
+					selectArrow : function(e){
+						console.log(this, ' != ', edgeObject, '???'); // jakim cudem raphael object???!!!
+						// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+						e = e || window.event;
+						if(!e.ctrlKey){
+							gui.controler.reactOnEvent("ESCAPE");
+							edgeObject.arrowGlow.remove();
+						}
+						edgeObject.arrowGlow = gui.view.paper.set();
+						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+						gui.controler.reactOnEvent("EDGESELECTED", edgeObject);
+						e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+						edgeObject.highlighted = true;
+						return false;
 					}
 				}
 				;
@@ -3849,6 +3832,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						input : data.input,
 						view : this,
 						type : "DF",
+						visible : true,
 						toString : function toString(){
 							return "SSDL_DFEdge object";
 						},
@@ -3856,11 +3840,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow[0].hide();
 							this.arrow[1].hide();
 							this.arrowGlow.hide();
+							this.visible = false;
 						},
 						show: function show(){
 							this.arrow[0].myShow(300);
 							this.arrow[1].myShow(300);
 							this.arrowGlow.show();
+							this.visible = true;
 						},
 						remove : function remove(){
 							this.arrow[0].remove();
@@ -3871,7 +3857,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							if(mode === "CF"){
 								this.hide();
 							} else if(mode === "DF"){
-								this.update();
+								this.update(this.highlighted);
 								this.show();
 							} else if(mode === "H"){
 
@@ -3879,7 +3865,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								// console.log(Wrong Argument)
 							}
 						},						
-						update : function(){
+						update : function(modeSwitch){
 							var extraTime = 0;
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
@@ -3892,44 +3878,53 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 							// try{
 							var bboxInput = this.input.node.getBBox(),
-								bboxOutput = this.output.node.getBBox(),
-								coords = {
+								bboxOutput = this.output.node.getBBox();
+								this.coords = {
 									x1 : bboxOutput.x + bboxOutput.width / 2,
 									y1 : bboxOutput.y + bboxOutput.height / 2,
 									x2 : bboxInput.x + bboxInput.width / 2,
 									y2 : bboxInput.y + bboxInput.height / 2
-								}
-								;
+								};
 
-							this.arrow = this.view.visualiser.drawEdge(coords);
-							var that = this;
-							var selectArrow = function(e){
-								if(!e.ctrlKey){
-									gui.controler.reactOnEvent("ESCAPE");
-									that.arrowGlow.remove();
-								}
-								that.arrowGlow = gui.view.paper.set();
-								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-								gui.controler.reactOnEvent("EDGESELECTED", that);
-								e = e || window.event;
-								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-								that.highlighted = true;
-								return false;
-							}
-							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							this.arrow = this.view.visualiser.drawEdge(this.coords);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-							this.arrow[0].click(selectArrow);
-							this.arrow[1].click(selectArrow);
-							this.arrowGlow.click(selectArrow);
-							this.highlighted = false;
+							this.arrow[0].click(this.selectArrow);
+							this.arrow[1].click(this.selectArrow);
+							this.arrowGlow.click(this.selectArrow);
+							if(!modeSwitch) this.highlighted = false;
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
 							// }
+						},
+						isInside : function(e){
+							var x1 = e.x1,
+								y1 = e.y1,
+								x2 = e.x2,
+								y2 = e.y2,
+								x3 = this.coords.x1,
+								y3 = this.coords.y1,
+								x4 = this.coords.x2,
+								y4 = this.coords.y2;
+							if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
+						},
+						selectArrow : function(e, multiselect){
+							if(this!=edgeObject) console.log(this, ' != ', edgeObject, '???CENSORED??? (this!=this xD)'); // jakim cudem raphael object???!!!
+							// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+							e = e || window.event;
+							if(!e.ctrlKey&&!multiselect){
+								gui.controler.reactOnEvent("ESCAPE");
+								edgeObject.arrowGlow.remove();
+							}
+							edgeObject.arrowGlow = gui.view.paper.set();
+							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+							gui.controler.reactOnEvent("EDGESELECTED", this);
+							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							edgeObject.highlighted = true;
+							return false;
 						}
 					}
 				;
@@ -4228,8 +4223,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				else if(!ctrl){
 					v.removeHighlight();
 				}
-
 			});	
+		},
+		selectEdgesInsideRect : function selectEdgesInsideRect(e){
+			$.each(this.current_graph_view.edgesDF, function(k, v){
+				if(v.isInside(e)) v.selectArrow(e, true);
+			});
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
 			$.each(this.current_graph_view.nodes, function(k, v){

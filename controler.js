@@ -14,22 +14,25 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			require: "sdb_json_array div raphael_x_500".split(" "),
 			init: function init() {
 				if ($("#repoNodes_" + pf).length === 0) {
-					var that, left, top;
 					$("#right_plugins_" + pf).append("<div id='repoNodes_" + pf + "' class='plugin_" + pf + "'> </div>");
 					this.paper = Raphael("repoNodes_" + pf, gui.view.columnParams.rightCol.width - 1, 500);
 					this.scroller = addSideScroller(this.paper);
-					left = $("#repoNodes_" + pf).position().left;
-					that = this;
-					this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height).attr({
-						opacity: 0,
-						fill: "ivory"
-					}).mouseover(function() {
-						that.scroller.showYourself();
-					}).mouseout(function(evt, x, y) {
-						top = $("#navigator_" + pf).position().top + $("#navigator_" + pf).height();
-						if (!that.cover.isPointInside(x - left, y - top)) that.scroller.goHide();
-					}).toBack();
+					this.createCover();					
 				}
+			},
+			createCover: function createCover(){
+				var that, left, top;
+				left = $("#repoNodes_" + pf).position().left;
+				that = this;
+				this.cover = this.paper.rect(0, 0, this.paper.width, this.paper.height).attr({
+					opacity: 0,
+					fill: "ivory"
+				}).mouseover(function() {
+					that.scroller.showYourself();
+				}).mouseout(function(evt, x, y) {
+					top = $("#navigator_" + pf).position().top + $("#navigator_" + pf).height();
+					if (!that.cover.isPointInside(x - left, y - top)) that.scroller.goHide();
+				}).toFront();
 			},
 			convertData: function generateData(node, n) {
 				var result = visualiser.getBlankNode();
@@ -79,6 +82,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					that.currNodes.push(tmp);
 				});
 
+				this.scroller.init();
 				this.scroller.update(this.currNodes);
 
 				return this;
@@ -87,8 +91,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				if (this.paper) {
 					this.paper.clear();
 					this.currNodes.length = 0;
+					this.createCover();
 				}
-
 				return this;
 			}
 		}
@@ -1218,7 +1222,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//var events = ("DRAGGING SELECTION, SELECT, DESELECT, MOVE, RESIZE, SCROLL, DELETE, EDGE DETACH,"+" DELETE NODE, CREATE NODE, CREATE EDGE, GRAPH LOADED, GRAPH SAVED, GRAPH CHANGED").split(", ");			
 			var that = this;
 
-			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SI?? DZIEJE [NIE KASOWAĆ!!!]
+			console.log('Event: ', evtType, '  ->  ', evtObj); //ŻEBYŚMY WIEDZIELI WTF SIĘ DZIEJE [NIE KASOWAĆ!!!]
 			switch (evtType.toUpperCase()) {
 			case "EDITSERVICE":
 				(function(e) {
@@ -1278,13 +1282,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "TRYTOSAVENODEAFTEREDIT":
 				(function(e) {
 					//e = zwrócony JSONek
-					// jsonFormatter(e, 1,1)
 					if (!e.nodeId || e.nodeId === "") { //to jest blank
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-
 						if (wrongsList.length == 0) {
 							e.nodeId = that.generateId();
-							var graphNode = gui.view.visualiser.visualiseNode(e, 100, 100); //x, y -> skąd?
+							var graphNode = gui.view.visualiser.visualiseNode(e);
 							graphNode.switchMode( gui.view.mode );
 							gui.view.current_graph_view.nodes.push(graphNode);
 							that.current_graphData.nodes.push(e);
@@ -1307,7 +1309,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else {
 							gui.view.form.handleErrors(wrongsList);
 						}
-						Deploying
+						// Deploying
 					}
 				})(evtObj);
 				break;
@@ -1395,6 +1397,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "SELECT":
 				(function(e) {
 					gui.view.selectNodesInsideRect(e.x1, e.y1, e.x2, e.y2, e.ctrl);
+					gui.view.selectEdgesInsideRect(e);
 				})(evtObj);
 				break;
 			case "CLEARGRAPH":
@@ -1430,7 +1433,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				(function(e) {
 					var source = that.getNodeById(e.sourceId),
 						input = e.input,
-						outputTmp, output, newId;
+						outputTmp, output, newId, graphNode;
 					if (source) {
 						outputTmp = that.getOutputById(e.sourceId, input.id)
 						if (outputTmp) {
@@ -1444,8 +1447,10 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						};
 
 						source.functionalDescription.outputs.push(output);
-						gui.view.updateNode(source);
-						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
+						
+						graphNode = gui.view.getNodeById(e.sourceId);
+						graphNode.addOutput(output);
+						output = graphNode.getOutputById(output.id);
 
 						// console.log(source)
 						that.reactOnEvent("addDFEdge", {
@@ -1465,7 +1470,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					// console.log(e);
 					var target = that.getNodeById(e.targetId),
 						output = e.output,
-						inputTmp, input, newId;
+						inputTmp, input, newId, graphNode;
 					if (target) {
 						inputTmp = that.getInputById(e.targetId, output.id)
 						if (inputTmp) {
@@ -1480,9 +1485,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 						target.functionalDescription.inputs.push(input);
 
-						gui.view.updateNode(target);
-
-						input = gui.view.getNodeById(e.targetId).getInputById(input.id);
+						// gui.view.updateNode(target);
+						// jedyna wada obecnego podejścia: nie sprawdza, czy dany io już istnieje,
+						// ale w tym wypadku nie jest to potrzebne
+						graphNode = gui.view.getNodeById(e.targetId);
+						graphNode.addInput(input);
+						input = graphNode.getInputById(input.id);
 
 						that.reactOnEvent("addDFEdge", {
 							sourceId: e.sourceId,
