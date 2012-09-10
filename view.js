@@ -690,6 +690,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							addButton: function addButton(button){
 								this.buttons.push(button);
 								this.resizeAndRelocate();
+								that.generalFontReset();
 								that.relocate();
 							},
 							toString: function toString(){
@@ -915,9 +916,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				},
 				relocate: function relocate(){
 					var sum = 10, that = this;
-					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separator�?³w, jeÅ¼eli
-					//uÅ¼ytkownik ma otwarty pasek podczas hide'owania czegoÅ›
-					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystÄ…piÄ‡?
+					//fix dla buga powodującego powstawanie niezniszczalnych separatorów, jeżeli
+					//użytkownik ma otwarty pasek podczas hide'owania czegoś
+					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystąpić?
 					$.each(this.separators, function(){
 						this.hide();
 					});
@@ -926,8 +927,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$.each(this.groups, function(){
 						if(this.isVisible){
 							this.moveGroupToX(sum);
-							//to jest ciut partyzanckie, ale jak inaczej ominÄ…Ä‡ pierwszy separator?
-							//czy teÅ¼ moÅ¼e chcemy pierwszy lub ostatni separator? ale po co?
+							//to jest ciut partyzanckie, ale jak inaczej ominąć pierwszy separator?
+							//czy też może chcemy pierwszy lub ostatni separator? ale po co?
 							if(sum>10)
 								that.addSeparator(this.x, this.y, this.height);
 							sum += this.width;
@@ -944,7 +945,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						});
 				},
 				generalResize: function generalResize(arg){
-					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label button�?³w, non-obligatory
+					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w labelach buttonów, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeChange(arg);
