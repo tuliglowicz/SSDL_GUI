@@ -3158,6 +3158,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
