@@ -140,6 +140,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
 			},
+			showsubOption: function showsubOption(groupLabel, optionLabel, subOptionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).show();
+			},
 			showOption: function showOption(groupLabel, optionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
 			},
