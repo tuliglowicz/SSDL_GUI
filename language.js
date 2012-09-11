@@ -106,11 +106,11 @@ bottombar:{
 			editExistingNonFunctionalProperty:"Edytuj istniejącą własność niefunkcjonalną",
 			createA:"Stwórz wierzchołek typu: ",
 			typeNode: "",
-			viewing: "Przeglądanie wierzchołka typu: ",
+			viewing: "Edycja wierzchołka typu: ",
 			saveChanges: "Zapisz zmiany",
 			clearAll1:"Tak, wyczyść formularz",
 			clearAll2: "Jestem pewien na 100%",
-
+			labeled: " o etykiecie: ",
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -293,6 +293,7 @@ bottombar:{
 			saveChanges: "Save changes",
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
+			labeled: " labeled: "
 		},
 		formTabs: {
 			main: "Main",
