@@ -368,3 +368,41 @@ function camelize(str) {
 		return index == 0 ? match.toLowerCase() : match.toUpperCase();
 	})
 };
+
+//object prototype extensions
+Object.defineProperty(Object.prototype, "extend", { //extend object by (cloned or refferenced) attributes of passed object
+	writable: false, enumerable: false, configurable: false, value: function(obj, shallowCopy){
+		var names = Object.getOwnPropertyNames(obj);
+		for(var i = 0; i < names.length; i++) {
+			if (names[i] in this) continue;
+			var desc = Object.getOwnPropertyDescriptor(obj,names[i]);
+			if(!shallowCopy && typeof desc.value === 'object') desc.value = desc.value.clone();
+			Object.defineProperty(this, names[i], desc);
+		}
+	}
+});
+Object.defineProperty(Object.prototype, "clone", { //clone object (return deep copy of object) !unsure about prototype value!
+	writable: false, enumerable: false, configurable: false, value: function(){
+		var obj;
+		if(Array.isArray(this)){ obj = []; } else { obj = {}; }
+		obj.extend(this);
+		return obj;
+	}
+});
+Object.defineProperty(Object.prototype, "forEach", { //execute passed function for each (enumerable) attribute of object
+	writable: false, enumerable: false, configurable: false, value: function(fun){
+		if(typeof fun === 'function'){
+			for(var i in this){
+				fun(i, this[i], this);
+			}
+		}
+	}
+});
+Object.defineProperty(Object.prototype, "contains", { //checks if object contains selected value (in enumerable props)
+	writable: false, enumerable: false, configurable: false, value: function(val){
+		for(var i in this){
+			if(this[i] == val) return true;
+		}
+		return false;
+	}
+});

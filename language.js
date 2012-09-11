@@ -19,7 +19,8 @@ bottombar:{
 		nodes: {
 			service: "Usługa",
 			functionality: "Funkcjonalność",
-			mediator:	"Mediator"
+			mediator:	"Mediator",
+			markup: "Usługa Markująca",
 
 		},
 		alerts: {
@@ -106,11 +107,11 @@ bottombar:{
 			editExistingNonFunctionalProperty:"Edytuj istniejącą własność niefunkcjonalną",
 			createA:"Stwórz wierzchołek typu: ",
 			typeNode: "",
-			viewing: "Przeglądanie wierzchołka typu: ",
+			viewing: "Edycja wierzchołka typu: ",
 			saveChanges: "Zapisz zmiany",
 			clearAll1:"Tak, wyczyść formularz",
 			clearAll2: "Jestem pewien na 100%",
-
+			labeled: " o etykiecie: ",
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -144,6 +145,7 @@ bottombar:{
 			save: "Zapisz",
 			serviceNode: "Wiechrzołek Usługi",
 			functionalityNode: "Wierzchołek Funkcjonalny",
+			mediatorNode: "Wierzchołek Mediatora",
 			startStop: "Start Stop",
 			fromDB: "z bazy danych",
 			fromFile: "z pliku",
@@ -201,8 +203,8 @@ bottombar:{
 		nodes: {
 			service: "Service",
 			functionality: "Functionality",
-			mediator:	"Mediator"
-
+			mediator:	"Mediator",
+			markup: "Markup Service",
 		},
 		alerts: {
 			asYouWish: "As you wish",
@@ -292,6 +294,7 @@ bottombar:{
 			saveChanges: "Save changes",
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
+			labeled: " labeled: "
 		},
 		formTabs: {
 			main: "Main",
@@ -326,6 +329,7 @@ bottombar:{
 			save: "Save",
 			serviceNode: "Service Node",
 			functionalityNode: "Functionality Node",
+			mediatorNode: "Mediator Node",
 			startStop: "Start Stop",
 			fromDB: "from DB",
 			fromFile: "from File",
