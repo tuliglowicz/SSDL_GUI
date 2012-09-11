@@ -1282,35 +1282,21 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			case "TRYTOSAVENODEAFTEREDIT":
 				(function(e) {
 					//e = zwrócony JSONek
-					if (!e.nodeId || e.nodeId === "") { //to jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-						if (wrongsList.length == 0) {
-							e.nodeId = that.generateId();
-							var graphNode = gui.view.visualiser.visualiseNode(e);
-							graphNode.switchMode( gui.view.mode );
-							gui.view.current_graph_view.nodes.push(graphNode);
-							that.current_graphData.nodes.push(e);
-							gui.view.form.closeForm();
-						} else {
-							gui.view.form.handleErrors(wrongsList);
-						}
-					} else { //to nie jest blank
-						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-						if (wrongsList.length === 0) {
-							$.each(that.current_graphData.nodes, function(i, v) {
-								if (v.nodeId == e.nodeId) {
-									that.current_graphData.nodes[i] = e;
-									console.log(that.current_graphData.nodes);
-									return false;
-								}
-							});
-							gui.view.updateNode(e);
-							gui.view.form.closeForm();
-						} else {
-							gui.view.form.handleErrors(wrongsList);
-						}
-						// Deploying
+					var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+					if (wrongsList.length === 0) {
+						$.each(that.current_graphData.nodes, function(i, v) {
+							if (v.nodeId == e.nodeId) {
+								that.current_graphData.nodes[i] = e;
+								console.log(that.current_graphData.nodes);
+								return false;
+							}
+						});
+						gui.view.updateNode(e);
+						gui.view.form.closeForm();
+					} else {
+						gui.view.form.handleErrors(wrongsList);
 					}
+					// Deploying
 				})(evtObj);
 				break;
 			case "DELETE":
@@ -1663,7 +1649,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				break;
 			case "ADDBLANKNODE":
 				(function(e) {
-					gui.view.addBlankNode(e); //
+					e.nodeId = that.generateId();
+					e.isBlank = true;
+					var graphNode = gui.view.visualiser.visualiseNode(e);
+					graphNode.switchMode( gui.view.mode );
+					gui.view.current_graph_view.nodes.push(graphNode);
+					that.current_graphData.nodes.push(e);
 				})(evtObj);
 				break;
 			}
