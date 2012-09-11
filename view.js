@@ -548,7 +548,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					return function(){
 						if(gui.controler)
 							var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
 					}
 				}
 
@@ -1323,7 +1323,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		$("#f_addNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[4]));
 		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[5]));
 		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[6]));
-		// alert(graphSaveParamsJSON);
 		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator(gui.language, pf, graphSaveParamsJSON));
 
 		$("#form_" + pf).dialog({
@@ -1337,8 +1336,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		var $tabs = $( "#tabs_" + pf ).tabs();
 		
 		var inpVars = [],
-			globalNonFuncDesc = []
-		;
+			globalNonFuncDesc = [];
 
 		var result = {
 			resultJSON: resultJSON,
@@ -1350,25 +1348,34 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			selectedInputVariableIndex: -1,
 			selectedGlobalNFPropertyIndex: -1,
 
-			initToEdit: function initToEdit(node){
-				var titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode;
+			init: function init(node){
+				var titleText;
+				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel;
+				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel; 
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
 				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
 				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
+				if(!node.isBlank) {
+					$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
+					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId).addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address).addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation).addClass("longTextfield");
+
+					this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
+					this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
+					this.appendIO(node.functionalDescription.inputs, "inputs");
+					this.appendIO(node.functionalDescription.outputs, "outputs");
+					this.appendNonFuncDesc(node.nonFunctionalDescription);
+				} else {
+					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val("").addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val("").addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_address_" + pf ).val("").addClass("longTextfield");
+					$( "#f_physicalDescriptionTab_operation_" + pf ).val("").addClass("longTextfield");
+				}
 				this.adjustForm(node.nodeType);
-				$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
-				$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
-				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId).addClass("longTextfield");
-				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address).addClass("longTextfield");
-				$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation).addClass("longTextfield");
-				
-				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
-				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
-				this.appendIO(node.functionalDescription.inputs, "inputs");
-				this.appendIO(node.functionalDescription.outputs, "outputs");
-				this.appendNonFuncDesc(node.nonFunctionalDescription);
 				this.resultJSON.nodeId = node.nodeId;
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form_" + pf ).dialog( "open" );
@@ -1389,41 +1396,26 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
 				// this.appendList(node.sources, "sources");
 			},
-			initBlank: function initBlank(nodeData){
-				var titleText =  language[gui.language].forms.createA + nodeData.nodeType + language[gui.language].forms.typeNode ; 
-				this.clearErrors();
-				this.cleanForm(true);
-				this.resultJSON.nodeLabel = nodeData.label;
-				this.resultJSON.nodeType = nodeData.nodeType;
-				$('#ui-dialog-title-form_' + pf).text(titleText);
-				this.adjustForm(nodeData.nodeType);
-				$( "#f_mainTab_label_" + pf ).val(nodeData.label);
-				$( "#form_" + pf ).dialog( "open" );
-			},
 			adjustForm: function adjustForm(nodeType){
+				//żeby nie powtarzały się fragmenty kodu - przyjmujemy "functionality" za default i ew. edytujemy od tego miejsca
+				$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
+				$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
+				$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
+				$('#f_mainTab_serviceClass_addButton_' + pf).show();
+				$('#tabs-2_' + pf).hide();
 				switch(nodeType.toLowerCase()){
 					case "control" : 
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
-						$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
-						$('#tabs-2_' + pf).hide();
 						break;
-					case "functionality" : 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
-						$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_mainTab_serviceClass_addButton_' + pf).show();
-						$('#tabs-2_' + pf).hide();
-						break;
-					default: 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
+					case "functionality" :
+						break;	//bez zmian
+					default : 
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
-						$('#f_mainTab_serviceClass_addButton_' + pf).show();
 						$('#tabs-2_' + pf).show();				
 						break;
-					}
+				}
 			},
 		//funkcje czyszczące elementy formularza
 			clearNF: function clearNF(){
@@ -2505,11 +2497,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
-			// poniższe rodzi pytanie, ile jeszcze takich kwiatków mamy w kodzie?
-			// color : {	// 1. po co to tutaj jest? 2. nie lepiej utworzyć plik settings albo dać to do library? 3. TO W OGÓLE NIE JEST UŻYWANE, prawda?
-			// 	service : "#fbec88",
-			// 	functionality: "#fbec88"
-			// },
 			getBlankNode : function getBlankNode(x, y){
 				var blankNode = {
 					id : "", //inputNode.nodeId,
@@ -2672,25 +2659,26 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						this.drawIO(view.paper);
 						gui.view.updateEdges();
 					},
-					drawIO : function drawIO(paper){
+					drawIO : function drawIO(paper, forRepo){
+						//paper = kanwa, na której rysuje się danego node'a
+						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
 						var length = this.inputs.length, x, y, that = this,
 							start = function(){
 								gui.view.hideEdges();
 								this.ox = 0;
 							},
-							//HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
 							move = function(dx){
-								var nx = this.getBBox().x + dx; //WTF this is SO broken
-								if(nx > that.x && nx < (that.x + that.width)){
+								var nx = this.getBBox().x + dx - this.ox;
+								if(nx > that.x && nx < (that.x + that.width - 10)){ //10 = szerokość i/o, chodzi o to, żeby nie wyskakiwało...
 									this.translate(dx - this.ox);
-									this.dist1 += (dx - this.ox); this.dist2 -= (dx - this.ox); this.ox = dx; 
+									this.ox = dx; 
 								}
 							},
 							end = function(){
 								gui.view.updateEdges();
 							};
 						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
-							var mult = 1/1.41,	//odwrotność pierwiastka z 2
+							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
 								[nx-nr, ny], [nx+nr, ny], [nx, ny+nr], [nx, ny-nr],
@@ -2698,14 +2686,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								[nx-nr*mult, ny+nr*mult], [nx-nr*mult, ny-nr*mult]];
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
-								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
+								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
-								else{ x = coordsList[i%8][0] * (1 + 0.1*(i/8)); y = coordsList[i%8][1] * (1 + 0.1*(i/8)); } //to nie za bardzo działa...
+								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 							}
@@ -2715,18 +2703,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
-								// this.inputs[i].node.drag(move, start, end);
+								this.inputs[i].node.drag(move, start, end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
-								// this.outputs[i].node.drag(move, start, end);
+								// this.outputs[i].node.drag(move, start, end); //HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
-						view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
+						if(!forRepo) view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
 						this.addInputTooltips();
 						this.addOutputTooltips();
 					},
@@ -2940,17 +2928,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				newNode.label = node.nodeLabel || newNode.id;
 				newNode.type = node.nodeType;
 				newNode.controlType = node.controlType;
-				newNode.serviceName = node.physicalDescription.serviceName;
+				if(node.physicalDescription) newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				newNode.hasSubgraph = !isEmpty(node.subgraph);
 				newNode.inputs = [];
-				$.each(node.functionalDescription.inputs, function(){
-					newNode.inputs.push( $.extend(true, {}, this) );
-				});
+				if(node.functionalDescription) 
+					$.each(node.functionalDescription.inputs, function(){
+						newNode.inputs.push( $.extend(true, {}, this) );
+					});
 				newNode.outputs = [];
-				$.each(node.functionalDescription.outputs, function(){
-					newNode.outputs.push( $.extend(true, {}, this) );
-				});
+				if(node.functionalDescription)
+					$.each(node.functionalDescription.outputs, function(){
+						newNode.outputs.push( $.extend(true, {}, this) );
+					});
 				// console.log(newNode.id, newNode.inputs, newNode.outputs);
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
@@ -3054,7 +3044,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", id+" label");
 
-				node.drawIO(paper);
+				node.drawIO(paper, drawNotForRepo);
 
 				if(!drawNotForRepo){
 
@@ -3315,7 +3305,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		},
 		editNode : function editNode(node){
-			this.form.initToEdit(node);
+			this.form.init(node);
 		},
 
 		deleteNode : function deleteNode(node){
@@ -3332,9 +3322,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			if(start && stop){
 				this.current_graph_view.nodes.unshift( start, stop );
 			}
-		},
-		addBlankNode : function addBlankNode(nodeInfo){
-			this.form.initBlank(nodeInfo);
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
 			//dodaÄ‡ lepiej dobierane parametry x, y
@@ -3725,6 +3712,58 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			} else
 				element.drag(move, start, stop);
 		},
+		protoEdge : {
+			arrow : undefined,
+			arrowGlow : undefined,
+			highlighted : false,
+			hide: function hide(){
+				this.arrow[0].hide();
+				this.arrow[1].hide();
+				this.arrowGlow.hide();
+			},
+			show: function show(){
+				this.arrow[0].myShow(300);
+				this.arrow[1].myShow(300);
+				this.arrowGlow.show();
+			},
+			remove : function remove(){
+				this.arrow[0].remove();
+				this.arrow[1].remove();
+				this.arrowGlow.remove();
+			},
+			selectArrow : function(e, multiselect){
+				e = e || window.event;
+				if(!e.ctrlKey&&!multiselect){
+					gui.controler.reactOnEvent("ESCAPE");
+				}
+				this.arrowGlow.remove();
+				this.arrowGlow = gui.view.paper.set();
+				this.arrowGlow.push(this.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+				this.arrowGlow.push(this.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+				e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+				this.highlighted = true;
+				return false;
+			},
+			update : function(keepSelected){
+				try {
+					this.arrow[0].remove();	this.arrow[1].remove();
+				} catch(e){
+				 	//console.log(e);	
+				}
+				this.arrow = gui.view.visualiser.drawEdge(this.getCoords());
+				if(this.arrowGlow){
+					this.arrowGlow.remove();
+				}else{
+					this.arrowGlow = gui.view.paper.set();
+				}
+				this.arrowGlow.push(this.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
+				this.arrowGlow.push(this.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
+				this.arrow[0].click(this.selectArrow.bind(this));
+				this.arrow[1].click(this.selectArrow.bind(this));
+				this.arrowGlow.click(this.selectArrow.bind(this));
+				if(!keepSelected) this.highlighted = false;
+			}
+		},
 		addCFEdge : function addCFEdge(data, firstLoad){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
@@ -3736,30 +3775,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 			else {
 				var edgeObject = {
-					arrow : undefined,
-					arrowGlow : gui.view.paper.set(),
-					highlighted : false,
 					source : data.source,
 					target : data.target,
-					view : this,
 					type: "CF",
 					toString : function toString(){
 						return "SSDL_CFEdge object";
-					},
-					hide: function hide(){
-						this.arrow[0].hide();
-						this.arrow[1].hide();
-						this.arrowGlow.hide();
-					},
-					show: function show(){
-						this.arrow[0].myShow(300);
-						this.arrow[1].myShow(300);
-						this.arrowGlow.show();
-					},
-					remove : function remove(){
-						this.arrow[0].remove();
-						this.arrow[1].remove();
-						this.arrowGlow.remove();
 					},
 					switchMode: function switchMode(mode){
 						if(mode === "CF"){
@@ -3770,172 +3790,74 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						} else if(mode === "H"){
 
 						} else {
-							// console.log(Wrong Argument)
+							// console.log('Wrong Argument');
 						}
 					},
-					update : function(evt){
-						var bestConnectors = this.view.getBestConnectors(
+					getCoords : function(){
+						var bestConnectors = gui.view.getBestConnectors(
 							this.source.getPossiblePositionsOfConnectors(),
 							this.target.getPossiblePositionsOfConnectors()
 						);
-
-						var extraTime = 0;
-						try {
-							this.arrow[0].remove();	this.arrow[1].remove();
-						} catch(e){	
-
-							extraTime += 750;
-							// console.log(e);
-						}
-
-						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
-						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						this.arrowGlow.remove();
-						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
-						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(this.selectArrow);
-						this.arrow[1].click(this.selectArrow);
-						this.arrowGlow.click(this.selectArrow);
-					},
-					selectArrow : function(e){
-						console.log(this, ' != ', edgeObject, '???'); // jakim cudem raphael object???!!!
-						// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
-						e = e || window.event;
-						if(!e.ctrlKey){
-							gui.controler.reactOnEvent("ESCAPE");
-							edgeObject.arrowGlow.remove();
-						}
-						edgeObject.arrowGlow = gui.view.paper.set();
-						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-						gui.controler.reactOnEvent("EDGESELECTED", edgeObject);
-						e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-						edgeObject.highlighted = true;
-						return false;
+						return bestConnectors;
 					}
-				}
-				;
+				};
+				edgeObject.extend(this.protoEdge);
 				edgeObject.update();
 				return edgeObject;
 			}
 		},
 		addDFEdge : function addDFEdge(data, firstLoad){
-			//source, sourceOutputId
-			//target, targetInputId
-			// console.log(data)
-			// console.log(data)
 			var foundedDFEdge = (firstLoad ? false : this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id));
 			if(foundedDFEdge){
 				gui.controler.reactOnEvent(""); //err msg
 			}
 			else {
 				var	edgeObject = {
-						arrow : undefined,
-						arrowGlow : gui.view.paper.set(),
-						highlighted : false,
-						sourceId: data.sourceId,
-						targetId: data.targetId,
-						output : data.output,
-						input : data.input,
-						view : this,
-						type : "DF",
-						visible : true,
-						toString : function toString(){
-							return "SSDL_DFEdge object";
-						},
-						hide: function hide(){
-							this.arrow[0].hide();
-							this.arrow[1].hide();
-							this.arrowGlow.hide();
-							this.visible = false;
-						},
-						show: function show(){
-							this.arrow[0].myShow(300);
-							this.arrow[1].myShow(300);
-							this.arrowGlow.show();
-							this.visible = true;
-						},
-						remove : function remove(){
-							this.arrow[0].remove();
-							this.arrow[1].remove();
-							this.arrowGlow.remove();
-						},
-						switchMode: function switchMode(mode){
-							if(mode === "CF"){
-								this.hide();
-							} else if(mode === "DF"){
-								this.update(this.highlighted);
-								this.show();
-							} else if(mode === "H"){
+					sourceId: data.sourceId,
+					targetId: data.targetId,
+					output : data.output,
+					input : data.input,
+					type : "DF",
+					visible : true,
+					toString : function toString(){
+						return "SSDL_DFEdge object";
+					},
+					switchMode: function switchMode(mode){
+						if(mode === "CF"){
+							this.hide();
+						} else if(mode === "DF"){
+							this.update(this.highlighted);
+							this.show();
+						} else if(mode === "H"){
 
-							} else {
-								// console.log(Wrong Argument)
-							}
-						},						
-						update : function(modeSwitch){
-							var extraTime = 0;
-							try {
-								this.arrow[0].remove();	this.arrow[1].remove();
-							 } catch(e){
-								extraTime += 750;
-							 	//console.log(e);	
-							 }
-
-							// console.log(this);
-
-							// try{
-							var bboxInput = this.input.node.getBBox(),
-								bboxOutput = this.output.node.getBBox();
-								this.coords = {
-									x1 : bboxOutput.x + bboxOutput.width / 2,
-									y1 : bboxOutput.y + bboxOutput.height / 2,
-									x2 : bboxInput.x + bboxInput.width / 2,
-									y2 : bboxInput.y + bboxInput.height / 2
-								};
-
-							this.arrow = this.view.visualiser.drawEdge(this.coords);
-							this.arrowGlow.remove();
-							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
-							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-							this.arrow[0].click(this.selectArrow);
-							this.arrow[1].click(this.selectArrow);
-							this.arrowGlow.click(this.selectArrow);
-							if(!modeSwitch) this.highlighted = false;
-							// }
-							// catch(e){
-							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
-							// }
-						},
-						isInside : function(e){
-							var x1 = e.x1,
-								y1 = e.y1,
-								x2 = e.x2,
-								y2 = e.y2,
-								x3 = this.coords.x1,
-								y3 = this.coords.y1,
-								x4 = this.coords.x2,
-								y4 = this.coords.y2;
-							if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
-						},
-						selectArrow : function(e, multiselect){
-							if(this!=edgeObject) console.log(this, ' != ', edgeObject, '???CENSORED??? (this!=this xD)'); // jakim cudem raphael object???!!!
-							// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
-							e = e || window.event;
-							if(!e.ctrlKey&&!multiselect){
-								gui.controler.reactOnEvent("ESCAPE");
-								edgeObject.arrowGlow.remove();
-							}
-							edgeObject.arrowGlow = gui.view.paper.set();
-							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-							gui.controler.reactOnEvent("EDGESELECTED", this);
-							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-							edgeObject.highlighted = true;
-							return false;
+						} else {
+							// console.log('Wrong Argument');
 						}
+					},
+					getCoords : function(){
+						var bboxInput = this.input.node.getBBox(),
+							bboxOutput = this.output.node.getBBox();
+						return {
+							x1 : bboxOutput.x + bboxOutput.width / 2,
+							y1 : bboxOutput.y + bboxOutput.height / 2,
+							x2 : bboxInput.x + bboxInput.width / 2,
+							y2 : bboxInput.y + bboxInput.height / 2
+						};
+					},		
+					isInside : function(e){
+						var coords = this.getCoords();
+						var x1 = e.x1,
+							y1 = e.y1,
+							x2 = e.x2,
+							y2 = e.y2,
+							x3 = coords.x1,
+							y3 = coords.y1,
+							x4 = coords.x2,
+							y4 = coords.y2;
+						if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
 					}
-				;
+				};
+				edgeObject.extend(this.protoEdge);
 				edgeObject.update();
 				return edgeObject;
 			}
@@ -4219,9 +4141,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			this.tooltip.close();
 		},
 		selectAll : function selectAll(){
+			var e = {ctrl: false};
 			$.each(this.current_graph_view.nodes, function(k, v){
 				v.highlight2();
 			});
+			if(gui.view.mode === 'DF'){
+				$.each(this.current_graph_view.edgesDF, function(k, v){
+					v.selectArrow(e, true);
+				});
+			}else{
+				$.each(this.current_graph_view.edgesCF, function(k, v){
+					v.selectArrow(e, true);
+				});
+			}
 		},
 		selectNodesInsideRect : function selectNodesInsideRect(x1,y1,x2,y2, ctrl){
 			//alert(x1+":"+x2+":"+ctrl)
@@ -4234,9 +4166,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			});	
 		},
 		selectEdgesInsideRect : function selectEdgesInsideRect(e){
-			$.each(this.current_graph_view.edgesDF, function(k, v){
-				if(v.isInside(e)) v.selectArrow(e, true);
-			});
+			if(gui.view.mode === 'DF'){
+				$.each(this.current_graph_view.edgesDF, function(k, v){
+					if(v.isInside(e)) v.selectArrow(e, true);
+				});
+			}
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
