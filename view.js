@@ -209,8 +209,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		return mainMenu;	
 	};
 	function contextMenu(listenedObjId, guiView){
-		/* ContextMenu 2.1 (Błażej)
-			* SUBMITTED: 30.08.2012
+		/* ContextMenu 2.2 (Błażej)
+			* SUBMITTED: 06.09.2012
 			* REQUIRED PARAMS: 
 			* - listenedObjId (id of object to witch we attach menu)
 			* - guiView (GUI View object)
@@ -222,6 +222,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			* -> addOption (function(label, invoked event name, if display title in submenu) creating menu option)
 			* -> addSeparator (function() adding separator to current level of menu)
 			* -> getOption (function(label) returning option with specified label at currrent level of option tree)
+			* -> refresh(function(listenedObject) changing listened object)
 		*/
 
 		//structure holder object
@@ -253,7 +254,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		}
 		//private variables
-		var caller = document.getElementById(listenedObjId),
+		var caller,
 			root = new option(listenedObjId+'CM', 'menuRoot', null, null, false, 0),
 			width = $('body').width(),
 			margin = 10,
@@ -304,7 +305,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$(div).css('display', 'block');
 			}
 			return div;
-		}
+		};
 		var attachListeners = function(div, subDiv, opt){
 			$(subDiv).mousedown(function(){
 				// console.log(typeof opt.invokedEvent);
@@ -342,7 +343,29 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function () {
 					$(this).css("color","black");
 				});
-		}
+		};
+		var refresh = function(listenedObjId){
+			//event listeners for id or raphael set
+			if(typeof listenedObjId == 'string'){
+				var caller = document.getElementById(listenedObjId);
+				caller.oncontextmenu = function(event){
+					return checkNOpen(event);
+				}
+			}else{
+				var caller = listenedObjId;
+				if(!caller.items){
+					$(caller.node).bind("contextmenu", function(event){
+						return checkNOpen(event);
+					});
+				}else{
+					$.each(caller.items, function(){
+						$(this.node).bind("contextmenu", function(event){
+							return checkNOpen(event);
+						});
+					});
+				}
+			}
+		};
 		var that = this;
 		var menu = {
 			//public functions
@@ -373,7 +396,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					return true;
 				}
 				return false;
-			}
+			},
+			refresh: refresh
 		}
 		//universal open with event
 		var checkNOpen = function(event){
@@ -383,26 +407,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 			return false;
 		};
-		//event listeners for id or raphael set
-		if(typeof listenedObjId == 'string'){
-			var caller = document.getElementById(listenedObjId);
-			caller.oncontextmenu = function(event){
-				return checkNOpen(event);
-			}
-		}else{
-			var caller = listenedObjId;
-			if(!caller.items){
-				$(caller.node).bind("contextmenu", function(event){
-					return checkNOpen(event);
-				});
-			}else{
-				$.each(caller.items, function(){
-					$(this.node).bind("contextmenu", function(event){
-						return checkNOpen(event);
-					});
-				});
-			}
-		}
+		//setting listeners and callerObj
+		refresh(listenedObjId);
 		//pushing into menu list
 		guiView.menuList.getInstance().push(menu);
 		//object return
@@ -688,6 +694,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							addButton: function addButton(button){
 								this.buttons.push(button);
 								this.resizeAndRelocate();
+								that.generalFontReset();
 								that.relocate();
 							},
 							toString: function toString(){
@@ -913,9 +920,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				},
 				relocate: function relocate(){
 					var sum = 10, that = this;
-					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separator�?³w, jeÅ¼eli
-					//uÅ¼ytkownik ma otwarty pasek podczas hide'owania czegoÅ›
-					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystÄ…piÄ‡?
+					//fix dla buga powodującego powstawanie niezniszczalnych separatorów, jeżeli
+					//użytkownik ma otwarty pasek podczas hide'owania czegoś
+					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystąpić?
 					$.each(this.separators, function(){
 						this.hide();
 					});
@@ -924,8 +931,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$.each(this.groups, function(){
 						if(this.isVisible){
 							this.moveGroupToX(sum);
-							//to jest ciut partyzanckie, ale jak inaczej ominÄ…Ä‡ pierwszy separator?
-							//czy teÅ¼ moÅ¼e chcemy pierwszy lub ostatni separator? ale po co?
+							//to jest ciut partyzanckie, ale jak inaczej ominąć pierwszy separator?
+							//czy też może chcemy pierwszy lub ostatni separator? ale po co?
 							if(sum>10)
 								that.addSeparator(this.x, this.y, this.height);
 							sum += this.width;
@@ -942,7 +949,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						});
 				},
 				generalResize: function generalResize(arg){
-					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label button�?³w, non-obligatory
+					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w labelach buttonów, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeChange(arg);
@@ -2495,7 +2502,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
-			// color : {
+			// poniższe rodzi pytanie, ile jeszcze takich kwiatków mamy w kodzie?
+			// color : {	// 1. po co to tutaj jest? 2. nie lepiej utworzyć plik settings albo dać to do library? 3. TO W OGÓLE NIE JEST UŻYWANE, prawda?
 			// 	service : "#fbec88",
 			// 	functionality: "#fbec88"
 			// },
@@ -2648,6 +2656,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						return result;
 					},
+					addInput : function addInput(input){
+						this.clearIO();
+						this.inputs.push( $.extend(true, {}, input) );
+						// console.log(jsonFormatter(input,true,true));
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
+					addOutput : function addOutput(output){
+						this.clearIO();
+						this.outputs.push( $.extend(true, {}, output) );
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
 					drawIO : function drawIO(paper){
 						var length = this.inputs.length, x, y, that = this,
 							start = function(){
@@ -2665,7 +2686,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							end = function(){
 								gui.view.updateEdges();
 							};
-						if(this.type.toLowerCase() === "control"){
+						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,	//odwrotność pierwiastka z 2
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
@@ -2702,6 +2723,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
+						view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
+						this.addInputTooltips();
+						this.addOutputTooltips();
 					},
 					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
 					// pozwala przerysować IO bez przerysowywania całego node'a
@@ -2716,6 +2740,32 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					},
 					outputPathString: function outputPathString(x, y){
 						return("M " + x + " " + y + " l 0 5 l 5 5 l 5 -5 l 0 -5 z");
+					},
+					addInputTooltips: function addInputTooltips(){
+						var that = this;
+						$.each(this.inputs, function(){
+							this.description = that.prepareDescriptionForInput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
+					},
+					addOutputTooltips: function addOutputTooltips(){
+						var that = this;
+						$.each(this.outputs, function(){
+							this.description = that.prepareDescriptionForOutput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
 					},
 					getBBox : function getBBox(){
 						var result = { x: this.x, y: this.y, width: this.width, height: this.height};
@@ -2966,7 +3016,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(c, node, isStartNode);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -3035,7 +3085,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					view.dragCFArrow(node.connectors, node);
 
 					// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-					view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+					// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 				}
 
 				node.set.push(rect, label, img_gear, img_subgraph, serviceNameShown);
@@ -3080,7 +3130,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(node.connectors, node);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -3094,29 +3144,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function close(){
 					view.tooltip.close();
 				}
-				$.each(visualizedNode.inputs, function(){
-					this.description = visualizedNode.prepareDescriptionForInput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-				$.each(visualizedNode.outputs, function(){
-					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-
+				//te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
+				// visualizedNode.addInputTooltips();
+				// visualizedNode.addOutputTooltips();
 				visualizedNode
 				.prepareNodeDescription()
 				.mainShape.mouseover(
@@ -3132,6 +3162,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
@@ -3755,29 +3786,30 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						}
 
 						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
-						var that = this;
-						var selectArrow = function(e){
-							if(!e.ctrlKey){
-								gui.controler.reactOnEvent("ESCAPE");
-								that.arrowGlow.remove();
-							}
-							that.arrowGlow = gui.view.paper.set();
-							that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-							that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-							gui.controler.reactOnEvent("EDGESELECTED", that);
-							e = e || window.event;
-							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-							that.highlighted = true;
-							return false;
-						}
 						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
 						this.arrowGlow.remove();
 						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(selectArrow);
-						this.arrow[1].click(selectArrow);
-						this.arrowGlow.click(selectArrow);
+						this.arrow[0].click(this.selectArrow);
+						this.arrow[1].click(this.selectArrow);
+						this.arrowGlow.click(this.selectArrow);
+					},
+					selectArrow : function(e){
+						console.log(this, ' != ', edgeObject, '???'); // jakim cudem raphael object???!!!
+						// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+						e = e || window.event;
+						if(!e.ctrlKey){
+							gui.controler.reactOnEvent("ESCAPE");
+							edgeObject.arrowGlow.remove();
+						}
+						edgeObject.arrowGlow = gui.view.paper.set();
+						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+						gui.controler.reactOnEvent("EDGESELECTED", edgeObject);
+						e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+						edgeObject.highlighted = true;
+						return false;
 					}
 				}
 				;
@@ -3805,6 +3837,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						input : data.input,
 						view : this,
 						type : "DF",
+						visible : true,
 						toString : function toString(){
 							return "SSDL_DFEdge object";
 						},
@@ -3812,11 +3845,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.arrow[0].hide();
 							this.arrow[1].hide();
 							this.arrowGlow.hide();
+							this.visible = false;
 						},
 						show: function show(){
 							this.arrow[0].myShow(300);
 							this.arrow[1].myShow(300);
 							this.arrowGlow.show();
+							this.visible = true;
 						},
 						remove : function remove(){
 							this.arrow[0].remove();
@@ -3827,7 +3862,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							if(mode === "CF"){
 								this.hide();
 							} else if(mode === "DF"){
-								this.update();
+								this.update(this.highlighted);
 								this.show();
 							} else if(mode === "H"){
 
@@ -3835,7 +3870,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								// console.log(Wrong Argument)
 							}
 						},						
-						update : function(){
+						update : function(modeSwitch){
 							var extraTime = 0;
 							try {
 								this.arrow[0].remove();	this.arrow[1].remove();
@@ -3848,44 +3883,53 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 							// try{
 							var bboxInput = this.input.node.getBBox(),
-								bboxOutput = this.output.node.getBBox(),
-								coords = {
+								bboxOutput = this.output.node.getBBox();
+								this.coords = {
 									x1 : bboxOutput.x + bboxOutput.width / 2,
 									y1 : bboxOutput.y + bboxOutput.height / 2,
 									x2 : bboxInput.x + bboxInput.width / 2,
 									y2 : bboxInput.y + bboxInput.height / 2
-								}
-								;
+								};
 
-							this.arrow = this.view.visualiser.drawEdge(coords);
-							var that = this;
-							var selectArrow = function(e){
-								if(!e.ctrlKey){
-									gui.controler.reactOnEvent("ESCAPE");
-									that.arrowGlow.remove();
-								}
-								that.arrowGlow = gui.view.paper.set();
-								that.arrowGlow.push(that.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-								that.arrowGlow.push(that.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-								gui.controler.reactOnEvent("EDGESELECTED", that);
-								e = e || window.event;
-								e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-								that.highlighted = true;
-								return false;
-							}
-							// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-							// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
+							this.arrow = this.view.visualiser.drawEdge(this.coords);
 							this.arrowGlow.remove();
 							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
 							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-							this.arrow[0].click(selectArrow);
-							this.arrow[1].click(selectArrow);
-							this.arrowGlow.click(selectArrow);
-							this.highlighted = false;
+							this.arrow[0].click(this.selectArrow);
+							this.arrow[1].click(this.selectArrow);
+							this.arrowGlow.click(this.selectArrow);
+							if(!modeSwitch) this.highlighted = false;
 							// }
 							// catch(e){
 							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
 							// }
+						},
+						isInside : function(e){
+							var x1 = e.x1,
+								y1 = e.y1,
+								x2 = e.x2,
+								y2 = e.y2,
+								x3 = this.coords.x1,
+								y3 = this.coords.y1,
+								x4 = this.coords.x2,
+								y4 = this.coords.y2;
+							if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
+						},
+						selectArrow : function(e, multiselect){
+							if(this!=edgeObject) console.log(this, ' != ', edgeObject, '???CENSORED??? (this!=this xD)'); // jakim cudem raphael object???!!!
+							// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
+							e = e || window.event;
+							if(!e.ctrlKey&&!multiselect){
+								gui.controler.reactOnEvent("ESCAPE");
+								edgeObject.arrowGlow.remove();
+							}
+							edgeObject.arrowGlow = gui.view.paper.set();
+							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+							gui.controler.reactOnEvent("EDGESELECTED", this);
+							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+							edgeObject.highlighted = true;
+							return false;
 						}
 					}
 				;
@@ -4184,8 +4228,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				else if(!ctrl){
 					v.removeHighlight();
 				}
-
 			});	
+		},
+		selectEdgesInsideRect : function selectEdgesInsideRect(e){
+			$.each(this.current_graph_view.edgesDF, function(k, v){
+				if(v.isInside(e)) v.selectArrow(e, true);
+			});
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
