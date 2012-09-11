@@ -1528,15 +1528,6 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					selectednode = true;
 				})(evtObj);
 				break;
-			case "EDGESELECTED":
-				break;
-			case "EDGEDELETED":
-				(function(e) {
-					this.shortcut.remove("delete");
-
-					e.remove();
-				})(evtObj);
-				break;
 			case "NODEMOVED":
 				(function(e) {
 
