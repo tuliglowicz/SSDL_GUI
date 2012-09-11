@@ -169,12 +169,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
 				outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
 					var nodeType="Service";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 						}, "CTRL+N+S");
 				outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				outputView.mainMenu.addSubOption("File", "New Node", "Mediator node", function(){ 		var nodeType="Mediator";
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
+					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				
 				outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 				outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
 				outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
@@ -3705,6 +3709,58 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			} else
 				element.drag(move, start, stop);
 		},
+		protoEdge : {
+			arrow : undefined,
+			arrowGlow : undefined,
+			highlighted : false,
+			hide: function hide(){
+				this.arrow[0].hide();
+				this.arrow[1].hide();
+				this.arrowGlow.hide();
+			},
+			show: function show(){
+				this.arrow[0].myShow(300);
+				this.arrow[1].myShow(300);
+				this.arrowGlow.show();
+			},
+			remove : function remove(){
+				this.arrow[0].remove();
+				this.arrow[1].remove();
+				this.arrowGlow.remove();
+			},
+			selectArrow : function(e, multiselect){
+				e = e || window.event;
+				if(!e.ctrlKey&&!multiselect){
+					gui.controler.reactOnEvent("ESCAPE");
+				}
+				this.arrowGlow.remove();
+				this.arrowGlow = gui.view.paper.set();
+				this.arrowGlow.push(this.arrow[0].glow({width:5, fill:false, opacity:0.4}));
+				this.arrowGlow.push(this.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+				e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
+				this.highlighted = true;
+				return false;
+			},
+			update : function(keepSelected){
+				try {
+					this.arrow[0].remove();	this.arrow[1].remove();
+				} catch(e){
+				 	//console.log(e);	
+				}
+				this.arrow = gui.view.visualiser.drawEdge(this.getCoords());
+				if(this.arrowGlow){
+					this.arrowGlow.remove();
+				}else{
+					this.arrowGlow = gui.view.paper.set();
+				}
+				this.arrowGlow.push(this.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
+				this.arrowGlow.push(this.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
+				this.arrow[0].click(this.selectArrow.bind(this));
+				this.arrow[1].click(this.selectArrow.bind(this));
+				this.arrowGlow.click(this.selectArrow.bind(this));
+				if(!keepSelected) this.highlighted = false;
+			}
+		},
 		addCFEdge : function addCFEdge(data, firstLoad){
 			// console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
@@ -3716,30 +3772,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 			else {
 				var edgeObject = {
-					arrow : undefined,
-					arrowGlow : gui.view.paper.set(),
-					highlighted : false,
 					source : data.source,
 					target : data.target,
-					view : this,
 					type: "CF",
 					toString : function toString(){
 						return "SSDL_CFEdge object";
-					},
-					hide: function hide(){
-						this.arrow[0].hide();
-						this.arrow[1].hide();
-						this.arrowGlow.hide();
-					},
-					show: function show(){
-						this.arrow[0].myShow(300);
-						this.arrow[1].myShow(300);
-						this.arrowGlow.show();
-					},
-					remove : function remove(){
-						this.arrow[0].remove();
-						this.arrow[1].remove();
-						this.arrowGlow.remove();
 					},
 					switchMode: function switchMode(mode){
 						if(mode === "CF"){
@@ -3750,172 +3787,74 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						} else if(mode === "H"){
 
 						} else {
-							// console.log(Wrong Argument)
+							// console.log('Wrong Argument');
 						}
 					},
-					update : function(evt){
-						var bestConnectors = this.view.getBestConnectors(
+					getCoords : function(){
+						var bestConnectors = gui.view.getBestConnectors(
 							this.source.getPossiblePositionsOfConnectors(),
 							this.target.getPossiblePositionsOfConnectors()
 						);
-
-						var extraTime = 0;
-						try {
-							this.arrow[0].remove();	this.arrow[1].remove();
-						} catch(e){	
-
-							extraTime += 750;
-							// console.log(e);
-						}
-
-						this.arrow = this.view.visualiser.drawEdge( bestConnectors );
-						// this.arrow[0].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						// this.arrow[1].attr("opacity", "0").animate({"opacity": "1"}, 250+extraTime);
-						this.arrowGlow.remove();
-						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
-						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-						this.arrow[0].click(this.selectArrow);
-						this.arrow[1].click(this.selectArrow);
-						this.arrowGlow.click(this.selectArrow);
-					},
-					selectArrow : function(e){
-						console.log(this, ' != ', edgeObject, '???'); // jakim cudem raphael object???!!!
-						// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
-						e = e || window.event;
-						if(!e.ctrlKey){
-							gui.controler.reactOnEvent("ESCAPE");
-							edgeObject.arrowGlow.remove();
-						}
-						edgeObject.arrowGlow = gui.view.paper.set();
-						edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-						edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-						gui.controler.reactOnEvent("EDGESELECTED", edgeObject);
-						e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-						edgeObject.highlighted = true;
-						return false;
+						return bestConnectors;
 					}
-				}
-				;
+				};
+				edgeObject.extend(this.protoEdge);
 				edgeObject.update();
 				return edgeObject;
 			}
 		},
 		addDFEdge : function addDFEdge(data, firstLoad){
-			//source, sourceOutputId
-			//target, targetInputId
-			// console.log(data)
-			// console.log(data)
 			var foundedDFEdge = (firstLoad ? false : this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id));
 			if(foundedDFEdge){
 				gui.controler.reactOnEvent(""); //err msg
 			}
 			else {
 				var	edgeObject = {
-						arrow : undefined,
-						arrowGlow : gui.view.paper.set(),
-						highlighted : false,
-						sourceId: data.sourceId,
-						targetId: data.targetId,
-						output : data.output,
-						input : data.input,
-						view : this,
-						type : "DF",
-						visible : true,
-						toString : function toString(){
-							return "SSDL_DFEdge object";
-						},
-						hide: function hide(){
-							this.arrow[0].hide();
-							this.arrow[1].hide();
-							this.arrowGlow.hide();
-							this.visible = false;
-						},
-						show: function show(){
-							this.arrow[0].myShow(300);
-							this.arrow[1].myShow(300);
-							this.arrowGlow.show();
-							this.visible = true;
-						},
-						remove : function remove(){
-							this.arrow[0].remove();
-							this.arrow[1].remove();
-							this.arrowGlow.remove();
-						},
-						switchMode: function switchMode(mode){
-							if(mode === "CF"){
-								this.hide();
-							} else if(mode === "DF"){
-								this.update(this.highlighted);
-								this.show();
-							} else if(mode === "H"){
+					sourceId: data.sourceId,
+					targetId: data.targetId,
+					output : data.output,
+					input : data.input,
+					type : "DF",
+					visible : true,
+					toString : function toString(){
+						return "SSDL_DFEdge object";
+					},
+					switchMode: function switchMode(mode){
+						if(mode === "CF"){
+							this.hide();
+						} else if(mode === "DF"){
+							this.update(this.highlighted);
+							this.show();
+						} else if(mode === "H"){
 
-							} else {
-								// console.log(Wrong Argument)
-							}
-						},						
-						update : function(modeSwitch){
-							var extraTime = 0;
-							try {
-								this.arrow[0].remove();	this.arrow[1].remove();
-							 } catch(e){
-								extraTime += 750;
-							 	//console.log(e);	
-							 }
-
-							// console.log(this);
-
-							// try{
-							var bboxInput = this.input.node.getBBox(),
-								bboxOutput = this.output.node.getBBox();
-								this.coords = {
-									x1 : bboxOutput.x + bboxOutput.width / 2,
-									y1 : bboxOutput.y + bboxOutput.height / 2,
-									x2 : bboxInput.x + bboxInput.width / 2,
-									y2 : bboxInput.y + bboxInput.height / 2
-								};
-
-							this.arrow = this.view.visualiser.drawEdge(this.coords);
-							this.arrowGlow.remove();
-							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
-							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
-							this.arrow[0].click(this.selectArrow);
-							this.arrow[1].click(this.selectArrow);
-							this.arrowGlow.click(this.selectArrow);
-							if(!modeSwitch) this.highlighted = false;
-							// }
-							// catch(e){
-							// 	console.log(this.output.node, bboxOutput, bboxInput, coords)
-							// }
-						},
-						isInside : function(e){
-							var x1 = e.x1,
-								y1 = e.y1,
-								x2 = e.x2,
-								y2 = e.y2,
-								x3 = this.coords.x1,
-								y3 = this.coords.y1,
-								x4 = this.coords.x2,
-								y4 = this.coords.y2;
-							if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
-						},
-						selectArrow : function(e, multiselect){
-							if(this!=edgeObject) console.log(this, ' != ', edgeObject, '???CENSORED??? (this!=this xD)'); // jakim cudem raphael object???!!!
-							// PARTTTTTYYYYYYYYYYYYYYZZANTKAAAAAAAAAAAAAAAAAAAA!!!
-							e = e || window.event;
-							if(!e.ctrlKey&&!multiselect){
-								gui.controler.reactOnEvent("ESCAPE");
-								edgeObject.arrowGlow.remove();
-							}
-							edgeObject.arrowGlow = gui.view.paper.set();
-							edgeObject.arrowGlow.push(edgeObject.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-							edgeObject.arrowGlow.push(edgeObject.arrow[1].glow({width:5, fill:false, opacity:0.4}));
-							gui.controler.reactOnEvent("EDGESELECTED", this);
-							e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
-							edgeObject.highlighted = true;
-							return false;
+						} else {
+							// console.log('Wrong Argument');
 						}
+					},
+					getCoords : function(){
+						var bboxInput = this.input.node.getBBox(),
+							bboxOutput = this.output.node.getBBox();
+						return {
+							x1 : bboxOutput.x + bboxOutput.width / 2,
+							y1 : bboxOutput.y + bboxOutput.height / 2,
+							x2 : bboxInput.x + bboxInput.width / 2,
+							y2 : bboxInput.y + bboxInput.height / 2
+						};
+					},		
+					isInside : function(e){
+						var coords = this.getCoords();
+						var x1 = e.x1,
+							y1 = e.y1,
+							x2 = e.x2,
+							y2 = e.y2,
+							x3 = coords.x1,
+							y3 = coords.y1,
+							x4 = coords.x2,
+							y4 = coords.y2;
+						if(this.visible&&((x3>x1&&x3<x2&&y3>y1&&y3<y2)||(x4>x1&&x4<x2&&y4>y1&&y4<y2))) return true;
 					}
-				;
+				};
+				edgeObject.extend(this.protoEdge);
 				edgeObject.update();
 				return edgeObject;
 			}
@@ -4199,9 +4138,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			this.tooltip.close();
 		},
 		selectAll : function selectAll(){
+			var e = {ctrl: false};
 			$.each(this.current_graph_view.nodes, function(k, v){
 				v.highlight2();
 			});
+			if(gui.view.mode === 'DF'){
+				$.each(this.current_graph_view.edgesDF, function(k, v){
+					v.selectArrow(e, true);
+				});
+			}else{
+				$.each(this.current_graph_view.edgesCF, function(k, v){
+					v.selectArrow(e, true);
+				});
+			}
 		},
 		selectNodesInsideRect : function selectNodesInsideRect(x1,y1,x2,y2, ctrl){
 			//alert(x1+":"+x2+":"+ctrl)
@@ -4214,9 +4163,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			});	
 		},
 		selectEdgesInsideRect : function selectEdgesInsideRect(e){
-			$.each(this.current_graph_view.edgesDF, function(k, v){
-				if(v.isInside(e)) v.selectArrow(e, true);
-			});
+			if(gui.view.mode === 'DF'){
+				$.each(this.current_graph_view.edgesDF, function(k, v){
+					if(v.isInside(e)) v.selectArrow(e, true);
+				});
+			}
 		},
 		setBoldNodesInsideRect : function setBoldNodesInsideRect(x1,y1,x2,y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
