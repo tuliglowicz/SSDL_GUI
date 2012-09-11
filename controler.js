@@ -1433,7 +1433,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				(function(e) {
 					var source = that.getNodeById(e.sourceId),
 						input = e.input,
-						outputTmp, output, newId;
+						outputTmp, output, newId, graphNode;
 					if (source) {
 						outputTmp = that.getOutputById(e.sourceId, input.id)
 						if (outputTmp) {
@@ -1447,9 +1447,10 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						};
 
 						source.functionalDescription.outputs.push(output);
-						gui.view.updateNode(source);
-
-						output = gui.view.getNodeById(e.sourceId).getOutputById(output.id);
+						
+						graphNode = gui.view.getNodeById(e.sourceId);
+						graphNode.addOutput(output);
+						output = graphNode.getOutputById(output.id);
 
 						// console.log(source)
 						that.reactOnEvent("addDFEdge", {
@@ -1469,7 +1470,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					// console.log(e);
 					var target = that.getNodeById(e.targetId),
 						output = e.output,
-						inputTmp, input, newId;
+						inputTmp, input, newId, graphNode;
 					if (target) {
 						inputTmp = that.getInputById(e.targetId, output.id)
 						if (inputTmp) {
@@ -1484,9 +1485,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 						target.functionalDescription.inputs.push(input);
 
-						gui.view.updateNode(target);
-
-						input = gui.view.getNodeById(e.targetId).getInputById(input.id);
+						// gui.view.updateNode(target);
+						// jedyna wada obecnego podejścia: nie sprawdza, czy dany io już istnieje,
+						// ale w tym wypadku nie jest to potrzebne
+						graphNode = gui.view.getNodeById(e.targetId);
+						graphNode.addInput(input);
+						input = graphNode.getInputById(input.id);
 
 						that.reactOnEvent("addDFEdge", {
 							sourceId: e.sourceId,
@@ -1597,8 +1601,12 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						gui.view.removeAllGraphs();
 						gui.view.setBlankGraphAsCurrent()
 
-						this.graphData_tab = tab;
-						this.current_graphData = tab[tab.length - 1];
+						if(tab.length == 0){
+							this.graphData_tab = [ current_graphData ];
+						} else {
+							this.graphData_tab = tab;
+							this.current_graphData = tab[tab.length - 1];
+						}
 
 						gui.view.parseAndSetDataModelToView(this.graphData_tab);
 
@@ -1925,7 +1933,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			function parseGraph(subgraph, tabulacja) {
 				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
-				if (subgraph.nodes && subgraph.nodes.length > 0) {
+				if (subgraph && subgraph.nodes && subgraph.nodes.length > 0) {
 					tabOutput.push(tabulacja + "<nodes>\n");
 					$.each(subgraph.nodes, function(key, node) {
 						parseNode(key, node, tabulacja);

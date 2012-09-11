@@ -169,12 +169,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
 				outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
 					var nodeType="Service";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 						}, "CTRL+N+S");
 				outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				outputView.mainMenu.addSubOption("File", "New Node", "Mediator node", function(){ 		var nodeType="Mediator";
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
+					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				
 				outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 				outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
 				outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
@@ -690,6 +694,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							addButton: function addButton(button){
 								this.buttons.push(button);
 								this.resizeAndRelocate();
+								that.generalFontReset();
 								that.relocate();
 							},
 							toString: function toString(){
@@ -915,9 +920,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				},
 				relocate: function relocate(){
 					var sum = 10, that = this;
-					//fix dla buga powodujÄ…cego powstawanie niezniszczalnych separator�?³w, jeÅ¼eli
-					//uÅ¼ytkownik ma otwarty pasek podczas hide'owania czegoÅ›
-					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystÄ…piÄ‡?
+					//fix dla buga powodującego powstawanie niezniszczalnych separatorów, jeżeli
+					//użytkownik ma otwarty pasek podczas hide'owania czegoś
+					//pytanie, czy ten fix jest potrzebny - czy ten bug ma szanse wystąpić?
 					$.each(this.separators, function(){
 						this.hide();
 					});
@@ -926,8 +931,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					$.each(this.groups, function(){
 						if(this.isVisible){
 							this.moveGroupToX(sum);
-							//to jest ciut partyzanckie, ale jak inaczej ominÄ…Ä‡ pierwszy separator?
-							//czy teÅ¼ moÅ¼e chcemy pierwszy lub ostatni separator? ale po co?
+							//to jest ciut partyzanckie, ale jak inaczej ominąć pierwszy separator?
+							//czy też może chcemy pierwszy lub ostatni separator? ale po co?
 							if(sum>10)
 								that.addSeparator(this.x, this.y, this.height);
 							sum += this.width;
@@ -944,7 +949,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						});
 				},
 				generalResize: function generalResize(arg){
-					//arg: o ile pikseli zwiÄ™kszyÄ‡/zmniejszyÄ‡ czcionkÄ™ w label button�?³w, non-obligatory
+					//arg: o ile pikseli zwiększyć/zmniejszyć czcionkę w labelach buttonów, non-obligatory
 					$.each(this.groups, function(){
 						$.each(this.buttons, function(){
 							this.fontsizeChange(arg);
@@ -2497,7 +2502,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	};
 	function nodeVisualizator(view){
 		var outputObject = {
-			// color : {
+			// poniższe rodzi pytanie, ile jeszcze takich kwiatków mamy w kodzie?
+			// color : {	// 1. po co to tutaj jest? 2. nie lepiej utworzyć plik settings albo dać to do library? 3. TO W OGÓLE NIE JEST UŻYWANE, prawda?
 			// 	service : "#fbec88",
 			// 	functionality: "#fbec88"
 			// },
@@ -2650,6 +2656,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						return result;
 					},
+					addInput : function addInput(input){
+						this.clearIO();
+						this.inputs.push( $.extend(true, {}, input) );
+						// console.log(jsonFormatter(input,true,true));
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
+					addOutput : function addOutput(output){
+						this.clearIO();
+						this.outputs.push( $.extend(true, {}, output) );
+						this.drawIO(view.paper);
+						gui.view.updateEdges();
+					},
 					drawIO : function drawIO(paper){
 						var length = this.inputs.length, x, y, that = this,
 							start = function(){
@@ -2667,7 +2686,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							end = function(){
 								gui.view.updateEdges();
 							};
-						if(this.type.toLowerCase() === "control"){
+						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,	//odwrotność pierwiastka z 2
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
@@ -2704,6 +2723,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
+						view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
+						this.addInputTooltips();
+						this.addOutputTooltips();
 					},
 					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
 					// pozwala przerysować IO bez przerysowywania całego node'a
@@ -2718,6 +2740,32 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					},
 					outputPathString: function outputPathString(x, y){
 						return("M " + x + " " + y + " l 0 5 l 5 5 l 5 -5 l 0 -5 z");
+					},
+					addInputTooltips: function addInputTooltips(){
+						var that = this;
+						$.each(this.inputs, function(){
+							this.description = that.prepareDescriptionForInput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
+					},
+					addOutputTooltips: function addOutputTooltips(){
+						var that = this;
+						$.each(this.outputs, function(){
+							this.description = that.prepareDescriptionForOutput(this.id);
+							this.node.mouseover(
+								(function(something){
+									return function(evt, x, y){
+										view.tooltip.open(that.label+": "+something.id, something.description, x, y, evt);
+									};
+								})(this)
+							).mouseout(function(){view.tooltip.close()});
+						});
 					},
 					getBBox : function getBBox(){
 						var result = { x: this.x, y: this.y, width: this.width, height: this.height};
@@ -2968,7 +3016,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(c, node, isStartNode);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -3037,7 +3085,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					view.dragCFArrow(node.connectors, node);
 
 					// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-					view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+					// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 				}
 
 				node.set.push(rect, label, img_gear, img_subgraph, serviceNameShown);
@@ -3082,7 +3130,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				view.dragCFArrow(node.connectors, node);
 
 				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
 
 				return node;
 			},
@@ -3096,29 +3144,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				function close(){
 					view.tooltip.close();
 				}
-				$.each(visualizedNode.inputs, function(){
-					this.description = visualizedNode.prepareDescriptionForInput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-				$.each(visualizedNode.outputs, function(){
-					this.description = visualizedNode.prepareDescriptionForOutput(this.id);
-					this.node.mouseover(
-						(function(that){
-							return function(evt, x, y){
-								view.tooltip.open(visualizedNode.label+": "+that.id, that.description, x, y, evt);
-							};
-						})(this)
-					).mouseout(close)
-					;
-				});
-
+				//te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
+				// visualizedNode.addInputTooltips();
+				// visualizedNode.addOutputTooltips();
 				visualizedNode
 				.prepareNodeDescription()
 				.mainShape.mouseover(
@@ -3134,6 +3162,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
