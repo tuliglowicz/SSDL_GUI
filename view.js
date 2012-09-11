@@ -1350,8 +1350,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 			init: function init(node){
 				var titleText;
-				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel;
-				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel; 
+				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode +  language[gui.language].forms.labeled + node.nodeLabel;
+				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + language[gui.language].forms.labeled + node.nodeLabel; 
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
