@@ -169,12 +169,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				outputView.mainMenu.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
 				outputView.mainMenu.addSubOption("File", "New Node", "Service node", function(){
 					var nodeType="Service";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
 						}, "CTRL+N+S");
 				outputView.mainMenu.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-					var label = prompt("Enter a label for the new node:");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
 					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				outputView.mainMenu.addSubOption("File", "New Node", "Mediator node", function(){ 		var nodeType="Mediator";
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
+					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+				
 				outputView.mainMenu.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 				outputView.mainMenu.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
 				outputView.mainMenu.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
