@@ -545,8 +545,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
+							if(nodeType==="Markup")
+								$("#f_dialog_markup_" + pf).dialog('open');
+							else{
 							var label = prompt(language[gui.language].alerts.addLabelNewNode);
 							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
+						}
 					}
 				}
 
@@ -1474,6 +1478,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$tabs.tabs('select', 5);
 						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						$('#f_emulationTab_id_' + pf).prop('disabled', 'true').addClass('ui-state-disabled');
+						break;
 					default : 
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 						$('#tabs-2_' + pf).show();				
@@ -2480,7 +2485,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		);
 		$("#f_button_newMarkup_" + pf).button().click(
 			function(event) {
-				alert("America fuck yeah, Włodku daj mi event!");
+				var label = prompt(language[gui.language].alerts.addLabelNewNode);
+				if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:"markup"});
+				$("#f_dialog_markup_" + pf).dialog('close');
 			}
 		);
 		$("#f_button_importMarkup_" + pf).button().click(
