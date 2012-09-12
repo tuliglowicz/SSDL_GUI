@@ -292,7 +292,8 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}, 400, function() {
 					$(eId).css('overflow-y: scroll;');
 				});
-			}
+			},
+			close: close
 		};
 		//adding console HTML structure
 		var divString = [];
@@ -402,19 +403,9 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		mask.click(function() {
 			obj.open();
 		});
-		mask.mouseover(function() {
-			if (animation) clearInterval(animation);
-			buttonBG.animate({
-				"fill-opacity": 0.75
-			}, 500);
-			alertbg.animate({
-				"fill-opacity": 0.0
-			});
-			$(mask.node).css('cursor', 'pointer');
-		});
-		mask.mouseout(function() {
-			$(mask.node).css('cursor', 'default');
-		});
+		
+		$(mask.node).css('cursor', 'pointer');
+
 		//context menu
 		var menu = gui.view.contextMenu("console_" + pf, gui.view);
 		menu.addOption(language[gui.language].logger.close, close);
@@ -1413,6 +1404,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					gui.view.menuList.getInstance().close();
 					gui.view.deselectAll();
 					gui.view.tooltip.close();
+					gui.logger.close();
 				})();
 				break;
 			case "ADDOUTPUT":
