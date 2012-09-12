@@ -62,6 +62,7 @@ bottombar:{
 
 		},
 		forms: {
+			add: "dodaj",
 			label: "Etykieta",
 			description: "Opis",
 			controlType: "Typ Kontrolny",
@@ -78,7 +79,10 @@ bottombar:{
 			weight: "Waga",
 			name: "Nazwa",
 			relation: "Relacja",
+			number:"Numer",
 			unit: "Jednostka",
+			input: "Wejście",
+			output: "Wyjście",
 			value: "Wartość",
 			type: "Typ",
 			next: "DALEJ",
@@ -112,13 +116,16 @@ bottombar:{
 			clearAll1:"Tak, wyczyść formularz",
 			clearAll2: "Jestem pewien na 100%",
 			labeled: " o etykiecie: ",
+			xmlIOFile: "plik We/Wy XML",
+
 		},
 		formTabs: {
 			main: "Ogólne",
 			serviceDesc: "Opis usługi",
 			inputs: "Wejścia",
 			outputs: "Wyjścia",
-			nonFunctionalDesc: "Opis niefunkcjonalny"
+			nonFunctionalDesc: "Opis niefunkcjonalny",
+			emulation: "Emulacja"
 		},
 
 		logger: {
@@ -245,6 +252,7 @@ bottombar:{
 
 		},
 		forms: {
+			add: "add",
 			label: "label",
 			description: "description",
 			controlType: "controlType",
@@ -260,10 +268,13 @@ bottombar:{
 			source: "source",
 			weight: "weight",
 			name: "name",
+			number: "number",
 			relation: "relation",
 			unit: "unit",
 			value: "value",
 			type: "type",
+			input: "input",
+			output: "output",
 			back: "BACK",
 			next: "NEXT",
 			definedInputs: "Defined inputs:",
@@ -294,14 +305,17 @@ bottombar:{
 			saveChanges: "Save changes",
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
-			labeled: " labeled: "
+			labeled: " labeled: ",
+			xmlIOFile: "xml IO file",
+
 		},
 		formTabs: {
 			main: "Main",
 			serviceDesc: "Service Desciption",
 			inputs: "Inputs",
 			outputs: "Outputs",
-			nonFunctionalDesc: "nonFunctionalDescription"
+			nonFunctionalDesc: "nonFunctionalDescription",
+			emulation: "Emulation"
 		},
 
 		logger: {
