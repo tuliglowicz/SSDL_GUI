@@ -1247,7 +1247,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					values:[]
 				},
 				{
-					label: "xml IO file [JACKU_TUTAJ!!!]",
+					label: language[gui.language].forms.xmlIOFile,
 					id: "f_emulationTab_xml_file",
 					inputType: "textBox",
 					validation: function(){},
