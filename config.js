@@ -8,11 +8,16 @@ var CFG = {
 		markup : "#D1DBB5"
 	},
 	language : "PL", // "EN"
-	nodeWidth : 135,
-	nodeHeight : 35,
-	guiWidth : 1,
-	guiHeight : 1,
-
+	nodeWidth : 135, // nie podpięte
+	nodeHeight : 35, // nie podpięte
+	guiWidth : 1, // nie podpięte
+	guiHeight : 1, // nie podpięte
+	serviceTypes : [
+		"service",
+		"javaservice",
+		"mediator",
+		"streamingworkflowengine",
+	]
 
 
 }

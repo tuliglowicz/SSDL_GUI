@@ -1,4 +1,4 @@
-//toDo
+// to Do
 // done // walidacja, edycja, json2ssdl, startstop
 
 "use strict";
@@ -28,7 +28,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		}
 	]};
 	// suppported by Matka Boska Partyzantcka 
-	function menu(x, y, addToDiv) {
+	function menu(x, y, addToDiv){
 		var mainMenu = {
 			przesuwne: 0,
 			clicked: false,
@@ -3162,10 +3162,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				;
 			}
 		};
-
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("Markup", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
