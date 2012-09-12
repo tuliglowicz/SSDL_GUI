@@ -1061,7 +1061,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					inputType: "textBox",
 					validation: function(){},
 					values:[],
-					button: true
+					button: true,
+					list: true
 				}
 			]},
 			{
@@ -1472,8 +1473,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$('#tabs-6_' + pf).show();
 						$tabs.tabs('select', 5);
 						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
-						// $('#f_emulationTab_id').fuckThis();
-						break;
+						$('#f_emulationTab_id_' + pf).prop('disabled', 'true').addClass('ui-state-disabled');
 					default : 
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 						$('#tabs-2_' + pf).show();				
@@ -2478,6 +2478,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				return false;
 			}
 		);
+		$("#f_button_newMarkup_" + pf).button().click(
+			function(event) {
+				alert("America fuck yeah, Włodku daj mi event!");
+			}
+		);
+		$("#f_button_importMarkup_" + pf).button().click(
+			function(event) {
+				// alert("America fuck yeah, Włodku daj mi event!");
+			}
+		);
+		$("#f_button_importMarkup_" + pf).addClass('ui-state-disabled');
 		$("#f_addInputForm_changesConfirm_" + pf).button().click(
 			function(event) {
 				result.addInput();
@@ -2551,6 +2562,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			modal: true
 		});
 		$( "#f_dialog_confirm2_" + pf ).dialog({
+			autoOpen: false,
+			resizable: false,
+			height: 200,
+			width: 320,
+			modal: true
+		});
+		$( "#f_dialog_markup_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 200,
