@@ -554,7 +554,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				text_service.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
-					.attr({fill: CFG.colors.functionality})
+					.attr({fill: CFG.colors.service})
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
@@ -562,7 +562,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
-					.attr({fill: CFG.colors.service})
+					.attr({fill: CFG.colors.functionality})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
@@ -585,8 +585,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					.attr({fill: CFG.colors.markup})
 					.dblclick(onDblClick("Markup"));
 					// .hide();
-				repo_mediator.node.setAttribute("class","repository_element");	
-				this.dataSet.push(repo_mediator);
+				repo_markup.node.setAttribute("class","repository_element");	
+				this.dataSet.push(repo_markup);
 			}
 		};
 		return tmp;
@@ -1249,9 +1249,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				{
 					label: "xml IO file [JACKU_TUTAJ!!!]",
 					id: "f_emulationTab_xml_file",
-					inputType: "textBox",
+					inputType: "textArea",
 					validation: function(){},
-					values:[]
+					values:[],
+					button: true
 				}
 			]},
 			{
@@ -1321,33 +1322,39 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			]},
 			],
-			resultJSON = {
-			"nodeId":"",
-			"nodeLabel":"",
-			"nodeType":"",
-			"physicalDescription":{},
-			"functionalDescription":{},
-			"nonFunctionalDescription":[],
-			"alternatives":"",
-			"subgraph":{},
-			"controlType":"",
-			"condition":"",
-			"sources":[]
+		resultJSON = {
+			nodeId:"",
+			nodeLabel:"",
+			nodeType:"",
+			physicalDescription:{},
+			functionalDescription:{},
+			nonFunctionalDescription:[],
+			alternatives:"",
+			subgraph:{},
+			controlType:"",
+			condition:"",
+			sources:[]
 			},
-			physDescJSON = {
-			"serviceName":"",
-			"serviceGlobalId":"",
-			"address":"",
-			"operation":""
+		physDescJSON = {
+			serviceName:"",
+			serviceGlobalId:"",
+			address:"",
+			operation:""
 			},
-			funcDescJSON = {
-			"description":"",
-			"serviceClasses":[],
-			"metaKeywords":[],
-			"inputs":[],
-			"outputs":[],
-			"preconditions":"",
-			"effects":""
+		funcDescJSON = {
+			description:"",
+			serviceClasses:[],
+			metaKeywords:[],
+			inputs:[],
+			outputs:[],
+			preconditions:"",
+			effects:""
+			},
+		emulationJSON = {
+			id:"",
+			name:"",
+			// xmlIOfile:""
+			vectors:""
 			};
 
 		var tabsTab = [
@@ -1387,6 +1394,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			resultJSON: resultJSON,
 			physDescJSON: physDescJSON,
 			funcDescJSON: funcDescJSON,
+			emulationJSON: emulationJSON,
 			selectedInputIndex: -1,
 			selectedOutputIndex: -1,
 			selectedNFPropertyIndex: -1,
@@ -1458,15 +1466,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
 						break;
 					case "functionality" :
-					//TEMP
-						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
-						$('#tabs-6_' + pf).show();
-						$('#nf_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						break;	//bez zmian
 					case "markup" : 
 						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
 						$('#tabs-6_' + pf).show();
-						$('#nf_nonFunctionalDescriptionTab_nextButton_' + pf).show();
+						$tabs.tabs('select', 5);
+						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
+						// $('#f_emulationTab_id').fuckThis();
 						break;
 					default : 
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
@@ -1808,6 +1814,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					
 				this.funcDescJSON.description = $( "#f_mainTab_description_" + pf ).val();
 				this.removeUndefinedElements();
+				this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
+				this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
+				this.emulationJSON.vectors = $("#f_emulationTab_xml_file_" + pf).val();
+				this.resultJSON.emulation = emulationJSON;
 				// this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
 				// this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
 
@@ -2136,6 +2146,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				result.addServiceClass();
 			}
 		);
+		$("#f_emulationTab_xml_file_addButton_" + pf).button().click(
+			function(event) {
+				alert("this is not yet implemented");
+			}
+		);
 		$("#f_inputsTab_openAddInputForm_" + pf).button().click(
 			function(event) {
 				$( "#inputForm_" + pf )[0].reset();
@@ -2154,10 +2169,15 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				$("#f_addOutputForm_" + pf).dialog("open");	
 			}
 		);
-		$("#f_emulationTab_openAddVectorForm_" + pf).button().click(
-			function(event) {
-			}
-		);
+		// $("#f_emulationTab_openAddVectorForm_" + pf).button().click(
+		// 	function(event) {
+		// 		$( "#emulationForm_" + pf  )[0].reset();
+		// 		result.resetSelectedVectorIndex();
+		// 		result.clearVectorSelectionInTable();
+		// 		$('#ui-dialog-title-f_addVectorForm_' + pf).text("[JACKU_TUTAJ!!!]");
+		// 		$("#f_addVectorForm_" + pf).dialog("open");	
+		// 	}
+		// );
 		$("#f_openAddInputVariableForm_" + pf).button().click(
 			function(event) {
 				$( "#inputVariableForm_" + pf )[0].reset();
@@ -2206,10 +2226,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			}
 		);
-		$("#f_emulationTab_openEditVectorForm_" + pf).button().click(
-			function(event) {
-			}
-		);
+		// $("#f_emulationTab_openEditVectorForm_" + pf).button().click(
+		// 	function(event) {
+		// 		var index = result.getSelectedVectorIndex();
+		// 		if(index == -1)
+		// 			alert("[JACKU_TUTAJ!!!]");
+		// 		else{
+		// 			result.openEditVector(index);
+		// 		}
+		// 	}
+		// );
 		$("#f_openEditInputVariableForm_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
@@ -2261,10 +2287,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			}
 		);
-		$("#f_emulationTab_deleteThisVector_" + pf).button().click(
-			function(event) {
-			}
-		);
+		// $("#f_emulationTab_deleteThisVector_" + pf).button().click(
+		// 	function(event) {
+		// 		function(event) {
+		// 		var index = result.getSelectedVectorIndex();
+		// 		if(index == -1)
+		// 			alert("[JACKU_TUTAJ!!!]");
+		// 		else{
+		// 			result.removeVector();
+		// 		}
+		// 	}
+		// 	}
+		// );
 		$("#f_deleteThisInputVariable_" + pf).button().click(
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
@@ -2366,6 +2400,21 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			setTimeout(function(){result.setSelectedInputVariableIndex(index);},1000);
 			result.openEditInputVariable(index);
 		});
+		$('tr[id^="f_inputVariables"]').live("click", function(event){
+			var index = event.target.id.split("_")[1].split("-")[1];
+			result.clearVectorSelectionInTable();
+			if(result.getSelectedVectorIndex() == index)
+				result.resetSelectedVectorIndex();
+			else{
+				result.setSelectedVectorIndex(index);
+				$(this).addClass("ui-state-active");
+			}
+		});
+		$('tr[id^="f_inputVariables"]').live("dblclick", function(event){
+			var index = event.target.id.split("_")[1].split("-")[1];
+			setTimeout(function(){result.setSelectedVectorIndex(index);},1000);
+			result.openEditVector(index);
+		});
 		$('tr[id^="f_globalNFProps"]').live("click", function(event){
 			var index = event.target.id.split("_")[1].split("-")[1];
 			result.clearGlobalNFPropertySelectionInTable();
@@ -2454,6 +2503,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				result.addInputVariable();
 			}	
 		);
+		$("#f_addVectorForm_changesConfirm_" + pf).button().click(
+			function(event) {
+				result.addVector();
+			}	
+		);
 		$("#f_inputVariablesForm_changesConfirm_" + pf).button().click(
 			function(event) {
 				for(var i in inpVars)
@@ -2538,6 +2592,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			width: 350
 		});
 		$("#f_addInputVariableForm_" + pf).dialog({
+			autoOpen: false,
+			modal: true,
+			height: 300,
+			width: 350
+		});
+		$("#f_addVectorForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
 			height: 300,
@@ -2976,8 +3036,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.menu.addOption('Delete',"DELETE");
 						}
 					}
-				}
-				
+				}	
 				return blankNode;
 			},
 			extendVisualisation : function extendVisualisation(type, fun){
@@ -3226,6 +3285,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("Markup", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};
