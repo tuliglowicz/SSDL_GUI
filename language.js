@@ -62,6 +62,7 @@ bottombar:{
 
 		},
 		forms: {
+			add: "dodaj",
 			label: "Etykieta",
 			description: "Opis",
 			controlType: "Typ Kontrolny",
@@ -251,6 +252,7 @@ bottombar:{
 
 		},
 		forms: {
+			add: "add",
 			label: "label",
 			description: "description",
 			controlType: "controlType",
