@@ -96,6 +96,7 @@ bottombar:{
 			resetAll: "Zresetuj wszystko",
 			submitAll: "Wyślij wszystko",
 			newInput: "Nowe Wejście",
+			newMarkup: "Nowa usługa markująca",
 			newInputVariable:"Nowa wartość wejścia",
 			newOutput: "Nowe Wyjście",
 			newNonFunctionalProperty: "Nowa własność niefukcjonalna",
@@ -117,6 +118,9 @@ bottombar:{
 			clearAll2: "Jestem pewien na 100%",
 			labeled: " o etykiecie: ",
 			xmlIOFile: "plik We/Wy XML",
+			chooseYourDestiny: "Wybierz akcję",
+			new: "Nowy",
+			import: "Importuj z pliku",
 
 		},
 		formTabs: {
@@ -286,6 +290,7 @@ bottombar:{
 			resetAll: "Reset All",
 			submitAll: "Submit All",
 			newInput: "New Input",
+			newMarkup: "New Markup service",
 			newOutput: "New Output",
 			newInputVariable: "New Input Variable",
 			newNonFunctionalProperty: "New Non Functional Property",
@@ -307,6 +312,9 @@ bottombar:{
 			clearAll2:"I'm 100% sure.",
 			labeled: " labeled: ",
 			xmlIOFile: "xml IO file",
+			chooseYourDestiny: "Choose action",
+			new: "New",
+			import: "Import from file",
 
 		},
 		formTabs: {
@@ -320,7 +328,6 @@ bottombar:{
 
 		logger: {
 			console_CL: "Close console",
-			console_SA: "select all",
 			console_DA: "deselect all",
 			console_D: "delete selected",
 			show: "Show: ",
