@@ -29,12 +29,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	]};
 	// suppported by Matka Boska Partyzantcka 
 	function menu(x, y, addToDiv) {
-	
 		var mainMenu = {
 			przesuwne: 0,
 			clicked: false,
 			menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
-
 			addGroup: function addGroup(label) {
 				$("<div id=" + label + " class=mMenuGroup style='  left:" + mainMenu.przesuwne + "'>" + ( language[gui.language].mainMenu[camelize(label)] || "") + "</div>").appendTo('#menuContener').mouseenter(function() {
 
@@ -139,6 +137,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			},
 			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
+			},
+			showsubOption: function showsubOption(groupLabel, optionLabel, subOptionLabel) {
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).show();
 			},
 			showOption: function showOption(groupLabel, optionLabel) {
 				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
@@ -553,7 +554,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				text_service.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_service);
 				var repo_service = this.paper.rect(nodeHorizontalPosition,20,nodeLength,nodeHeight,5)
-					.attr({fill:"#fbec88"})
+					.attr({fill: CFG.colors.functionality})
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
@@ -561,7 +562,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
 				var repo_functionality = this.paper.rect(nodeHorizontalPosition,80,nodeLength,nodeHeight,5)
-					.attr({fill:"#a6c9e2"})
+					.attr({fill: CFG.colors.service})
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
@@ -570,8 +571,19 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					text_mediator.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_mediator);
 				var repo_mediator = this.paper.rect(nodeHorizontalPosition,140,nodeLength,nodeHeight,5)
-					.attr({fill:"#ffffff"})
+					.attr({fill: CFG.colors.mediator })
 					.dblclick(onDblClick("Mediator"));
+					// .hide();
+				repo_mediator.node.setAttribute("class","repository_element");	
+				this.dataSet.push(repo_mediator);
+
+				var text_markup = this.paper.text(textHorizontalPosition,190,language[gui.language].nodes.markup);
+					// .hide();
+					text_markup.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_markup);
+				var repo_markup = this.paper.rect(nodeHorizontalPosition,200,nodeLength,nodeHeight,5)
+					.attr({fill: CFG.colors.markup})
+					.dblclick(onDblClick("Markup"));
 					// .hide();
 				repo_mediator.node.setAttribute("class","repository_element");	
 				this.dataSet.push(repo_mediator);
@@ -1383,8 +1395,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 			init: function init(node){
 				var titleText;
-				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel;
-				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + " labeled " + node.nodeLabel; 
+				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode +  language[gui.language].forms.labeled + node.nodeLabel;
+				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + language[gui.language].forms.labeled + node.nodeLabel; 
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
@@ -3009,7 +3021,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			draw_controlNode : function draw_controlNode(node){
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
-				node.color = "white";
+				node.color = CFG.colors.startstop;
 				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color}),
 					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
 					;
@@ -3073,9 +3085,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
 				// if(!drawNotForRepo)
 				// 	a(node.id)
+				var nodeType =  node.type.toLowerCase()
 				var id = node.id,
 					radius = 4,
-					color = ( node.type.toLowerCase() == "mediator" ? "white" : "#fbec88" ),
+					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "markup" ? CFG.colors.markup : CFG.colors.service) ),
 					paper = paper || view.paper,
 					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
@@ -3143,7 +3156,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				return node;
 			},
 			draw_functionalityNode : function draw_functionalityNode(node){
-				node.color = "#a6c9e2";
+				node.color = CFG.colors.functionality;
 				var id = node.id,
 					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", node.color),
 					label = view.paper.text(node.x + node.width/2, node.y + 10, node.label),
