@@ -24,12 +24,14 @@
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
+							if(nodeType==="Markup")
+								$("#f_dialog_markup_" + pf).dialog('open');
+							else{
 							var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label)
-								gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
+						}
 					}
 				}
-				var onDblClick
 
 				var text_service = this.paper.text(textHorizontalPosition,10, language[gui.language].nodes.service);
 				text_service.node.setAttribute("class","repository_text");

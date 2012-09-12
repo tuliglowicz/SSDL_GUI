@@ -27,32 +27,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			values: []
 		}
 	]};
-"use strict";
-var c = -1;
-var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
-
-function View(id, width, height, gui, graphSaveParamsJSON){
-	var pf = gui.id_postfix;
-	graphSaveParamsJSON = graphSaveParamsJSON || {
-		tabLabel:"",
-		tabId: "",
-		formId: "graphSaveParams",
-		fields : [
-		{
-			label: "name",
-			id: "f_graphSaveParams_name",
-			inputType: "textbox",
-			validation: function(value){},
-			values: []
-		},
-		{
-			label: "description",
-			id: "f_graphSaveParams_description",
-			inputType: "textarea",
-			validation: function(value){},
-			values: []
-		}
-	]};
 	// tymczasowo na potrzeby rozdzielenia wtyczek na wiele plików
 	window.graphSaveParamsJSON = graphSaveParamsJSON;
 	var outputView = {
