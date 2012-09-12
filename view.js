@@ -1229,6 +1229,32 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				}
 			]},
 			{
+				tabLabel: "emulation",
+				tabId: "emulationTab",
+				formId: "emulationForm",
+				fields: [{
+					label: "id",
+					id: "f_emulationTab_id",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "name",
+					id: "f_emulationTab_name",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: language[gui.language].forms.xmlIOFile,
+					id: "f_emulationTab_xml_file",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				}
+			]},
+			{
 				tabLabel:"",
 				tabId: "",
 				formId: "globalNonFuncDescForm",
@@ -1294,8 +1320,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					values:[]
 				}
 			]},
-		];
-		var resultJSON = {
+			],
+			resultJSON = {
 			"nodeId":"",
 			"nodeLabel":"",
 			"nodeType":"",
@@ -1307,14 +1333,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			"controlType":"",
 			"condition":"",
 			"sources":[]
-		};
-		var physDescJSON = {
+			},
+			physDescJSON = {
 			"serviceName":"",
 			"serviceGlobalId":"",
 			"address":"",
 			"operation":""
-		};
-		var funcDescJSON = {
+			},
+			funcDescJSON = {
 			"description":"",
 			"serviceClasses":[],
 			"metaKeywords":[],
@@ -1322,7 +1348,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			"outputs":[],
 			"preconditions":"",
 			"effects":""
-		};
+			};
+
+		var tabsTab = [
+			"#mainTab_"+pf,
+			"#physicalDescriptionTab_"+pf,
+			"#inputsTab_"+pf,
+			"#outputsTab_"+pf,
+			"#nonFunctionalDescriptionTab_"+pf,
+			"#emulationTab_"+pf
+		];
 		
 		formAppender(gui.language,pf);
 		$("#tabs-1_" + pf).prepend(formGenerator(gui.language, pf, formJSON[0]));	
@@ -1330,8 +1365,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		$("#f_addInputForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[2]));	
 		$("#f_addOutputForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[3]));	
 		$("#f_addNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[4]));
-		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[5]));
-		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[6]));
+		$("#tabs-6_" + pf).prepend(formGenerator(gui.language, pf, formJSON[5]));	
+		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[6]));
+		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[7]));
 		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator(gui.language, pf, graphSaveParamsJSON));
 
 		$("#form_" + pf).dialog({
@@ -1409,9 +1445,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				//żeby nie powtarzały się fragmenty kodu - przyjmujemy "functionality" za default i ew. edytujemy od tego miejsca
 				$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
 				$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
+				$('#tabs-2_' + pf).hide();
+				$('#emulationTab_' + pf).addClass("ui-tabs-hide");
+				$('#tabs-6_' + pf).hide();
+				$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).hide();
 				$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
 				$('#f_mainTab_serviceClass_addButton_' + pf).show();
-				$('#tabs-2_' + pf).hide();
 				switch(nodeType.toLowerCase()){
 					case "control" : 
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
@@ -1419,7 +1458,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
 						break;
 					case "functionality" :
+					//TEMP
+						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
+						$('#tabs-6_' + pf).show();
+						$('#nf_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						break;	//bez zmian
+					case "markup" : 
+						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
+						$('#tabs-6_' + pf).show();
+						$('#nf_nonFunctionalDescriptionTab_nextButton_' + pf).show();
+						break;
 					default : 
 						$('#physicalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 						$('#tabs-2_' + pf).show();				
@@ -2059,15 +2107,15 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			// 	source.remove();
 			// },
 
-			//TODO: PORZĄDNIE zrealizować pomijanie ukrytych tabów
+		// Next/Previous/Close
 			nextTab: function nextTab(){
 				var selected = $tabs.tabs('option', 'selected');
-				if(selected==0 && $('#physicalDescriptionTab_' + pf).hasClass("ui-tabs-hide")) selected++;
-				if(selected < 4) $tabs.tabs('select', selected+1);
+				while($(tabsTab[selected+1]).hasClass("ui-tabs-hide")) selected++;
+				if(selected < 5) $tabs.tabs('select', selected+1);
 			},
 			previousTab: function previousTab(){
 				var selected = $tabs.tabs('option', 'selected');
-				if(selected==2 && $('#physicalDescriptionTab_' + pf).hasClass("ui-tabs-hide")) selected--;
+				while($(tabsTab[selected-1]).hasClass("ui-tabs-hide")) selected--;
 				if(selected > 0) $tabs.tabs('select', selected-1);
 			},
 			closeForm: function closeForm(){
@@ -2104,6 +2152,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				result.clearOutputSelectionInTable();
 				$('#ui-dialog-title-f_addOutputForm_' + pf).text(language[gui.language].forms.newOutput);
 				$("#f_addOutputForm_" + pf).dialog("open");	
+			}
+		);
+		$("#f_emulationTab_openAddVectorForm_" + pf).button().click(
+			function(event) {
 			}
 		);
 		$("#f_openAddInputVariableForm_" + pf).button().click(
@@ -2152,6 +2204,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				else{
 					result.openEditOutput(index);
 				}
+			}
+		);
+		$("#f_emulationTab_openEditVectorForm_" + pf).button().click(
+			function(event) {
 			}
 		);
 		$("#f_openEditInputVariableForm_" + pf).button().click(
@@ -2203,6 +2259,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				else{
 					result.removeOutput();
 				}
+			}
+		);
+		$("#f_emulationTab_deleteThisVector_" + pf).button().click(
+			function(event) {
 			}
 		);
 		$("#f_deleteThisInputVariable_" + pf).button().click(
@@ -2712,7 +2772,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
-								this.inputs[i].node.drag(move, start, end);
+								if(!forRepo) this.inputs[i].node.drag(move, start, end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
@@ -2937,16 +2997,16 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				newNode.label = node.nodeLabel || newNode.id;
 				newNode.type = node.nodeType;
 				newNode.controlType = node.controlType;
-				if(node.physicalDescription) newNode.serviceName = node.physicalDescription.serviceName;
+				if(!node.isBlank) newNode.serviceName = node.physicalDescription.serviceName;
 				newNode.set = view.paper.set();
 				newNode.hasSubgraph = !isEmpty(node.subgraph);
 				newNode.inputs = [];
-				if(node.functionalDescription) 
+				if(!node.isBlank) 
 					$.each(node.functionalDescription.inputs, function(){
 						newNode.inputs.push( $.extend(true, {}, this) );
 					});
 				newNode.outputs = [];
-				if(node.functionalDescription)
+				if(!node.isBlank)
 					$.each(node.functionalDescription.outputs, function(){
 						newNode.outputs.push( $.extend(true, {}, this) );
 					});
