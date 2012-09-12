@@ -2578,8 +2578,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		$( "#f_dialog_markup_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
-			height: 200,
-			width: 320,
+			height: 150,
+			width: 250,
 			modal: true
 		});
 		$( "#f_dialog_fine_" + pf ).dialog({
