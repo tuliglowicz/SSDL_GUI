@@ -165,17 +165,18 @@ function nodeVisualizator(view){
 					drawIO : function drawIO(paper, forRepo){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
-						var length = this.inputs.length, x, y, that = this,
+						var length = this.inputs.length, x, y, that = this, nx,
 							start = function(){
 								gui.view.hideEdges();
-								this.ox = 0;
+								this.ox = this.getBBox.x;
 							},
-							move = function(dx){
-								var nx = this.getBBox().x + dx - this.ox;
-								if(nx > that.x && nx < (that.x + that.width - 10)){ //10 = szerokość i/o, chodzi o to, żeby nie wyskakiwało...
-									this.translate(dx - this.ox);
-									this.ox = dx; 
-								}
+							move = function(dx, dy){
+								// nx = this.getBBox().x + dx - this.ox;
+								// if(nx > that.x && nx < that.x + that.width - 10)
+									this.translate(dx - this.ox, 0);
+								// else 
+								// 	this.translate(0,0);
+								this.ox = dx;
 							},
 							end = function(){
 								gui.view.updateEdges();
@@ -518,11 +519,11 @@ function nodeVisualizator(view){
 			},
 			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
 				// if(!drawNotForRepo)
-				// 	a(node.id)
+					// a(node.id)
 				var nodeType =  node.type.toLowerCase()
 				var id = node.id,
 					radius = 4,
-					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "markup" ? CFG.colors.markup : CFG.colors.service) ),
+					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "emulationservice" ? CFG.colors.emulationService : CFG.colors.service) ),
 					paper = paper || view.paper,
 					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
@@ -656,11 +657,10 @@ function nodeVisualizator(view){
 				;
 			}
 		};
-
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
-		outputObject.extendVisualisation("Markup", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("EmulationService", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};

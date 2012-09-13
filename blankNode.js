@@ -24,8 +24,9 @@
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
 						if(gui.controler)
-							if(nodeType==="Markup")
-								$("#f_dialog_markup_" + pf).dialog('open');
+							if(nodeType==="EmulationService"){
+								$("#f_dialog_emulationService_" + pf).dialog('open');
+							}
 							else{
 							var label = prompt(language[gui.language].alerts.addLabelNewNode);
 							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
@@ -60,16 +61,16 @@
 				repo_mediator.node.setAttribute("class","repository_element");	
 				this.dataSet.push(repo_mediator);
 
-				var text_markup = this.paper.text(textHorizontalPosition,190,language[gui.language].nodes.markup);
+				var text_emulationService = this.paper.text(textHorizontalPosition,190,language[gui.language].nodes.emulationService);
 					// .hide();
-					text_markup.node.setAttribute("class","repository_text");
-				this.dataSet.push(text_markup);
-				var repo_markup = this.paper.rect(nodeHorizontalPosition,200,nodeLength,nodeHeight,5)
-					.attr({fill: CFG.colors.markup})
-					.dblclick(onDblClick("Markup"));
+					text_emulationService.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_emulationService);
+				var repo_emulationService = this.paper.rect(nodeHorizontalPosition,200,nodeLength,nodeHeight,5)
+					.attr({fill: CFG.colors.emulationService})
+					.dblclick(onDblClick("EmulationService"));
 					// .hide();
-				repo_markup.node.setAttribute("class","repository_element");	
-				this.dataSet.push(repo_markup);
+				repo_emulationService.node.setAttribute("class","repository_element");	
+				this.dataSet.push(repo_emulationService);
 			}
 		};
 		return tmp;

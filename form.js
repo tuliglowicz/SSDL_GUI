@@ -1,5 +1,8 @@
 
 	function form() {
+	// tutaj ustawiam LANG na forms
+		var langForms = language[gui.language].forms;
+		var langAlerts = language[gui.language].alerts
 		var formJSON = [
 			{
 				tabLabel:"main",
@@ -213,15 +216,8 @@
 					values:[]
 				},
 				{
-					label: "name",
-					id: "f_emulationTab_name",
-					inputType: "textBox",
-					validation: function(){},
-					values:[]
-				},
-				{
-					label: language[gui.language].forms.xmlIOFile,
-					id: "f_emulationTab_xml_file",
+					label: langForms.xmlIOFile,
+					id: "f_emulationTab_vectors",
 					inputType: "textArea",
 					validation: function(){},
 					values:[],
@@ -307,13 +303,13 @@
 			controlType:"",
 			condition:"",
 			sources:[]
-			},
+		},
 		physDescJSON = {
 			serviceName:"",
 			serviceGlobalId:"",
 			address:"",
 			operation:""
-			},
+		},
 		funcDescJSON = {
 			description:"",
 			serviceClasses:[],
@@ -322,13 +318,13 @@
 			outputs:[],
 			preconditions:"",
 			effects:""
-			},
+		},
 		emulationJSON = {
 			id:"",
-			name:"",
+			// name:"",
 			// xmlIOfile:""
 			vectors:""
-			};
+		};
 
 		var tabsTab = [
 			"#mainTab_"+pf,
@@ -361,7 +357,8 @@
 		var $tabs = $( "#tabs_" + pf ).tabs();
 		
 		var inpVars = [],
-			globalNonFuncDesc = [];
+			globalNonFuncDesc = [],
+			lastEditedNode;
 
 		var result = {
 			resultJSON: resultJSON,
@@ -376,13 +373,17 @@
 
 			init: function init(node){
 				var titleText;
-				if(!node.isBlank) titleText = language[gui.language].forms.viewing + node.nodeType + language[gui.language].forms.typeNode +  language[gui.language].forms.labeled + node.nodeLabel;
-				else titleText = language[gui.language].forms.createA + node.nodeType + language[gui.language].forms.typeNode + language[gui.language].forms.labeled + node.nodeLabel; 
+				if(!node.isBlank) titleText = langForms.viewing + node.nodeType + langForms.typeNode +  langForms.labeled + node.nodeLabel;
+				else titleText = langForms.createA + node.nodeType + langForms.typeNode + langForms.labeled + node.nodeLabel; 
 				this.clearErrors();
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
 				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
 				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
+				if(node.nodeType.toLowerCase() == "emulationservice" && node.emulation){
+					$( "#f_emulationTab_id_" + pf ).val(node.emulation.id || "")
+					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "")
+				}
 				if(!node.isBlank) {
 					$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
 					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
@@ -440,7 +441,7 @@
 						break;
 					case "functionality" :
 						break;	//bez zmian
-					case "markup" : 
+					case "emulationservice" : 
 						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
 						$('#tabs-6_' + pf).show();
 						$tabs.tabs('select', 5);
@@ -502,6 +503,7 @@
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
+				this.emulationJSON = {id:"",vectors:""};
 				this.clearInputs();
 				this.clearOutputs();
 				this.clearNF();
@@ -512,6 +514,7 @@
 				// $( "#f_functionalDescription_mKeywords" ).empty();
 				$( "#mainForm_" + pf )[0].reset();
 				$( "#physDescForm_" + pf )[0].reset();
+				$( "#emulationForm_" + pf )[0].reset();				
 				$( "#f_mainTab_controlType_" + pf ).val("");
 				$("#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
@@ -770,7 +773,7 @@
 				this.clearErrors();
 				
 				this.resultJSON.nodeLabel = $( "#f_mainTab_label_" + pf ).val();
-				console.log(this.resultJSON.nodeLabel);
+				// console.log(this.resultJSON.nodeLabel);
 				this.resultJSON.controlType = $( "#f_mainTab_controlType_" + pf ).val();
 				// this.resultJSON.alternatives = $( "#f_mainTab_alternatives" ).val();
 				
@@ -787,16 +790,18 @@
 					
 				this.funcDescJSON.description = $( "#f_mainTab_description_" + pf ).val();
 				this.removeUndefinedElements();
-				this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
-				this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
-				this.emulationJSON.vectors = $("#f_emulationTab_xml_file_" + pf).val();
-				this.resultJSON.emulation = emulationJSON;
 				// this.funcDescJSON.preconditions = $( "#f_inputOutputTab_preconditions" ).val();
 				// this.funcDescJSON.effects = $( "#f_inputOutputTab_effects" ).val();
-
 				this.resultJSON.functionalDescription = this.funcDescJSON;
+
+				this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
+				this.emulationJSON.vectors = $("#f_emulationTab_vectors_" + pf).val();
+				// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
+				this.resultJSON.emulation = this.emulationJSON;
+				// alert(this.emulationJSON.vectors+":"+this.emulationJSON.id)
+				// alert(this.resultJSON.emulation.id+":"+this.resultJSON.emulation.vectors)
+
 				// alert(jsonFormatter(this.resultJSON, true, true));
-				
 				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
 		// Addy
@@ -825,7 +830,7 @@
 						this.funcDescJSON.inputs.push(inputJSON);
 						$("#f_addInputForm_" + pf).dialog("close");	
 					}
-					else alert(language[gui.language].alerts.errors.inputExists);		
+					else alert(langAlerts.errors.inputExists);		
 				}
 				else{	//edytujemy istniejÄ…cy input
 					var destinationId = "f_inputsTabxinputs-" + index;
@@ -854,7 +859,7 @@
 						this.funcDescJSON.outputs.push(outputJSON);
 						$("#f_addOutputForm_" + pf).dialog("close");	
 					}
-					else alert(language[gui.language].alerts.errors.outputExists); //TODO: te alerciątka jako modal dialogs
+					else alert(langAlerts.errors.outputExists); //TODO: te alerciątka jako modal dialogs
 				}
 				else{	//edytujemy istniejący output
 					var destinationId = "f_outputsTabxoutputs-" + index;
@@ -882,7 +887,7 @@
 						this.resultJSON.nonFunctionalDescription.push(nonFuncDescJSON);
 						$("#f_addNFPropertyForm_" + pf ).dialog("close");
 					}
-					else alert(language[gui.language].alerts.errors.nFPropExists);
+					else alert(langAlerts.errors.nFPropExists);
 				}
 				else{	//edytujemy istniejący NFProperty
 					var destinationId = "f_nonFunctionalDescriptionTabxNFProps-" + index;
@@ -947,7 +952,7 @@
 					$("#f_addGlobalNFPropertyForm_" + pf).dialog("close");	
 				}
 			},
-			//coś Włodkowatego
+		//coś Włodkowatego
 			collectGraphSaveParams : function collectGraphSaveParams(){
 				var name = $("#f_graphSaveParams_name_"+pf).val();
 				var description = $("#f_graphSaveParams_description_"+pf).val();
@@ -969,7 +974,7 @@
 				$("#f_inputsTab_label_" + pf ).val(this.funcDescJSON.inputs[index].label);
 				$("#f_inputsTab_class_" + pf ).val(this.funcDescJSON.inputs[index].class);
 				$("#f_inputsTab_dataType_" + pf ).val(this.funcDescJSON.inputs[index].dataType);
-				$('#ui-dialog-title-f_addInputForm_' + pf).text(language[gui.language].forms.editExistingInput);
+				$('#ui-dialog-title-f_addInputForm_' + pf).text(langForms.editExistingInput);
 				$("#f_addInputForm_" + pf).dialog("open");
 			},
 			openEditOutput: function openEditOutput(index){
@@ -977,7 +982,7 @@
 				$("#f_outputsTab_label_" + pf ).val(this.funcDescJSON.outputs[index].label);
 				$("#f_outputsTab_class_" + pf ).val(this.funcDescJSON.outputs[index].class);
 				$("#f_outputsTab_dataType_" + pf ).val(this.funcDescJSON.outputs[index].dataType);
-				$('#ui-dialog-title-f_addOutputForm_' + pf).text(language[gui.language].forms.editExistingOutput);	
+				$('#ui-dialog-title-f_addOutputForm_' + pf).text(langForms.editExistingOutput);	
 				$("#f_addOutputForm_" + pf).dialog("open");
 			},
 			openEditNonFunc: function openEditNonFunc(index){
@@ -986,7 +991,7 @@
 				$("#f_nonFunctionalDescriptionTab_relation_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].relation);
 				$("#f_nonFunctionalDescriptionTab_unit_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].unit);
 				$("#f_nonFunctionalDescriptionTab_value_" + pf ).val(this.resultJSON.nonFunctionalDescription[index].value);
-				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(language[gui.language].forms.editExistingNonFunctionalProperty);
+				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(langForms.editExistingNonFunctionalProperty);
 				$("#f_addNFPropertyForm_" + pf).dialog("open");
 			},
 			openEditInputVariable: function openEditInputVariable(index){
@@ -994,7 +999,7 @@
 				$("#f_inputVariable_name_" + pf ).val( $("#" + sourceId + "_name").text() );
 				$("#f_inputVariable_value_" + pf ).val( $("#" + sourceId + "_value").text() );
 				$("#f_inputVariable_type_" + pf ).val( $("#" + sourceId + "_type").text() );
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.language].forms.editExistingInputVariable);
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(langForms.editExistingInputVariable);
 				this.clearInputVariableSelectionInTable();
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			},
@@ -1007,7 +1012,7 @@
 				$("#f_globalNonFunctionalDescription_relation_" + pf ).val($("#" + sourceId + "_relation").text());
 				$("#f_globalNonFunctionalDescription_unit_" + pf ).val($("#" + sourceId + "_unit").text());
 				$("#f_globalNonFunctionalDescription_value_" + pf ).val($("#" + sourceId + "_value").text());
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.language].forms.editExistingGraphNonFunctionalProperty);
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(langForms.editExistingGraphNonFunctionalProperty);
 				this.clearGlobalNFPropertySelectionInTable();
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");
 			},
@@ -1089,7 +1094,6 @@
 			// 	this.resultJSON.sources.splice(index, 1);
 			// 	source.remove();
 			// },
-
 		// Next/Previous/Close
 			nextTab: function nextTab(){
 				var selected = $tabs.tabs('option', 'selected');
@@ -1103,6 +1107,9 @@
 			},
 			closeForm: function closeForm(){
 				$("#form_" + pf).dialog("close");
+			},
+			openForm: function openForm(){
+				$("#form_" + pf).dialog("open");
 			}
 		/*
 		* EVENT HANDLERS END HERE
@@ -1119,9 +1126,37 @@
 				result.addServiceClass();
 			}
 		);
-		$("#f_emulationTab_xml_file_addButton_" + pf).button().click(
+		$("#f_emulationTab_vectors_addButton_" + pf).button().click(
 			function(event) {
-				alert("this is not yet implemented");
+				var $uploader = $("#uploader_"+pf);
+
+				$uploader.change(function(e){
+					var file = this.files[0],
+					reader = new FileReader();
+
+						reader.onload = function (event) {
+
+							var xml = event.target.result;
+							result.openForm();
+							$("#f_emulationTab_vectors_"+pf).val(xml);
+						};
+
+					if(file.type == "text/xml")
+						reader.readAsText(this.files[0]);
+					else {
+						alert("You can select only xml files [JACKU_TUTAJ!!!]");
+						// $("#uploader_"+pf).click();
+						// $("#f_emulationTab_vectors_addButton_" + pf).dialog("open")
+						result.openForm();
+					}
+				})
+				result.closeForm();
+
+
+
+				$("#uploader_"+pf).click();
+
+				return false;
 			}
 		);
 		$("#f_inputsTab_openAddInputForm_" + pf).button().click(
@@ -1129,7 +1164,7 @@
 				$( "#inputForm_" + pf )[0].reset();
 				result.resetSelectedInputIndex();
 				result.clearInputSelectionInTable();
-				$('#ui-dialog-title-f_addInputForm_' + pf).text(language[gui.language].forms.newInput);
+				$('#ui-dialog-title-f_addInputForm_' + pf).text(langForms.newInput);
 				$("#f_addInputForm_" + pf).dialog("open");
 			}
 		);
@@ -1138,7 +1173,7 @@
 				$( "#outputForm_" + pf  )[0].reset();
 				result.resetSelectedOutputIndex();
 				result.clearOutputSelectionInTable();
-				$('#ui-dialog-title-f_addOutputForm_' + pf).text(language[gui.language].forms.newOutput);
+				$('#ui-dialog-title-f_addOutputForm_' + pf).text(langForms.newOutput);
 				$("#f_addOutputForm_" + pf).dialog("open");	
 			}
 		);
@@ -1156,7 +1191,7 @@
 				$( "#inputVariableForm_" + pf )[0].reset();
 				result.resetSelectedInputVariableIndex();
 				result.clearInputVariableSelectionInTable();
-				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(language[gui.language].forms.newInputVariable);
+				$('#ui-dialog-title-f_addInputVariableForm_' + pf).text(langForms.newInputVariable);
 				$("#f_addInputVariableForm_" + pf).dialog("open");
 			}
 		);
@@ -1165,7 +1200,7 @@
 				$( "#nonFuncDescForm_" + pf  )[0].reset();
 				result.resetSelectedNFPropertyIndex();
 				result.clearNFPropertySelectionInTable();
-				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(language[gui.language].forms.newNonFunctionalProperty);
+				$('#ui-dialog-title-f_addNFPropertyForm_' + pf).text(langForms.newNonFunctionalProperty);
 				$("#f_addNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
@@ -1174,7 +1209,7 @@
 				$( "#globalNonFuncDescForm_" + pf  )[0].reset();
 				result.resetSelectedGlobalNFPropertyIndex();
 				result.clearGlobalNFPropertySelectionInTable();
-				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(language[gui.language].forms.newGraphNonFunctionalProperty);
+				$('#ui-dialog-title-f_addGlobalNFPropertyForm_' + pf).text(langForms.newGraphNonFunctionalProperty);
 				$("#f_addGlobalNFPropertyForm_" + pf).dialog("open");	
 			}
 		);
@@ -1183,7 +1218,7 @@
 			function(event) {
 				var index = result.getSelectedInputIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noInputSelected);
+					alert(langAlerts.errors.noInputSelected);
 				else{
 					result.openEditInput(index);
 				}
@@ -1193,7 +1228,7 @@
 			function(event) {
 				var index = result.getSelectedOutputIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noOutputSelected);
+					alert(langAlerts.errors.noOutputSelected);
 				else{
 					result.openEditOutput(index);
 				}
@@ -1213,7 +1248,7 @@
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noInputVariableSelected);
+					alert(langAlerts.errors.noInputVariableSelected);
 				else{
 					result.openEditInputVariable(index);
 				}
@@ -1223,7 +1258,7 @@
 			function(event) {
 				var index = result.getSelectedGlobalNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noGraphNonFunctionalPropertySelected);
+					alert(langAlerts.errors.noGraphNonFunctionalPropertySelected);
 				else{
 					result.openEditGlobalNonFunc(index);
 				}
@@ -1233,7 +1268,7 @@
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noNonFunctionalPropertySelected);
+					alert(langAlerts.errors.noNonFunctionalPropertySelected);
 				else{
 					result.openEditNonFunc(index);
 				}
@@ -1244,7 +1279,7 @@
 			function(event) {
 				var index = result.getSelectedInputIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noInputSelected);
+					alert(langAlerts.errors.noInputSelected);
 				else{
 					result.removeInput();
 				}
@@ -1254,7 +1289,7 @@
 			function(event) {
 				var index = result.getSelectedOutputIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noOutputSelected);
+					alert(langAlerts.errors.noOutputSelected);
 				else{
 					result.removeOutput();
 				}
@@ -1276,7 +1311,7 @@
 			function(event) {
 				var index = result.getSelectedInputVariableIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noInputVariableSelected);
+					alert(langAlerts.errors.noInputVariableSelected);
 				else{
 					result.clearInputVariableSelectionInTable();
 					result.removeInputVariable();
@@ -1287,7 +1322,7 @@
 			function(event) {
 				var index = result.getSelectedNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noEntrySelected);
+					alert(langAlerts.errors.noEntrySelected);
 				else{
 					result.removeNonFunc();
 				}
@@ -1297,7 +1332,7 @@
 			function(event) {
 				var index = result.getSelectedGlobalNFPropertyIndex();
 				if(index == -1)
-					alert(language[gui.language].alerts.errors.noEntrySelected);
+					alert(langAlerts.errors.noEntrySelected);
 				else{
 					result.clearGlobalNFPropertySelectionInTable();
 					result.removeGlobalNonFunc();
@@ -1451,19 +1486,35 @@
 				return false;
 			}
 		);
-		$("#f_button_newMarkup_" + pf).button().click(
+		$("#f_button_newEmulationService_" + pf).button().click(
 			function(event) {
-				var label = prompt(language[gui.language].alerts.addLabelNewNode);
-				if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:"markup"});
-				$("#f_dialog_markup_" + pf).dialog('close');
+				gui.controler.reactOnEvent("AskDamianForId", {
+					onsuccess : function(xml){
+						$("#f_dialog_emulationService_" + pf).dialog('close');
+						var id = $(xml).find("id").text();
+						var label = prompt(langAlerts.addLabelNewNode, "lololololololol");
+						if(label)
+							gui.controler.reactOnEvent("AddBlankNode", {
+								nodeLabel : label,
+								nodeType : "emulationService",
+								emulation : {
+									id : id
+								}
+							});
+					},
+					onerror : function(){
+						$("#f_dialog_emulationService_" + pf).dialog('close');
+						alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]");
+					}
+				})
 			}
 		);
-		$("#f_button_importMarkup_" + pf).button().click(
+		$("#f_button_importEmulationService_" + pf).button().click(
 			function(event) {
 				// alert("America fuck yeah, Włodku daj mi event!");
 			}
 		);
-		$("#f_button_importMarkup_" + pf).addClass('ui-state-disabled');
+		$("#f_button_importEmulationService_" + pf).addClass('ui-state-disabled');
 		$("#f_addInputForm_changesConfirm_" + pf).button().click(
 			function(event) {
 				result.addInput();
@@ -1519,7 +1570,7 @@
 					$( "#f_graphSaveParamsForm_" + pf ).dialog( "close" );
 					gui.controler.reactOnEvent("save", result)
 				} else {
-					alert(language[gui.language].alerts.inputData);
+					alert(langAlerts.inputData);
 				}
 			}	
 		);
@@ -1543,7 +1594,7 @@
 			width: 320,
 			modal: true
 		});
-		$( "#f_dialog_markup_" + pf ).dialog({
+		$( "#f_dialog_emulationService_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
 			height: 150,

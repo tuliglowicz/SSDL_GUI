@@ -1,11 +1,11 @@
 	// suppported by Matka Boska Partyzantcka 
 	function menu(x, y, addToDiv){
-		var view = gui.view; //tymczasowo na potrzeby rozszczepienia pluginów po plikach
+		var view = gui.view; //tymczasowo na potrzeby rozszczepienia pluginĂłw po plikach
 		var lang = language[gui.language];
 		var mainMenu = {
 			przesuwne: 0,
 			clicked: false,
-			menuContener: $("<div id='menuContener' class=mMenuMainContener style='top:" + y + "px; left:" + x + "px; '> </div>").appendTo('#'+addToDiv),
+			menuContener: $("<div id='menuContener' class=\"mMenuMainContener\"> </div>").appendTo("#top_menu_"+pf),
 			addGroup: function addGroup(label) {
 				var that = this;
 				$("<div id=" + label + " class=mMenuGroup style='  left:" + this.przesuwne + "'>" + ( lang.mainMenu[camelize(label)] || "") + "</div>")
@@ -52,8 +52,9 @@
 				}).click(function() {
 					$('div.mMenuContener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					that.clicked = false;
-				}).click(functionOnClick);
+					this.clicked = false;
+					functionOnClick();
+				})
 
 				jQuery('<span/>', {
 					class: 'mMenuShortcutDiv',
@@ -83,8 +84,9 @@
 					$('div.mMenuContener').hide();
 					$('div.mMenuSubcontener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					that.clicked = false;
-				}).click(functionOnClick);
+					this.clicked = false;
+					functionOnClick();
+				})
 
 				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( lang.mainMenu[camelize(subOptionLabel)] || ""));
 				
@@ -121,7 +123,17 @@
 				$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 			},
 			init: function init(){
-				var outputView = gui.view;
+				// var outputView = gui.view;
+
+				var x = gui.view.columnParams.leftCol.width;
+				var width = gui.view.columnParams.top_menu.width - x;
+
+				$("#menuContener").css({
+					top : 0,
+					left : x,
+					width : width
+				});
+
 				this.addGroup("File");
 				this.addGroup("Edit");
 				this.addGroup("Graph");
@@ -138,15 +150,14 @@
 				this.addSubOption("File","Save","To DB and Deploy", function(){alert("Not implemented yet!");},"" );
 				this.addSubOption("File", "New Node", "Service node", function(){
 					var nodeType="Service";
-					var label = prompt(lang.alerts.addLabelNewNode);
-					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType});
-						}, "CTRL+N+S");
+				var label = prompt(language[gui.language].alerts.addLabelNewNode);
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+S");
 				this.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
-					var label = prompt(lang.alerts.addLabelNewNode);
-					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
 				this.addSubOption("File", "New Node", "Mediator node", function(){ 		var nodeType="Mediator";
-					var label = prompt(lang.alerts.addLabelNewNode);
-					if(label) gui.controler.reactOnEvent("AddBlankNode", {label:label, nodeType:nodeType}); }, "CTRL+N+F");
+					var label = prompt(language[gui.language].alerts.addLabelNewNode);
+							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
 				
 				this.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 				this.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
@@ -170,7 +181,7 @@
 				this.addSeparator("Help");
 				this.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
 
-				jsonFormatter(gui, 1, 1);
+				// jsonFormatter(gui, 1, 1);
 				gui.view.menuList.getInstance().push(this);
 			}
 		};

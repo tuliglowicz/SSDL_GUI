@@ -8,6 +8,9 @@
 	a {
 		text-decoration: none;
 	}
+	.hidden {
+		display: none;
+	}
 	.connector {
 		fill: silver;
 		cursor:crosshair;
