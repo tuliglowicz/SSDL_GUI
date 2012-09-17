@@ -53,8 +53,7 @@
 					$('div.mMenuContener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 					this.clicked = false;
-					functionOnClick();
-				})
+				}).click(functionOnClick);
 
 				jQuery('<span/>', {
 					class: 'mMenuShortcutDiv',
@@ -85,8 +84,7 @@
 					$('div.mMenuSubcontener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
 					this.clicked = false;
-					functionOnClick();
-				})
+				}).click(functionOnClick);
 
 				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( lang.mainMenu[camelize(subOptionLabel)] || ""));
 				

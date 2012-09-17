@@ -499,7 +499,9 @@
 			},
 			//argument total decyduje, czy ma być skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
 			cleanForm: function cleanForm(total){
-				if( !total ) var temp = this.resultJSON.nodeId;
+				if( !total ){ 
+					var temp = this.resultJSON.nodeId,
+					temp2 = this.resultJSON.nodeType;}
 				this.resultJSON = {"nodeId":"","nodeLabel":"","nodeType":"","physicalDescription":[],"functionalDescription":[],"nonFunctionalDescription":[],"alternatives":"","subgraph":{},"controlType":"","condition":"","sources":[]};
 				this.physDescJSON = {"serviceName":"","serviceGlobalId":"","address":"","operation":""};
 				this.funcDescJSON = {"description":"","serviceClasses":[],"metaKeywords":[],"inputs":[],"outputs":[],"preconditions":"","effects":""};
@@ -507,7 +509,10 @@
 				this.clearInputs();
 				this.clearOutputs();
 				this.clearNF();
-				if( !total ) this.resultJSON.nodeId = temp;
+				if( !total ){ 
+					this.resultJSON.nodeId = temp;
+					this.resultJSON.nodeType = temp2;
+				}
 				// $( "#f_mainTab_source" ).val("");
 				// $( "#f_mainTab_sources" ).empty();
 				$( "#f_mainTab_sClasses_" + pf ).empty();
