@@ -547,11 +547,11 @@ function nodeVisualizator(view){
 			},
 			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
 				// if(!drawNotForRepo)
-				// 	a(node.id)
+					// a(node.id)
 				var nodeType =  node.type.toLowerCase()
 				var id = node.id,
 					radius = 4,
-					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "markup" ? CFG.colors.markup : CFG.colors.service) ),
+					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "emulationservice" ? CFG.colors.emulationService : CFG.colors.service) ),
 					paper = paper || view.paper,
 					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
 					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
@@ -689,7 +689,7 @@ function nodeVisualizator(view){
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
-		outputObject.extendVisualisation("Markup", outputObject.draw_serviceNode);
+		outputObject.extendVisualisation("EmulationService", outputObject.draw_serviceNode);
 
 		return outputObject;
 	};

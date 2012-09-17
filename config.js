@@ -5,7 +5,7 @@ var CFG = {
 		mediator : "white",
 		startstop : "white",
 		controlIf : "green",
-		markup : "#D1DBB5"
+		emulationService : "#D1DBB5"
 	},
 	language : "PL", // "EN"
 	nodeWidth : 135, // nie podpięte
@@ -17,7 +17,9 @@ var CFG = {
 		"javaservice",
 		"mediator",
 		"streamingworkflowengine",
-	]
+	],
+	url_emulationService : "",
+	url_askForId : "askForId.xml"
 
 
 }

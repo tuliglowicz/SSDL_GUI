@@ -78,7 +78,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				oldNode.removeView();
 				
 				newNode = this.visualiser.visualiseNode(node, x, y);
-				console.log(newNode, "666")
+				// console.log(newNode, "696")
 				newNode.switchMode(this.mode);
 				this.current_graph_view.nodes[index] = newNode;
 
@@ -995,6 +995,15 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				width : $column.width(),
 				height : $column.height(),
 			};
+
+			$column = $("#top_menu_"+pf)
+			position = $column.position();
+			this.columnParams.top_menu = {
+				top : position.top,
+				left : position.left,
+				width : $column.width(),
+				height : $column.height(),
+			};
 		},
 		setBold : function setBold(x1, y1, x2, y2){
 			$.each(this.current_graph_view.nodes, function(k, v){
@@ -1228,7 +1237,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.bottomBar = bottomBar(outputView.paper);
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
-	outputView.mainMenu = menu(189, 0, "top_menu_"+pf, "polish");
+	outputView.mainMenu = menu();
 	// outputView.mainMenu.init();
 
 	var	lastDragX,

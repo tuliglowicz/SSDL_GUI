@@ -1,7 +1,6 @@
 var language = {
 	polish: {
-
-bottombar:{
+		bottombar:{
 			group:{
 				views: "Widoki",
 				edit: "Edycja",
@@ -20,8 +19,7 @@ bottombar:{
 			service: "Usługa",
 			functionality: "Funkcjonalność",
 			mediator:	"Mediator",
-			markup: "Usługa Markująca",
-
+			emulationService: "Usługa Markująca",
 		},
 		alerts: {
 			asYouWish: "Jak sobie chcesz!",
@@ -59,10 +57,9 @@ bottombar:{
 				shortcutNotDefined: "nie jest jeszcze zdefiniowany",
 				startCantPassControl: "Nie można przekazać kontroli do wierzchołka startowego."
 			}
-
 		},
 		forms: {
-			add: "dodaj",
+			add: "Dodaj",
 			label: "Etykieta",
 			description: "Opis",
 			controlType: "Typ Kontrolny",
@@ -96,7 +93,7 @@ bottombar:{
 			resetAll: "Zresetuj wszystko",
 			submitAll: "Wyślij wszystko",
 			newInput: "Nowe Wejście",
-			newMarkup: "Nowa usługa markująca",
+			newEmulationService: "Nowa usługa markująca",
 			newInputVariable:"Nowa wartość wejścia",
 			newOutput: "Nowe Wyjście",
 			newNonFunctionalProperty: "Nowa własność niefukcjonalna",
@@ -117,11 +114,10 @@ bottombar:{
 			clearAll1:"Tak, wyczyść formularz",
 			clearAll2: "Jestem pewien na 100%",
 			labeled: " o etykiecie: ",
-			xmlIOFile: "plik We/Wy XML",
+			xmlIOFile: "wektory z pliku",
 			chooseYourDestiny: "Wybierz akcję",
 			new: "Nowy",
 			import: "Importuj z pliku",
-
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -131,7 +127,6 @@ bottombar:{
 			nonFunctionalDesc: "Opis niefunkcjonalny",
 			emulation: "Emulacja"
 		},
-
 		logger: {
 			console_CL: "Zamknij konsolę",
 			console_SA: "zaznacz wszystkie",
@@ -144,7 +139,6 @@ bottombar:{
 			shError: "pokaż/ukryj błędy",
 			delComm: "usuń komunikat"
 		},
-
 		mainMenu: {
 			file: "Plik",
 			edit: "Edycja",
@@ -215,7 +209,7 @@ bottombar:{
 			service: "Service",
 			functionality: "Functionality",
 			mediator:	"Mediator",
-			markup: "Markup Service",
+			emulationService: "Markup Service",
 		},
 		alerts: {
 			asYouWish: "As you wish",
@@ -256,7 +250,7 @@ bottombar:{
 
 		},
 		forms: {
-			add: "add",
+			add: "Add",
 			label: "label",
 			description: "description",
 			controlType: "controlType",
@@ -290,7 +284,7 @@ bottombar:{
 			resetAll: "Reset All",
 			submitAll: "Submit All",
 			newInput: "New Input",
-			newMarkup: "New Markup service",
+			newEmulationService: "New Markup service",
 			newOutput: "New Output",
 			newInputVariable: "New Input Variable",
 			newNonFunctionalProperty: "New Non Functional Property",
@@ -311,7 +305,7 @@ bottombar:{
 			clearAll1:"Yes, clear the form",
 			clearAll2:"I'm 100% sure.",
 			labeled: " labeled: ",
-			xmlIOFile: "xml IO file",
+			xmlIOFile: "vectors form file",
 			chooseYourDestiny: "Choose action",
 			new: "New",
 			import: "Import from file",

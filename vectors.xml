@@ -1,0 +1,18 @@
+<IO>
+	<invector>
+		<input>
+			A
+		</input>
+		<output>
+			1
+		</output>
+	</invector>
+	<invector>
+		<input>
+			B
+		</input>
+		<output>
+			2
+		</output>
+	</invector>
+</IO>
