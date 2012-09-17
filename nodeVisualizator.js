@@ -165,21 +165,7 @@ function nodeVisualizator(view){
 					drawIO : function drawIO(paper, forRepo){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
-						var length = this.inputs.length, x, y, that = this,
-							start = function(){
-								gui.view.hideEdges();
-								this.ox = 0;
-							},
-							move = function(dx){
-								var nx = this.getBBox().x + dx - this.ox;
-								if(nx > that.x && nx < (that.x + that.width - 10)){ //10 = szerokość i/o, chodzi o to, żeby nie wyskakiwało...
-									this.translate(dx - this.ox);
-									this.ox = dx; 
-								}
-							},
-							end = function(){
-								gui.view.updateEdges();
-							};
+						var length = this.inputs.length, x, y, that = this, nx, move;
 						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
@@ -206,7 +192,8 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
-								this.inputs[i].node.drag(move, start, end);
+								move = this.moveInput(i);
+								this.inputs[i].node.drag(move.move, move.start, move.end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
@@ -220,6 +207,48 @@ function nodeVisualizator(view){
 						if(!forRepo) view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
 						this.addInputTooltips();
 						this.addOutputTooltips();
+					},
+					moveInput: function moveInput(i){
+						var index = i,
+							that = this,
+							otherInput, otherIndex,
+							img, x, y, glow1, glow2,
+							result = {
+								start: function start(){
+									gui.view.hideEdges();
+									var bbox = this.getBBox();
+									x = bbox.x; y = bbox.y;
+									glow1 = this.glow({'color': 'blue'});
+								},
+								move: function move(dx){
+									if(img) img.remove();
+									if(glow2) glow2.remove();
+									if(dx < 10)
+										if (that.inputs[index-1]){
+											img = gui.view.paper.image('images/arrowL.png', x-21, y-5, 16, 16);
+											otherIndex = index - 1;
+											otherInput = that.inputs[otherIndex];
+											glow2 = otherInput.node.glow({'color': 'blue'});
+										}
+									if(dx > 10)
+										if (that.inputs[index+1]){
+											img = gui.view.paper.image('images/arrowR.png', x+15, y-5, 16, 16);
+											otherIndex = index+1;
+											otherInput = that.inputs[otherIndex];
+											glow2 = otherInput.node.glow({'color': 'blue'});
+										}
+								},
+								end: function end(){
+									if(otherInput){
+										img.remove(); glow1.remove(); glow2.remove();
+										that.inputs[otherIndex] = that.inputs[index];
+										that.inputs[index] = otherInput;
+										that.clearIO(); that.drawIO(gui.view.paper);
+										gui.view.updateEdges();
+									}
+								}
+						};
+						return result;
 					},
 					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
 					// pozwala przerysować IO bez przerysowywania całego node'a

@@ -52,7 +52,7 @@
 				}).click(function() {
 					$('div.mMenuContener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					that.clicked = false;
+					this.clicked = false;
 				}).click(functionOnClick);
 
 				jQuery('<span/>', {
@@ -83,7 +83,7 @@
 					$('div.mMenuContener').hide();
 					$('div.mMenuSubcontener').hide();
 					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-					that.clicked = false;
+					this.clicked = false;
 				}).click(functionOnClick);
 
 				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( lang.mainMenu[camelize(subOptionLabel)] || ""));
