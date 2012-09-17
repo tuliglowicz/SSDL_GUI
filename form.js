@@ -1135,7 +1135,6 @@
 					reader = new FileReader();
 
 						reader.onload = function (event) {
-
 							var xml = event.target.result;
 							result.openForm();
 							$("#f_emulationTab_vectors_"+pf).val(xml);
@@ -1492,19 +1491,24 @@
 					onsuccess : function(xml){
 						$("#f_dialog_emulationService_" + pf).dialog('close');
 						var id = $(xml).find("id").text();
-						var label = prompt(langAlerts.addLabelNewNode, "lololololololol");
-						if(label)
-							gui.controler.reactOnEvent("AddBlankNode", {
-								nodeLabel : label,
-								nodeType : "emulationService",
-								emulation : {
-									id : id
-								}
-							});
+
+						if(id){
+							var label = prompt(langAlerts.addLabelNewNode, "");
+							if(label)
+								gui.controler.reactOnEvent("AddBlankNode", {
+									nodeLabel : label,
+									nodeType : "emulationService",
+									emulation : {
+										id : id
+									}
+								});
+						} else {
+							alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]");
+						}
 					},
 					onerror : function(){
 						$("#f_dialog_emulationService_" + pf).dialog('close');
-						alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]");
+						alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]"); //to samo co wyżej
 					}
 				})
 			}
