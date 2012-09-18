@@ -319,6 +319,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				 	}
 				},
 				start = function start(x,y,evt){
+					that.prepereToDragNodes();
+					that.hideEdges();
+					
 					itWasJustAClick = true;
 					lastDragX = 0;
 					lastDragY = 0;
@@ -338,10 +341,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					ready2move = node.highlighted;
 					ctrl = evt.ctrlKey;
 
-					that.hideEdges();
 
 				},
 				stop = function stop(evt){
+					that.returnFromDragingNodes();
+					that.showEdges();
+					that.updateEdges();
+
 					ready2move = false;
 					gui.controler.reactOnEvent("NODESELECTED");
 					if(itWasJustAClick){
@@ -354,13 +360,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							gui.controler.reactOnEvent("DESELECT");
 							node.highlight2();
 						}
-						that.showEdges();
+
+				  		$.each(gui.view.current_graph_view.nodes, function(i, val){
+							if(val.highlighted){
+								val.prepereToDrag();
+							}
+						});
+
 						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
 						// gui.controler.reactOnEvent("NodeMoved");
 					}
-					that.updateEdges();
 				}
 
 				if(getType(element) === "array"){
@@ -369,6 +380,20 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					});
 				} else
 					element.drag(move, start, stop);
+		},
+		prepereToDragNodes : function prepereToDragNodes(){
+			$.each(gui.view.current_graph_view.nodes, function(i, val){
+				if(val.highlighted){
+					val.prepereToDrag();
+				}
+			});
+		},
+		returnFromDragingNodes : function returnFromDragingNodes(){
+			$.each(gui.view.current_graph_view.nodes, function(i, val){
+				if(val.highlighted){
+					val.returnFromDraging();
+				}
+			});
 		},
 		dragCFArrow : function dragArrow(element, node, isStartNode){
 			var arrow,
