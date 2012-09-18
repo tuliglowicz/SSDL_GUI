@@ -1,5 +1,5 @@
 #wtyczka szukająca substringa w plikach folderu w którym owy skrypt się otworzy
-# zwraca tablicę stingu o postaci "NazwaPliku linijkaGdzieWystąpiłString"
+# zwraca tablicę stingów o postaci "NazwaPliku linijkaGdzieWystąpiłString"
 require "rubygems"
 def searchForString(string,directory)
 tab = []
