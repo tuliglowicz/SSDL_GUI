@@ -1148,7 +1148,7 @@
 					if(file.type == "text/xml")
 						reader.readAsText(this.files[0]);
 					else {
-						alert("You can select only xml files [JACKU_TUTAJ!!!]");
+						alert(langAlerts.onlyXML);
 						// $("#uploader_"+pf).click();
 						// $("#f_emulationTab_vectors_addButton_" + pf).dialog("open")
 						result.openForm();
@@ -1507,12 +1507,12 @@
 									}
 								});
 						} else {
-							alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]");
+							alert(langAlerts.idnewemuservice);
 						}
 					},
 					onerror : function(){
 						$("#f_dialog_emulationService_" + pf).dialog('close');
-						alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]"); //to samo co wyżej
+						alert(langAlerts.idnewemuservice); //to samo co wyżej
 					}
 				})
 			}
