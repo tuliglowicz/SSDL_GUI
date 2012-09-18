@@ -5,7 +5,49 @@ var jstr = JSON.stringify;
 // eof pomocnicze skróty
 
 function skeletonAppender(lang,pf){
-	var content = "<div id='form_" + pf + "'></div><div id='f_dialog_confirm1_" + pf + "' title='"+language[lang].alerts.removeAll+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.removeAllText+"</span></p><button id='f_button_resetConfirm1_"+pf+"'>"+language[lang].forms.clearAll1+"</button><button id='f_button_resetCancel1_"+pf+"'>"+language[lang].forms.cancel+"</button></div><div id='f_dialog_confirm2_" + pf + "' title='"+language[lang].alerts.areYouSure+"'><p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.areYouSureText+"</span></p><button id='f_button_resetConfirm2_"+pf+"'>"+language[lang].forms.clearAll2+"</button><button id='f_button_resetCancel2_"+pf+"'>"+language[lang].forms.cancel+"</button></div><div id='f_dialog_fine_" + pf + "' title='"+language[lang].alerts.asYouWish+"'><p>"+language[lang].alerts.fine+".</p></div><div id='f_addInputForm_" + pf + "' title='Add a new input'><button id='f_addInputForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button><button id='f_addInputForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_addOutputForm_" + pf + "' title='Add a new output'><button id='f_addOutputForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button><button id='f_addOutputForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'><button id='f_addNFPropertyForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button><button id='f_addNFPropertyForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'><button id='f_addGlobalNFPropertyForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button><button id='f_addGlobalNFPropertyForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'><button id='f_addInputVariableForm_changesConfirm_"+ pf +"' >"+language[lang].forms.confirm+"</button><button id='f_addInputVariableForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_globalNFPropertiesForm_" + pf + "' title='"+language[lang].mainMenu.nonFunctionalParameters+"'><br><button id='f_globalNFPropertiesForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button><button id='f_globalNFPropertiesForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div><div id='f_inputVariablesForm_" + pf + "' title='"+language[lang].mainMenu.inputVariables+"'><br><button id='f_inputVariablesForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button><button id='f_inputVariablesForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div><div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'><br><button id='f_graphSaveParamsForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button><button id='f_graphSaveParamsForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div><div id='f_addVectorForm_" + pf + "' title='Add a new vector'><button id='f_addVectorForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button><button id='f_addVectorForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div><div id='f_dialog_emulationService_" + pf + "' title='"+language[lang].forms.newEmulationService+"'><p><span style='font-size: 15px'>"+language[lang].forms.chooseYourDestiny+"</span></p><button id='f_button_newEmulationService_"+pf+"'>"+language[lang].forms.new+"</button><button id='f_button_importEmulationService_"+pf+"'>"+language[lang].forms.import+"</button></div><input type=\"file\" id=\"uploader_"+pf+"\" class=\"hidden\" accept=\"text/xml\" />";
+	//ENTER CONCATENATION HELL. Włodek mówił, że nie jest czytelnie, to teraz ma ^^
+	var content = "<div id='form_" + pf + "'></div><div id='f_dialog_confirm1_" + pf + "' title='"+language[lang].alerts.removeAll+"'>"
+			+ "<p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.removeAllText+"</span></p>"
+				+ "<button id='f_button_resetConfirm1_"+pf+"'>"+language[lang].forms.clearAll1+"</button>"
+				+ "<button id='f_button_resetCancel1_"+pf+"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_dialog_confirm2_" + pf + "' title='"+language[lang].alerts.areYouSure+"'>"
+				+ "<p><span class='ui-icon ui-icon-alert' style='float:left; margin:0 5px 5px 0;'></span><span style='font-size: 10px'>"+language[lang].alerts.areYouSureText+"</span></p>"
+				+ "<button id='f_button_resetConfirm2_"+pf+"'>"+language[lang].forms.clearAll2+"</button>"
+				+ "<button id='f_button_resetCancel2_"+pf+"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_dialog_fine_" + pf + "' title='"+language[lang].alerts.asYouWish+"'>"
+				+ "<p>"+language[lang].alerts.fine+".</p></div>"
+			+ "<div id='f_addInputForm_" + pf + "' title='Add a new input'>"
+				+ "<button id='f_addInputForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addInputForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_addOutputForm_" + pf + "' title='Add a new output'>"
+				+ "<button id='f_addOutputForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addOutputForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_addNFPropertyForm_" + pf + "' title='Add a new non functional property'>"
+				+ "<button id='f_addNFPropertyForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addNFPropertyForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_addGlobalNFPropertyForm_" + pf + "' title='Add a new graph non functional property'>"
+				+ "<button id='f_addGlobalNFPropertyForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addGlobalNFPropertyForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_addInputVariableForm_" + pf + "' title='Add a new non functional property'>"
+				+ "<button id='f_addInputVariableForm_changesConfirm_"+ pf +"' >"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addInputVariableForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_globalNFPropertiesForm_" + pf + "' title='"+language[lang].mainMenu.nonFunctionalParameters+"'><br>"
+				+ "<button id='f_globalNFPropertiesForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button>"
+				+ "<button id='f_globalNFPropertiesForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_inputVariablesForm_" + pf + "' title='"+language[lang].mainMenu.inputVariables+"'><br>"
+				+ "<button id='f_inputVariablesForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button>"
+				+ "<button id='f_inputVariablesForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_graphSaveParamsForm_" + pf + "' title='Graph name & description'><br>"
+				+ "<button id='f_graphSaveParamsForm_changesConfirm_" + pf +"' class='formButton'>"+language[lang].forms.saveChanges+"</button>"
+				+ "<button id='f_graphSaveParamsForm_changesCancel_" + pf +"' class='formButton'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_addVectorForm_" + pf + "' title='Add a new vector'>"
+				+ "<button id='f_addVectorForm_changesConfirm_"+ pf +"'>"+language[lang].forms.confirm+"</button>"
+				+ "<button id='f_addVectorForm_changesCancel_"+ pf +"'>"+language[lang].forms.cancel+"</button></div>"
+			+ "<div id='f_dialog_emulationService_" + pf + "' title='"+language[lang].forms.newEmulationService+"'>"
+				+ "<p><span style='font-size: 15px'>"+language[lang].forms.chooseYourDestiny+"</span></p>"
+				+ "<button id='f_button_newEmulationService_"+pf+"'>"+language[lang].forms.new+"</button>"
+				+ "<button id='f_button_importEmulationService_"+pf+"'>"+language[lang].forms.import+"</button></div>"
+			+ "<input type=\"file\" id=\"uploader_"+pf+"\" class=\"hidden\" accept=\"text/xml\" />";
 	$("body").append(content);
 };
 function formAppender(lang,pf){

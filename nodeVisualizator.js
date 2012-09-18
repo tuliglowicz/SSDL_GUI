@@ -200,7 +200,8 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
-								// this.outputs[i].node.drag(move, start, end); //HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
+								move = this.moveOutput(i);
+								this.outputs[i].node.drag(move.move, move.start, move.end); //HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
 							}
 						}
@@ -218,21 +219,22 @@ function nodeVisualizator(view){
 									gui.view.hideEdges();
 									var bbox = this.getBBox();
 									x = bbox.x; y = bbox.y;
-									glow1 = this.glow({'color': 'blue'});
 								},
 								move: function move(dx){
+									if(!glow1) glow1 = this.glow({'color': 'blue'});
 									if(img) img.remove();
 									if(glow2) glow2.remove();
+									if(otherInput) otherInput = undefined;
 									if(dx < 10)
 										if (that.inputs[index-1]){
-											img = gui.view.paper.image('images/arrowL.png', x-21, y-5, 16, 16);
+											img = gui.view.paper.image('images/arrowL.png', x-3, y-18, 16, 16);
 											otherIndex = index - 1;
 											otherInput = that.inputs[otherIndex];
 											glow2 = otherInput.node.glow({'color': 'blue'});
 										}
 									if(dx > 10)
 										if (that.inputs[index+1]){
-											img = gui.view.paper.image('images/arrowR.png', x+15, y-5, 16, 16);
+											img = gui.view.paper.image('images/arrowR.png', x-3, y-18, 16, 16);
 											otherIndex = index+1;
 											otherInput = that.inputs[otherIndex];
 											glow2 = otherInput.node.glow({'color': 'blue'});
@@ -243,6 +245,50 @@ function nodeVisualizator(view){
 										img.remove(); glow1.remove(); glow2.remove();
 										that.inputs[otherIndex] = that.inputs[index];
 										that.inputs[index] = otherInput;
+										that.clearIO(); that.drawIO(gui.view.paper);
+										gui.view.updateEdges();
+									}
+								}
+						};
+						return result;
+					},
+					moveOutput: function moveOutput(i){
+						var index = i,
+							that = this,
+							otherOutput, otherIndex,
+							img, x, y, glow1, glow2,
+							result = {
+								start: function start(){
+									gui.view.hideEdges();
+									var bbox = this.getBBox();
+									x = bbox.x; y = bbox.y;
+								},
+								move: function move(dx){
+									if(!glow1) glow1 = this.glow({'color': 'blue'});
+									if(img) img.remove();
+									if(glow2) glow2.remove();
+									if(otherOutput) otherOutput = undefined;
+									if(dx < 10)
+										if (that.outputs[index-1]){
+											img = gui.view.paper.image('images/arrowL.png', x-3, y+10, 16, 16);
+											otherIndex = index - 1;
+											otherOutput = that.outputs[otherIndex];
+											glow2 = otherOutput.node.glow({'color': 'blue'});
+										}
+									if(dx > 10)
+										if (that.outputs[index+1]){
+											img = gui.view.paper.image('images/arrowR.png', x-3, y+10, 16, 16);
+											otherIndex = index+1;
+											otherOutput = that.outputs[otherIndex];
+											glow2 = otherOutput.node.glow({'color': 'blue'});
+										}
+								},
+								end: function end(){
+									glow1.remove();
+									if(otherOutput){
+										img.remove(); glow2.remove();
+										that.outputs[otherIndex] = that.outputs[index];
+										that.outputs[index] = otherOutput;
 										that.clearIO(); that.drawIO(gui.view.paper);
 										gui.view.updateEdges();
 									}
