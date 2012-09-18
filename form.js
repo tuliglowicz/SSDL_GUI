@@ -710,18 +710,39 @@
 			},
 		//usuwanie undefinedów z tablic i/o/nfp
 			removeUndefinedElements: function removeUndefinedElements(){
-				for(var i in this.funcDescJSON.inputs)
-					if(!this.funcDescJSON.inputs[i])
-						this.funcDescJSON.inputs.splice(i, 1);
-				for(var i in this.funcDescJSON.outputs)
-					if(!this.funcDescJSON.outputs[i])
-						this.funcDescJSON.outputs.splice(i, 1);
-				for(var i in this.resultJSON.nonFunctionalDescription)
-					if(!this.resultJSON.nonFunctionalDescription[i]) 
-						this.resultJSON.nonFunctionalDescription.splice(i, 1);
-				for(var i in this.funcDescJSON.serviceClasses)
-					if(!this.funcDescJSON.serviceClasses[i]) 
-						this.funcDescJSON.serviceClasses.splice(i, 1);
+				var inputs = this.funcDescJSON.inputs,
+					outputs = this.funcDescJSON.outputs,
+					nonFunctionalDescription = this.resultJSON.nonFunctionalDescription,
+					serviceClasses = this.funcDescJSON.serviceClasses,
+					tmp
+				;
+				tmp = [];
+				for(var i in inputs){
+					if( inputs[ i ] )
+						tmp.push(inputs[ i ]);
+				}
+				this.funcDescJSON.inputs = tmp;
+
+				tmp = [];
+				for(var i in outputs){
+					if( outputs[ i ] )
+						tmp.push(outputs[ i ]);
+				}
+				this.funcDescJSON.outputs = tmp;
+
+				tmp = [];
+				for(var i in nonFunctionalDescription){
+					if( nonFunctionalDescription[ i ] ) 
+						tmp.push( nonFunctionalDescription[ i ] );
+				}
+				this.resultJSON.nonFunctionalDescription = tmp;
+
+				tmp = [];
+				for(var i in serviceClasses){
+					if( serviceClasses[ i ] ) 
+						tmp.push( serviceClasses[ i ] );
+				}
+				this.funcDescJSON.serviceClasses = tmp;
 			},
 		//obsługa zmiennych określających zaznaczone elementy w tabelach
 			getSelectedInputIndex: function getSelectedInputIndex(){
@@ -1148,17 +1169,16 @@
 					if(file.type == "text/xml")
 						reader.readAsText(this.files[0]);
 					else {
-						alert("You can select only xml files [JACKU_TUTAJ!!!]");
+						alert(langAlerts.onlyXML);
 						// $("#uploader_"+pf).click();
 						// $("#f_emulationTab_vectors_addButton_" + pf).dialog("open")
 						result.openForm();
 					}
 				})
+				//umyślnie close -> uploader -> open bo kiedy modalne jest open to uploader się nie otwiera.
 				result.closeForm();
-
-
-
 				$("#uploader_"+pf).click();
+				result.openForm();
 
 				return false;
 			}
@@ -1508,12 +1528,12 @@
 									}
 								});
 						} else {
-							alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]");
+							alert(langAlerts.idnewemuservice);
 						}
 					},
 					onerror : function(){
 						$("#f_dialog_emulationService_" + pf).dialog('close');
-						alert("error_while_accuring_id_for_new_emulationService_[JACKU_TUTAJ!!!]"); //to samo co wyżej
+						alert(langAlerts.idnewemuservice); //to samo co wyżej
 					}
 				})
 			}
