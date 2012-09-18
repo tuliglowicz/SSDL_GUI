@@ -1154,11 +1154,10 @@
 						result.openForm();
 					}
 				})
+				//umyślnie close -> uploader -> open bo kiedy modalne jest open to uploader się nie otwiera.
 				result.closeForm();
-
-
-
 				$("#uploader_"+pf).click();
+				result.openForm();
 
 				return false;
 			}
