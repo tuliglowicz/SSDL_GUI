@@ -37,6 +37,7 @@ var language = {
 			graphNotPassedValidation:"Graf nie przeszedł poprawnie walidacji!\nCzy jesteś pewien poprawności grafu?\nkliknij OK by potwierdzić.",
 			saveOK: "Procedura zapisu przeszła poprawnie",
 			saveNotOK: "Procedura zapisu nie powiodła się",
+			onlyXML: "Możesz wybierać tylko pliki XML",
 			errors: {
 				emptyGraph: "Nie można zapisać pustego grafu!",
 				noInputSelected: "Nie wybrano wejścia!",
@@ -55,7 +56,8 @@ var language = {
 				shortcutAdded: " jest już używany!",
 				shortcut: " skrót \" ",
 				shortcutNotDefined: "nie jest jeszcze zdefiniowany",
-				startCantPassControl: "Nie można przekazać kontroli do wierzchołka startowego."
+				startCantPassControl: "Nie można przekazać kontroli do wierzchołka startowego.",
+				idnewemuservice: "błąd podczas zdobywania identyfikatora dla nowej usługi emulującej"
 			}
 		},
 		forms: {
@@ -228,6 +230,7 @@ var language = {
 			graphNotPassedValidation:"Validation not passed!\nAre you sure this graph is correct?\nclick OK if you're sure.",
 			saveOK: "Save success",
 			saveNotOK: "Failed to save!",
+			onlyXML: "You can select only xml files",
 			errors: {
 				noInputSelected: "No input selected!",
 				noOutputSelected: "No output selected!",
@@ -246,6 +249,7 @@ var language = {
 				shortcut: "shortcut \"",
 				shortcutNotDefined: "is not defined!",
 				noinit: "you have to run init() function first",
+				idnewemuservice: "error while accuring id for new emulationService"
 			}
 
 		},
