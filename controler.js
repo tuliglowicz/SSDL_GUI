@@ -158,13 +158,16 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 							gui.view.form.editGraphSaveParams();
 						} else {
-							// console.log("========================================", validation.numberOfErrors, validation && validation.numberOfErrors && (validation.numberOfErrors < 1), (+ new Date));
-							if ( (validation && validation.numberOfErrors && (validation.numberOfErrors < 1)) || (alert(language[gui.language].alerts.graphNotPassedValidation+":::"+(+ new Date)))) {
+							var confirmation = (validation && validation.numberOfErrors && (validation.numberOfErrors < 1))
+						    if (!confirmation) 
+						    	confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
+						    	 
+							if (confirmation) {
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 								output += "ssdl=" + savedSSDL;
 
 
-								// console.log(output)
+								console.log(output)
 								that.save(saveUrl, output, "POST", "xml", function() {
 									alert(language[gui.language].alerts.saveOK);
 								}, function() {

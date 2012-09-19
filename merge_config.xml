@@ -1,5 +1,33 @@
 <configMerge>
 	<file>
+		<name>language.js</name>
+	<subfiles/>
+	</file>
+	<file>
+		<name>config.js</name>
+	<subfiles/>
+	</file>
+		<file>
+		<name>library.js</name>
+	<subfiles/>
+	</file>
+			<file>
+		<name>lib.js</name>
+	<subfiles/>
+	</file>
+			<file>
+		<name>generators.js</name>
+	<subfiles/>
+	</file>
+		<file>
+		<name>validators.js</name>
+	<subfiles/>
+	</file>
+			<file>
+		<name>myValidator.js</name>
+	<subfiles/>
+	</file>
+	<file>
 		<name>view.js</name>
 		<subfiles>
 			<file>
