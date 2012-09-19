@@ -811,6 +811,9 @@
 				this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName_" + pf ).val();
 				this.physDescJSON.serviceGlobalId = $( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val();
 				this.physDescJSON.address = $( "#f_physicalDescriptionTab_address_" + pf ).val();
+				if(!this.physDescJSON.address){
+					this.physDescJSON.address = "http://192.168.2.145:8383/Dummy/EmulateService?wsdl&name="+this.resultJSON.nodeLabel;
+				}
 				this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation_" + pf ).val();
 				this.resultJSON.physicalDescription = this.physDescJSON;
 					
@@ -821,9 +824,10 @@
 				this.resultJSON.functionalDescription = this.funcDescJSON;
 
 				this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
+				this.emulationJSON.name = this.resultJSON.nodeLabel;
 				this.emulationJSON.vectors = $("#f_emulationTab_vectors_" + pf).val();
-				// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
 				this.resultJSON.emulation = this.emulationJSON;
+				// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
 				// alert(this.emulationJSON.vectors+":"+this.emulationJSON.id)
 				// alert(this.resultJSON.emulation.id+":"+this.resultJSON.emulation.vectors)
 
@@ -1512,35 +1516,24 @@
 		);
 		$("#f_button_newEmulationService_" + pf).button().click(
 			function(event) {
-				gui.controler.reactOnEvent("AskDamianForId", {
-					onsuccess : function(xml){
-						$("#f_dialog_emulationService_" + pf).dialog('close');
-						var id = $(xml).find("id").text();
-
-						if(id){
-							var label = prompt(langAlerts.addLabelNewNode, "");
-							if(label)
-								gui.controler.reactOnEvent("AddBlankNode", {
-									nodeLabel : label,
-									nodeType : "emulationService",
-									emulation : {
-										id : id
-									}
-								});
-						} else {
-							alert(langAlerts.idnewemuservice);
+				$("#f_dialog_emulationService_" + pf).dialog('close');
+				var label = prompt(langAlerts.addLabelNewNode, "");
+				if(label)
+					gui.controler.reactOnEvent("AddBlankNode", {
+						nodeLabel : label,
+						nodeType : "EmulationService",
+						physicalDescription : {
+							address : "http://192.168.2.145:8383/Dummy/EmulateService?wsdl&name="+label
+						},
+						emulation : {
+							name : label
 						}
-					},
-					onerror : function(){
-						$("#f_dialog_emulationService_" + pf).dialog('close');
-						alert(langAlerts.idnewemuservice); //to samo co wyżej
-					}
-				})
+					});
 			}
 		);
 		$("#f_button_importEmulationService_" + pf).button().click(
 			function(event) {
-				// alert("America fuck yeah, Włodku daj mi event!");
+				// alert("IMPORTOWANIE USŁUGI EMULACYYJNEJ Z PLIKU JESZCZE NIEZAIMPLEENTOWANE.");
 			}
 		);
 		$("#f_button_importEmulationService_" + pf).addClass('ui-state-disabled');

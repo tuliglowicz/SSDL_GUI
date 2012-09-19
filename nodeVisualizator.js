@@ -17,9 +17,40 @@ function nodeVisualizator(view){
 					height : 35,
 					scale : 100,
 					highlighted : false,
-					highlightColor : "orange",
-					normalColor : "black",
 					menu : null,
+					prepareToDrag : function prepareToDrag(){
+						// console.log("2drag")
+						this.hideNode();
+						this.mainShape.show();
+						this.raph_label.show();
+					},
+					returnFromDragging : function returnFromDragging(){
+						this.showNode();
+
+						this.clearIO();
+						this.drawIO(view.paper);
+					},
+					translate : function translate(transX, transY){
+						// this.mainShape.translate(transX, transY);
+						// this.raph_label.translate(transX, transY);
+
+						$.each(this.set, function(i, v){
+								v.translate(transX, transY);
+						});
+						// $.each(this.inputs, function(i, v){
+						// 	v.node.translate(transX, transY);
+						// });
+						// $.each(this.outputs, function(i, v){
+						// 	v.node.translate(transX, transY);
+						// });
+						$.each(this.connectors, function(i, v){
+							v.attr("cx", v.attr("cx") + transX);
+							v.attr("cy", v.attr("cy") + transY);
+						});
+
+						this.x += transX;
+						this.y += transY;
+					},
 					removeView : function(){
 						function remove(){
 							if(this.remove)
@@ -165,6 +196,10 @@ function nodeVisualizator(view){
 					drawIO : function drawIO(paper, forRepo){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
+
+						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke);
+						var isCFMode = CFG.mode == "CF";
+
 						var length = this.inputs.length, x, y, that = this, nx, move;
 						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,
@@ -176,14 +211,14 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
-								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
-								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 							}
 						}
@@ -191,7 +226,7 @@ function nodeVisualizator(view){
 							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
-								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color});
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								move = this.moveInput(i);
 								this.inputs[i].node.drag(move.move, move.start, move.end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
@@ -199,7 +234,7 @@ function nodeVisualizator(view){
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
-								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color});
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								move = this.moveOutput(i);
 								this.outputs[i].node.drag(move.move, move.start, move.end); //HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
 								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
@@ -358,29 +393,31 @@ function nodeVisualizator(view){
 					},
 					highlight2: function highlight(){
 						var that = this;
-						this.mainShape.attr("stroke", that.highlightColor);
+						var color = CFG.colors.highlightStroke;
+						this.mainShape.attr("stroke", color);
 						$.each(this.inputs, function(i, v){
-							v.node.attr("stroke", that.highlightColor);
+							v.node.attr("stroke", color);
 						});
 						$.each(this.outputs, function(i, v){
-							v.node.attr("stroke", that.highlightColor);
+							v.node.attr("stroke", color);
 						});
 						$.each(this.connectors, function(i, v){
-							v.attr("stroke", that.highlightColor);
+							v.attr("stroke", color);
 						});
 						this.highlighted = true;
 					},
 					removeHighlight : function removeHighlight(){
 						var that = this;
-						this.mainShape.attr("stroke", that.normalColor);
+						var color = CFG.colors.normalStroke;
+						this.mainShape.attr("stroke", color);
 						$.each(this.inputs, function(i, v){
-							v.node.attr("stroke", that.normalColor);
+							v.node.attr("stroke", color);
 						});
 						$.each(this.outputs, function(i, v){
-							v.node.attr("stroke", that.normalColor);
+							v.node.attr("stroke", color);
 						});
 						$.each(this.connectors, function(i, v){
-							v.attr("stroke", that.normalColor);
+							v.attr("stroke", color);
 						});
 						this.highlighted = false;
 					},
@@ -414,24 +451,6 @@ function nodeVisualizator(view){
 					},
 					toString : function toString(){
 						return "SSDL_Node object";
-					},
-					translate : function translate(transX, transY){
-						$.each(this.set, function(i, v){
-								v.translate(transX, transY);
-						});
-						$.each(this.inputs, function(i, v){
-							v.node.translate(transX, transY);
-						});
-						$.each(this.outputs, function(i, v){
-							v.node.translate(transX, transY);
-						});
-						$.each(this.connectors, function(i, v){
-							v.attr("cx", v.attr("cx") + transX);
-							v.attr("cy", v.attr("cy") + transY);
-						});
-							
-						this.x += transX;
-						this.y += transY;
 					},
 					getPossiblePositionsOfConnectors : function getPossiblePositionsOfConnectors(){
 						return [

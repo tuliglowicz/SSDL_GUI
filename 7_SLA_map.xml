@@ -100,7 +100,7 @@
 		<!-- Pierwszy wierzchołek z procesu -->
 		<node>
 			+|*<nodeId>CCTVStartMonitoring</nodeId>
-			+|*<nodeType>EmulationService</nodeType>
+			+|*<nodeType>Functionality</nodeType>
 			+|*<nodeLabel>CCTVStartMonitoring</nodeLabel>
 			+|service<physicalDescription>
 				<serviceName/>

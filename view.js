@@ -319,9 +319,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				 	}
 				},
 				start = function start(x,y,evt){
-					that.prepereToDragNodes();
-					that.hideEdges();
-					
+
 					itWasJustAClick = true;
 					lastDragX = 0;
 					lastDragY = 0;
@@ -341,10 +339,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					ready2move = node.highlighted;
 					ctrl = evt.ctrlKey;
 
-
+					that.hideEdges();
+					that.prepareNodesToDrag();
 				},
 				stop = function stop(evt){
-					that.returnFromDragingNodes();
+					that.returnFromDraggingNodes();
 					that.showEdges();
 					that.updateEdges();
 
@@ -361,12 +360,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							node.highlight2();
 						}
 
-				  		$.each(gui.view.current_graph_view.nodes, function(i, val){
-							if(val.highlighted){
-								val.prepereToDrag();
-							}
-						});
-
 						// gui.controler.reactOnEvent("ESCAPE");
 					}
 					else {
@@ -381,17 +374,18 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				} else
 					element.drag(move, start, stop);
 		},
-		prepereToDragNodes : function prepereToDragNodes(){
+		prepareNodesToDrag : function prepareNodesToDrag(){
 			$.each(gui.view.current_graph_view.nodes, function(i, val){
 				if(val.highlighted){
-					val.prepereToDrag();
+					val.prepareToDrag();
 				}
 			});
 		},
-		returnFromDragingNodes : function returnFromDragingNodes(){
+		returnFromDraggingNodes : function returnFromDraggingNodes(){
 			$.each(gui.view.current_graph_view.nodes, function(i, val){
 				if(val.highlighted){
-					val.returnFromDraging();
+					console.log(5);
+					val.returnFromDragging();
 				}
 			});
 		},

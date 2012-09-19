@@ -148,6 +148,7 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						// } else {
 						var savedSSDL = that.saveSSDL();
 						var validation = validatorObject.validateGraph(that.getRoot());
+						// jsonFormatter(validation,1,1)
 
 						// e = e || {};
 						// e.name = 1;
@@ -157,12 +158,13 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 							gui.view.form.editGraphSaveParams();
 						} else {
-							if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm(language[gui.language].alerts.graphNotPassedValidation)) {
+							// console.log("========================================", validation.numberOfErrors, validation && validation.numberOfErrors && (validation.numberOfErrors < 1), (+ new Date));
+							if ( (validation && validation.numberOfErrors && (validation.numberOfErrors < 1)) || (alert(language[gui.language].alerts.graphNotPassedValidation+":::"+(+ new Date)))) {
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 								output += "ssdl=" + savedSSDL;
 
 
-								console.log(output)
+								// console.log(output)
 								that.save(saveUrl, output, "POST", "xml", function() {
 									alert(language[gui.language].alerts.saveOK);
 								}, function() {
@@ -197,11 +199,35 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							$.each(that.current_graphData.nodes, function(i, v) {
 								if (v.nodeId == e.nodeId) {
 									that.current_graphData.nodes[i] = e;
-									console.log(that.current_graphData.nodes);
+									// console.log(that.current_graphData.nodes);
 									return false;
 								}
 							});
 							gui.view.updateNode(e);
+
+							// jsonFormatter(e,1,1)
+							if( e.nodeType && e.nodeType.toLowerCase() == "emulationservice" ){
+								gui.controler.reactOnEvent("AskDamianForId", {
+									onsuccess : (function(xml){
+										var nodeId = e.nodeId;
+										var node = this.getNodeById(nodeId);
+										var id = $(xml).find("id").text();
+
+										if(id){
+											node.physicalDescription.address += ("&id=" + id);
+											alert(node.physicalDescription.address)
+											node.emulation.id = id;
+										} else {
+											alert(langAlerts.idnewemuservice);
+										}
+
+									}).bind(that),
+									onerror : function(){
+										alert(langAlerts.idnewemuservice); //to samo co wyżej
+									}
+								});
+							}
+
 							gui.view.form.closeForm();
 						} else {
 							gui.view.form.handleErrors(wrongsList);
@@ -854,7 +880,10 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					tabOutput.push(tabulacja + "\t\t<physicalDescription>\n");
 					tabOutput.push(tabulacja + "\t\t\t<serviceName>" + (physicalDescription.serviceName || "") + "</serviceName>\n");
 					tabOutput.push(tabulacja + "\t\t\t<serviceGlobalId>" + (physicalDescription.serviceGlobalId || "") + "</serviceGlobalId>\n");
-					tabOutput.push(tabulacja + "\t\t\t<address>" + (physicalDescription.address || "") + "</address>\n");
+					tabOutput.push(tabulacja + "\t\t\t<address>" + (physicalDescription.address || ""));
+					// if(node.emulate && node.emulate.id)
+					// 	tabOutput.push( "&id="+node.emulate.id);
+					tabOutput.push( "</address>\n");
 					tabOutput.push(tabulacja + "\t\t\t<operation>" + (physicalDescription.operation || "") + "</operation>\n");
 					tabOutput.push(tabulacja + "\t\t</physicalDescription>\n");
 				}

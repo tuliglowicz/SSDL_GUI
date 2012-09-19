@@ -424,7 +424,8 @@
 		result.addOption("Views", "CF", switchMode("CF"), "ControlFlow");
 		result.addOption("Views", "DF", switchMode("DF"), "DataFlow");
 		result.addGroup("Edit");
-		result.addOption("Edit", "Save", save, "SaveGraph");
+		// if(CFG.saveUrl)
+			result.addOption("Edit", "Save", save, "SaveGraph");
 		result.addOption("Edit", "StartStop", startStop, "Insert Start/Stop");
 		result.addGroup("Graph Options");
 		result.addOption("Graph Options", "Input Variables", editInputVariables, "editInputVariables");
