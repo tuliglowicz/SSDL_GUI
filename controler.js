@@ -157,7 +157,11 @@ function Controler(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 							gui.view.form.editGraphSaveParams();
 						} else {
-							if (validation && validation.numberOfErrors && (validation.numberOfErrors < 1) || confirm(language[gui.language].alerts.graphNotPassedValidation)) {
+							var confirmation = (validation && validation.numberOfErrors && (validation.numberOfErrors < 1))
+						    if (!confirmation) 
+						    	confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
+						    	 
+							if (confirmation) {
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 								output += "ssdl=" + savedSSDL;
 
