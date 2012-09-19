@@ -213,14 +213,15 @@ function nodeVisualizator(view){
 						var index = i,
 							that = this,
 							otherInput, otherIndex,
-							img, x, y, glow1, glow2,
+							img, x, y, x2, glow1, glow2,
+							obj1, obj2,
 							result = {
-								start: function start(){
-									gui.view.hideEdges();
-									var bbox = this.getBBox();
+								start: function start(){	
+								var bbox = this.getBBox();
 									x = bbox.x; y = bbox.y;
 								},
 								move: function move(dx){
+									console.log(dx);
 									if(!glow1) glow1 = this.glow({'color': 'blue'});
 									if(img) img.remove();
 									if(glow2) glow2.remove();
@@ -230,6 +231,7 @@ function nodeVisualizator(view){
 											img = gui.view.paper.image('images/arrowL.png', x-3, y-18, 16, 16);
 											otherIndex = index - 1;
 											otherInput = that.inputs[otherIndex];
+											x2 = otherInput.node.getBBox().x;
 											glow2 = otherInput.node.glow({'color': 'blue'});
 										}
 									if(dx > 10)
@@ -237,16 +239,28 @@ function nodeVisualizator(view){
 											img = gui.view.paper.image('images/arrowR.png', x-3, y-18, 16, 16);
 											otherIndex = index+1;
 											otherInput = that.inputs[otherIndex];
+											x2 = otherInput.node.getBBox().x;
 											glow2 = otherInput.node.glow({'color': 'blue'});
 										}
 								},
 								end: function end(){
+									if(glow1) glow1.remove(); 
 									if(otherInput){
-										img.remove(); glow1.remove(); glow2.remove();
-										that.inputs[otherIndex] = that.inputs[index];
-										that.inputs[index] = otherInput;
-										that.clearIO(); that.drawIO(gui.view.paper);
-										gui.view.updateEdges();
+										gui.view.hideEdges();
+										obj1 = gui.view.paper.path(that.inputPathString(x, y)).attr({'fill': that.color});;
+										obj2 = gui.view.paper.path(that.inputPathString(x2, y)).attr({'fill': that.color});;
+										that.inputs[index].node.remove();
+										that.inputs[otherIndex].node.remove();
+										obj1.animate({transform:"t"+(x2-x)+",0"}, 250);
+										obj2.animate({transform:"t"+(x-x2)+",0"}, 250);
+										setTimeout(function(){
+											obj1.remove(); obj2.remove();
+											that.inputs[otherIndex] = that.inputs[index];
+											that.inputs[index] = otherInput;
+											that.clearIO(); that.drawIO(gui.view.paper);
+											gui.view.updateEdges();										
+										}, 250);
+										img.remove(); glow2.remove();									
 									}
 								}
 						};
@@ -256,7 +270,8 @@ function nodeVisualizator(view){
 						var index = i,
 							that = this,
 							otherOutput, otherIndex,
-							img, x, y, glow1, glow2,
+							img, x, x2, y, glow1, glow2,
+							obj1, obj2,
 							result = {
 								start: function start(){
 									gui.view.hideEdges();
@@ -273,6 +288,7 @@ function nodeVisualizator(view){
 											img = gui.view.paper.image('images/arrowL.png', x-3, y+10, 16, 16);
 											otherIndex = index - 1;
 											otherOutput = that.outputs[otherIndex];
+											x2 = otherOutput.node.getBBox().x;
 											glow2 = otherOutput.node.glow({'color': 'blue'});
 										}
 									if(dx > 10)
@@ -280,17 +296,28 @@ function nodeVisualizator(view){
 											img = gui.view.paper.image('images/arrowR.png', x-3, y+10, 16, 16);
 											otherIndex = index+1;
 											otherOutput = that.outputs[otherIndex];
+											x2 = otherOutput.node.getBBox().x;
 											glow2 = otherOutput.node.glow({'color': 'blue'});
 										}
 								},
 								end: function end(){
-									glow1.remove();
+									if(glow1) glow1.remove();
 									if(otherOutput){
+										gui.view.hideEdges();
+										obj1 = gui.view.paper.path(that.outputPathString(x, y)).attr({'fill': that.color});;
+										obj2 = gui.view.paper.path(that.outputPathString(x2, y)).attr({'fill': that.color});;
+										that.outputs[otherIndex].node.remove();
+										that.outputs[index].node.remove();
+										obj1.animate({transform:"t"+(x2-x)+",0"}, 250);
+										obj2.animate({transform:"t"+(x-x2)+",0"}, 250);
+										setTimeout(function(){
+											obj1.remove(); obj2.remove()
+											that.outputs[otherIndex] = that.outputs[index];
+											that.outputs[index] = otherOutput;
+											that.clearIO(); that.drawIO(gui.view.paper);
+											gui.view.updateEdges();
+										}, 250);
 										img.remove(); glow2.remove();
-										that.outputs[otherIndex] = that.outputs[index];
-										that.outputs[index] = otherOutput;
-										that.clearIO(); that.drawIO(gui.view.paper);
-										gui.view.updateEdges();
 									}
 								}
 						};
