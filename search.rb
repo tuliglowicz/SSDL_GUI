@@ -9,7 +9,7 @@ _directory.each do |file|
 _file = File.open(file, "r")
 i=0
 _file.each  {|line| i=i+1 
-	if line.include? string then tab << _file.inspect.to_s + " "  + i.to_s end\
+	if line.include? string then tab << _file.inspect.to_s + " "  + i.to_s end
 	 }
 
 end
