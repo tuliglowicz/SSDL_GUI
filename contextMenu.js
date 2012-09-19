@@ -104,7 +104,7 @@
 					if(typeof opt.invokedEvent == 'function'){
 						opt.invokedEvent(opt.eventObject);
 					}else if(typeof opt.invokedEvent == 'string'){
-						gui.controler.reactOnEvent(opt.invokedEvent, opt.eventObject);
+						gui.controller.reactOnEvent(opt.invokedEvent, opt.eventObject);
 					}
 				}
 				menu.close();		

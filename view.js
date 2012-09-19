@@ -179,7 +179,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 
 		deleteNode : function deleteNode(node){
-			gui.controler.reactOnEvent("NodeDeleted");
+			gui.controller.reactOnEvent("NodeDeleted");
 		},
 
 		addStartStop : function addStartStop(obj){
@@ -314,7 +314,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							ox += transX;
 							oy += transY;
 
-							//gui.controler.reactOnEvent("NodeMoved");
+							//gui.controller.reactOnEvent("NodeMoved");
 						}
 				 	}
 				},
@@ -332,7 +332,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					flag = false;
 					if(!node.highlighted){
 						if(!evt.ctrlKey)
-							gui.controler.reactOnEvent("DESELECT");
+							gui.controller.reactOnEvent("DESELECT");
 						flag = true;
 						node.highlight2();
 					}
@@ -348,7 +348,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					that.updateEdges();
 
 					ready2move = false;
-					gui.controler.reactOnEvent("NODESELECTED");
+					gui.controller.reactOnEvent("NODESELECTED");
 					if(itWasJustAClick){
 						if(ctrl){
 							if(!flag) {
@@ -356,14 +356,14 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 						}
 						else {
-							gui.controler.reactOnEvent("DESELECT");
+							gui.controller.reactOnEvent("DESELECT");
 							node.highlight2();
 						}
 
-						// gui.controler.reactOnEvent("ESCAPE");
+						// gui.controller.reactOnEvent("ESCAPE");
 					}
 					else {
-						// gui.controler.reactOnEvent("NodeMoved");
+						// gui.controller.reactOnEvent("NodeMoved");
 					}
 				}
 
@@ -454,7 +454,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					if(gui.view.mode === "CF"){
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id){
-							gui.controler.reactOnEvent("AddCFEdge", {
+							gui.controller.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
 							 	target: targetNode,
 							 	CF_or_DF: gui.view.mode
@@ -467,7 +467,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							// alert("HURA");
 
 							if(confirm(language[gui.language].alerts.addOutputS+sourceNode.label+language[gui.language].alerts.addOutputE)){
-								gui.controler.reactOnEvent("addOutput", {
+								gui.controller.reactOnEvent("addOutput", {
 									sourceId : sourceNode.id,
 									targetId : resultObj.targetId,
 									input : resultObj.input
@@ -475,7 +475,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 							// $("#f_addInputForm")
 							// wyrmularz, z uzupeÅ‚nionymi polami
-							// confirm -> controler i update node
+							// confirm -> controller i update node
 							// addConnectionDF
 						}
 					}
@@ -555,7 +555,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					// jsonFormatter(resultObj, true, true)
 					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
 						if(resultObj.input.dataType === output.dataType){
-							gui.controler.reactOnEvent("AddDFEdge", {
+							gui.controller.reactOnEvent("AddDFEdge", {
 							 	sourceId: sourceNode.id,
 							 	targetId: resultObj.targetId,
 							 	input: resultObj.input,
@@ -570,7 +570,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
 						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
 							if(confirm(language[gui.language].alerts.addInputS +  targetNode.label+ language[gui.language].alerts.addInputE)){
-								gui.controler.reactOnEvent("addInput", {
+								gui.controller.reactOnEvent("addInput", {
 									sourceId : sourceNode.id,
 									targetId : targetNode.id,
 									output : output
@@ -580,7 +580,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 						// $("#f_addInputForm")
 						// wyrmularz, z uzupełnionymi polami
-						// confirm -> controler i update node
+						// confirm -> controller i update node
 						// addConnectionDF
 					}
 
@@ -623,7 +623,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			selectArrow : function(e, multiselect){
 				e = e || window.event;
 				if(!e.ctrlKey&&!multiselect){
-					gui.controler.reactOnEvent("ESCAPE");
+					gui.controller.reactOnEvent("ESCAPE");
 				}
 				this.arrowGlow.remove();
 				this.arrowGlow = gui.view.paper.set();
@@ -698,7 +698,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		addDFEdge : function addDFEdge(data, firstLoad){
 			var foundedDFEdge = (firstLoad ? false : this.getDFEdge(data.sourceId, data.targetId, data.output.id, data.input.id));
 			if(foundedDFEdge){
-				gui.controler.reactOnEvent(""); //err msg
+				gui.controller.reactOnEvent(""); //err msg
 			}
 			else {
 				var	edgeObject = {
@@ -866,7 +866,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				;
 
 				try{
-					var deployerOutput = gui.controler.deploy(graph_json, paper.width);
+					var deployerOutput = gui.controller.deploy(graph_json, paper.width);
 				} catch(e){
 					console.error(e);
 				}
@@ -1107,7 +1107,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			// gui.view.paper.rect(x-1, y-1, 2, 2).attr("fill", "red");
 			var result,
 				bbox,
-				loopControler = true;
+				loopcontroller = true;
 			$.each(this.current_graph_view.nodes, function(k, v){
 				$.each(v.inputs, function(){
 					bbox = this.node.getBBox();
@@ -1120,12 +1120,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							targetId : v.id,
 							input : this
 						};
-						loopControler = false;
+						loopcontroller = false;
 						return false;
 					}
 				});
 
-				return loopControler;
+				return loopcontroller;
 			});
 
 			return result;
@@ -1320,7 +1320,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		},
 		bgStop = function(evt){
 			if(itWasJustAClick){
-				gui.controler.reactOnEvent("ESCAPE");
+				gui.controller.reactOnEvent("ESCAPE");
 			}
 			else {
 				x1 = ox; y1 = oy;
@@ -1338,7 +1338,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				
 				// TUTAJ POWINNO BY�?„â€  WYS�?…?ANIE EVENTU DO KONTROLERA Z SELEKTEM
 				
-				gui.controler.reactOnEvent("SELECT", {
+				gui.controller.reactOnEvent("SELECT", {
 					x1 : x1,
 					x2 : x2,
 					y1 : y1,

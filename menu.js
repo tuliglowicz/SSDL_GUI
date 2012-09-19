@@ -149,19 +149,19 @@
 				this.addSubOption("File", "New Node", "Service node", function(){
 					var nodeType="Service";
 				var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+S");
+							if(label) gui.controller.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+S");
 				this.addSubOption("File", "New Node", "Functionality node", function(){ 		var nodeType="Functionality";
 					var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
+							if(label) gui.controller.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
 				this.addSubOption("File", "New Node", "Mediator node", function(){ 		var nodeType="Mediator";
 					var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
+							if(label) gui.controller.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType}); }, "CTRL+N+F");
 				
-				this.addSubOption("File","New Node","Start Stop",function(){gui.controler.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
+				this.addSubOption("File","New Node","Start Stop",function(){gui.controller.reactOnEvent("ADDSTARTSTOPAUTOMATICALLY");},"CTRL+S+A");
 				this.addOption("Graph", "Validate", function(){alert("Not implemented yet!");}, "");
 				this.addOption("Graph", "Test", function(){alert("Not implemented yet!");}, "");
-				this.addOption("View", "Control Flow", function(){gui.controler.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
-				this.addOption("View", "Data Flow" , function(){gui.controler.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
+				this.addOption("View", "Control Flow", function(){gui.controller.reactOnEvent("SwitchMode", {mode: "CF"});}, "");
+				this.addOption("View", "Data Flow" , function(){gui.controller.reactOnEvent("SwitchMode", {mode: "DF"});}, "");
 				this.addSeparator("View");
 				this.addOption("View", "Console" , function(){gui.logger.open()}, "");
 				this.addOption("Edit","Undo",function(){},"");
@@ -174,7 +174,7 @@
 				this.addOption("Edit","Input Variables",function(){gui.view.form.editInputVariables();},"");
 				this.addOption("Edit","Non functional parameters",function(){gui.view.form.editGlobalNonFunctionalParameters();},"");
 				this.addSeparator("Edit")
-				this.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controler.reactOnEvent("CLEARGRAPH");},"");
+				this.addOption("Edit","Clear",function(){var clearer = confirm("Czy na pewno?" ); if(clearer)gui.controller.reactOnEvent("CLEARGRAPH");},"");
 				this.addOption("Help","Documentation",function(){alert("In this platel no one will help you, even Volodia.")},"");
 				this.addSeparator("Help");
 				this.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");

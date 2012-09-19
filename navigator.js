@@ -77,7 +77,7 @@
 							$this.find("span").addClass("selectedLI");
 
 							// console.log($(this).parent().find("img").attr("id").split("|")[1]);
-							gui.controler.reactOnEvent("SwitchCurrentGraph", {
+							gui.controller.reactOnEvent("SwitchCurrentGraph", {
 								id: $this.parent().attr("id") + "|" + $this.find("span:first").attr("id")
 							})
 						}

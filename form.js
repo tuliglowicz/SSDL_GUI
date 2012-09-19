@@ -832,7 +832,7 @@
 				// alert(this.resultJSON.emulation.id+":"+this.resultJSON.emulation.vectors)
 
 				// alert(jsonFormatter(this.resultJSON, true, true));
-				gui.controler.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
+				gui.controller.reactOnEvent("TryToSaveNodeAfterEdit", this.resultJSON);
 			},
 		// Addy
 			addServiceClass: function addServiceClass(){
@@ -855,7 +855,7 @@
 
 				if(index==-1){	//Index = -1 => dodajemy nowy input
 					if(!this.ioExists(inputJSON, this.funcDescJSON.inputs)){
-						inputJSON.id = gui.controler.generateIOId(inputJSON.label);
+						inputJSON.id = gui.controller.generateIOId(inputJSON.label);
 						this.inputAndOutputAppender(inputJSON, "f_inputsTab_inputs_" + pf + " tbody", this.funcDescJSON.inputs.length);
 						this.funcDescJSON.inputs.push(inputJSON);
 						$("#f_addInputForm_" + pf).dialog("close");	
@@ -879,7 +879,7 @@
 				outputJSON.class = $( "#f_outputsTab_class_" + pf ).val();
 				// outputJSON.id = $( "#f_outputsTab_id_" + pf ).val();
 				outputJSON.label = $( "#f_outputsTab_label_" + pf ).val();
-				outputJSON.id = gui.controler.generateIOId(outputJSON.label);
+				outputJSON.id = gui.controller.generateIOId(outputJSON.label);
 				outputJSON.dataType = $( "#f_outputsTab_dataType_" + pf ).val();
 				// outputJSON.properties = $( "#f_outputsTab_outputProperties" ).val();
 
@@ -1048,12 +1048,12 @@
 			},
 			editInputVariables : function editInputVariables(){
 				this.resetInpVars();
-				this.appendInpVar(gui.controler.current_graphData.inputVariables);
+				this.appendInpVar(gui.controller.current_graphData.inputVariables);
 				$("#f_inputVariablesForm_" + pf).dialog("open");
 			},
 			editGlobalNonFunctionalParameters : function editNonFunctionalParameters(){
 				this.resetGlobalNonFunDesc();
-				this.appendGlobalNonFuncDesc(gui.controler.current_graphData.nonFunctionalParameters);
+				this.appendGlobalNonFuncDesc(gui.controller.current_graphData.nonFunctionalParameters);
 				$("#f_globalNFPropertiesForm_" + pf).dialog("open");
 			},
 			editGraphSaveParams : function editGraphSaveParams(){
@@ -1519,7 +1519,7 @@
 				$("#f_dialog_emulationService_" + pf).dialog('close');
 				var label = prompt(langAlerts.addLabelNewNode, "");
 				if(label)
-					gui.controler.reactOnEvent("AddBlankNode", {
+					gui.controller.reactOnEvent("AddBlankNode", {
 						nodeLabel : label,
 						nodeType : "EmulationService",
 						physicalDescription : {
@@ -1572,7 +1572,7 @@
 				for(var i in inpVars)
 					if(!inpVars[i])
 						inpVars.splice(i, 1);
-				gui.controler.current_graphData.inputVariables = inpVars;
+				gui.controller.current_graphData.inputVariables = inpVars;
 				$( "#f_inputVariablesForm_" + pf ).dialog( "close" );
 			}		
 		);
@@ -1581,7 +1581,7 @@
 				for(var i in globalNonFuncDesc)
 					if(!globalNonFuncDesc[i])
 						globalNonFuncDesc.splice(i, 1);
-				gui.controler.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
+				gui.controller.current_graphData.nonFunctionalParameters = globalNonFuncDesc;
 				$( "#f_globalNFPropertiesForm_" + pf ).dialog( "close" );
 			}	
 		);
@@ -1590,7 +1590,7 @@
 				var result = gui.view.form.collectGraphSaveParams();
 				if(result){
 					$( "#f_graphSaveParamsForm_" + pf ).dialog( "close" );
-					gui.controler.reactOnEvent("save", result)
+					gui.controller.reactOnEvent("save", result)
 				} else {
 					alert(langAlerts.inputData);
 				}

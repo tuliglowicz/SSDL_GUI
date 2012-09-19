@@ -403,11 +403,11 @@
 		
 		var switchMode = function switchMode(arg){
 			return (function(){
-				gui.controler.reactOnEvent("SwitchMode", {mode: arg})
+				gui.controller.reactOnEvent("SwitchMode", {mode: arg})
 			});
 		};
 		var startStop = function startStop(){
-			gui.controler.reactOnEvent("AddStartStopAutomatically");
+			gui.controller.reactOnEvent("AddStartStopAutomatically");
 		};
 		var editInputVariables = function editInputVariables(){
 			gui.view.form.editInputVariables();
@@ -416,7 +416,7 @@
 			gui.view.form.editGlobalNonFunctionalParameters();
 		};
 		var save = function save(){
-			gui.controler.reactOnEvent("SAVE");
+			gui.controller.reactOnEvent("SAVE");
 		}
 
 		result.invisibleBar = result.createBar(left, top, width, height);

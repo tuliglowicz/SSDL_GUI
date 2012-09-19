@@ -28,7 +28,7 @@
 		<script src="deploy.js"></script>
 		<script src="navigator.js"></script>
 		<script src="repository.js"></script>
-		<script src="controler.js"></script>
+		<script src="controller.js"></script>
 		<script src="view.js"></script>
 		<script src="lib.js"></script>
 		<script src="generators.js"></script>
@@ -65,9 +65,9 @@
 				r.view.blankNodes.init();
 				r.view.blankNodes.draw();
 				r.view.mainMenu.init();
-				r.controler = Controler(sdbUrl, saveUrl, graphToEditUrl, graphToEditName, r);
-				r.logger = r.controler.initLogger(r.view.paper);
-				r.controler.init();
+				r.controller = Controller(sdbUrl, saveUrl, graphToEditUrl, graphToEditName, r);
+				r.logger = r.controller.initLogger(r.view.paper);
+				r.controller.init();
 
 				$(function(){
 					$(".plugin_"+r.id_postfix).css("padding-bottom", "10px")

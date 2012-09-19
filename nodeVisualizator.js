@@ -102,7 +102,7 @@ function nodeVisualizator(view){
 					switchToHybrydMode : function switchToHybrydMode(){
 					},
 					prepareNodeDescription : function prepareNodeDescription(){
-						var data = gui.controler.getNodeById(this.id),
+						var data = gui.controller.getNodeById(this.id),
 							result
 							;
 
@@ -585,7 +585,7 @@ function nodeVisualizator(view){
 					node.mainShape.attr({cursor: "crosshair"});
 				node.raph_label = label;
 				node.raph_label.dblclick(function(){
-					gui.controler.reactOnEvent("EditNode", {nodeId: node.id});
+					gui.controller.reactOnEvent("EditNode", {nodeId: node.id});
 				})
 
 				c.node.setAttribute("class", node.id);
@@ -660,7 +660,7 @@ function nodeVisualizator(view){
 
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
-					gui.controler.reactOnEvent("EditNode", {nodeId: id});
+					gui.controller.reactOnEvent("EditNode", {nodeId: id});
 				});
 				
 				node.mainShape.node.setAttribute("class", id);
@@ -678,7 +678,7 @@ function nodeVisualizator(view){
 						img_subgraph.node.setAttribute("class", id+" subgraph");
 						img_subgraph.dblclick(function(){
 							// a("subgraph");
-							gui.controler.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
+							gui.controller.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
 						});
 					}
 
@@ -727,7 +727,7 @@ function nodeVisualizator(view){
 
 				img_gear.node.setAttribute("class", id+" clickable");
 				img_gear.click(function(){
-					gui.controler.reactOnEvent("EditNode", {nodeId: id});
+					gui.controller.reactOnEvent("EditNode", {nodeId: id});
 				})
 				
 				node.mainShape.node.setAttribute("class", id);

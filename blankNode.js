@@ -23,13 +23,13 @@
 				
 				var onDblClick = function onDblClick(nodeType){
 					return function(){
-						if(gui.controler)
+						if(gui.controller)
 							if(nodeType==="EmulationService"){
 								$("#f_dialog_emulationService_" + pf).dialog('open');
 							}
 							else{
 							var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controler.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
+							if(label) gui.controller.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
 						}
 					}
 				}

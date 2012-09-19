@@ -61,7 +61,7 @@
 					tmp.raph_label.attr({
 						cursor: "pointer"
 					}).dblclick(function() {
-						gui.controler.reactOnEvent("AddServiceFromRepoToCanvas", v);
+						gui.controller.reactOnEvent("AddServiceFromRepoToCanvas", v);
 					});
 					$.each(tmp.outputs, function() {
 						this.node.attr({

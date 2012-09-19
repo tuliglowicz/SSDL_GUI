@@ -37,7 +37,7 @@
 					var $repository_links = $(".repository_link_" + pf);
 					$repository_links.click(function() {
 						$repository_links.removeClass("selectedRepoNodes")
-						gui.controler.reactOnEvent("LoadAndEditCompoundService", {
+						gui.controller.reactOnEvent("LoadAndEditCompoundService", {
 							url: this.href,
 							title: this.textContent
 						});
