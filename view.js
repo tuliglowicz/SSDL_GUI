@@ -509,87 +509,101 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				glows = [],
 				paper = gui.view.paper,
 				canvas = $(paper.canvas),
+				ctrlPressed = false,
 				start = function start(){
-					offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-					offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
-					bbox = this.getBBox();
-					cx = (bbox.x + bbox.x2) / 2;
-					cy = (bbox.y + bbox.y2) / 2;
-					sourceNode = outputView.getNodeById(this.node.classList[0]);
-					output = sourceNode.getOutputById(this.node.classList[2]);
+					if(!ctrlPressed){
+						offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
+						offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+						bbox = this.getBBox();
+						cx = (bbox.x + bbox.x2) / 2;
+						cy = (bbox.y + bbox.y2) / 2;
+						sourceNode = outputView.getNodeById(this.node.classList[0]);
+						output = sourceNode.getOutputById(this.node.classList[2]);
 
-					$.each(gui.view.current_graph_view.nodes, function(i, v){
-						// if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || (v.type.toLowerCase() == "control" && typeof v.controlType == "string" && v.controlType.toLowerCase() != "#start")))
-						if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" )))
-							glows.push( v.mainShape.glow({color: "purple"}) );
-						$.each(v.inputs, function(){
-							if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
-								glows.push( this.node.glow({color: "green"}) );
-							}
+						$.each(gui.view.current_graph_view.nodes, function(i, v){
+							// if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || (v.type.toLowerCase() == "control" && typeof v.controlType == "string" && v.controlType.toLowerCase() != "#start")))
+							if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" )))
+								glows.push( v.mainShape.glow({color: "purple"}) );
+							$.each(v.inputs, function(){
+								if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
+									glows.push( this.node.glow({color: "green"}) );
+								}
+							});
 						});
-					});
 
-					arrow = paper.arrow(cx, cy, cx, cy, 4);
+						arrow = paper.arrow(cx, cy, cx, cy, 4);
+					}
 				},
 				move = function move(a, b, c, d, event){
-					// todo awizowanie arrow po najechaniu na node
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						// console.log(e);
+					if(!ctrlPressed){
+						// todo awizowanie arrow po najechaniu na node
+						try {
+							arrow[0].remove();
+							arrow[1].remove();
+						} catch(e){
+							// console.log(e);
+						}
+						
+						arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
+						arrow[0].attr({"stroke-dasharray": ["--"]});
 					}
-					
-					arrow = paper.arrow(cx, cy, event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY , 4);
-					arrow[0].attr({"stroke-dasharray": ["--"]});
 				},
 				stop = function stop(event){
-					try {
-						arrow[0].remove();
-						arrow[1].remove();
-					} catch(e){
-						// console.log(e);
-					}
-
-					var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
-					// jsonFormatter(resultObj, true, true)
-					if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
-						if(resultObj.input.dataType === output.dataType){
-							gui.controller.reactOnEvent("AddDFEdge", {
-							 	sourceId: sourceNode.id,
-							 	targetId: resultObj.targetId,
-							 	input: resultObj.input,
-							 	output: output,
-							 	CF_or_DF: "DF"
-							});
-						} else {
-							gui.logger.error(language[gui.language].alerts.errors.error, language[gui.language].alerts.errors.ioDiffType)
+					if(!ctrlPressed){
+						try {
+							arrow[0].remove();
+							arrow[1].remove();
+						} catch(e){
+							// console.log(e);
 						}
-					}
-					else {
-						var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-						if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
-							if(confirm(language[gui.language].alerts.addInputS +  targetNode.label+ language[gui.language].alerts.addInputE)){
-								gui.controller.reactOnEvent("addInput", {
-									sourceId : sourceNode.id,
-									targetId : targetNode.id,
-									output : output
+
+						var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
+						// jsonFormatter(resultObj, true, true)
+						if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
+							if(resultObj.input.dataType === output.dataType){
+								gui.controller.reactOnEvent("AddDFEdge", {
+								 	sourceId: sourceNode.id,
+								 	targetId: resultObj.targetId,
+								 	input: resultObj.input,
+								 	output: output,
+								 	CF_or_DF: "DF"
 								});
+							} else {
+								gui.logger.error(language[gui.language].alerts.errors.error, language[gui.language].alerts.errors.ioDiffType)
 							}
 						}
+						else {
+							var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
+							if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
+								if(confirm(language[gui.language].alerts.addInputS +  targetNode.label+ language[gui.language].alerts.addInputE)){
+									gui.controller.reactOnEvent("addInput", {
+										sourceId : sourceNode.id,
+										targetId : targetNode.id,
+										output : output
+									});
+								}
+							}
 
-						// $("#f_addInputForm")
-						// wyrmularz, z uzupełnionymi polami
-						// confirm -> controller i update node
-						// addConnectionDF
+							// $("#f_addInputForm")
+							// wyrmularz, z uzupełnionymi polami
+							// confirm -> controller i update node
+							// addConnectionDF
+						}
+
+						$.each(glows, function(){
+							this.remove();
+						});
+						glows = [];
 					}
-
-					$.each(glows, function(){
-						this.remove();
-					});
-					glows = [];
 				}
 				;
+		
+			$(document).keydown(function(event){
+				if(event.which === 17) ctrlPressed = true;
+			});
+			$(document).keyup(function(event){
+				if(event.which === 17) ctrlPressed = false;
+			});
 
 				// alert(element+":"+element.getType())
 			if(getType(element) === "array"){
