@@ -4,18 +4,21 @@ require "rubygems"
 def searchForString(string,directory)
 tab = []
 _directory = Dir.open(directory)
+Dir.chdir(directory)
+puts _directory.inspect
 _directory.each do |file|
-	if File.file? (file)
-_file = File.open(file, "r")
+	if File.extname(file) == ".js"
+_file = File.open(file,"r")
 i=0
-_file.each  {|line| i=i+1 
+
+_file.each  {|line| i=i+1
 	if line.include? string then tab << _file.inspect.to_s + " "  + i.to_s end
 	 }
 
 end
 end
 
-return tab
+puts tab
 end
 
-puts searchForString("JACKU_TUTAJ",Dir.pwd)
+ searchForString("JACKU",File.expand_path(".."))
