@@ -339,13 +339,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					ready2move = node.highlighted;
 					ctrl = evt.ctrlKey;
 
-					that.hideEdges();
 					that.prepareNodesToDrag();
 				},
 				stop = function stop(evt){
 					that.returnFromDraggingNodes();
-					that.showEdges();
-					that.updateEdges();
 
 					ready2move = false;
 					gui.controller.reactOnEvent("NODESELECTED");
@@ -375,6 +372,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					element.drag(move, start, stop);
 		},
 		prepareNodesToDrag : function prepareNodesToDrag(){
+			this.hideEdges();
 			$.each(gui.view.current_graph_view.nodes, function(i, val){
 				if(val.highlighted){
 					val.prepareToDrag();
@@ -388,6 +386,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					val.returnFromDragging();
 				}
 			});
+			this.updateEdges();
+			this.showEdges();
 		},
 		dragCFArrow : function dragArrow(element, node, isStartNode){
 			var arrow,

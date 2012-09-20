@@ -31,22 +31,22 @@ function nodeVisualizator(view){
 						this.drawIO(view.paper);
 					},
 					translate : function translate(transX, transY){
-						// this.mainShape.translate(transX, transY);
-						// this.raph_label.translate(transX, transY);
+						this.mainShape.translate(transX, transY);
+						this.raph_label.translate(transX, transY);
 
-						$.each(this.set, function(i, v){
-								v.translate(transX, transY);
-						});
+						// $.each(this.set, function(i, v){
+						// 		v.translate(transX, transY);
+						// });
 						// $.each(this.inputs, function(i, v){
 						// 	v.node.translate(transX, transY);
 						// });
 						// $.each(this.outputs, function(i, v){
 						// 	v.node.translate(transX, transY);
 						// });
-						$.each(this.connectors, function(i, v){
-							v.attr("cx", v.attr("cx") + transX);
-							v.attr("cy", v.attr("cy") + transY);
-						});
+						// $.each(this.connectors, function(i, v){
+						// 	v.attr("cx", v.attr("cx") + transX);
+						// 	v.attr("cy", v.attr("cy") + transY);
+						// });
 
 						this.x += transX;
 						this.y += transY;
