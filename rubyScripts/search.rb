@@ -21,4 +21,4 @@ end
 puts tab
 end
 
- searchForString("JACKU",File.expand_path(".."))
+searchForString(ARGV[0],File.expand_path(".."))
