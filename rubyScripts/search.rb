@@ -18,13 +18,14 @@ _file.each  {|line| i=i+1
 	if line.include? string then
 		 Dir.chdir(_savedirectory)
 		_save.puts(_file.inspect.to_s + " "  + i.to_s) 
+		tab << _file.inspect.to_s + " "  + i.to_s
 		Dir.chdir(_workdirectory) 
 		 end
 	 }
 
 end
 end
-
+puts tab
 end
 _savedir = File.expand_path("results")
 _workdir = File.expand_path("..")
