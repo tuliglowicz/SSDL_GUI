@@ -1,0 +1,2 @@
+1. wywaliłem sporo plików z folderu javascripts. Między innymi stare i zminimalizowane wersje bibliotek.
+	przed deployem całości należy podmienić je wersjami zminimalizowanymi.

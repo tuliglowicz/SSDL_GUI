@@ -1,0 +1,97 @@
+wykonane prace:
+
+rails on droid
+
+drawIO - sprawdzenie, czy dany node jest hidhlighted. wtedy stroke jest orange. czarny w p.p.
+przeniesienie kolorów highlight i normal do CFG
+
+
+
+W końcu skalowanie...
+
+zrobienie czegoś z funkcją updateGraph (wpis Błażeja)
+
+Komunikaty dla użytkownika przy zapisywaniu o tym, że istnieją nieuzupełnione blanki na kanwie.
+img, że blank i potrzebuje 
+znikanie wszystkiego nieporzebnego w bloczku przy jego dragowaniu.
+poprawa zmiany tytulu formularza dla node-ów.
+Scenariusze do dodawania nowej usłygi:
+delete, ale nie w czasie dragowania.
+
+==============================================================
+Błażej:
++ w index.html zmień 1200 i 600 na undefindy i F5 na gui.
++ otwórz konsolę, kliknij prawym w tło konsoli i kliknij lewym w guzik "zamknij konsolę".
+
+Dorota:
++ rozwal, proszę, na wiele linii przypisanie var content w skeletonAppender
+
+============================================================= -1
+
+
+============================================================= 0
+
+Platel
+
+niektóre opcje działają niektóre nie... świadome//  prawoklik działa na niebieskich blokach, ale nie działają opcje. ->... done?
+świadome //  layout graficzny użytkownika się nie zapisuje (brak przejrzystości).......................................... ???
+soon will be done//  brak opcji zmiany nazwy raz utworzonej smart service (?)............................................. ???
+soon will be done//  brak możliwości zmiany kolejności wejść/wyjść (krzyżujące się linie)................................. doing
+dostaliśmy wcześniej pozwolenie, aby ich jeszcze nie ruszać, będzie zrobione//  brak bloków decyzyjnych (ifów).
+dostaliśmy wcześniej pozwolenie, aby ich jeszcze nie ruszać, będzie zrobione//  brak bloków pętli (for each).
+
+
+============================================================= 2
+
+Krawędzie
+doing  kiedy w data flow łączymy ze sobą wyjście usługi (lub wymagania) i usługę (nie wejście), to nie powinno pojawiać się dodatkowe wejście usługi
+to na pewno będzie nieczytelne// podpisy krawędzi  dla większej czytelności powinny pojawiać sie podpisy na krawędziach - na podstawie (input/output) class
+to na pewno będzie nieczytelne// mogą pojawiać się przy krawędziach lub przy wyjściach LUB/I wejściach (chociaż jeśli będą pojawiać i tu i tu to może to być nieczytelne)
+
+Menu kontekstowe
+done  problemy z pojawianiem się menu - kiedy powinno się pojawiać? (wg mnie: na kiknięcie w dowolnym miejscu wierzchołka - także nazwie, która w tej chwili jest kotwicą do przeciagania wierzchołka)
+done  jak usunąć wierzchołek
+
+Edycja wierzchołka
+??? jest ok//  kiedy dodałem z prawego menu usługę dodawanie (która nie powinna tam przy okazji być), to po jej edycji i tak pojawił mi się edytor do edycji wymagania, które też było na kanwie
+done  problem z łączeniem wierzchołków (Kiedy próbuje połączyć start z wierzchołkiem, pojawia się strzałka która jest “za długa” i nie ma możliwość nawet po najechaniu na wierzchołek połączenia)
+doing  raz wprowadzony opis oraz Service Class po pojawieniu się na pulpicie jest kasowany(Uzupełniając dane wierzchołka na początku, tracę je po jego pojawieniu)
+???  dodając wierzchołek, po wpisaniu wszystkich danych pojawia się on na pulpicie, kiedy chcę go przesunąć robi się przeźroczysty i za chwilę znika
+??? jest ok  po zapisaniu procesu i ponownym jego otwarciu niektóre wymagania zostały skasowane
+done  brak możliwości usunięcia wierzchołka
+
+Lista usług
+done  brak możliwości połączenia go krawędzią data flow
+(podświetla się on i inna funkcjonalność, która prawdopodobnie jest traktowana
+jako obiekt, który chcemy łączyć; jeśli przeciągniemy krawędź na wierzchołek-usługę, a nie jej
+wejście to zostaniemy zapytani czy chcemy dodać wejście, ale dodane zostanie do tego
+drugiego, podświetlonego wymagania zamiast do usługi)
+
+Potrzebne rodzaje wierzchołków
+done  Mediatory (był używany w usługach systemowych/silnika - np w kompozycji) - praktycznie nie
+różni się od usługi (poza grafiką) i może mieć bardzo podobny formularz
+soon done //  Nowy wierzchołek “Human Activity” - podobnie jak mediator, nie różni się wiele od usługi - może mieć podobny formularz.
+
+Podgrafy
+done  ikona podgrafu powinna pojawić się tylko tam gdzie jest podgraf
+soon done //  wejście do podgrafu powinno być z poziomu wierzchołka (nie bocznego menu  to może być dodatek)
+soon done //  po kliknięciu ikony podgrafu
+soon done //  po wybraniu odpowiedniej opcji w menu kontekstowym
+
+Zapisywanie grafu
+świadome, do poprawienia //  kiedy próbowałem zapisać usługę złożoną to walidator powiedział mi, że to nie jest poprawny graf okazało się, że w ogóle nie zdefiniowałem control flow (tylko data flow), czego w danym momencie nie było wcale widać (a walidacja mi tego nie powiedziała)
+świadome, do poprawienia //  później po uzupełnieniu control flow walidacja też zgłosiła problem, ale nie wiem o co chodziło
+??? //  kiedy nie wprowadziłem żadnych zmian, to nie udało mi się zapisać usługi złożonej
+
+Połączenie z ontologią
+ciut dalsza przyszłość //  nie ma podpowiadania terminów z ontologii
+ciut dalsza przyszłość //  najlepiej byłoby gdyby podczas wpisywania słowa w jakieś pole były sprawdzane wszystkie pojęcia dla tego pola z ontologii - przykład na dołączonym rysunku........................................... ???
+
+
+done //  system nie zapisuje opisu usługi/funkcjonalności (description).
+done  po usunięciu jednego z wejść/wyjść funkcjonalności nie można dodawać nowych (trzeba zamknąć okno edycji i otworzyć ponownie).
+done  prawoklik nie działa na żółtych blokach.
+done  nie ma możliwości usunięcia usługi/funkcjonalności (?).
+done  nie da się usunąć raz narysowanych połączeń w CF i DF (?).
+done  przy dodawaniu z lewego panelu usług/funkcjonalności kursor zmienia się na implikujący
+done  możliwość przesunięcia bloku, ale dodawanie usługi/funkcjonalności jest tylko przez podwójne kliknięcie.

@@ -51,7 +51,7 @@ function nodeVisualizator(view){
 						this.x += transX;
 						this.y += transY;
 					},
-					removeView : function(){
+					removeView : function removeView(){
 						function remove(){
 							if(this.remove)
 								this.remove();
