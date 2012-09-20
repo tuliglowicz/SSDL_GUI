@@ -48,6 +48,8 @@ function nodeVisualizator(view){
 								v.attr("cx", v.attr("cx") + transX);
 								v.attr("cy", v.attr("cy") + transY);
 							});
+						} else {
+							this.showNode();
 						}
 
 					},
