@@ -355,7 +355,7 @@ function nodeVisualizator(view){
 											}
 											else{
 												otherOutput = undefined;
-												glow2.remove();
+												if(glow2) glow2.remove();
 											}
 										}
 										if(dx >=0){
@@ -371,7 +371,7 @@ function nodeVisualizator(view){
 											}
 											else{
 												otherOutput = undefined;
-												glow2.remove();
+												if(glow2) glow2.remove();
 											}
 										}
 									}

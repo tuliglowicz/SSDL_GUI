@@ -549,7 +549,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 				},
 				stop = function stop(event){
-					if(!ctrlPressed){
+					// if(!ctrlPressed){
 						try {
 							arrow[0].remove();
 							arrow[1].remove();
@@ -594,7 +594,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							this.remove();
 						});
 						glows = [];
-					}
+					// }
 				}
 				;
 		
