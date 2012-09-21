@@ -22,7 +22,8 @@ var CFG = {
 		"streamingworkflowengine",
 	],
 	url_emulationService : "",
-	url_askForId : "askForId.xml"
+	url_askForId : "askForId.xml",
+	showLabelDuringNodeDrag : true
 
 
 }

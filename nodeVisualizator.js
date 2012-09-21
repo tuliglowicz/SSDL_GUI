@@ -22,34 +22,56 @@ function nodeVisualizator(view){
 						// console.log("2drag")
 						this.hideNode();
 						this.mainShape.show();
-						this.raph_label.show();
+						if(CFG.showLabelDuringNodeDrag)
+							this.raph_label.show();
 					},
-					returnFromDragging : function returnFromDragging(){
-						this.showNode();
+					returnFromDragging : function returnFromDragging(transX, transY){
+						// console.log(transX, transY, "return")
+						transX = transX || 0;
+						transY = transY || 0;
 
-						this.clearIO();
-						this.drawIO(view.paper);
+						if(transX != 0 || transY != 0){
+							this.x += transX;
+							this.y += transY;
+
+							this.showNode();
+
+
+							this.clearIO();
+							this.drawIO(view.paper);
+
+							$.each(this.set, function(i, v){
+								if(i>1 || i==1 && !CFG.showLabelDuringNodeDrag)
+									v.translate(transX, transY);
+							});
+							$.each(this.connectors, function(i, v){
+								v.attr("cx", v.attr("cx") + transX);
+								v.attr("cy", v.attr("cy") + transY);
+							});
+						} else {
+							this.showNode();
+						}
+
 					},
 					translate : function translate(transX, transY){
-						// this.mainShape.translate(transX, transY);
-						// this.raph_label.translate(transX, transY);
+						// console.log(transX, transY, "translate")
+						this.mainShape.translate(transX, transY);
+						if(CFG.showLabelDuringNodeDrag)
+							this.raph_label.translate(transX, transY);
 
-						$.each(this.set, function(i, v){
-								v.translate(transX, transY);
-						});
+						// $.each(this.set, function(i, v){
+						// 		v.translate(transX, transY);
+						// });
 						// $.each(this.inputs, function(i, v){
 						// 	v.node.translate(transX, transY);
 						// });
 						// $.each(this.outputs, function(i, v){
 						// 	v.node.translate(transX, transY);
 						// });
-						$.each(this.connectors, function(i, v){
-							v.attr("cx", v.attr("cx") + transX);
-							v.attr("cy", v.attr("cy") + transY);
-						});
-
-						this.x += transX;
-						this.y += transY;
+						// $.each(this.connectors, function(i, v){
+						// 	v.attr("cx", v.attr("cx") + transX);
+						// 	v.attr("cy", v.attr("cy") + transY);
+						// });
 					},
 					removeView : function removeView(){
 						function remove(){
@@ -612,7 +634,6 @@ function nodeVisualizator(view){
 					$.each(node.functionalDescription.outputs, function(){
 						newNode.outputs.push( $.extend(true, {}, this) );
 					});
-				// console.log(newNode.id, newNode.inputs, newNode.outputs);
 
 				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
 
@@ -734,7 +755,6 @@ function nodeVisualizator(view){
 						c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
 						c4 = paper.circle(node.x, node.y + node.height/2, radius)
 					;
-
 
 					if(serviceName){
 						shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,

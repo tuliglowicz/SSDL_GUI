@@ -282,6 +282,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				lastDragY,
 				ox, dx,
 				oy, dy,
+				accX, accY,
 				width, height,
 				rWidth = gui.view.paper.width,
 				rHeight = gui.view.paper.height,
@@ -313,6 +314,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							lastDragY = y;
 							ox += transX;
 							oy += transY;
+							accX += transX;
+							accY += transY;
 
 							//gui.controller.reactOnEvent("NodeMoved");
 						}
@@ -321,8 +324,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				start = function start(x,y,evt){
 
 					itWasJustAClick = true;
-					lastDragX = 0;
-					lastDragY = 0;
+					lastDragX = lastDragY = 0;
+					accX = accY = 0;
+					dx = dy = 0;
 					bbox = node.set.getBBox();
 					width = bbox.width;
 					height = bbox.height;
@@ -339,13 +343,10 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					ready2move = node.highlighted;
 					ctrl = evt.ctrlKey;
 
-					that.hideEdges();
 					that.prepareNodesToDrag();
 				},
 				stop = function stop(evt){
-					that.returnFromDraggingNodes();
-					that.showEdges();
-					that.updateEdges();
+					that.returnFromDraggingNodes(accX, accY);
 
 					ready2move = false;
 					gui.controller.reactOnEvent("NODESELECTED");
@@ -374,18 +375,20 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				} else
 					element.drag(move, start, stop);
 		},
+		returnFromDraggingNodes : function returnFromDraggingNodes(dx, dy){
+			$.each(gui.view.current_graph_view.nodes, function(i, val){
+				if(val.highlighted){
+					val.returnFromDragging(dx, dy);
+				}
+			});
+			this.updateEdges();
+			this.showEdges();
+		},
 		prepareNodesToDrag : function prepareNodesToDrag(){
+			this.hideEdges();
 			$.each(gui.view.current_graph_view.nodes, function(i, val){
 				if(val.highlighted){
 					val.prepareToDrag();
-				}
-			});
-		},
-		returnFromDraggingNodes : function returnFromDraggingNodes(){
-			$.each(gui.view.current_graph_view.nodes, function(i, val){
-				if(val.highlighted){
-					console.log(5);
-					val.returnFromDragging();
 				}
 			});
 		},
