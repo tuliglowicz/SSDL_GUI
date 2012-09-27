@@ -9,6 +9,9 @@ var CFG = {
 		highlightStroke : "orange",
 		normalStroke : "black",
 	},
+	menucss:{
+	//styl belki menu znajduje sie w pliku CSS
+	},
 	mode : "",
 	language : "PL", // "EN"
 	nodeWidth : 135, // nie podpięte
