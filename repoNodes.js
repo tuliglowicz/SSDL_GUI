@@ -8,7 +8,7 @@
 				if ($("#repoNodes_" + pf).length === 0) {
 					$("#right_plugins_" + pf).append("<div id='repoNodes_" + pf + "' class='plugin_" + pf + "'> </div>");
 					this.paper = Raphael("repoNodes_" + pf, gui.view.columnParams.rightCol.width - 1, 500);
-					this.scroller = addSideScroller(this.paper);
+					this.scroller = sideScroller(this.paper);
 					this.createCover();					
 				}
 			},

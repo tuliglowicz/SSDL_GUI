@@ -1,15 +1,4 @@
 	function bottomBar(paper){
-		//UŻYCIE WTYCZKI:
-		//ma defaultowo zdefiniowane buttony CF, DF i SS
-		//addGroup(label) dodaje grupę o zadanym labelu
-		//addOption(groupLabel, label, function, description) dodaje button o zadanym labelu do 
-		//grupy o zadanym groupLabel. Function zostaje przypisane na click(), description tak sobie jest.
-		//Po dodaniu czegokolwiek następuje automatyczne rozmieszczenie elementów na pasku.
-		//Ukrywanie: getGroup(groupLabel).hideButton(label) albo getGroup(label).hideGroup()
-		//Analogicznie pokazywanie elementu, PRZY CZYM:
-		//- showGroup() pokazuje grupę wraz ze wszystkimi opcjami
-		//- showOnlyGroup() pokazuje tylko grafikę grupy - używane, gdy grupa znikła w wyniku usunięcia
-		//	ostatniego przycisku
 		var top = (paper.height*.95 >= 250) ? paper.height*.95 : 250,
 			left = 0,
 			width = paper.width,
@@ -22,7 +11,7 @@
 			visible = .2,
 			invisible = 0,
 			result = {
-				top: top,
+				top: (top < CFG.bottomBar.maxHeight) ? top : CFG.bottomBar.maxHeight, 
 				left: left,
 				width: width,
 				height: height,
@@ -31,7 +20,7 @@
 				visible: visible,
 				invisible: invisible,
 				isVisible: false,
-				animationTime: 200,
+				animationTime: CFG.bottomBar.animationTime,
 				groups: [],
 				separators: [],
 				set: [],
@@ -42,7 +31,7 @@
 					var that = this;
 					
 					this.bar = paper.rect(x, y, width, height)
-						.attr({fill:"grey", opacity: this.invisible})
+						.attr({fill:CFG.bottomBar.fillColor, opacity: this.invisible})
 						.mouseover(function(){
 							that.isVisible = true;
 
@@ -96,7 +85,7 @@
 				},
 				createTriangle: function createTriangle(path){
 					var tr = paper.path(path);
-					tr.attr({fill:"grey", opacity: visible});
+					tr.attr({fill:CFG.bottomBar.fillColor, opacity: visible});
 					return tr;
 				},
 				addGroup: function addGroup(label){
@@ -171,13 +160,13 @@
 							createGraphic: function createGraphic(){
 								var temp, bbox;
 								temp = paper.text(0, this.y+5, language[gui.language].bottombar.group[camelize(this.label)])
-								.attr({"font-size":10, fill:"black", opacity: 0});
+								.attr({"font-size":CFG.bottomBar.groupFontSize, fill:CFG.bottomBar.groupFontColor, opacity: 0});
 								bbox = temp.getBBox();
 								temp.attr("x", this.x+bbox.width/2+this.margin);
 								return temp;
 							},
 							moveGroupToX: function moveGroupToX(x){
-								//przesuniÄ™cie do punktu (x, y), nie o wektor [x, y], y = const.
+								//przesunięcie do punktu (x, y), nie o wektor [x, y], y = const.
 								var dx = x - this.x, ox;
 								this.x = x;
 								ox = this.graphic.attr("x");
@@ -218,7 +207,7 @@
 						label: label,
 						groupLabel: groupLabel,
 						description: description,
-						fontsize: 25,
+						fontsize: CFG.bottomBar.buttonDefaultFontSize,
 						x: 0, y: paper.height*.85 + 15,
 						width: 0, height: 0,
 						isVisible: true,
@@ -285,26 +274,26 @@
 								"stroke-width" : "1px",
 								"stroke-linejoin" : "round",
 								"stroke-linecap" : "butt",
-								stroke : "grey",
-								fill : "black",
+								stroke : CFG.bottomBar.buttonDefaultStrokeColor,
+								fill : CFG.bottomBar.buttonFontColor,
 								opacity : invisible
 							});
 							bbox = temp1.getBBox();
 							this.width = bbox.width + 10;
 							this.height = bbox.height + 10;
-							temp2 = paper.rect(this.x, this.y, this.width, this.height, 3).attr({fill:"ivory", opacity:invisible});
+							temp2 = paper.rect(this.x, this.y, this.width, this.height, 3).attr({fill:CFG.bottomBar.buttonFillColor, opacity:invisible});
 							labelX = this.x + this.width/2; labelY = this.y + this.height/2;
 							temp1.attr({"x": labelX, "y": labelY});
 							cover = paper.rect(this.x, this.y, this.width, this.height, 3)
 								.attr({"cursor": "pointer", fill: "red", opacity: 0.0})
 								.mouseover(function(txt){
 									return (function(){
-										txt.attr("stroke", "blue");
+										txt.attr("stroke", CFG.bottomBar.buttonHighlightStrokeColor);
 									});
 								}(temp1))
 								.mouseout(function(txt){
 									return (function(){
-										txt.attr("stroke", "gray");
+										txt.attr("stroke", CFG.bottomBar.buttonDefaultStrokeColor);
 									});
 								}(temp1))
 								.toFront()
@@ -333,7 +322,7 @@
 					return result;
 				},
 				addSeparator: function addSeparator(x, y, h){
-					var sep = paper.rect(x, y, 1, h).attr({"stroke-width":"0", fill:"gray", opacity:invisible});
+					var sep = paper.rect(x, y, 1, h).attr({"stroke-width":"0", fill:CFG.bottomBar.fillColor, opacity:invisible});
 					this.separators.push(sep);
 					return sep;
 				},

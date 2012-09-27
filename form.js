@@ -2,7 +2,7 @@
 	function form() {
 	// tutaj ustawiam LANG na forms
 		var langForms = language[gui.language].forms;
-		var langAlerts = language[gui.language].alerts
+		var langAlerts = language[gui.language].alerts;
 		var formJSON = [
 			{
 				tabLabel:"main",
@@ -349,11 +349,10 @@
 		$("#form_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 400,
-			width: 700
+			height: CFG.forms.mainFormHeight,
+			width: CFG.forms.mainFormWidth
 		});
-
-		var maxL = 18;
+		
 		var $tabs = $( "#tabs_" + pf ).tabs();
 		
 		var inpVars = [],
@@ -620,9 +619,9 @@
 				$( "#" + id ).append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
 						// "<td id=\"" + tempId + "_id\">" + input.id + "</td>" + 
-						"<td id=\"" + tempId + "_label\" class='tabField'>" + cutString(input.label, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_class\" class='tabField'>" + cutString(input.class, maxL) + "</td>" +
-						"<td id=\"" + tempId + "_dataType\" class='tabField'>" + cutString(input.dataType, maxL) + "</td>" + 
+						"<td id=\"" + tempId + "_label\" class='tabField'>" + cutString(input.label, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_class\" class='tabField'>" + cutString(input.class, CFG.forms.maxStringLength) + "</td>" +
+						"<td id=\"" + tempId + "_dataType\" class='tabField'>" + cutString(input.dataType, CFG.forms.maxStringLength) + "</td>" + 
 					"</tr>" 
 				);
 			},
@@ -630,11 +629,11 @@
 				var tempId = "f_nonFunctionalDescriptionTabxNFProps-" + number;
 				$( "#f_nonFunctionalDescriptionTab_NFProps_" + pf + " tbody").append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, maxL) + "</td>" +
-						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" +
+						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, CFG.forms.maxStringLength) + "</td>" +
+						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, CFG.forms.maxStringLength) + "</td>" +
 					"</tr>" );
 			},
 			inputVariablesAppender: function inputVariablesAppender(input, index){
@@ -642,9 +641,9 @@
 				var tempId = "f_inputVariables-" + index;
 				$( "#f_inputVariables_" + pf + " tbody").append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_type\" class='tabField'>" + cutString(input.type, maxL) + "</td>" +
+						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_type\" class='tabField'>" + cutString(input.type, CFG.forms.maxStringLength) + "</td>" +
 					"</tr>"
 				);
 			},
@@ -653,11 +652,11 @@
 				var tempId = "f_globalNFProps-" + index;
 				$( "#f_globalNFProps_" + pf + " tbody").append( 
 					"<tr id=\"" + tempId + "\" class=\"clickable\">" +
-						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, maxL) + "</td>" +
-						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, maxL) + "</td>" + 
-						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, maxL) + "</td>" +
+						"<td id=\"" + tempId + "_weight\" class='tabField'>" + cutString(input.weight, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_name\" class='tabField'>" + cutString(input.name, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_relation\" class='tabField'>" + cutString(input.relation, CFG.forms.maxStringLength) + "</td>" +
+						"<td id=\"" + tempId + "_unit\" class='tabField'>" + cutString(input.unit, CFG.forms.maxStringLength) + "</td>" + 
+						"<td id=\"" + tempId + "_value\" class='tabField'>" + cutString(input.value, CFG.forms.maxStringLength) + "</td>" +
 					"</tr>" );
 			},
 		//Poniższe funkcje sprawdzają, czy string/input/output/non functional property istnieje na zadanej liście
@@ -1605,22 +1604,22 @@
 		$( "#f_dialog_confirm1_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
-			height: 200,
-			width: 320,
+			height: CFG.forms.dialogHeight,
+			width: CFG.forms.dialogWidth,
 			modal: true
 		});
 		$( "#f_dialog_confirm2_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
-			height: 200,
-			width: 320,
+			height: CFG.forms.dialogHeight,
+			width: CFG.forms.dialogWidth,
 			modal: true
 		});
 		$( "#f_dialog_emulationService_" + pf ).dialog({
 			autoOpen: false,
 			resizable: false,
-			height: 150,
-			width: 250,
+			height: CFG.forms.dialogHeight,
+			width: CFG.forms.dialogWidth,
 			modal: true
 		});
 		$( "#f_dialog_fine_" + pf ).dialog({
@@ -1636,56 +1635,56 @@
 		$("#f_addInputForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 250,
-			width: 450
+			height: CFG.forms.addSthFormHeight,
+			width: CFG.forms.addSthFormWidth
 		});
 		$("#f_addOutputForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 250,
-			width: 450
+			height: CFG.forms.addSthFormHeight,
+			width: CFG.forms.addSthFormWidth
 		});
 		$("#f_addNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 300,
-			width: 500
+			height: CFG.forms.addSthFormHeight,
+			width: CFG.forms.addSthFormWidth
 		});
 		$("#f_addGlobalNFPropertyForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 300,
-			width: 350
+			height: CFG.forms.addSthFormHeightB,
+			width: CFG.forms.addSthFormWidthB
 		});
 		$("#f_addInputVariableForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 300,
-			width: 350
+			height: CFG.forms.addSthFormHeightB,
+			width: CFG.forms.addSthFormWidthB
 		});
 		$("#f_addVectorForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 300,
-			width: 350
+			height: CFG.forms.addSthFormHeightB,
+			width: CFG.forms.addSthFormWidthB
 		});
 		$("#f_inputVariablesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 350,
-			width: 500
+			height: CFG.forms.smallFormHeight,
+			width: CFG.forms.smallFormWidth
 		});
 		$("#f_globalNFPropertiesForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 350,
-			width: 500
+			height: CFG.forms.smallFormHeight,
+			width: CFG.forms.smallFormWidth
 		});
 		$("#f_graphSaveParamsForm_" + pf).dialog({
 			autoOpen: false,
 			modal: true,
-			height: 200,
-			width: 300
+			height: CFG.forms.dialogHeight,
+			width: CFG.forms.dialogWidth
 		});
 
 		return result;
