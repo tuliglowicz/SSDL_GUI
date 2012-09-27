@@ -325,14 +325,9 @@ function nodeVisualizator(view){
 							img, x1, y1, x2, dist, center, glow1, glow2,
 							obj1, obj2,
 							result = {
-<<<<<<< HEAD
 								start: function start(){
 									if(flag=="in") array = that.inputs;
 									else array = that.outputs;
-=======
-								start: function start(x, y, evt){
-									// gui.view.hideEdges();
->>>>>>> origin/master
 									var bbox = this.getBBox();
 									x1 = bbox.x; y1 = bbox.y;
 								},
@@ -354,13 +349,8 @@ function nodeVisualizator(view){
 													glow2 = otherObject.node.glow({'color': CFG.io.highlightColor});
 												}
 											}
-<<<<<<< HEAD
 											else{
 												otherObject = undefined;
-=======
-											else {
-												otherOutput = undefined;
->>>>>>> origin/master
 												if(glow2) glow2.remove();
 											}
 										}
