@@ -10,7 +10,8 @@ Dir.chdir(_savedirectory)
 _save = File.new(_name+".txt","w+")
 Dir.chdir(_workdirectory)
 _workdirectory.each do |file|
-	if File.extname(file) == ".js"
+filey = File.basename (file)
+if ((File.extname(file) == ".js") && ( filey != "SSDL_GUI.js"))
 _file = File.open(file,"r")
 i=0
 

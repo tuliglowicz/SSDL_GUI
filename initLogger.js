@@ -9,10 +9,11 @@
 		* REQUIRED DOM ELEMENTS:
 		* - div with id 'console_'+pf
 		* AVIABLE FUNCTIONS:
-		* - info(in`ation string [, title string])
+		* - info(information string [, title string])
 		* - warning(warning string [, title string])
 		* - error(error string [, title string])
 		*/
+		console.log(paper);
 		var h = paper.height,
 			lId = "#console_" + pf,
 			eId = "#console_entries_" + pf,
@@ -55,7 +56,8 @@
 			curElCount = 0,
 			colors = ['#FAFAFF', '#FFFFE0', '#FFFAFA'],
 			txtColors = ['white', 'yellow', 'orange'],
-			imgNames = ['info', 'warning', 'error'];
+			imgNames = ['info', 'warning', 'error'],
+			menu;
 
 		//private functions
 		var addMessage = function(message, priority) {
@@ -128,7 +130,7 @@
 			fade = function() {
 				if (buttonBG.attr("fill-opacity") == 1) {
 					buttonBG.animate({
-						"fill-opacity": 0.5
+						"fill-opacity": 0.75
 					}, 700);
 				} else {
 					buttonBG.animate({
@@ -150,6 +152,7 @@
 				$(lId).animate({
 					'height': 0
 				});
+				menu.close();
 			};
 		//console object
 		var obj = {
@@ -187,6 +190,8 @@
 				animation = setInterval(fade, 750);
 			},
 			open: function open() {
+				if (animation) clearInterval(animation);
+				alertbg.animate({"fill-opacity": 0});
 				$(lId).animate({
 					'height': h
 				}, 400, function() {
@@ -306,8 +311,8 @@
 		
 		$(mask.node).css('cursor', 'pointer');
 
-		//context menu
-		var menu = gui.view.contextMenu("console_" + pf, gui.view);
+		//context menu options
+		menu = gui.view.contextMenu("console_" + pf, gui.view);
 		menu.addOption(language[gui.language].logger.close, close);
 		//object return
 		return obj;

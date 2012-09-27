@@ -6,10 +6,11 @@ drawIO - sprawdzenie, czy dany node jest hidhlighted. wtedy stroke jest orange. 
 przeniesienie kolorów highlight i normal do CFG
 
 
-
 W końcu skalowanie...
 
-zrobienie czegoś z funkcją updateGraph (wpis Błażeja)
+WALIDACJA:
+nie można przepuścić ssdl-a, gdzie jest nierozpoznany rodzaj typu node-a.
+Wraz z początkowym parsowaniem ssdl-a zamieniamy node-type i control-type na lowercasy w celu uniknięcia dalszych .toLowerCase(). Po wykonaniu usówamy .toLowerCase() z plików.
 
 Komunikaty dla użytkownika przy zapisywaniu o tym, że istnieją nieuzupełnione blanki na kanwie.
 img, że blank i potrzebuje 
@@ -18,33 +19,32 @@ poprawa zmiany tytulu formularza dla node-ów.
 Scenariusze do dodawania nowej usłygi:
 delete, ale nie w czasie dragowania.
 
-==============================================================
+============================================================== nie przekazane
+Bystrzejszy sposób na pozycjonowanie nowych node-ów np. z repo.
+naprawa kursorów CF startstop
+Jest burdel w dragowaniu (tooltipy) - if action == dragging -> dont show tooltips.
+chciałbym przy kliknięciu prawym przy trzymanym ctrl-em albo shiftem, żeby ładowało się normalne menu przeglądarki.
+
+============================================================== przekazane
 Błażej:
 + w index.html zmień 1200 i 600 na undefindy i F5 na gui.
 + otwórz konsolę, kliknij prawym w tło konsoli i kliknij lewym w guzik "zamknij konsolę".
++ chciałbym przy kliknięciu prawym przy trzymanym ctrl-em albo shiftem, żeby ładowało się normalne menu przeglądarki.
 
 Dorota:
-+ rozwal, proszę, na wiele linii przypisanie var content w skeletonAppender
-
+co jeśli jest tylko jeden IO danego typu?
 ============================================================= -1
 
 
 ============================================================= 0
-
 Platel
 
 niektóre opcje działają niektóre nie... świadome//  prawoklik działa na niebieskich blokach, ale nie działają opcje. ->... done?
 świadome //  layout graficzny użytkownika się nie zapisuje (brak przejrzystości).......................................... ???
 soon will be done//  brak opcji zmiany nazwy raz utworzonej smart service (?)............................................. ???
-soon will be done//  brak możliwości zmiany kolejności wejść/wyjść (krzyżujące się linie)................................. doing
-dostaliśmy wcześniej pozwolenie, aby ich jeszcze nie ruszać, będzie zrobione//  brak bloków decyzyjnych (ifów).
-dostaliśmy wcześniej pozwolenie, aby ich jeszcze nie ruszać, będzie zrobione//  brak bloków pętli (for each).
-
 
 ============================================================= 2
-
 Krawędzie
-doing  kiedy w data flow łączymy ze sobą wyjście usługi (lub wymagania) i usługę (nie wejście), to nie powinno pojawiać się dodatkowe wejście usługi
 to na pewno będzie nieczytelne// podpisy krawędzi  dla większej czytelności powinny pojawiać sie podpisy na krawędziach - na podstawie (input/output) class
 to na pewno będzie nieczytelne// mogą pojawiać się przy krawędziach lub przy wyjściach LUB/I wejściach (chociaż jeśli będą pojawiać i tu i tu to może to być nieczytelne)
 
@@ -87,6 +87,7 @@ Połączenie z ontologią
 ciut dalsza przyszłość //  nie ma podpowiadania terminów z ontologii
 ciut dalsza przyszłość //  najlepiej byłoby gdyby podczas wpisywania słowa w jakieś pole były sprawdzane wszystkie pojęcia dla tego pola z ontologii - przykład na dołączonym rysunku........................................... ???
 
+done  kiedy w data flow łączymy ze sobą wyjście usługi (lub wymagania) i usługę (nie wejście), to nie powinno pojawiać się dodatkowe wejście usługi
 
 done //  system nie zapisuje opisu usługi/funkcjonalności (description).
 done  po usunięciu jednego z wejść/wyjść funkcjonalności nie można dodawać nowych (trzeba zamknąć okno edycji i otworzyć ponownie).
@@ -95,3 +96,5 @@ done  nie ma możliwości usunięcia usługi/funkcjonalności (?).
 done  nie da się usunąć raz narysowanych połączeń w CF i DF (?).
 done  przy dodawaniu z lewego panelu usług/funkcjonalności kursor zmienia się na implikujący
 done  możliwość przesunięcia bloku, ale dodawanie usługi/funkcjonalności jest tylko przez podwójne kliknięcie.
+
+done//  brak możliwości zmiany kolejności wejść/wyjść (krzyżujące się linie)................................. doing

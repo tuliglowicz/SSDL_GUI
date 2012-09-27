@@ -177,15 +177,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 		editNode : function editNode(node){
 			this.form.init(node);
 		},
-
 		deleteNode : function deleteNode(node){
 			gui.controller.reactOnEvent("NodeDeleted");
 		},
-
 		addStartStop : function addStartStop(obj){
 			var start = obj.start,
 				stop = obj.stop
-				;
+			;
 
 			start = this.visualiser.visualiseNode(start);
 			stop = this.visualiser.visualiseNode(stop);
@@ -194,10 +192,12 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		},
 		addNodeFromRepo : function addNodeFromRepo(node){
-			//dodaÄ‡ lepiej dobierane parametry x, y
+			//dodać lepiej dobierane parametry x, y
 			var visualizedNode = this.visualiser.visualiseNode( node );
-			if(visualizedNode)
-				this.current_graph_view.nodes.push( visualizedNode.switchMode(this.mode) );
+			if( visualizedNode ) {
+				visualizedNode.switchMode( this.mode );
+				this.current_graph_view.nodes.push( visualizedNode );
+			}
 		},
 		getGraphById : function getGraphById(id){
 			var result;
@@ -678,7 +678,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		},
 		addCFEdge : function addCFEdge(data, firstLoad){
-			// console.log(data)
+			console.log(data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
 				gui.logger.warning(language[gui.language].alerts.errors.startCantPassControl);

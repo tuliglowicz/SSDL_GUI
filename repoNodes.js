@@ -3,6 +3,7 @@
 			currNodes: [],
 			paper: undefined,
 			data: undefined,
+			scroller: undefined,
 			require: "sdb_json_array div raphael_x_500".split(" "),
 			init: function init() {
 				if ($("#repoNodes_" + pf).length === 0) {
@@ -26,22 +27,6 @@
 					if (!that.cover.isPointInside(x - left, y - top)) that.scroller.goHide();
 				}).toFront();
 			},
-			convertData: function generateData(node, n) {
-				var result = visualiser.getBlankNode();
-				result.id = node.nodeId;
-				result.label = node.nodeLabel;
-				result.type = node.nodeType;
-				result.x = 10;
-				result.y = 15 + (45 * n);
-				result.height = 20;
-				result.serviceName = node.physicalDescription.serviceName;
-				result.set = this.paper.set();
-
-				result.inputs = node.functionalDescription.inputs;
-				result.outputs = node.functionalDescription.outputs;
-
-				return result;
-			},
 			setData: function setData(data) {
 				if (data) {
 					this.data = data;
@@ -50,28 +35,42 @@
 				return this;
 			},
 			draw: function draw() {
-				var tempNode, that = this,
+				var newRepoService,
+					that = this,
 					tmp, n = -1;
 
 				this.clear();
 
-				$.each(this.data, function(k, v) {
-					tempNode = that.convertData(v, ++n);
-					tmp = visualiser.draw_serviceNode(tempNode, that.paper, true).switchToDFMode();
-					tmp.raph_label.attr({
+				$.each(this.data, function(k, dataNode) {
+					n++;
+					newRepoService = visualiser.getBlankNode();
+					visualiser.prepareData(dataNode, newRepoService);
+
+					newRepoService.x = 10;
+					newRepoService.y = 15 + (45 * n);
+					newRepoService.width = CFG.nodeDefaults.defaultRepoWidth;
+					newRepoService.height = CFG.nodeDefaults.defaultRepoHeight;
+					newRepoService.inputs = dataNode.functionalDescription.inputs;
+					newRepoService.outputs = dataNode.functionalDescription.outputs;
+					newRepoService.color = CFG.colors.service
+
+					// console.log("repo", newRepoService, that.data.length)
+					visualiser.draw_rectNode(newRepoService, that.paper);
+					newRepoService.drawIO(that.paper);
+					newRepoService.raph_label.attr({
 						cursor: "pointer"
 					}).dblclick(function() {
-						gui.controller.reactOnEvent("AddServiceFromRepoToCanvas", v);
+						gui.controller.reactOnEvent("AddServiceFromRepoToCanvas", dataNode);
 					});
-					$.each(tmp.outputs, function() {
+					$.each(newRepoService.outputs, function() {
 						this.node.attr({
 							cursor: "default"
 						});
 					});
 
-					gui.view.visualiser.addTooltips(tmp);
+					visualiser.addTooltips(newRepoService);
+					that.currNodes.push(newRepoService);
 
-					that.currNodes.push(tmp);
 				});
 
 				this.scroller.init();
