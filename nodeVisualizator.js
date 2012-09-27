@@ -785,7 +785,8 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			draw_mediatorNode : function draw_mediatorNode(viewNode, paper){
-
+				var img_db = paper.image("images/subgraph.png", viewNode.x + 3, viewNode.y+5, 20, 20);
+				img_db.node.setAttribute("class", viewNode.id+" subgraph");
 			},
 			drawEdge : function drawEdge(c){ // c - coords
 				var size = 4;
@@ -794,7 +795,7 @@ function nodeVisualizator(view){
 			addTooltips : function addTooltips(visualizedNode){
 				function close(){
 				}
-				//te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
+				// te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
 				// visualizedNode.addInputTooltips();
 				// visualizedNode.addOutputTooltips();
 				visualizedNode

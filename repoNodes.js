@@ -56,7 +56,7 @@
 
 					// console.log("repo", newRepoService, that.data.length)
 					visualiser.draw_rectNode(newRepoService, that.paper);
-					newRepoService.drawIO(that.paper);
+					newRepoService.drawIO(that.paper, true);
 					newRepoService.raph_label.attr({
 						cursor: "pointer"
 					}).dblclick(function() {
