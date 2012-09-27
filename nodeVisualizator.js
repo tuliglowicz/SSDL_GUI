@@ -231,7 +231,7 @@ function nodeVisualizator(view){
 						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke),
 							isCFMode = gui.view.mode == "CF",
 							length = this.inputs.length, x, y, that = this, nx, move;
-						if(this.type.toLowerCase() === "control"){ 								//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
+						if(this.type.toLowerCase() === "control"){ 			//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
@@ -260,26 +260,34 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								move = this.dragIO(i, "in");
-								this.inputs[i].node.drag(move.move, move.start, move.end);
-								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+								if(!forRepo){
+									console.log("działam");
+									move = this.dragIO(i, "in");
+									this.inputs[i].node.drag(move.move, move.start, move.end);
+									this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+								}
+								console.log("trolluję");
 								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								move = this.dragIO(i, "out");
-								this.outputs[i].node.drag(move.move, move.start, move.end);
-								this.outputs[i].node.node.setAttribute("class", this.id+" output " + this.outputs[i].id);
+								if(!forRepo){
+									move = this.dragIO(i, "out");
+									this.outputs[i].node.drag(move.move, move.start, move.end);
+									this.outputs[i].node.node.setAttribute("class", this.id+" output " + this.outputs[i].id);
+								}
 								if(isCFMode) this.outputs[i].node.hide();
 							}
 						}
 						this.addInputTooltips();
 						this.addOutputTooltips();
+						if(!forRepo) $.each(this.set, function(){this.toFront});
 					},
-					dragIO: function dragIO(i, flag){
+					dragIO: function dragIO(i, flag, paper){
 						var index = i,
+							kunwa = paper || gui.view.paper,
 							obj = (flag==="in") ? this.inputs[i].node : this.outputs[i].node,
 							mov = this.moveIO(i, flag),
 							arrDrag = gui.view.dragDFArrow(obj, this),
@@ -289,7 +297,7 @@ function nodeVisualizator(view){
 								start: function start(x, y, evt){
 									if(evt.ctrlKey){
 										ctrlPressed = true;
-										funS = mov.start.bind(this);
+										funS = mov.start.bind(this, kunwa);
 									}
 									else {
 										funS = arrDrag.start.bind(this, x, y, evt);
@@ -321,13 +329,15 @@ function nodeVisualizator(view){
 					moveIO: function moveIO(i, flag){
 						var index = i,
 							that = this,
+							kunwa,
 							array, otherObject, otherIndex,
 							img, x1, y1, x2, dist, center, glow1, glow2,
 							obj1, obj2,
 							result = {
-								start: function start(){
+								start: function start(paper){
 									if(flag=="in") array = that.inputs;
 									else array = that.outputs;
+									kunwa = paper;
 									var bbox = this.getBBox();
 									x1 = bbox.x; y1 = bbox.y;
 								},
@@ -345,7 +355,7 @@ function nodeVisualizator(view){
 													otherObject = array[otherIndex];	
 													if(flag==="in") center = x2+((x1-x2)/2)-4; 
 													else center = x2+((x1-x2)/2)-4;
-													img = gui.view.paper.image(CFG.io.swapImg, center, y1-15, 16, 16);
+													img = kunwa.image(CFG.io.swapImg, center, y1-15, 16, 16);
 													glow2 = otherObject.node.glow({'color': CFG.io.highlightColor});
 												}
 											}
@@ -363,7 +373,7 @@ function nodeVisualizator(view){
 													otherObject = array[otherIndex];
 													if(flag==="in") center = x2+((x1-x2)/2)-4;
 													else center = x2+((x1-x2)/2)-4;
-													img = gui.view.paper.image(CFG.io.swapImg, center, y1-15, 16, 16);
+													img = kunwa.image(CFG.io.swapImg, center, y1-15, 16, 16);
 													glow2 = otherObject.node.glow({'color': CFG.io.highlightColor});
 												}
 											}
@@ -379,12 +389,12 @@ function nodeVisualizator(view){
 									if(otherObject){
 										gui.view.hideEdges();
 										if(flag==="in"){
-											obj1 = gui.view.paper.path(that.inputPathString(x1, y1)).attr({'fill': that.color});
-											obj2 = gui.view.paper.path(that.inputPathString(x2, y1)).attr({'fill': that.color});
+											obj1 = kunwa.path(that.inputPathString(x1, y1)).attr({'fill': that.color});
+											obj2 = kunwa.path(that.inputPathString(x2, y1)).attr({'fill': that.color});
 										}
 										else{
-											obj1 = gui.view.paper.path(that.outputPathString(x1, y1)).attr({'fill': that.color});
-											obj2 = gui.view.paper.path(that.outputPathString(x2, y1)).attr({'fill': that.color});	
+											obj1 = kunwa.path(that.outputPathString(x1, y1)).attr({'fill': that.color});
+											obj2 = kunwa.path(that.outputPathString(x2, y1)).attr({'fill': that.color});	
 										}
 										array[index].node.remove();
 										array[otherIndex].node.remove();
@@ -394,7 +404,7 @@ function nodeVisualizator(view){
 											obj1.remove(); obj2.remove();
 											array[otherIndex] = array[index];
 											array[index] = otherObject;
-											that.clearIO(); that.drawIO(gui.view.paper);
+											that.clearIO(); that.drawIO(kunwa);
 											gui.view.updateEdges();										
 										}, 250);
 										img.remove(); glow2.remove();
