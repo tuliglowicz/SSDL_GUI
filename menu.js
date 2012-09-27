@@ -5,20 +5,20 @@
 		var mainMenu = {
 			przesuwne: 0,
 			clicked: false,
-			menuContener: $("<div id='menuContener' class=\"mMenuMainContener\"> </div>").appendTo("#top_menu_"+pf),
+			menuContener: $("<div id='menuContener_"+pf+"'  class=mMenuMainContener> </div>").appendTo("#top_menu_"+pf),
 			addGroup: function addGroup(label) {
 				var that = this;
-				$("<div id=" + label + " class=mMenuGroup style='  left:" + this.przesuwne + "'>" + ( lang.mainMenu[camelize(label)] || "") + "</div>")
-				.appendTo('#menuContener')
+				$("<div id=" + label +"_"+ pf + " class=mMenuGroup style='  left:" + this.przesuwne + "'>" + ( lang.mainMenu[camelize(label)] || "") + "</div>")
+				.appendTo('#menuContener_'+pf)
 				.mouseenter(function() {
 					if (that.clicked) {						
 						$('div.mMenuContener').hide();
 						$('div.mMenuSubcontener').hide();
-						$('#' + label + '_contener').show();
+						$('#' + label + '_contener_'+pf).show();
 						$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
-
 					}
-					$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+					$('div.mMenuGroup').css('background-image', 'url("images/dropdown-bg.gif")');
+					$('#' + label + "_" + pf).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 				}).mouseleave(function() {
 					if (that.clicked == false) $('#' + label).css('background-image', 'url("images/dropdown-bg.gif")')
 				}).click(function() {
@@ -27,25 +27,25 @@
 						that.clicked = !that.clicked;
 					} else {
 						gui.view.menuList.getInstance().secure();
-						$('#' + label).css('background-image', 'url("images/dropdown-bg-hover.gif")');
+						$('#' + label + "_" + pf).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 						$('div.mMenuContener').hide();
-						$('#' + label + '_contener').show();
+						$('#' + label + '_contener_' + pf).show();
 						that.clicked = !that.clicked;
 					}
 				});
 
-				$("<div id=" + label + "_contener" + " class=mMenuContener style='left:" + that.przesuwne + "px'></div>").appendTo('#menuContener').hide();
-				that.przesuwne = that.przesuwne + $('#' + label).width();
+				$("<div id=" + label + "_contener_" +pf + " class=mMenuContener style='left:" + that.przesuwne + "px'></div>").appendTo('#menuContener_' +pf).hide();
+				that.przesuwne = that.przesuwne + $('#' + label + "_" + pf).width();
 			},
 			addOption: function addOption(groupLabel, optionLabel, functionOnClick, shortcutString) {
 
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + " class=mMenuGroupOption +  style='  left=" + $('#' + groupLabel).position().left + "'>" + ( lang.mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener').mouseenter(function() {
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") +"_" + pf + " class=mMenuGroupOption style='  left=" + $('#' + groupLabel + "_" + pf).position().left + "'>" + ( lang.mainMenu[camelize(optionLabel)] || "") + " </div>").appendTo('#' + groupLabel + '_contener_' +pf).mouseenter(function() {
 					$('div.mMenuSubcontener').hide();
-					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().top-$('#menuContener').offset().top;
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("top", y);
-					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).offset().left) - parseInt($('#menuContener').offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")).css("width")) +10  ;
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener').css("left", x);
-					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener').show();
+					var y = $('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")+"_"+pf).offset().top-$('#menuContener_'+pf).offset().top;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener_' +pf).css("top", y);
+					var x = parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")+"_"+pf).offset().left) - parseInt($('#menuContener_'+pf).offset().left) + parseInt($('#'+ groupLabel + "_" + optionLabel.replace(/ /g, "_")+"_"+pf).css("width")) +10  ;
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + '_subcontener_'+pf).css("left", x);
+					$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+ '_subcontener_'+pf).show();
 					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 				}).mouseleave(function() {
 					$(this).css('background-image', "none");
@@ -58,11 +58,11 @@
 				jQuery('<span/>', {
 					class: 'mMenuShortcutDiv',
 					html: "&nbsp;&nbsp;&nbsp;&nbsp" + shortcutString,
-				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")));
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+'_'+pf));
 			},
 			addSubOption: function addSubOption(groupLabel, optionLabel, subOptionLabel, functionOnClick, shortcutString) {
-				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener").length == 0) {
-					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener" + "  class=mMenuSubcontener></div>").appendTo('#menuContener').hide();
+				if ($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener_"+pf).length == 0) {
+					$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_subcontener_"+pf + "  class=mMenuSubcontener></div>").appendTo('#menuContener_'+pf).hide();
 
 					jQuery('<div/>', {
 						html: "&nbsp;&nbsp;&nbsp;&nbsp;" +'<img src="images/gtk-media-play-ltr.png" width="10"/> ' ,
@@ -71,10 +71,10 @@
 							padding: "3px 0px 0px 0px"
 						}
 					})
-					.appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")));
+					.appendTo($('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_")+"_"+pf));
 				}
-				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + " class=mMenuSubOption  style='   left=" + $('#' + groupLabel).position().left + "'>" + "" + " </div>")
-				.appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener"))
+				$("<div id=" + groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")+"_"+pf + " class=mMenuSubOption  style='   left=" + $('#' + groupLabel+"_"+pf).position().left + "'>" + "" + " </div>")
+				.appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_subcontener_"+pf))
 				.mouseenter(function() {
 					$(this).css('background-image', 'url("images/dropdown-bg-hover.gif")');
 				}).mouseleave(function() {
@@ -86,33 +86,33 @@
 					this.clicked = false;
 				}).click(functionOnClick);
 
-				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).html(( lang.mainMenu[camelize(subOptionLabel)] || ""));
+				$('#'+groupLabel + "_" + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")+"_"+pf).html(( lang.mainMenu[camelize(subOptionLabel)] || ""));
 				
 				jQuery('<div/>', {
 					html: "<td>&nbsp;&nbsp;&nbsp;" +shortcutString +'</td> </tr>',
 					class: 'mMenuShortcutDiv'
-				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")));
+				}).appendTo($('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_") + "_" + pf));
 			},
 			addSeparator: function addSeparator(groupLabel) {
-				$("<hr id=" + groupLabel + "_sep"  + " class = mMenuSeparator ></hr>").appendTo('#' + groupLabel + '_contener');
+				$("<hr id=" + groupLabel + "_sep_" +pf  + " class = mMenuSeparator ></hr>").appendTo('#' + groupLabel + '_contener_'+pf);
 			},
 			hideGroup: function hideGroup(groupLabel) {
-				$('#' + groupLabel).hide();
+				$('#' + groupLabel+"_"+pf).hide();
 			},
 			showGroup: function showGroup(groupLabel) {
-				$('#' + groupLabel).show();
+				$('#' + groupLabel+"_"+pf).show();
 			},
 			hideOption: function hideOption(groupLabel, optionLabel) {
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).hide();
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+"_"+pf).hide();
 			},
 			hidesubOption: function hidesubOption(groupLabel, optionLabel, subOptionLabel) {
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).hide();
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")+"_"+pf).hide();
 			},
 			showsubOption: function showsubOption(groupLabel, optionLabel, subOptionLabel) {
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")).show();
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_") + "_" + subOptionLabel.replace(/ /g, "_")+"_"+pf).show();
 			},
 			showOption: function showOption(groupLabel, optionLabel) {
-				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")).show();
+				$('#' + groupLabel + '_' + optionLabel.replace(/ /g, "_")+"_"+pf).show();
 			},
 			close: function close(){
 				this.clicked = false;
@@ -126,7 +126,7 @@
 				var x = gui.view.columnParams.leftCol.width;
 				var width = gui.view.columnParams.top_menu.width - x;
 
-				$("#menuContener").css({
+				$("#menuContener_"+pf).css({
 					top : 0,
 					left : x,
 					width : width
@@ -179,7 +179,7 @@
 				this.addSeparator("Help");
 				this.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
 
-				// jsonFormatter(gui, 1, 1);
+				jsonFormatter(gui, 1, 1);
 				gui.view.menuList.getInstance().push(this);
 			}
 		};

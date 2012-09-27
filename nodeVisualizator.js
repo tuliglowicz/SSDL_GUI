@@ -201,7 +201,6 @@ function nodeVisualizator(view){
 					addInput : function addInput(input){
 						this.clearIO();
 						this.inputs.push( $.extend(true, {}, input) );
-						// console.log(jsonFormatter(input,true,true));
 						this.drawIO(view.paper);
 						gui.view.updateEdges();
 					},
@@ -229,12 +228,10 @@ function nodeVisualizator(view){
 					drawIO : function drawIO(paper, forRepo){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
-
-						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke);
-						var isCFMode = CFG.mode == "CF";
-
-						var length = this.inputs.length, x, y, that = this, nx, move;
-						if(this.type.toLowerCase() === "control"){ 									//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
+						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke),
+							isCFMode = gui.view.mode == "CF",
+							length = this.inputs.length, x, y, that = this, nx, move;
+						if(this.type.toLowerCase() === "control"){ 								//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
 							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
@@ -246,6 +243,7 @@ function nodeVisualizator(view){
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
+								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
@@ -253,6 +251,8 @@ function nodeVisualizator(view){
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
+								move = gui.view.dragDFArrow(this.outputs[i].node, this).map();
+								if(isCFMode) this.outputs[i].node.hide();
 							}
 						}
 						else {
@@ -260,182 +260,147 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								move = this.moveInput(i);
+								move = this.dragIO(i, "in");
 								this.inputs[i].node.drag(move.move, move.start, move.end);
 								this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
+								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y+this.height;
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								move = this.moveOutput(i);
-								this.outputs[i].node.drag(move.move, move.start, move.end); //HELP NEEDED - co zrobić, żeby się nie rysowały te cholerne strzałki?!?!?!
-								this.outputs[i].node.node.setAttribute("class", this.id+" input " + this.outputs[i].id);
+								move = this.dragIO(i, "out");
+								this.outputs[i].node.drag(move.move, move.start, move.end);
+								this.outputs[i].node.node.setAttribute("class", this.id+" output " + this.outputs[i].id);
+								if(isCFMode) this.outputs[i].node.hide();
 							}
 						}
-						if(!forRepo) view.dragDFArrow(this.outputs.map(function(o){ return o.node; }), this);
 						this.addInputTooltips();
 						this.addOutputTooltips();
 					},
-					moveInput: function moveInput(i){
+					dragIO: function dragIO(i, flag){
 						var index = i,
-							that = this,
-							otherInput, otherIndex,
-							img, x, y, x1, dist, glow1, glow2,
-							obj1, obj2,
+							obj = (flag==="in") ? this.inputs[i].node : this.outputs[i].node,
+							mov = this.moveIO(i, flag),
+							arrDrag = gui.view.dragDFArrow(obj, this),
+							funM, funS, funE,
 							ctrlPressed = false;
 							result = {
-								start: function start(){	
-								var bbox = this.getBBox();
-									x = bbox.x; y = bbox.y;
+								start: function start(x, y, evt){
+									if(evt.ctrlKey){
+										ctrlPressed = true;
+										funS = mov.start.bind(this);
+									}
+									else {
+										funS = arrDrag.start.bind(this, x, y, evt);
+									}
+									funS();
+								},
+								move: function move(dx, dy, x, y, event){
+									if(ctrlPressed){
+										funM = mov.move.bind(this, dx);
+									}
+									else{
+										funM = arrDrag.move.bind(this, dx, dy, x, y, event);
+									}
+									funM();
+								},
+								end: function end(event){
+									if(ctrlPressed){
+										funE = mov.end.bind(this, event);
+									}
+									else{
+										funE = arrDrag.stop.bind(this, event);
+									}
+									funE();
+									ctrlPressed = false;
+								}
+						};
+						return result;
+					},
+					moveIO: function moveIO(i, flag){
+						var index = i,
+							that = this,
+							array, otherObject, otherIndex,
+							img, x1, y1, x2, dist, center, glow1, glow2,
+							obj1, obj2,
+							result = {
+								start: function start(){
+									if(flag=="in") array = that.inputs;
+									else array = that.outputs;
+									var bbox = this.getBBox();
+									x1 = bbox.x; y1 = bbox.y;
 								},
 								move: function move(dx){
 									if(glow2) glow2.remove();
 									if(img) img.remove();
-									if(ctrlPressed){
-										if(!glow1) glow1 = this.glow({'color': 'blue'});
+									if(array[index-1] || array[index+1]){
+										if(!glow1) glow1 = this.glow({'color': CFG.io.highlightColor});
 										if(dx < 0){
-											if(that.inputs[index-1]){ 
+											if(array[index-1]){ 	
 												otherIndex = index-1;
-												x1 = that.inputs[otherIndex].node.getBBox().x;
-												dist = x1 - x;
-												if(dx < dist/3){
-													otherInput = that.inputs[otherIndex];
-													img = gui.view.paper.image('images/dblArrow.png', x1+((x-x1)/2)-4, y-15, 16, 16);
-													glow2 = otherInput.node.glow({'color': 'blue'});
+												x2 = array[otherIndex].node.getBBox().x;	
+												dist = x2 - x1;			
+												if(dx < dist/3){	
+													otherObject = array[otherIndex];	
+													if(flag==="in") center = x2+((x1-x2)/2)-4; 
+													else center = x2+((x1-x2)/2)-4;
+													img = gui.view.paper.image(CFG.io.swapImg, center, y1-15, 16, 16);
+													glow2 = otherObject.node.glow({'color': CFG.io.highlightColor});
 												}
 											}
 											else{
-												otherInput = undefined;
-												glow2.remove();
+												otherObject = undefined;
+												if(glow2) glow2.remove();
 											}
 										}
 										if(dx >=0){
-											if(that.inputs[index+1]){
+											if(array[index+1]){
 												otherIndex = index + 1;
-												x1 = that.inputs[otherIndex].node.getBBox().x;
-												dist = x1 - x;
+												x2 = array[otherIndex].node.getBBox().x;
+												dist = x2 - x1;
 												if(dx > dist/3){
-													otherInput = that.inputs[otherIndex];
-													img = gui.view.paper.image('images/dblArrow.png', x1+((x-x1)/2)-4, y-15, 16, 16);
-													glow2 = otherInput.node.glow({'color': 'blue'});
+													otherObject = array[otherIndex];
+													if(flag==="in") center = x2+((x1-x2)/2)-4;
+													else center = x2+((x1-x2)/2)-4;
+													img = gui.view.paper.image(CFG.io.swapImg, center, y1-15, 16, 16);
+													glow2 = otherObject.node.glow({'color': CFG.io.highlightColor});
 												}
 											}
 											else{
-												otherInput = undefined;
-												glow2.remove();
+												otherObject = undefined;
+												if(glow2) glow2.remove();
 											}
 										}
 									}
 								},
 								end: function end(){
 									if(glow1) glow1.remove(); 
-									if(otherInput){
+									if(otherObject){
 										gui.view.hideEdges();
-										obj1 = gui.view.paper.path(that.inputPathString(x, y)).attr({'fill': that.color});;
-										obj2 = gui.view.paper.path(that.inputPathString(x1, y)).attr({'fill': that.color});;
-										that.inputs[index].node.remove();
-										that.inputs[otherIndex].node.remove();
-										obj1.animate({transform:"t"+(x1-x)+",0"}, 250);
-										obj2.animate({transform:"t"+(x-x1)+",0"}, 250);
+										if(flag==="in"){
+											obj1 = gui.view.paper.path(that.inputPathString(x1, y1)).attr({'fill': that.color});
+											obj2 = gui.view.paper.path(that.inputPathString(x2, y1)).attr({'fill': that.color});
+										}
+										else{
+											obj1 = gui.view.paper.path(that.outputPathString(x1, y1)).attr({'fill': that.color});
+											obj2 = gui.view.paper.path(that.outputPathString(x2, y1)).attr({'fill': that.color});	
+										}
+										array[index].node.remove();
+										array[otherIndex].node.remove();
+										obj1.animate({transform:"t"+(x2-x1)+",0"}, 250);
+										obj2.animate({transform:"t"+(x1-x2)+",0"}, 250);
 										setTimeout(function(){
 											obj1.remove(); obj2.remove();
-											that.inputs[otherIndex] = that.inputs[index];
-											that.inputs[index] = otherInput;
+											array[otherIndex] = array[index];
+											array[index] = otherObject;
 											that.clearIO(); that.drawIO(gui.view.paper);
 											gui.view.updateEdges();										
-										}, 250);
-										img.remove(); glow2.remove();									
-									}
-								}
-						};
-						$(document).keydown(function(event){
-							if(event.which === 17) ctrlPressed = true;
-						});
-						$(document).keyup(function(event){
-							if(event.which === 17) ctrlPressed = false;
-						});
-						return result;
-					},
-					moveOutput: function moveOutput(i){
-						var index = i,
-							that = this,
-							otherOutput, otherIndex,
-							img, x, x1, y, glow1, glow2,
-							obj1, obj2,
-							ctrlPressed = false,
-							result = {
-								start: function start(x, y, evt){
-									// gui.view.hideEdges();
-									var bbox = this.getBBox();
-									x = bbox.x; y = bbox.y;
-								},
-								move: function move(dx){
-									if(glow2) glow2.remove();
-									if(img) img.remove();
-									if(ctrlPressed){
-										if(!glow1) glow1 = this.glow({'color': 'blue'});
-										if(dx < 0){
-											if(that.outputs[index-1]){ 
-												otherIndex = index-1;
-												x1 = that.outputs[otherIndex].node.getBBox().x;
-												dist = x1 - x;
-												if(dx < dist/3){
-													otherOutput = that.outputs[otherIndex];
-													img = gui.view.paper.image('images/dblArrow.png', x1+((x-x1)/2)-4, y+10, 16, 16);
-													glow2 = otherOutput.node.glow({'color': 'blue'});
-												}
-											}
-											else {
-												otherOutput = undefined;
-												if(glow2) glow2.remove();
-											}
-										}
-										if(dx >=0){
-											if(that.outputs[index+1]){
-												otherIndex = index + 1;
-												x1 = that.outputs[otherIndex].node.getBBox().x;
-												dist = x1 - x;
-												if(dx > dist/3){
-													otherOutput = that.outputs[otherIndex];
-													img = gui.view.paper.image('images/dblArrow.png', x1+((x-x1)/2)-4, y+10, 16, 16);
-													glow2 = otherOutput.node.glow({'color': 'blue'});
-												}
-											}
-											else{
-												otherOutput = undefined;
-												if(glow2) glow2.remove();
-											}
-										}
-									}
-								},
-								end: function end(){
-									if(glow1) glow1.remove();
-									if(otherOutput){
-										gui.view.hideEdges();
-										obj1 = gui.view.paper.path(that.outputPathString(x, y)).attr({'fill': that.color});;
-										obj2 = gui.view.paper.path(that.outputPathString(x1, y)).attr({'fill': that.color});;
-										that.outputs[otherIndex].node.remove();
-										that.outputs[index].node.remove();
-										obj1.animate({transform:"t"+(x1-x)+",0"}, 250);
-										obj2.animate({transform:"t"+(x-x1)+",0"}, 250);
-										setTimeout(function(){
-											obj1.remove(); obj2.remove()
-											that.outputs[otherIndex] = that.outputs[index];
-											that.outputs[index] = otherOutput;
-											that.clearIO(); that.drawIO(gui.view.paper);
-											gui.view.updateEdges();
 										}, 250);
 										img.remove(); glow2.remove();
 									}
 								}
 						};
-						$(document).keydown(function(event){
-							if(event.which === 17) ctrlPressed = true;
-						});
-						$(document).keyup(function(event){
-							if(event.which === 17) ctrlPressed = false;
-						});
 						return result;
 					},
 					// wywala WIZUALIZACJĘ wszystkich IO; żeby znowu się pokazały, konieczne drawIO();
