@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<META charset="UTF-8"/>
-		<META HTTP-EQUIV="cache-control" CONTENT="no-cache">
+		<META HTTP-EQUIV="cache-control" CONTENT="no-cache"/>
 		<title>Interface</title>
 		<script src="javascripts/jquery-1.7.2.js"></script>
 		<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
@@ -34,7 +34,7 @@
 		<script src="generators.js"></script>
 		<script src="validators.js"></script>
 		<script src="myValidator.js"></script>
-		<link type="text/css" href="stylesheets/my_style.css" rel="stylesheet">
+		<link type="text/css" href="stylesheets/my_style.css" rel="stylesheet"/>
 		<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
 	</head>
 	<body>
@@ -44,7 +44,10 @@
 		<script>
 			"use strict";
 
-			var A = Graph_GUI("sandbox", 1280, 600, undefined, "XML/get_all_atomic_service.xml", "", "XML/7_SLA_map.xml", "7_SLA_map");// "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
+			var A = Graph_GUI("sandbox", 1280, 600, undefined, "XML/get_all_atomic_service.xml", "", "XML/7_SLA_map.xml", "7_SLA_map"); // "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
+
+			// var A = Graph_GUI("sandbox", 1280, 600, undefined, "XML/get_all_atomic_service.xml", "", "XML/Rounding.xml", "7_SLA_map"); // "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
+
 
 			function Graph_GUI(id, width, height, graphSaveParams, sdbUrl, saveUrl, graphToEditUrl, graphToEditName){
 				var r = {};

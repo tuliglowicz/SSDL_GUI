@@ -1,32 +1,32 @@
 function nodeVisualizator(view){
 		var outputObject = {
 			getBlankNode : function getBlankNode(x, y){
+				c++;
 				var blankNode = {
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
 					type : "", //inputNode.nodeType,
-					description: "",
-					mainShape: undefined,
+					description : "", // ???
+					mainShape : undefined,
+					raph_label : undefined,
 					inputs : [],
 					outputs : [],
 					connectors : [],
-					x : x || rozmieszczenie[2*c] || 10+55*c,
-					y : y || rozmieszczenie[2*c+1] || 10+35*c,
-					r : 15,
-					width : 145,
-					height : 35,
-					scale : 100,
+					x : x || rozmieszczenie[2*c] || 10+55*c, //
+					y : y || rozmieszczenie[2*c+1] || 10+35*c, //
+					r : CFG.nodeDefaults.defaultRarius,
+					width : CFG.nodeDefaults.defaultWidth,
+					height : CFG.nodeDefaults.defaultHeight,
+					scale : CFG.nodeDefaults.defaultScale,
 					highlighted : false,
 					menu : null,
 					prepareToDrag : function prepareToDrag(){
-						// console.log("2drag")
 						this.hideNode();
 						this.mainShape.show();
-						if(CFG.showLabelDuringNodeDrag)
+						if(CFG.actions.showLabelDuringNodeDrag)
 							this.raph_label.show();
 					},
 					returnFromDragging : function returnFromDragging(transX, transY){
-						// console.log(transX, transY, "return")
 						transX = transX || 0;
 						transY = transY || 0;
 
@@ -34,29 +34,25 @@ function nodeVisualizator(view){
 							this.x += transX;
 							this.y += transY;
 
-							this.showNode();
-
-
 							this.clearIO();
 							this.drawIO(view.paper);
 
 							$.each(this.set, function(i, v){
-								if(i>1 || i==1 && !CFG.showLabelDuringNodeDrag)
+								if(i>1 || i==1 && !CFG.actions.showLabelDuringNodeDrag)
 									v.translate(transX, transY);
 							});
 							$.each(this.connectors, function(i, v){
 								v.attr("cx", v.attr("cx") + transX);
 								v.attr("cy", v.attr("cy") + transY);
 							});
-						} else {
-							this.showNode();
 						}
-
+						
+						this.showNode();
 					},
 					translate : function translate(transX, transY){
 						// console.log(transX, transY, "translate")
 						this.mainShape.translate(transX, transY);
-						if(CFG.showLabelDuringNodeDrag)
+						if(CFG.actions.showLabelDuringNodeDrag)
 							this.raph_label.translate(transX, transY);
 
 						// $.each(this.set, function(i, v){
@@ -215,6 +211,21 @@ function nodeVisualizator(view){
 						this.drawIO(view.paper);
 						gui.view.updateEdges();
 					},
+					drawConnectors : function drawConnectors(){
+						var node = this,
+							paper = view.paper,
+							radius = CFG.nodeDefaults.defaultConnectorRadius
+						;
+						var c1 = paper.circle(node.x+node.width/2, node.y, radius),
+							c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
+							c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
+							c4 = paper.circle(node.x, node.y + node.height/2, radius)
+						;
+
+						node.connectors.push(c1, c2, c3, c4);
+						for(i=0, j=node.connectors.length; i<j; i++)
+							node.connectors[i].node.setAttribute("class", node.id+" connector");
+					},
 					drawIO : function drawIO(paper, forRepo){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
@@ -354,8 +365,8 @@ function nodeVisualizator(view){
 							obj1, obj2,
 							ctrlPressed = false,
 							result = {
-								start: function start(){
-									gui.view.hideEdges();
+								start: function start(x, y, evt){
+									// gui.view.hideEdges();
 									var bbox = this.getBBox();
 									x = bbox.x; y = bbox.y;
 								},
@@ -375,7 +386,7 @@ function nodeVisualizator(view){
 													glow2 = otherOutput.node.glow({'color': 'blue'});
 												}
 											}
-											else{
+											else {
 												otherOutput = undefined;
 												if(glow2) glow2.remove();
 											}
@@ -469,8 +480,11 @@ function nodeVisualizator(view){
 					},
 					getBBox : function getBBox(){
 						var result = { x: this.x, y: this.y, width: this.width, height: this.height};
-						if(this.inputs.length > 0) result.height+=10;
-						if(this.outputs.length > 0) result.height+=10;
+						if(this.inputs.length > 0)
+							result.height += 10;
+						if(this.outputs.length > 0)
+							result.height += 10;
+
 						return result;
 					},
 					setBold : function setBold(flag){
@@ -601,7 +615,6 @@ function nodeVisualizator(view){
 						}
 					}
 				}
-				
 				return blankNode;
 			},
 			extendVisualisation : function extendVisualisation(type, fun){
@@ -609,61 +622,109 @@ function nodeVisualizator(view){
 			},
 			draw_unknownNode : function draw_unknownNode(node){
 			},
-			visualiseNode : function visualiseNode(node, x, y){
-				++c;
-				var that = this,
-					newNode = this.getBlankNode(x, y),
-					nodeType = node.nodeType.toLowerCase(),
-					visualizedNode
+			prepareData : function prepareData(dataNode, viewNode){
+				console.log("-----", dataNode.nodeId, dataNode, viewNode);
+				viewNode.id = dataNode.nodeId;
+				viewNode.label = dataNode.nodeLabel || dataNode.nodeId;
+				viewNode.type = dataNode.nodeType;
+				viewNode.controlType = dataNode.controlType;
+				viewNode.inputs = [];
+				viewNode.outputs = [];
+				viewNode.set = view.paper.set();
+				viewNode.hasSubgraph = !isEmpty(dataNode.subgraph);
+				if(dataNode.physicalDescription)
+					viewNode.serviceName = dataNode.physicalDescription.serviceName;
+				if(dataNode.functionalDescription) 
+					$.each(dataNode.functionalDescription.inputs, function(){
+						viewNode.inputs.push( $.extend(true, {}, this) );
+					});
+				if(dataNode.functionalDescription)
+					$.each(dataNode.functionalDescription.outputs, function(){
+						viewNode.outputs.push( $.extend(true, {}, this) );
+					});
+
+				return viewNode;
+			},
+			assumeColor : function assumeColor(nodeType, viewNode){
+				if(nodeType == "control")
+					viewNode.color = CFG.colors.start;
+				else if(nodeType == "functionality")
+					viewNode.color = CFG.colors.functionality;
+				else if(nodeType == "mediator")
+					viewNode.color = CFG.colors.mediator;
+				else if( CFG.serviceTypes.indexOf(nodeType) > -1 )
+					viewNode.color = CFG.colors.service;
+			},
+			draw_rectNode : function draw_nodes(viewNode, paper){
+				var paper = paper || view.paper,
+					rect = paper.rect(viewNode.x, viewNode.y, viewNode.width, viewNode.height, 5).attr({fill: viewNode.color, stroke: CFG.colors.normalStroke}),
+					label = paper.text(viewNode.x + viewNode.width/2, viewNode.y + 10, viewNode.label),
+					img_gear = paper.image("images/img.png", viewNode.x + viewNode.width-17, viewNode.y+2, 15, 15)
 				;
+				viewNode.mainShape = rect;
+				viewNode.raph_label = label;
+				viewNode.mainShape.node.setAttribute("class", viewNode.id);
 
-				newNode.id = node.nodeId;
-				newNode.label = node.nodeLabel || newNode.id;
-				newNode.type = node.nodeType;
-				newNode.controlType = node.controlType;
-				if(node.physicalDescription) newNode.serviceName = node.physicalDescription.serviceName;
-				newNode.set = view.paper.set();
-				newNode.hasSubgraph = !isEmpty(node.subgraph);
-				newNode.inputs = [];
-				if(node.functionalDescription) 
-					$.each(node.functionalDescription.inputs, function(){
-						newNode.inputs.push( $.extend(true, {}, this) );
-					});
-				newNode.outputs = [];
-				if(node.functionalDescription)
-					$.each(node.functionalDescription.outputs, function(){
-						newNode.outputs.push( $.extend(true, {}, this) );
-					});
+				label.node.removeAttribute("style");
+				label.node.removeAttribute("text");
+				label.node.setAttribute("class", viewNode.id+" label");
 
-				visualizedNode = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(newNode) ;
+				img_gear.node.setAttribute("class", viewNode.id+" clickable");				
+				img_gear.click(function(){
+					gui.controller.reactOnEvent("EditNode", {nodeId: viewNode.id});
+				});
 
-				this.addTooltips(visualizedNode);
+				viewNode.set.push(rect, label, img_gear);
+			},
+			visualiseNode : function visualiseNode(dataNode, x, y, forRepo){
+				var viewNode = this.getBlankNode(x, y);
+				var nodeType = dataNode.nodeType.toLowerCase();
 
-				return visualizedNode;
+				this.prepareData( dataNode, viewNode );
+				this.assumeColor(nodeType, viewNode);
+				// console.log(viewNode.id, viewNode.color, nodeType);
+				if ( nodeType == "control" ){
+					this.draw_controlNode(viewNode);
+
+					if(viewNode.isStart)
+						view.dragCFArrow( viewNode.mainShape, viewNode );
+
+				} else {
+					this.draw_rectNode(viewNode);
+					viewNode.drawConnectors();
+					view.dragCFArrow( viewNode.connectors, viewNode );
+					( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(viewNode); // tutaj rysowane są atrybuty do danego typu
+				}
+
+				viewNode.drawIO(view.paper);
+				this.addTooltips( viewNode );
+				view.dragNodes( viewNode.raph_label, viewNode );
+
+				return viewNode;
 			},
 			draw_controlNode : function draw_controlNode(node){
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
-				node.color = CFG.colors.startstop;
-				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color}),
-					label = view.paper.text(node.x, node.y-20, node.id).attr("fill", "#333")
-					;
-				node.mainShape = c;
-				if(node.controlType.toLowerCase() == "#start")
-					node.mainShape.attr({cursor: "crosshair"});
-				node.raph_label = label;
-				node.raph_label.dblclick(function(){
-					gui.controller.reactOnEvent("EditNode", {nodeId: node.id});
-				})
-
+				node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" ),
+					c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke}),
+					label = view.paper.text(node.x, node.y-20, node.label)
+				;
 				c.node.setAttribute("class", node.id);
-						
+				if( node.isStartNode )
+					c.attr({cursor: "crosshair"});
+				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
 
-				node.drawIO(view.paper);
+				node.mainShape = c;
+				node.raph_label = label;
+				node.raph_label.dblclick(function(){
+					gui.controller.reactOnEvent("EditNode", {nodeId: node.id});
+				});
 
+				node.set.push(c, label);
+				
 				node.isInside = function(x1,y1,x2,y2){
 					return this.x+this.r > x1 &&
 							this.y+this.r > y1 &&
@@ -674,160 +735,64 @@ function nodeVisualizator(view){
 				node.getPossiblePositionsOfConnectors = function(){
 					return [[this.x, this.y]];
 				}
-
 				node.switchToCFMode = function switchToCFMode(){
 					$.each(this.inputs, this.hide);
 					$.each(this.outputs, this.hide);
-					$.each(this.connectors, this.show);
-					this.mainShape.attr({cursor: "crosshair"})
+					// $.each(this.connectors, this.show);
+					if(node.isStart)
+						this.mainShape.attr({cursor: "crosshair"})
 				},
 				node.switchToDFMode = function switchToDFMode(){
 					$.each(this.inputs, this.show);
 					$.each(this.outputs, this.show);
-					$.each(this.connectors, this.hide);
-					if(node.controlType.toLowerCase() != "#start")
+					// $.each(this.connectors, this.hide);
+					if(node.isStart)
 						this.mainShape.attr({cursor: "default"})
 				}
 				;
 
-				node.set.push(c, label);
-
-				view.dragNodes(label, node);
-				
-				var isStartNode;
-				if(node.controlType && node.controlType.toLowerCase() == "#start")
-					isStartNode = true;
-
-				view.dragCFArrow(c, node, isStartNode);
-
-				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
-
 				return node;
 			},
-			draw_serviceNode : function draw_serviceNode(node, paper, drawNotForRepo){
-				// if(!drawNotForRepo)
-					// a(node.id)
-				var nodeType =  node.type.toLowerCase()
-				var id = node.id,
-					radius = 4,
-					color = ( nodeType == "mediator" ? CFG.colors.mediator : ( nodeType == "emulationservice" ? CFG.colors.emulationService : CFG.colors.service) ),
-					paper = paper || view.paper,
-					rect = paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", color),
-					label = paper.text(node.x + node.width/2, node.y + 10, node.label),
-					img_gear = paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
-					i, j,
-					serviceName = node.serviceName,
+			draw_serviceNode : function draw_serviceNode(viewNode, paper){
+				var paper = paper || view.paper,
+					maxLength = CFG.nodeDefaults.maxLengthOfShownServiceName,
+					serviceName = viewNode.serviceName,
 					shortenServiceName,
-					serviceNameShown,
-					maxLength = 25
+					serviceNameShown
 				;
-				node.color = color;
-				node.mainShape = rect;
-				node.raph_label = label;
-
-				img_gear.node.setAttribute("class", id+" clickable");
-				img_gear.click(function(){
-					gui.controller.reactOnEvent("EditNode", {nodeId: id});
-				});
-				
-				node.mainShape.node.setAttribute("class", id);
-				
-				label.node.removeAttribute("style");
-				label.node.removeAttribute("text");
-				label.node.setAttribute("class", id+" label");
-
-				node.drawIO(paper, drawNotForRepo);
-
-				if(!drawNotForRepo){
-
-					if( node.hasSubgraph ){
-						var img_subgraph = paper.image("images/subgraph.png", node.x + 3, node.y+5, 20, 20).attr("title", "subgraph");
-						img_subgraph.node.setAttribute("class", id+" subgraph");
-						img_subgraph.dblclick(function(){
-							// a("subgraph");
-							gui.controller.reactOnEvent("SwitchCurrentGraph", {nodeId: id});
-						});
-					}
-
-					var c1 = paper.circle(node.x+node.width/2, node.y, radius),
-						c2 = paper.circle(node.x+node.width, node.y + node.height/2, radius),
-						c3 = paper.circle(node.x+node.width/2, node.y + node.height, radius),
-						c4 = paper.circle(node.x, node.y + node.height/2, radius)
-					;
-
-					if(serviceName){
-						shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
-						serviceNameShown = paper.text(node.x+node.width/2, node.y + 25, shortenServiceName);
-						serviceNameShown.node.setAttribute("class", name);
-						serviceNameShown.attr({title: serviceName, cursor: "default"});
-					}
-					node.connectors.push(c1, c2, c3, c4);
-					for(i=0, j=node.connectors.length; i<j; i++)
-						node.connectors[i].node.setAttribute("class", id+" connector");
-					
-					view.dragNodes(label, node);
-					view.dragCFArrow(node.connectors, node);
-
-					// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-					// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
+				// jsonFormatter(viewNode, 1, 1)
+				if( viewNode.hasSubgraph ){
+					var img_subgraph = paper.image("images/subgraph.png", viewNode.x + 3, viewNode.y+5, 20, 20).attr("title", "subgraph");
+					img_subgraph.node.setAttribute("class", viewNode.id+" subgraph");
+					img_subgraph.dblclick(function(){
+						gui.controller.reactOnEvent("SwitchCurrentGraph", {nodeId: viewNode.id});
+					});
+					viewNode.set.push(img_subgraph)
 				}
 
-				node.set.push(rect, label, img_gear, img_subgraph, serviceNameShown);
+				if( serviceName ){
+					shortenServiceName = serviceName.length > maxLength ? serviceName.substring(0, maxLength-3)+"..." : serviceName,
+					serviceNameShown = paper.text(viewNode.x+viewNode.width/2, viewNode.y + 25, shortenServiceName);
+					serviceNameShown.node.setAttribute("class", name);
+					serviceNameShown.attr({title: serviceName, cursor: "default"});
+					viewNode.set.push(serviceNameShown);
+				}
 				
-				return node;
+				return viewNode;
 			},
-			draw_functionalityNode : function draw_functionalityNode(node){
-				node.color = CFG.colors.functionality;
-				var id = node.id,
-					rect = view.paper.rect(node.x, node.y, node.width, node.height, 5).attr("fill", node.color),
-					label = view.paper.text(node.x + node.width/2, node.y + 10, node.label),
-					img_gear = view.paper.image("images/img.png", node.x + node.width-17, node.y+2, 15, 15),
-					c1 = view.paper.circle(node.x+node.width/2, node.y, 4),
-					c2 = view.paper.circle(node.x+node.width, node.y + node.height/2, 4),
-					c3 = view.paper.circle(node.x+node.width/2, node.y + node.height, 4),
-					c4 = view.paper.circle(node.x, node.y + node.height/2, 4),
-					i, j=0
-					;
-				node.mainShape = rect;
-				node.raph_label = label;
-
-				img_gear.node.setAttribute("class", id+" clickable");
-				img_gear.click(function(){
-					gui.controller.reactOnEvent("EditNode", {nodeId: id});
-				})
-				
-				node.mainShape.node.setAttribute("class", id);
-
-				node.drawIO(view.paper);
-				
-				label.node.removeAttribute("style");
-				label.node.removeAttribute("text");
-				label.node.setAttribute("class", id+" label");				
-			
-				node.connectors.push(c1, c2, c3, c4);
-				for(i=0, j=node.connectors.length; i<j; i++)
-					node.connectors[i].node.setAttribute("class", id+" connector");
-				
-				node.set.push(rect, label, img_gear);
-
-				view.dragNodes(label, node);
-				view.dragCFArrow(node.connectors, node);
-
-				// view.dragDFArrow(node.inputs.map(function(i){ return i.node; }), node);
-				// view.dragDFArrow(node.outputs.map(function(o){ return o.node; }), node);
-
-				return node;
+			draw_functionalityNode : function draw_functionalityNode(viewNode, paper){
+				// nothing to add here
+				return viewNode;
 			},
-			drawEdge : function drawEdge(c){
-				// c - coords
-				// console.log(c)
+			draw_mediatorNode : function draw_mediatorNode(viewNode, paper){
+
+			},
+			drawEdge : function drawEdge(c){ // c - coords
 				var size = 4;
 				return view.paper.arrow(c.x1, c.y1, c.x2, c.y2, size);
 			},
 			addTooltips : function addTooltips(visualizedNode){
 				function close(){
-					view.tooltip.close();
 				}
 				//te funkcje wywołują się podczas dodawania IO, nie ma ich tutaj sensu powtarzać
 				// visualizedNode.addInputTooltips();
@@ -840,8 +805,9 @@ function nodeVisualizator(view){
 							view.tooltip.open(that.type+":"+that.label, that.description, x, y, evt);
 						};
 					})(visualizedNode)
-				).mouseout(close)
-				;
+				).mouseout(function(){
+					view.tooltip.close();					
+				});
 			}
 		};
 
