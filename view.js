@@ -278,102 +278,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			return result;
 		},
 		dragNodes : function dragNodes(element, node){
-			var	lastDragX,
-				lastDragY,
-				ox, dx,
-				oy, dy,
-				accX, accY,
-				width, height,
-				rWidth = gui.view.paper.width,
-				rHeight = gui.view.paper.height,
-				bbox,
-				ctrl,
-				transX, transY,
-				flag = true,
-				ready2move = false,
-				that = this,
-				itWasJustAClick = false,
-				move = function move(x,y){
-					if(ready2move){
-						itWasJustAClick = false;
-						dx = x - lastDragX;	// mouse x
-						dy = y - lastDragY; // mouse y
-						
-						transX = ox + dx > rWidth-width ? rWidth-width-ox : (ox + dx < 0 ? -ox : dx);
-						transY = oy + dy > rHeight-height ? rHeight-height-oy : (oy + dy < 0 ? -oy : dy);
-	
-						// console.log(transX+":"+transY)
-						if(transX != 0 || transY != 0){
-					  		$.each(gui.view.current_graph_view.nodes, function(i, val){
-								if(val.highlighted){
-									val.translate(transX, transY);
-								}
-							});
-						  	
-							lastDragX = x;
-							lastDragY = y;
-							ox += transX;
-							oy += transY;
-							accX += transX;
-							accY += transY;
-
-							//gui.controller.reactOnEvent("NodeMoved");
-						}
-				 	}
-				},
-				start = function start(x,y,evt){
-
-					itWasJustAClick = true;
-					lastDragX = lastDragY = 0;
-					accX = accY = 0;
-					dx = dy = 0;
-					bbox = node.set.getBBox();
-					width = bbox.width;
-					height = bbox.height;
-					ox = bbox.x;
-					oy = bbox.y;
-
-					flag = false;
-					if(!node.highlighted){
-						if(!evt.ctrlKey)
-							gui.controller.reactOnEvent("DESELECT");
-						flag = true;
-						node.highlight2();
-					}
-					ready2move = node.highlighted;
-					ctrl = evt.ctrlKey;
-
-					that.prepareNodesToDrag();
-				},
-				stop = function stop(evt){
-					that.returnFromDraggingNodes(accX, accY);
-
-					ready2move = false;
-					gui.controller.reactOnEvent("NODESELECTED");
-					if(itWasJustAClick){
-						if(ctrl){
-							if(!flag) {
-								node.highlight(ctrl);
-							}
-						}
-						else {
-							gui.controller.reactOnEvent("DESELECT");
-							node.highlight2();
-						}
-
-						// gui.controller.reactOnEvent("ESCAPE");
-					}
-					else {
-						// gui.controller.reactOnEvent("NodeMoved");
-					}
-				}
-
-				if(getType(element) === "array"){
-					$.each(element, function(){
-						this.drag(move, start, stop);
-					});
-				} else
-					element.drag(move, start, stop);
+			var that = this;
+			if(getType(element) === "array"){
+				$.each(element, function(){
+					this.drag( that.nodeDragger.move, that.nodeDragger.start, that.nodeDragger.stop );
+				});
+			} else
+				element.drag( that.nodeDragger.move, that.nodeDragger.start, that.nodeDragger.stop );
 		},
 		returnFromDraggingNodes : function returnFromDraggingNodes(dx, dy){
 			$.each(gui.view.current_graph_view.nodes, function(i, val){
@@ -1281,6 +1192,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.form = form();
 	outputView.blankNodes = blankNode();
 	outputView.mainMenu = menu();
+	// outputView.nodeDragger = nodeDragger();
 	// outputView.mainMenu.init();
 
 	var	lastDragX,

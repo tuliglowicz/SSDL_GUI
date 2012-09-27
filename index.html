@@ -12,6 +12,7 @@
 		<script src="javascripts/jquery.tinyscrollbar.js"></script>
 		<script src="javascripts/Slider2.js"></script>
 		<script src="shortcut.js"></script>
+		<script src="dragNodes.js"></script>
 		<script src="config.js"></script>
 		<script src="language.js"></script>
 		<script src="library.js"></script>
@@ -68,6 +69,7 @@
 				r.view.blankNodes.init();
 				r.view.blankNodes.draw();
 				r.view.mainMenu.init();
+				r.view.nodeDragger = nodeDragger();
 				r.controller = Controller(sdbUrl, saveUrl, graphToEditUrl, graphToEditName, r);
 				r.logger = r.controller.initLogger(r.view.paper);
 				r.controller.init();
