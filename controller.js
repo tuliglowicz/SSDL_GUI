@@ -147,7 +147,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						// 	$("#saveDialog").dialog("open");
 						// } else {
 						var savedSSDL = that.saveSSDL();
-						var validation = validatorObject.validateGraph(that.getRoot());
+						// var validation = validatorObject.validateGraph(that.getRoot());
 						// jsonFormatter(validation,1,1)
 
 						// e = e || {};
@@ -159,15 +159,14 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							gui.view.form.editGraphSaveParams();
 						} else {
 							var confirmation = (validation && validation.numberOfErrors && (validation.numberOfErrors < 1))
-						    if (!confirmation) 
-						    	confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
-						    	 
+							if (!confirmation) 
+								confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
+
 							if (confirmation) {
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 								output += "ssdl=" + savedSSDL;
 
-
-								console.log(output)
+								console.log(output);
 								that.save(saveUrl, output, "POST", "xml", function() {
 									alert(language[gui.language].alerts.saveOK);
 								}, function() {
@@ -478,9 +477,8 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					break;
 				case "ADDSERVICEFROMREPOTOCANVAS":
 					(function(e) {
-						e.nodeId = gui.controller.generateId();
-						// alert(e.nodeId)
 						e = $.extend(true, {}, e);
+						e.nodeId = gui.controller.generateId();
 						e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
 						e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
 
@@ -534,6 +532,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 								this.current_graphData = tab[tab.length - 1];
 							}
 
+							console.log(this.graphData_tab)
 							gui.view.parseAndSetDataModelToView(this.graphData_tab);
 
 							this.reactOnEvent("SSDLLoaded", ssdl);
@@ -681,32 +680,32 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					subgraph: {},
 					nonFunctionalDescription: []
 				},
-					stop = {
-						nodeId: "#End",
-						nodeLabel: "#End",
-						nodeType: "Control",
-						controlType: "#end",
-						physicalDescription: {
-							address: "",
-							operation: "",
-							serviceGlobalId: "",
-							serviceName: ""
-						},
-						functionalDescription: {
-							description: "end node",
-							effects: "",
-							inputs: [],
-							outputs: [],
-							metaKeywords: [],
-							preconditions: "",
-							serviceClasses: []
-						},
-						alternatives: "",
-						condition: "",
-						sources: [],
-						subgraph: {},
-						nonFunctionalDescription: []
-					};
+				stop = {
+					nodeId: "#End",
+					nodeLabel: "#End",
+					nodeType: "Control",
+					controlType: "#end",
+					physicalDescription: {
+						address: "",
+						operation: "",
+						serviceGlobalId: "",
+						serviceName: ""
+					},
+					functionalDescription: {
+						description: "end node",
+						effects: "",
+						inputs: [],
+						outputs: [],
+						metaKeywords: [],
+						preconditions: "",
+						serviceClasses: []
+					},
+					alternatives: "",
+					condition: "",
+					sources: [],
+					subgraph: {},
+					nonFunctionalDescription: []
+				};
 
 				this.current_graphData.nodes.unshift(start, stop);
 
@@ -751,7 +750,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				$functionalDescriptionOutputs = $functionalDescription.find("ns2\\:outputs ns2\\:output");
 				$nonfunctionalDescription = $sdb.find("ns2\\:nonfunctionalDescription  ns2\\:nonFunctionaleProperty");
 
-				node.nodeLabel = $physicalDescription.find("ns2\\:serviceName").text();
+				node.nodeId = node.nodeLabel = $physicalDescription.find("ns2\\:serviceName").text();
 				node.nodeType = "Service";
 				node.physicalDescription = {
 					serviceName: node.nodeLabel,
