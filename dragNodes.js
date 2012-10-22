@@ -55,9 +55,20 @@ function nodeDragger(){
 				  		$.each(gui.view.current_graph_view.nodes, function(i, val){
 							if(val.highlighted){
 								val.translate(transX, transY);
+
+								if( val.mainShape._.transform && val.mainShape._.transform.length > 1 ){
+									var thisTransform = val.mainShape._.transform;
+									var deltaX = thisTransform[0][1] + thisTransform[1][1];
+									var deltaY = thisTransform[0][2] + thisTransform[1][2];
+									thisTransform[0][1] = deltaX;
+									thisTransform[0][2] = deltaY;
+
+									thisTransform.pop();
+								}
 							}
 						});
-					  	
+
+
 						lastDragX = x;
 						lastDragY = y;
 						ox += transX;

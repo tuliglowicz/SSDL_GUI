@@ -39,9 +39,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				this.reactOnEvent("Delete")
 			}).bind(this));
 
-			this.shortcut.add("ctrl + X", function() {
-				alert("")
-			});
+			// this.shortcut.add("ctrl + X", function() {
+			// 	alert("")
+			// });
 			this.shortcut.add("ctrl+shift+z", function() {
 				alert("")
 			});
@@ -50,9 +50,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				alert(event);
 			});
 
-			setTimeout((function() {
-				this.shortcut.remove("ctrl+x")
-			}).bind(this), 2000);
+			// setTimeout((function() {
+			// 	this.shortcut.remove("ctrl+x")
+			// }).bind(this), 2000);
 		},
 		getGraphById: function getGraphById(id) {
 			var result;
@@ -532,7 +532,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 								this.current_graphData = tab[tab.length - 1];
 							}
 
-							console.log(this.graphData_tab)
+							// console.log(this.graphData_tab)
 							gui.view.parseAndSetDataModelToView(this.graphData_tab);
 
 							this.reactOnEvent("SSDLLoaded", ssdl);
@@ -1003,13 +1003,15 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 			return stringXML;
 		},
-		convert: function convert(ssdl, id) { // converst ssdl into json
+		convert: function convert(ssdl, id, version) { // converst ssdl into json
 			//alert("convert"+":"+ssdl);
 			var Graph = {};
+			version = version || $(ssdl).find("graph").attr("version");
+			// alert(version);
 			Graph.id = id ? id : "root";
 			Graph.nodes = [];
 
-			$(ssdl).find("nodes node:first, nodes node:first ~ node").each(function() {
+			$(ssdl).find("nodes:first > node").each(function() {
 				var _this = $(this);
 				var node = {};
 				node.nodeId = _this.find("nodeId:first").text();
@@ -1092,6 +1094,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 				node.controlType = _this.find("controlType:last").text();
 				node.condition = _this.find("condition:last").text();
+
+				// var 
+
 				node.sources = [];
 				_this.find("sources:last source").each(function() {
 					var txt = $(this).text();
@@ -1100,9 +1105,17 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					}
 				});
 
+				node.targets = [];
+				_this.find("targets:last target").each(function() {
+					var txt = $(this).text();
+					if (txt && node.nodeId) {
+						node.targets.push(txt);
+					}
+				});
+
 				Graph.nodes.push(node);
 			});
-			$(ssdl).find("nodes node:first, nodes node:first ~ node").remove();
+			$(ssdl).find("nodes:first > node").remove();
 
 			var inputVariables = [],
 				inputVariable;

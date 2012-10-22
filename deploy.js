@@ -1,4 +1,3 @@
-
 	function deploy(ssdlJson, canvasW, nodeW, nodeH, nodeHSpacing, nodeVSpacing, startY) {
 		/* DEPLOYER 2.0 (Błażej)
 		 * REQUIRED PARAMS:

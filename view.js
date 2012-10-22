@@ -2,8 +2,7 @@
 // done // walidacja, edycja, json2ssdl, startstop
 
 "use strict";
-var c = -1;
-var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147];
+// var rozmieszczenie = [247, 33, 247, 234, 174, 77, 175, 147,247, 33, 247, 234, 174, 77, 175, 147];
 
 function View(id, width, height, gui, graphSaveParamsJSON){
 	var pf = gui.id_postfix;
@@ -589,7 +588,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 		},
 		addCFEdge : function addCFEdge(data, firstLoad){
-			console.log(data)
+			console.log("addCFNode", data)
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
 				gui.logger.warning(language[gui.language].alerts.errors.startCantPassControl);
@@ -779,7 +778,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			this.current_graph_view = tab[ tab.length-1 ];
 			this.showCurrentGraph();
 			this.switchMode();
-			c = -1;
+			this.visualiser.resetCounter();
 		},
 		drawGraph : function drawGraph(graph_json){
 			// alert(graph_json.nodes)
@@ -833,6 +832,17 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(tmp)
 							graph_view.edgesCF.push(tmp);
 					});
+					$.each(val.targets, function(){
+						console.log(this, graph_view.nodes.map(function(o){return o.id}))
+						tmp = that.addCFEdge({
+							source: that.getNodeById(val.nodeId, graph_view.nodes),
+							target: that.getNodeById(this, graph_view.nodes)
+						});
+
+						if(tmp)
+							graph_view.edgesCF.push(tmp);
+					});
+
 					$.each(val.functionalDescription.inputs, function(){
 						if(this && this.source && this.source.length == 2){
 							// console.log( val.nodeId, this.source )
@@ -873,6 +883,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 				}
 			}
+
+			console.log(sourceConnectors, targetConnectors)
 
 			return {
 				x1 : sourceConnectors[minI][0],
@@ -1194,6 +1206,13 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.mainMenu = menu();
 	// outputView.nodeDragger = nodeDragger();
 	// outputView.mainMenu.init();
+
+	//prototyp If-a
+	var size = 30
+	outputView.paper.path("M 100 100 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": "green", "stroke-width": "2px"})
+
+	outputView.paper.path("M 200 100 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": "green", "stroke-width": "2px"})
+	outputView.paper.path("M "+(200 - size*.5)+" "+(100 + size*1.5)+" l "+(size)+" -"+size).attr({"stroke-width": "2px"});
 
 	var	lastDragX,
 		lastDragY,

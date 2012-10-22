@@ -179,7 +179,7 @@
 				this.addSeparator("Help");
 				this.addOption("Help","About",function(){alert(" Nothing to say about this.")},"");
 
-				jsonFormatter(gui, 1, 1);
+				// jsonFormatter(gui, 1, 1);
 				gui.view.menuList.getInstance().push(this);
 			}
 		};

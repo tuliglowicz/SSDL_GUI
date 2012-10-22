@@ -13,7 +13,7 @@
 		* - warning(warning string [, title string])
 		* - error(error string [, title string])
 		*/
-		console.log(paper);
+		// console.log(paper);
 		var h = paper.height,
 			lId = "#console_" + pf,
 			eId = "#console_entries_" + pf,

@@ -30,6 +30,7 @@ var CFG = {
 	//styl belki menu znajduje sie w pliku CSS
 	},
 	mode : "",
+	ssdl_version : "1.3",
 	language : "PL", // "EN"
 	nodeWidth : 135, // nie podpięte
 	nodeHeight : 35, // nie podpięte
