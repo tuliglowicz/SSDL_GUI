@@ -1,7 +1,11 @@
 function nodeVisualizator(view){
+		var c = -1;
 		var outputObject = {
 			getBlankNode : function getBlankNode(x, y){
 				c++;
+				// alert(c);
+				// a(x || 10+55*c);
+				// a(y || 10+35*c);
 				var blankNode = {
 					id : "", //inputNode.nodeId,
 					label : "", //inputNode.label,
@@ -12,8 +16,8 @@ function nodeVisualizator(view){
 					inputs : [],
 					outputs : [],
 					connectors : [],
-					x : x || rozmieszczenie[2*c] || 10+55*c, //
-					y : y || rozmieszczenie[2*c+1] || 10+35*c, //
+					x : x || 10+55*c, //
+					y : y || 10+35*c, //
 					r : CFG.nodeDefaults.defaultRarius,
 					width : CFG.nodeDefaults.defaultWidth,
 					height : CFG.nodeDefaults.defaultHeight,
@@ -35,7 +39,7 @@ function nodeVisualizator(view){
 							this.y += transY;
 
 							this.clearIO();
-							this.drawIO(view.paper);
+							this.drawIO(view.paper); // 
 
 							$.each(this.set, function(i, v){
 								if(i>1 || i==1 && !CFG.actions.showLabelDuringNodeDrag)
@@ -580,7 +584,12 @@ function nodeVisualizator(view){
 						}
 					}
 				}
+
+				// console.log(x, y, blankNode.x, blankNode.y)
 				return blankNode;
+			},
+			resetCounter : function resetCounter(){
+				c = -1;
 			},
 			extendVisualisation : function extendVisualisation(type, fun){
 				this["draw_"+type.toLowerCase()+"Node"] = fun;
@@ -588,7 +597,7 @@ function nodeVisualizator(view){
 			draw_unknownNode : function draw_unknownNode(node){
 			},
 			prepareData : function prepareData(dataNode, viewNode){
-				console.log("-----", dataNode.nodeId, dataNode, viewNode);
+				// console.log("-----", dataNode.nodeId, dataNode, viewNode);
 				viewNode.id = dataNode.nodeId;
 				viewNode.label = dataNode.nodeLabel || dataNode.nodeId;
 				viewNode.type = dataNode.nodeType;
@@ -658,7 +667,9 @@ function nodeVisualizator(view){
 					this.draw_rectNode(viewNode);
 					viewNode.drawConnectors();
 					view.dragCFArrow( viewNode.connectors, viewNode );
-					( this["draw_"+nodeType+"Node"] || this.draw_unknownNode )(viewNode); // tutaj rysowane są atrybuty do danego typu
+					var fun = ( this["draw_"+nodeType+"Node"] || this.draw_unknownNode );
+					// console.log("draw_"+nodeType+"Node", this["draw_"+nodeType+"Node"], fun);
+					fun(viewNode); // tutaj rysowane są atrybuty do danego typu
 				}
 
 				viewNode.drawIO(view.paper);
@@ -668,10 +679,13 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			draw_controlNode : function draw_controlNode(node){
+				if(node.controlType === "#conditionStart" && node.controlType =="#conditionEnd"){
+					
+				}
 				node.x = node.x+130/2+node.r/2;
 				node.y = node.y+node.r;
-				node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" ),
-					c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke}),
+				node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" );
+				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke}),
 					label = view.paper.text(node.x, node.y-20, node.label)
 				;
 				c.node.setAttribute("class", node.id);
@@ -750,8 +764,12 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			draw_mediatorNode : function draw_mediatorNode(viewNode, paper){
-				var img_db = paper.image("images/subgraph.png", viewNode.x + 3, viewNode.y+5, 20, 20);
-				img_db.node.setAttribute("class", viewNode.id+" subgraph");
+				var paper = paper || view.paper;
+
+				var img_db = paper.image("images/db.jpg", viewNode.x + 5, viewNode.y+8, 20, 20).attr("title", "Data Base");
+				img_db.node.setAttribute("class", viewNode.id+" database");
+
+				viewNode.set.push( img_db );
 			},
 			drawEdge : function drawEdge(c){ // c - coords
 				var size = 4;
@@ -777,8 +795,8 @@ function nodeVisualizator(view){
 			}
 		};
 
+		// outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("StreamingWorkflowEngine", outputObject.draw_serviceNode);
-		outputObject.extendVisualisation("Mediator", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("JavaService", outputObject.draw_serviceNode);
 		outputObject.extendVisualisation("EmulationService", outputObject.draw_serviceNode);
 

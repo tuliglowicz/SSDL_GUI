@@ -32,6 +32,7 @@
 
 					$divElem.parent().prepend(newDiv);
 					this.$preloader = $("#preloader_"+pf);
+					this.init = undefined;
 				}
 		};
 
