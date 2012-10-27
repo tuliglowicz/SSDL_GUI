@@ -290,6 +290,55 @@
 					values:[]
 				}
 			]},
+			{
+				tabLabel:"condition main",
+				tabId: "ifMainTab",
+				formId: "ifMainForm",
+				fields: [{
+					label: "if",
+					id: "f_ifMainTab_if",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "then",
+					id: "f_ifMainTab_then",
+					inputType: "select",
+					validation: function(){},
+					values:["so much to do", "so little time"]	
+					// zawartość tych selectów będzie generowana dynamicznie
+					//w oparciu o bieżącą zawartość grafu
+				},
+				{
+					label: "else",
+					id: "f_ifMainTab_else",
+					inputType: "select",
+					validation: function(){},
+					values:["fuck off", "Paweł Stelmach"]	
+					// zawartość tych selectów będzie generowana dynamicznie
+					//w oparciu o bieżącą zawartość grafu
+				}
+			]},
+			{
+				tabLabel: "variable assignment",
+				tabId: "assignVarTab",
+				formId: "assignVarForm",
+				fields: [{
+					label: "variable",
+					id: "f_assignVarTab_var",
+					inputType: "textBox",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "assignment",
+					id: "f_assignVarTab_val",
+					inputType: "select",
+					validation: function(){},
+					values:["input1", "input2"]	//to też będzie dynamiczne
+				}
+			]},
 			],
 		resultJSON = {
 			nodeId:"",
@@ -332,7 +381,9 @@
 			"#inputsTab_"+pf,
 			"#outputsTab_"+pf,
 			"#nonFunctionalDescriptionTab_"+pf,
-			"#emulationTab_"+pf
+			"#emulationTab_"+pf,
+			"#ifMainTab_"+pf,
+			"#assignVarTab_"+pf
 		];
 		
 		formAppender(gui.language,pf);
@@ -345,6 +396,8 @@
 		$("#f_addGlobalNFPropertyForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[6]));
 		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[7]));
 		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator(gui.language, pf, graphSaveParamsJSON));
+		$("#tabs-7_" + pf).prepend(formGenerator(gui.language, pf, formJSON[8]));	
+		$("#tabs-8_" + pf).prepend(formGenerator(gui.language, pf, formJSON[9]));	
 
 		$("#form_" + pf).dialog({
 			autoOpen: false,
@@ -380,8 +433,8 @@
 				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
 				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
 				if(node.nodeType.toLowerCase() == "emulationservice" && node.emulation){
-					$( "#f_emulationTab_id_" + pf ).val(node.emulation.id || "")
-					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "")
+					$( "#f_emulationTab_id_" + pf ).val(node.emulation.id || "");
+					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "");
 				}
 				if(!node.isBlank) {
 					$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
@@ -406,21 +459,12 @@
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form_" + pf ).dialog( "open" );
 				
-				//  pola obecnie nieużywane:
-				//
-				// var condition = [];
-				//$( "#f_mainTab_nodeType" ).val(node.nodeType);
-				// $( "#f_mainTab_alternatives" ).val(node.alternatives);
 				// if(node.condition){
 				// 	condition = node.condition.split(" ");
 				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
 				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
 				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
 				// }
-				// $( "#f_mainTab_subgraph" ).val(node.subgraph);				
-				// $( "#f_inputOutputTab_preconditions" ).val(node.functionalDescription.preconditions);
-				// $( "#f_inputOutputTab_effects" ).val(node.functionalDescription.effects);
-				// this.appendList(node.sources, "sources");
 			},
 			adjustForm: function adjustForm(nodeType){
 				//żeby nie powtarzały się fragmenty kodu - przyjmujemy "functionality" za default i ew. edytujemy od tego miejsca

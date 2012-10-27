@@ -1,6 +1,6 @@
 // ocb z exeptions i parameters w graphie ???
 "use strict";
-//url to adres do pliku albo repozytorium, które wysy³a listê dostêpnych us³ug.
+//url to adres do pliku albo repozytorium, które wysyła listę dostępnych usług.
 
 function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 	var pf = gui.id_postfix;
