@@ -26,15 +26,15 @@ function nodeVisualizator(view){
 					menu : null,
 					prepareToDrag : function prepareToDrag(){
 						this.hideNode();
-						this.mainShape.show();
+						this.mainShape.show().toFront();
 						if(CFG.actions.showLabelDuringNodeDrag)
-							this.raph_label.show();
+							this.raph_label.show().toFront();
 					},
 					returnFromDragging : function returnFromDragging(transX, transY){
 						transX = transX || 0;
 						transY = transY || 0;
 
-						if(transX != 0 || transY != 0){
+						// if(transX != 0 || transY != 0){
 							this.x += transX;
 							this.y += transY;
 
@@ -43,13 +43,26 @@ function nodeVisualizator(view){
 
 							$.each(this.set, function(i, v){
 								if(i>1 || i==1 && !CFG.actions.showLabelDuringNodeDrag)
-									v.translate(transX, transY);
+									v.translate(transX, transY).toFront();
+									if(v._.transform && v._.transform.length > 1){
+										v._.transform[0][1] += transX;
+										v._.transform[0][2] += transY;
+										v._.transform.pop();
+									}
 							});
 							$.each(this.connectors, function(i, v){
-								v.attr("cx", v.attr("cx") + transX);
-								v.attr("cy", v.attr("cy") + transY);
+								v.translate(transX, transY).toFront();
+								// v.attr("cx", v.attr("cx") + transX).toFront();
+								// v.attr("cy", v.attr("cy") + transY).toFront();
+								if(v._.transform && v._.transform.length > 1){
+									v._.transform[0][1] += transX;
+									v._.transform[0][2] += transY;
+									v._.transform.pop();
+								}
 							});
-						}
+						// }
+
+						console.log("---------",transX, transY);
 						
 						this.showNode();
 					},
@@ -270,7 +283,7 @@ function nodeVisualizator(view){
 									this.inputs[i].node.drag(move.move, move.start, move.end);
 									this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 								}
-								console.log("trolluję");
+								else console.log("trolluję");
 								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
@@ -565,9 +578,15 @@ function nodeVisualizator(view){
 						});
 					},
 					showNode : function showNode(){
-						this.buildMenu();
+						// this.buildMenu();
+						console.log(this.set.length, "set");
+						console.log(this.inputs.length, "inputs");
+						console.log(this.outputs.length, "outputs");
+						console.log(this.connectors.length, "connectors");
+
 						$.each(this.set, function(){
 							this.show();
+							console.log(this.getBBox().x, this.getBBox().y);
 						});
 						$.each(this.inputs, function(){
 							this.node.show();

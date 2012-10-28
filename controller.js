@@ -1007,7 +1007,6 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			//alert("convert"+":"+ssdl);
 			var Graph = {};
 			version = version || $(ssdl).find("graph").attr("version");
-			// alert(version);
 			Graph.id = id ? id : "root";
 			Graph.nodes = [];
 

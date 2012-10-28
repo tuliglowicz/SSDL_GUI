@@ -185,7 +185,9 @@
                     <value>number2</value>
                     <relation>less</relation>
                 </if>
-                <then>CalculatorService2</then>
+                <then>
+                    CalculatorService2
+                </then>
                 <else>
                     <if>
                         <path>up</path>
