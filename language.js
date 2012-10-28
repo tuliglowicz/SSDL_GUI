@@ -120,6 +120,11 @@ var language = {
 			chooseYourDestiny: "Wybierz akcję",
 			new: "Nowy",
 			import: "Importuj z pliku",
+			if: "JEŻELI",
+			then: "TO",
+			else: "WPP",
+			variable: "zmienna",
+			assignment: "znaczenie"
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -127,7 +132,9 @@ var language = {
 			inputs: "Wejścia",
 			outputs: "Wyjścia",
 			nonFunctionalDesc: "Opis niefunkcjonalny",
-			emulation: "Emulacja"
+			emulation: "Emulacja",
+			ifMain: "Definicja warunku",
+			assignVar: "Definicje zmiennych",
 		},
 		logger: {
 			console_CL: "Zamknij konsolę",
@@ -313,7 +320,11 @@ var language = {
 			chooseYourDestiny: "Choose action",
 			new: "New",
 			import: "Import from file",
-
+			if: "IF",
+			then: "THEN",
+			else: "else",
+			variable: "variable",
+			assignment: "assignment"
 		},
 		formTabs: {
 			main: "Main",
@@ -321,7 +332,9 @@ var language = {
 			inputs: "Inputs",
 			outputs: "Outputs",
 			nonFunctionalDesc: "nonFunctionalDescription",
-			emulation: "Emulation"
+			emulation: "Emulation",
+			ifMain: "Condition",
+			assignVar: "Variable assignment",
 		},
 
 		logger: {

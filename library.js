@@ -58,6 +58,8 @@ function formAppender(lang,pf){
 			+ "<li id='outputsTab_" + pf + "'><a href='#tabs-4_" + pf + "'>"+language[lang].formTabs.outputs+"</a></li>"
 			+ "<li id='nonFunctionalDescriptionTab_" + pf + "'><a href='#tabs-5_" + pf + "'>"+language[lang].formTabs.nonFunctionalDesc+"</a></li>"
 			+ "<li id='emulationTab_" + pf + "'><a href='#tabs-6_" + pf + "'>"+language[lang].formTabs.emulation+"</a></li>"
+			+ "<li id='ifMainTab_" + pf + "'><a href='#tabs-7_" + pf + "'>"+language[lang].formTabs.ifMain+"</a></li>"
+			+ "<li id='assignVarTab_" + pf + "'><a href='#tabs-8_" + pf + "'>"+language[lang].formTabs.assignVar+"</a></li>"
 	 		
 	 		+ "</ul><div id='tabs-1_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'>"
 		 	+ "</br><button id='f_mainTab_nextButton_" + pf + "' style='float:right'>"+language[lang].forms.next+"</button></br></div>"
@@ -85,7 +87,13 @@ function formAppender(lang,pf){
 			+ "<div id='tabs-6_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='emulation-content_" + pf + "' class='ui-widget'>"
 			//+ "<table id='f_emulationTab_vectors_" + pf + "' class='text ui-widget-content ui-corner-all'><thead><tr class='ui-widget-header '><th class='tabField'>"+language[lang].forms.number+"</th><th class='tabField'>"+language[lang].forms.input+"</th><th class='tabField'>"+language[lang].forms.output+"</th></tr></thead><tbody><tr></tr></tbody></table></br>"
 			//+ "<button id='f_emulationTab_openAddVectorForm_" + pf + "'>"+language[lang].forms.addNew+"</button><button id='f_emulationTab_openEditVectorForm_" + pf + "'>"+language[lang].forms.edit+"</button><button id='f_emulationTab_deleteThisVector_" + pf + "'>"+language[lang].forms.delete+"</button>"	
-			+ "</div></br><button id='f_emulationTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></p></div>"
+			+ "</div></br><button id='f_emulationTab_nextButton_" + pf + "' style='float: right'>"+language[lang].forms.next+"</button><button id='f_emulationTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></p></div>"
+
+			+ "<div id='tabs-7_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='ifMain-content_" + pf + "' class='ui-widget'>"
+			+ "</div></br><button id='f_ifMainTab_nextButton_" + pf + "' style='float: right'>"+language[lang].forms.next+"</button><button id='f_ifMainTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></p></div>"
+
+			+ "<div id='tabs-8_" + pf + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom'><p><div id='assignVar-content_" + pf + "' class='ui-widget'>"
+			+ "</div></br><button id='f_assignVarTab_backButton_" + pf + "' style='float: right'>"+language[lang].forms.back+"</button></br></p></div>"
 
 			+"</div><input type='submit' name='f_button_sumbitAllButton' id='f_button_sumbitAllButton_" + pf + "' value='"+language[lang].forms.submitAll+"' style='float:right;'/><input type='reset' name='f_button_resetAllButton' id='f_button_resetAllButton_" + pf + "' value='"+language[lang].forms.resetAll+"' style='float:right;'/></br>";
 	$("#form_" + pf).prepend(mainContent);

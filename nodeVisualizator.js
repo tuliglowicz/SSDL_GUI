@@ -61,8 +61,6 @@ function nodeVisualizator(view){
 								}
 							});
 						// }
-
-						console.log("---------",transX, transY);
 						
 						this.showNode();
 					},
@@ -278,12 +276,12 @@ function nodeVisualizator(view){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								if(!forRepo){
-									console.log("działam");
+									// console.log("działam");
 									move = this.dragIO(i, "in");
 									this.inputs[i].node.drag(move.move, move.start, move.end);
 									this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 								}
-								else console.log("trolluję");
+								// console.log("trolluję");
 								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);

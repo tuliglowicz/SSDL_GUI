@@ -47,11 +47,24 @@ function sideScroller(paper){
 					}
 				}
 			},
-			start: function start(){
-				this.oy = this.attr("y");
-				this.lastPos = this.attr("y");
+			start: function start(set){
+				return function(){
+					this.oy = this.attr("y");
+					this.lastPos = this.attr("y");
+					$.each(set, function(){
+						if(getType(this.prepareToDrag) === "function") this.prepareToDrag();
+					});
+				}
 			},
-			stop: function stop(){},
+			stop: function stop(set, mult){
+				return function(){
+					var dx = this.attr('x') - this.ox,
+						dy = this.attr('y') - this.oy;
+					$.each(set, function(){
+						if(getType(this.returnFromDragging) === "function") this.returnFromDragging(dx/mult, dy/mult);	
+					});
+				}
+			},
 			init: function init(){
 				this.slider = paper.rect(paper.width-5, 0, 5, visibleHeight*.75, 5)
 					.attr({"stroke-width":0, fill:CFG.slider.fillColor, opacity: visible})
@@ -66,7 +79,7 @@ function sideScroller(paper){
 					var setHeight = checkHeight(set);
 					multiplier = (visibleHeight / setHeight < 1) ? visibleHeight/setHeight : 1;
 					this.slider.attr({height: visibleHeight*multiplier});
-					this.slider.drag(this.move(this.set, multiplier), this.start, this.stop);
+					this.slider.drag(this.move(this.set, multiplier), this.start(this.set), this.stop(this.set, multiplier));
 					result = true;
 				}
 				else
