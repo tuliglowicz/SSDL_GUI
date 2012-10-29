@@ -306,7 +306,7 @@
 					id: "f_ifMainTab_then",
 					inputType: "select",
 					validation: function(){},
-					values:["so much to do", "so little time"]	
+					values:["do something", "go to node"]	
 					// zawartość tych selectów będzie generowana dynamicznie
 					//w oparciu o bieżącą zawartość grafu
 				},
@@ -315,7 +315,7 @@
 					id: "f_ifMainTab_else",
 					inputType: "select",
 					validation: function(){},
-					values:["fuck off", "Paweł Stelmach"]	
+					values:["do something else", "in another node"]	
 					// zawartość tych selectów będzie generowana dynamicznie
 					//w oparciu o bieżącą zawartość grafu
 				}
