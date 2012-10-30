@@ -2,7 +2,7 @@
 		var tmp = {
 			name: "blankNode",
 			version: "1.0",
-			author: "Author",
+			author: "Dorota Kawalec",
 			dataType: 'json',
 			dataSet: [],
 			globalEvents: ["load"],
@@ -80,7 +80,7 @@
 				var size = CFG.nodeDefaults.conditionSize;
 				var repo_if = this.paper.path("M "+(nodeHorizontalPosition+65)+" 260 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z")
 					.attr({fill: CFG.colors.conditionStart})
-					.dblclick(onDblClick("IF"));
+					// .dblclick(onDblClick("IF"));
 				repo_if.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_if);
 			}

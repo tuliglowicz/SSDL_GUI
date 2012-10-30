@@ -1092,7 +1092,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.subgraph.exceptions = _this.find("subGraph excptions:last").text();
 				}
 				node.controlType = _this.find("controlType:last").text();
-				
+
 				
 				var $condition = _this.find("condition:last");
 					node.condition = {};

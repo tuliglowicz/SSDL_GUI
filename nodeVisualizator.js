@@ -655,7 +655,7 @@ function nodeVisualizator(view){
 						viewNode.color = CFG.colors.conditionEnd;
 					else if(controlType == "#start")
 						viewNode.color = CFG.colors.start;
-					else if(controlType == "#stop")
+					else if(controlType == "#end")
 						viewNode.color = CFG.colors.stop;
 				}
 				else if ( nodeType == "emulationService")
