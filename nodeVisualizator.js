@@ -246,7 +246,7 @@ function nodeVisualizator(view){
 						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke),
 							isCFMode = gui.view.mode == "CF",
 							length = this.inputs.length, x, y, that = this, nx, move;
-						if(this.type.toLowerCase() === "control"){ 			//TODO: modyfikacja warunku, tak żeby nie sypał się node condition
+						if(this.mainShape.node.nodeName === "circle"){
 							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
 								coordsList = [
@@ -269,19 +269,40 @@ function nodeVisualizator(view){
 								move = gui.view.dragDFArrow(this.outputs[i].node, this).map();
 								if(isCFMode) this.outputs[i].node.hide();
 							}
-						}
-						else {
+						} else if(this.mainShape.node.nodeName === "path"){
+							var mult = 1/1.41,
+								j = 0;
+								s = CFG.nodeDefaults.conditionSize, 
+								nx = this.x-5,
+								ny = this.y+15,
+								coordsList = [
+								[nx-s, ny], [nx+s, ny], [nx, ny+s], [nx, ny-s],
+								[nx+s, ny+s], [nx+s, ny-s],
+								[nx-s, ny+s], [nx-s, ny-s]];
+							length = this.inputs.length;
+							for(var i = 0; i < length; i++){
+								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
+								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } 
+								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								j = i+1;
+							}
+							length = this.outputs.length;
+							for(var i = 0; i < length; i++){
+								if(j<8){ x = coordsList[j][0]; y = coordsList[j][1]; }
+								else{ x = coordsList[j%8][0]; y = coordsList[j%8][1]; } 
+								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								j+=i;
+							}
+						} else {
 							var spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
 								x = this.x + (i+1)*spacing; y = this.y-10;
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								if(!forRepo){
-									// console.log("działam");
 									move = this.dragIO(i, "in");
 									this.inputs[i].node.drag(move.move, move.start, move.end);
 									this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 								}
-								// console.log("trolluję");
 								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
