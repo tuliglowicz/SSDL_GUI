@@ -176,11 +176,11 @@
             <alternatives/>
             <subGraph/>
             <condition>
-                <conditionId>1</conditionId>
+                <conditionId>1</conditionId> // id
                 <paths/>
-                <type>Dynamic</type>
+                <type>Dynamic</type>    // ??
                 <if>
-                    <path>down</path>
+                    <path>1</path>
                     <variable>number1</variable>
                     <value>number2</value>
                     <relation>less</relation>
@@ -189,14 +189,7 @@
                     CalculatorService2
                 </then>
                 <else>
-                    <if>
-                        <path>up</path>
-                        <variable/>
-                        <value/>
-                        <relation/>
-                    </if>
-                    <then>CalculatorService3</then>
-                    <else/>
+                    CalculatorService3
                 </else>
             </condition>
             <targets/>
@@ -437,11 +430,11 @@
                 <conditionId>1</conditionId>
                 <paths>
                     <path>
-                        <pathId>down</pathId>
+                        <pathId>1</pathId>
                         <inputId>return1</inputId>
                     </path>
                     <path>
-                        <pathId>up</pathId>
+                        <pathId>2</pathId>
                         <inputId>return2</inputId>
                     </path>
                 </paths>

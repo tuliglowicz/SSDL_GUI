@@ -1092,9 +1092,31 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.subgraph.exceptions = _this.find("subGraph excptions:last").text();
 				}
 				node.controlType = _this.find("controlType:last").text();
-				node.condition = _this.find("condition:last").text();
+				
+				
+				var $condition = _this.find("condition:last");
+					node.condition = {};
+					node.condition.id = $condition.find("conditionId:first").text();
+					node.condition.paths = [];
+					var path;
+					$condition.find("paths:first path").each(function(){
+						path = {};
+						path.pathId = $(this).find("pathId:first").text();
+						path.inputId = $(this).find("inputId:first").text();
 
-				// var 
+						node.condition.paths.push( path );
+					});
+					node.condition.type = $condition.find("type:first").text();
+
+				var $details = $condition.find("if:first");
+					node.condition.if = {};
+					node.condition.if.path = $details.find("path:first").text();
+					node.condition.if.variable = $details.find("variable:first").text();
+					node.condition.if.value = $details.find("value:first").text();
+					node.condition.if.relation = $details.find("relation:first").text();
+
+					node.condition.then = $condition.find("then:first").text();
+					node.condition.else = $condition.find("else:first").text();
 
 				node.sources = [];
 				_this.find("sources:last source").each(function() {

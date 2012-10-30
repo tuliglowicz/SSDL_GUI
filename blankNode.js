@@ -42,6 +42,7 @@
 					.dblclick(onDblClick("Service"));
 				repo_service.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_service);
+
 				var text_functionality = this.paper.text(textHorizontalPosition,70,language[gui.language].nodes.functionality);
 				text_functionality.node.setAttribute("class","repository_text");
 				this.dataSet.push(text_functionality);
@@ -50,6 +51,7 @@
 					.dblclick(onDblClick("Functionality"));
 				repo_functionality.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_functionality);
+
 				var text_mediator = this.paper.text(textHorizontalPosition,130,language[gui.language].nodes.mediator);
 					// .hide();
 					text_mediator.node.setAttribute("class","repository_text");
@@ -71,6 +73,16 @@
 					// .hide();
 				repo_emulationService.node.setAttribute("class","repository_element");	
 				this.dataSet.push(repo_emulationService);
+
+				var text_emulationService = this.paper.text(textHorizontalPosition,250,language[gui.language].nodes.if);
+					text_emulationService.node.setAttribute("class","repository_text");
+				this.dataSet.push(text_emulationService);
+				var size = CFG.nodeDefaults.conditionSize;
+				var repo_if = this.paper.path("M "+(nodeHorizontalPosition+65)+" 260 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z")
+					.attr({fill: CFG.colors.conditionStart})
+					.dblclick(onDblClick("IF"));
+				repo_if.node.setAttribute("class","repository_element");
+				this.dataSet.push(repo_if);
 			}
 		};
 		return tmp;

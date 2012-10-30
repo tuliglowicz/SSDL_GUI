@@ -20,6 +20,7 @@ var language = {
 			functionality: "Funkcjonalność",
 			mediator:	"Mediator",
 			emulationService: "Usługa Markująca",
+			if: "Warunek (IF)"
 		},
 		alerts: {
 			asYouWish: "Jak sobie chcesz!",
@@ -219,6 +220,7 @@ var language = {
 			functionality: "Functionality",
 			mediator:	"Mediator",
 			emulationService: "Markup Service",
+			if: "Condition (IF)"
 		},
 		alerts: {
 			asYouWish: "As you wish",

@@ -577,14 +577,14 @@ function nodeVisualizator(view){
 					},
 					showNode : function showNode(){
 						// this.buildMenu();
-						console.log(this.set.length, "set");
-						console.log(this.inputs.length, "inputs");
-						console.log(this.outputs.length, "outputs");
-						console.log(this.connectors.length, "connectors");
+						// console.log(this.set.length, "set");
+						// console.log(this.inputs.length, "inputs");
+						// console.log(this.outputs.length, "outputs");
+						// console.log(this.connectors.length, "connectors");
 
 						$.each(this.set, function(){
 							this.show();
-							console.log(this.getBBox().x, this.getBBox().y);
+							// console.log(this.getBBox().x, this.getBBox().y);
 						});
 						$.each(this.inputs, function(){
 							this.node.show();
@@ -646,9 +646,20 @@ function nodeVisualizator(view){
 
 				return viewNode;
 			},
-			assumeColor : function assumeColor(nodeType, viewNode){
-				if(nodeType == "control")
-					viewNode.color = CFG.colors.start;
+			assumeColor : function assumeColor(nodeType, viewNode, controlType){
+				// console.log(controlType, nodeType, "--------------")
+				if(nodeType == "control"){
+					if(controlType == "#conditionstart")
+						viewNode.color = CFG.colors.conditionStart;
+					else if(controlType == "#conditionend")
+						viewNode.color = CFG.colors.conditionEnd;
+					else if(controlType == "#start")
+						viewNode.color = CFG.colors.start;
+					else if(controlType == "#stop")
+						viewNode.color = CFG.colors.stop;
+				}
+				else if ( nodeType == "emulationService")
+					viewNode.color = CFG.colors.emulationService;
 				else if(nodeType == "functionality")
 					viewNode.color = CFG.colors.functionality;
 				else if(nodeType == "mediator")
@@ -680,15 +691,16 @@ function nodeVisualizator(view){
 			visualiseNode : function visualiseNode(dataNode, x, y, forRepo){
 				var viewNode = this.getBlankNode(x, y);
 				var nodeType = dataNode.nodeType.toLowerCase();
+				var controlType = dataNode.controlType.toLowerCase();
 
 				this.prepareData( dataNode, viewNode );
-				this.assumeColor(nodeType, viewNode);
+				this.assumeColor(nodeType, viewNode, controlType);
 				// console.log(viewNode.id, viewNode.color, nodeType);
 				if ( nodeType == "control" ){
 					this.draw_controlNode(viewNode);
 
-					if(viewNode.isStart)
-						view.dragCFArrow( viewNode.mainShape, viewNode );
+					// if(viewNode.isStart)
+					// 	view.dragCFArrow( viewNode.mainShape, viewNode );
 
 				} else {
 					this.draw_rectNode(viewNode);
@@ -706,56 +718,64 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			draw_controlNode : function draw_controlNode(node){
-				if(node.controlType === "#conditionStart" && node.controlType =="#conditionEnd"){
-					
+				var size = CFG.nodeDefaults.conditionSize,
+					offsetY = 5;
+				var mainShape, label;
+				node.x = node.x + CFG.nodeDefaults.defaultWidth / 2 + node.r/2;
+				if(node.controlType === "#conditionStart"){
+					mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": CFG.colors.conditionStart});
+				} else if( node.controlType == "#conditionEnd" ){
+					mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" l "+size+" -"+size+" M "+(node.x - size*.5)+" "+(node.y + size*1.5)+" l "+(size)+" -"+size).attr({"fill": CFG.colors.conditionEnd});
+				} else {
+					node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" );
+					node.y = node.y + CFG.nodeDefaults.defaultRarius;
+					offsetY = 20;
+					mainShape = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke});
 				}
-				node.x = node.x+130/2+node.r/2;
-				node.y = node.y+node.r;
-				node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" );
-				var c = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke}),
-					label = view.paper.text(node.x, node.y-20, node.label)
-				;
-				c.node.setAttribute("class", node.id);
+
+				label = view.paper.text(node.x, node.y-offsetY, node.label);
+
+				mainShape.node.setAttribute("class", node.id);
 				if( node.isStartNode )
-					c.attr({cursor: "crosshair"});
+					mainShape.attr({cursor: "crosshair"});
 				
 				label.node.removeAttribute("style");
 				label.node.removeAttribute("text");
 				label.node.setAttribute("class", node.id + " label");
 
-				node.mainShape = c;
+				node.mainShape = mainShape;
 				node.raph_label = label;
 				node.raph_label.dblclick(function(){
 					gui.controller.reactOnEvent("EditNode", {nodeId: node.id});
 				});
 
-				node.set.push(c, label);
+				node.set.push(mainShape, label);
 				
-				node.isInside = function(x1,y1,x2,y2){
-					return this.x+this.r > x1 &&
-							this.y+this.r > y1 &&
-							this.x-this.r < x2 &&
-							this.y-this.r < y2
-							;
-				}
-				node.getPossiblePositionsOfConnectors = function(){
-					return [[this.x, this.y]];
-				}
-				node.switchToCFMode = function switchToCFMode(){
-					$.each(this.inputs, this.hide);
-					$.each(this.outputs, this.hide);
-					// $.each(this.connectors, this.show);
-					if(node.isStart)
-						this.mainShape.attr({cursor: "crosshair"})
-				},
-				node.switchToDFMode = function switchToDFMode(){
-					$.each(this.inputs, this.show);
-					$.each(this.outputs, this.show);
-					// $.each(this.connectors, this.hide);
-					if(node.isStart)
-						this.mainShape.attr({cursor: "default"})
-				}
-				;
+				// node.isInside = function(x1,y1,x2,y2){
+				// 	return this.x+this.r > x1 &&
+				// 			this.y+this.r > y1 &&
+				// 			this.x-this.r < x2 &&
+				// 			this.y-this.r < y2
+				// 			;
+				// }
+				// node.getPossiblePositionsOfConnectors = function(){
+				// 	return [[this.x, this.y]];
+				// }
+				// node.switchToCFMode = function switchToCFMode(){
+				// 	$.each(this.inputs, this.hide);
+				// 	$.each(this.outputs, this.hide);
+				// 	// $.each(this.connectors, this.show);
+				// 	if(node.isStart)
+				// 		this.mainShape.attr({cursor: "crosshair"})
+				// },
+				// node.switchToDFMode = function switchToDFMode(){
+				// 	$.each(this.inputs, this.show);
+				// 	$.each(this.outputs, this.show);
+				// 	// $.each(this.connectors, this.hide);
+				// 	if(node.isStart)
+				// 		this.mainShape.attr({cursor: "default"})
+				// }
+				// ;
 
 				return node;
 			},

@@ -137,7 +137,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			}
 
 			var o = this.current_graph_view.edgesDF.map(function(o){ return o.output.id;});
-			console.log(o)
+			// console.log(o)
 		},
 		setCurrentGraph : function setCurrentGraph(id){
 			var currGraph = this.getGraphById(id);
@@ -1206,15 +1206,6 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 	outputView.mainMenu = menu();
 	// outputView.nodeDragger = nodeDragger();
 	// outputView.mainMenu.init();
-
-	//prototyp If-a
-	var size = 30
-	outputView.paper.path("M 100 100 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": "green", "stroke-width": "2px"})
-
-	// delete after epiphany
-	outputView.paper.path("M 200 100 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": "green", "stroke-width": "2px"})
-	outputView.paper.path("M "+(200 - size*.5)+" "+(100 + size*1.5)+" l "+(size)+" -"+size).attr({"stroke-width": "2px"});
-
 
 	var	lastDragX,
 		lastDragY,

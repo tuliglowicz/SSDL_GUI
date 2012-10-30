@@ -5,8 +5,8 @@ var CFG = {
 		mediator : "white",
 		start : "white",
 		stop : "white",
-		controlIf : "green",
-		controlEndIf : "green",
+		conditionStart : "green",
+		conditionEnd : "green",
 		emulationService : "#D1DBB5",
 		highlightStroke : "orange",
 		normalStroke : "black",
@@ -21,7 +21,8 @@ var CFG = {
 		defaultRepoHeight: 20,
 		defaultRepoWidth: 150,
 		defaultConnectorRadius: 4,
-		maxLengthOfShownServiceName: 25
+		maxLengthOfShownServiceName: 25,
+		conditionSize: 20
 	},
 	repoNode : {
 
