@@ -461,35 +461,38 @@
 				this.resultJSON.nodeId = node.nodeId;
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form_" + pf ).dialog( "open" );
-				
-				// if(node.condition){
-				// 	condition = node.condition.split(" ");
-				// 	$( "#f_mainTab_condition" ).val((condition[1]) ? condition[1] : "");
-				// 	$( "#f_mainTab_conditionTRUE" ).val((condition[3]) ? condition[3] : "");
-				// 	$( "#f_mainTab_conditionFALSE" ).val((condition[5]) ? condition[5] : "");
-				// }
 			},
 			adjustForm: function adjustForm(nodeType){
 				//żeby nie powtarzały się fragmenty kodu - przyjmujemy "functionality" za default i ew. edytujemy od tego miejsca
 				$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
-				$('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
-				$('#tabs-2_' + pf).hide();
-				$('#emulationTab_' + pf).addClass("ui-tabs-hide");
-				$('#tabs-6_' + pf).hide();
+				$('#tabs-1_' + pf).show();
+				$('#tabs-2_' + pf).hide(); $('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
+				$('#tabs-4_' + pf).show(); $('#tabs-5_' + pf).show();
+				$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
+				$('#tabs-7_' + pf).hide(); $('#ifMainTab_' + pf).addClass("ui-tabs-hide");
+				$('#tabs-8_' + pf).hide(); $('#assignVarTab_' + pf).addClass("ui-tabs-hide");
 				$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).hide();
 				$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
 				$('#f_mainTab_serviceClass_addButton_' + pf).show();
 				switch(nodeType.toLowerCase()){
 					case "control" : 
-						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
-						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
-						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
+						if(controlType.toLowerCase()=='#conditionStart'){
+							$('#tabs-1_' + pf).hide(); $('#mainTab_' + pf).addClass("ui-tabs-hide");
+							$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
+							$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
+							$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
+							$('#tabs-8_' + pf).show(); $('#assignVarTab_' + pf).removeClass("ui-tabs-hide");
+							$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
+						}else{
+							$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
+							$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
+							$('#f_mainTab_serviceClass_addButton_' + pf).hide();
+						}
 						break;
 					case "functionality" :
 						break;	//bez zmian
 					case "emulationservice" : 
-						$('#emulationTab_' + pf).removeClass("ui-tabs-hide");
-						$('#tabs-6_' + pf).show();
+						$('#emulationTab_' + pf).removeClass("ui-tabs-hide"); $('#tabs-6_' + pf).show();
 						$tabs.tabs('select', 5);
 						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						$('#f_emulationTab_id_' + pf).prop('disabled', 'true').addClass('ui-state-disabled');
