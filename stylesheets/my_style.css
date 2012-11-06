@@ -1,3 +1,7 @@
+	body {
+		background-color: black;
+	}
+
 	#canvas_container, #c2 {
 		text-align: center;  
 		width: 1024px;

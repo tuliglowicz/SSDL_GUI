@@ -158,9 +158,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 							gui.view.form.editGraphSaveParams();
 						} else {
-							var confirmation = (validation && validation.numberOfErrors && (validation.numberOfErrors < 1))
-							if (!confirmation) 
-								confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
+							var confirmation = true;//(validation && validation.numberOfErrors && (validation.numberOfErrors < 1))
+							// if (!confirmation) 
+							// 	confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
 
 							if (confirmation) {
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
@@ -431,9 +431,10 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					break;
 				case "ADDCFEDGE":
 					(function(e) {
-						var target = gui.controller.getNodeById(e.target.id);
-						// alert(e.target.id)
-						target.sources.push(e.source.id);
+						// var target = gui.controller.getNodeById(e.target.id);
+						// target.sources.push(e.source.id);
+						var source = gui.controller.getNodeById( e.source.id );
+							source.targets.push( e.target.id );
 						var edge = gui.view.addCFEdge(e);
 						if(edge)
 							gui.view.current_graph_view.edgesCF.push(edge);
@@ -821,7 +822,6 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		},
 		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
 			function parseGraph(subgraph, tabulacja) {
-				// alert(++i);
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
 				if (subgraph && subgraph.nodes && subgraph.nodes.length > 0) {
 					tabOutput.push(tabulacja + "<nodes>\n");
@@ -890,7 +890,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					tabOutput.push(tabulacja + "\t\t</physicalDescription>\n");
 				}
 				if (node.functionalDescription) {
-					functionalDescription = node.functionalDescription;
+					var functionalDescription = node.functionalDescription;
 					tabOutput.push(tabulacja + "\t\t<functionalDescription>\n");
 					if (functionalDescription.serviceClasses && functionalDescription.serviceClasses.length > 0) {
 						tabOutput.push(tabulacja + "\t\t\t<serviceClasses>\n");
@@ -976,7 +976,29 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				} else tabOutput.push(tabulacja + "\t\t<subGraph>" + (false || "") + "</subGraph>\n");
 
 				tabOutput.push(tabulacja + "\t\t<controlType>" + (false || "") + "</controlType>\n");
-				tabOutput.push(tabulacja + "\t\t<condition>" + (node.condition || "") + "</condition>\n");
+				// C O N D I T I O N
+				var condition = node.condition;
+				tabOutput.push(tabulacja + "\t\t<condition>\n");
+					tabOutput.push(tabulacja + "\t\t\t<conditionId>"+(condition.id || "")+"</conditionId>\n");
+					tabOutput.push(tabulacja + "\t\t\t<paths>\n");
+					$.each(condition.paths, function(key, path) {
+						tabOutput.push(tabulacja + "\t\t\t\t<path>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<pathId>"+(path.pathId || "")+"</pathId>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<inputId>"+(path.inputId || "")+"</inputId>\n");
+						tabOutput.push(tabulacja + "\t\t\t\t</path>\n");
+					});
+					tabOutput.push(tabulacja + "\t\t\t</paths>\n");
+					tabOutput.push(tabulacja + "\t\t\t<type>"+(condition.type || "")+"</type>\n");
+					tabOutput.push(tabulacja + "\t\t\t<if>\n");
+						tabOutput.push(tabulacja + "\t\t\t\t<path>"+(condition.if.path || "")+"</path>\n");
+						tabOutput.push(tabulacja + "\t\t\t\t<variable>"+(condition.if.variable || "")+"</variable>\n");
+						tabOutput.push(tabulacja + "\t\t\t\t<value>"+(condition.if.value || "")+"</value>\n");
+						tabOutput.push(tabulacja + "\t\t\t\t<relation>"+(condition.if.relation || "")+"</relation>\n");
+					tabOutput.push(tabulacja + "\t\t\t</if>\n");
+					tabOutput.push(tabulacja + "\t\t\t<then>"+(condition.then || "")+"</then>\n");
+					tabOutput.push(tabulacja + "\t\t\t<else>"+(condition.else || "")+"</else>\n");
+				tabOutput.push(tabulacja + "\t\t</condition>\n");
+
 				if (node.sources) {
 					tabOutput.push(tabulacja + "\t\t<sources>\n");
 					$.each(node.sources, function(key, source) {
@@ -984,13 +1006,20 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					});
 					tabOutput.push(tabulacja + "\t\t</sources>\n");
 				}
+				if (node.targets) {
+					tabOutput.push(tabulacja + "\t\t<targets>\n");
+					$.each(node.targets, function(key, target) {
+						tabOutput.push(tabulacja + "\t\t\t<target>" + target + "</target>\n");
+					});
+					tabOutput.push(tabulacja + "\t\t</targets>\n");
+				}
 				tabOutput.push(tabulacja + "\t</node>\n");
 			}
 
 			var tabOutput = [],
 				physicalDescription, functionalDescription, nonFunctionalDescription, i = 0;;
 			// console.log(jsonFormatter(json, true))
-			tabOutput.push("<graph xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+			tabOutput.push("<graph version=\"1.3\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 			parseGraph(json, "\t");
 			tabOutput.push("</graph>");
 
@@ -1093,7 +1122,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				}
 				node.controlType = _this.find("controlType:last").text();
 
-				
+
 				var $condition = _this.find("condition:last");
 					node.condition = {};
 					node.condition.id = $condition.find("conditionId:first").text();
@@ -1115,8 +1144,8 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.condition.if.value = $details.find("value:first").text();
 					node.condition.if.relation = $details.find("relation:first").text();
 
-					node.condition.then = $condition.find("then:first").text();
-					node.condition.else = $condition.find("else:first").text();
+					node.condition.then = $.trim( $condition.find("then:first").text() );
+					node.condition.else = $.trim( $condition.find("else:first").text() );
 
 				node.sources = [];
 				_this.find("sources:last source").each(function() {

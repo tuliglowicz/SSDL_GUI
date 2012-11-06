@@ -3,6 +3,9 @@
 	// tutaj ustawiam LANG na forms
 		var langForms = language[gui.language].forms;
 		var langAlerts = language[gui.language].alerts;
+		// isPresent, unique, isNumber, isString, isUrl
+		// jeśli coś jest typu enum (np.: controlType = #start|#end|#sonditionStart|#conditionEnd), to tylko walidacja isPresent
+		// co jeśli coś ma być prezent pod warunkiem, że coś inne = np. "service"? - na razie bez takich walidacji
 		var formJSON = [
 			{
 				tabLabel:"main",

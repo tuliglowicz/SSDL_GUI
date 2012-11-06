@@ -1,19 +1,16 @@
-<graph>
+<graph version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <nodes>
         <node>
             <nodeId>#Start</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>Control</nodeType>
             <controlType>#start</controlType>
             <physicalDescription>
-                <serviceName/>
-                <serviceGlobalId/>
-                <address/>
-                <operation/>
+                <serviceName></serviceName>
+                <serviceGlobalId></serviceGlobalId>
+                <address></address>
+                <operation></operation>
             </physicalDescription>
-            <condition/>
-            <targets>
-                <target>CalculatorService</target>
-            </targets>
             <functionalDescription>
                 <serviceClasses/>
                 <description>Start node</description>
@@ -24,7 +21,7 @@
                         <id>number</id>
                         <label>number</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>number</outputId>
@@ -35,7 +32,7 @@
                         <id>one</id>
                         <label>one</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>one</outputId>
@@ -46,7 +43,7 @@
                         <id>half</id>
                         <label>half</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>one</outputId>
@@ -59,34 +56,59 @@
                         <id>number</id>
                         <label>number</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                     <output>
                         <class>Double</class>
                         <id>one</id>
                         <label>one</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                     <output>
                         <class>Double</class>
                         <id>half</id>
                         <label>half</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <alternatives/>
-            <subGraph/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
+            <targets>
+                <target>CalculatorService</target>
+            </targets>
         </node>
-        
         <node>
             <nodeId>CalculatorService</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>JavaService</nodeType>
+            <controlType></controlType>
             <physicalDescription>
                 <serviceName>CalculatorService</serviceName>
                 <serviceGlobalId>http://localhost:8080/MathServiceWS/MathService/man</serviceGlobalId>
@@ -108,7 +130,7 @@
                         <id>number</id>
                         <label>number</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>number</outputId>
@@ -121,28 +143,54 @@
                         <id>return</id>
                         <label>return</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <controlType/>
-            <condition/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
             <targets>
                 <target>If</target>
             </targets>
         </node>
-        
         <node>
             <nodeId>If</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>Control</nodeType>
             <controlType>#conditionStart</controlType>
-            <physicalDescription/>
+            <physicalDescription>
+                <serviceName></serviceName>
+                <serviceGlobalId></serviceGlobalId>
+                <address></address>
+                <operation></operation>
+            </physicalDescription>
             <functionalDescription>
-               <serviceClasses/>
-                <description/>
+                <serviceClasses/>
+                <description></description>
                 <metaKeywords/>
                 <inputs>
                     <input>
@@ -150,7 +198,7 @@
                         <id>number1</id>
                         <label>number1</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService</nodeId>
                             <outputId>return</outputId>
@@ -161,7 +209,7 @@
                         <id>number2</id>
                         <label>number2</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>half</outputId>
@@ -169,35 +217,37 @@
                     </input>
                 </inputs>
                 <outputs/>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <alternatives/>
-            <subGraph/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
             <condition>
-                <conditionId>1</conditionId> // id
-                <paths/>
-                <type>Dynamic</type>    // ??
+                <conditionId>1</conditionId>
+                <paths>
+                </paths>
+                <type>Dynamic</type>
                 <if>
                     <path>1</path>
                     <variable>number1</variable>
                     <value>number2</value>
                     <relation>less</relation>
                 </if>
-                <then>
-                    CalculatorService2
-                </then>
-                <else>
-                    CalculatorService3
-                </else>
+                <then>CalculatorService2</then>
+                <else>CalculatorService3</else>
             </condition>
-            <targets/>
+            <sources>
+            </sources>
+            <targets>
+            </targets>
         </node>
-        
         <node>
             <nodeId>CalculatorService2</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>JavaService</nodeType>
+            <controlType></controlType>
             <physicalDescription>
                 <serviceName>CalculatorService2</serviceName>
                 <serviceGlobalId>http://localhost:8080/MathServiceWS/MathService/sub</serviceGlobalId>
@@ -219,7 +269,7 @@
                         <id>number1</id>
                         <label>number1</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>number</outputId>
@@ -230,7 +280,7 @@
                         <id>number2</id>
                         <label>number2</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService</nodeId>
                             <outputId>return</outputId>
@@ -243,23 +293,45 @@
                         <id>return</id>
                         <label>return</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <controlType/>
-            <condition/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
             <targets>
                 <target>EndIf</target>
             </targets>
         </node>
-                    
         <node>
             <nodeId>CalculatorService3</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>JavaService</nodeType>
+            <controlType></controlType>
             <physicalDescription>
                 <serviceName>CalculatorService3</serviceName>
                 <serviceGlobalId>http://localhost:8080/MathServiceWS/MathService/sub</serviceGlobalId>
@@ -281,7 +353,7 @@
                         <id>number1</id>
                         <label>number1</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>number</outputId>
@@ -292,7 +364,7 @@
                         <id>number2</id>
                         <label>number2</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService</nodeId>
                             <outputId>return</outputId>
@@ -305,23 +377,45 @@
                         <id>return</id>
                         <label>return</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <controlType/>
-            <condition/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
             <targets>
                 <target>CalculatorService4</target>
             </targets>
         </node>
-                    
         <node>
             <nodeId>CalculatorService4</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>JavaService</nodeType>
+            <controlType></controlType>
             <physicalDescription>
                 <serviceName>CalculatorService4</serviceName>
                 <serviceGlobalId>http://localhost:8080/MathServiceWS/MathService/add</serviceGlobalId>
@@ -343,7 +437,7 @@
                         <id>number1</id>
                         <label>number1</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService3</nodeId>
                             <outputId>return</outputId>
@@ -354,7 +448,7 @@
                         <id>number2</id>
                         <label>number2</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>#Start</nodeId>
                             <outputId>one</outputId>
@@ -367,27 +461,54 @@
                         <id>return</id>
                         <label>return</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <controlType/>
-            <condition/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
             <targets>
                 <target>EndIf</target>
             </targets>
         </node>
-        
         <node>
             <nodeId>EndIf</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>Control</nodeType>
             <controlType>#conditionEnd</controlType>
-            <physicalDescription/>
+            <physicalDescription>
+                <serviceName></serviceName>
+                <serviceGlobalId></serviceGlobalId>
+                <address></address>
+                <operation></operation>
+            </physicalDescription>
             <functionalDescription>
                 <serviceClasses/>
+                <description></description>
                 <metaKeywords/>
                 <inputs>
                     <input>
@@ -395,7 +516,7 @@
                         <id>return1</id>
                         <label>return1</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService2</nodeId>
                             <outputId>return</outputId>
@@ -406,7 +527,7 @@
                         <id>return2</id>
                         <label>return2</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>CalculatorService4</nodeId>
                             <outputId>return</outputId>
@@ -419,13 +540,16 @@
                         <id>result</id>
                         <label>result</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
             <condition>
                 <conditionId>1</conditionId>
                 <paths>
@@ -438,28 +562,37 @@
                         <inputId>return2</inputId>
                     </path>
                 </paths>
-                <type/>
-                <if/>
-                <then/>
-                <else/>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
             </condition>
+            <sources>
+            </sources>
             <targets>
                 <target>#End</target>
             </targets>
         </node>
-                
         <node>
             <nodeId>#End</nodeId>
+            <nodeLabel></nodeLabel>
             <nodeType>Control</nodeType>
             <controlType>#end</controlType>
             <physicalDescription>
-                <serviceName/>
-                <serviceGlobalId/>
-                <address/>
-                <operation/>
+                <serviceName></serviceName>
+                <serviceGlobalId></serviceGlobalId>
+                <address></address>
+                <operation></operation>
             </physicalDescription>
-            <condition/>
-            <targets/>
             <functionalDescription>
                 <serviceClasses/>
                 <description>End node</description>
@@ -470,7 +603,7 @@
                         <id>result</id>
                         <label>result</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                         <source>
                             <nodeId>EndIf</nodeId>
                             <outputId>result</outputId>
@@ -483,15 +616,38 @@
                         <id>result</id>
                         <label>result</label>
                         <dataType>Double</dataType>
-                        <properties/>
+                        <properties></properties>
                     </output>
                 </outputs>
-                <preconditions/>
-                <effects/>
+                <preconditions></preconditions>
+                <effects></effects>
             </functionalDescription>
             <nonFunctionalDescription/>
-            <alternatives/>
-            <subGraph/>
+            <alternatives></alternatives>
+            <subGraph></subGraph>
+            <controlType></controlType>
+            <condition>
+                <conditionId></conditionId>
+                <paths>
+                </paths>
+                <type></type>
+                <if>
+                    <path></path>
+                    <variable></variable>
+                    <value></value>
+                    <relation></relation>
+                </if>
+                <then>
+                    <path></path>
+                </then>
+                <else>
+                    <path></path>
+                </else>
+            </condition>
+            <sources>
+            </sources>
+            <targets>
+            </targets>
         </node>
     </nodes>
     <inputVariables>
@@ -512,6 +668,4 @@
         </inputVariable>
     </inputVariables>
     <nonFunctionalParameters/>
-    <parameters/>
-    <exceptions/>
 </graph>
