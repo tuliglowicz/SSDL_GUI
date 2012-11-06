@@ -457,17 +457,18 @@
 					$( "#f_physicalDescriptionTab_address_" + pf ).val("").addClass("longTextfield");
 					$( "#f_physicalDescriptionTab_operation_" + pf ).val("").addClass("longTextfield");
 				}
-				this.adjustForm(node.nodeType);
+				this.adjustForm(node.nodeType, node.controlType);
 				this.resultJSON.nodeId = node.nodeId;
 				this.resultJSON.nodeType = node.nodeType;
 				$( "#form_" + pf ).dialog( "open" );
 			},
-			adjustForm: function adjustForm(nodeType){
+			adjustForm: function adjustForm(nodeType, controlType){
 				//żeby nie powtarzały się fragmenty kodu - przyjmujemy "functionality" za default i ew. edytujemy od tego miejsca
 				$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
-				$('#tabs-1_' + pf).show();
+				$('#tabs-1_' + pf).show(); $('#mainTab_' + pf).removeClass("ui-tabs-hide");
 				$('#tabs-2_' + pf).hide(); $('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
-				$('#tabs-4_' + pf).show(); $('#tabs-5_' + pf).show();
+				$('#tabs-4_' + pf).show(); $('#outputsTab_' + pf).removeClass("ui-tabs-hide");
+				$('#tabs-5_' + pf).show(); $('#nonFunctionalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 				$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
 				$('#tabs-7_' + pf).hide(); $('#ifMainTab_' + pf).addClass("ui-tabs-hide");
 				$('#tabs-8_' + pf).hide(); $('#assignVarTab_' + pf).addClass("ui-tabs-hide");
@@ -476,11 +477,12 @@
 				$('#f_mainTab_serviceClass_addButton_' + pf).show();
 				switch(nodeType.toLowerCase()){
 					case "control" : 
-						if(controlType.toLowerCase()=='#conditionStart'){
+						if(controlType.toLowerCase()=='#conditionstart'){
 							$('#tabs-1_' + pf).hide(); $('#mainTab_' + pf).addClass("ui-tabs-hide");
 							$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
 							$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 							$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
+							$tabs.tabs('select', 6);
 							$('#tabs-8_' + pf).show(); $('#assignVarTab_' + pf).removeClass("ui-tabs-hide");
 							$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						}else{
