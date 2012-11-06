@@ -1120,7 +1120,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.subgraph.parameters = _this.find("subGraph parameters:last").text();
 					node.subgraph.exceptions = _this.find("subGraph excptions:last").text();
 				}
-				node.controlType = _this.find("controlType:last").text();
+				node.controlType = _this.find("controlType:first").text();
 
 
 				var $condition = _this.find("condition:last");
