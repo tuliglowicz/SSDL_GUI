@@ -544,7 +544,8 @@
 			},
 			clearErrors: function clearErrors(){
 				$("*").removeClass("ui-state-error");
-				$('td[id$="_validation_' + pf + '"]').text("");
+				$("*").removeClass("ui-state-error-B");
+				$('span[id$="_validation_' + pf + '"]').text("");
 			},
 			//argument total decyduje, czy ma być skasowane id bloczka (nie chcemy tego przy resecie formularza, ale przy ponownym otwarciu tak)
 			cleanForm: function cleanForm(total){
@@ -860,9 +861,10 @@
 				this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName_" + pf ).val();
 				this.physDescJSON.serviceGlobalId = $( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val();
 				this.physDescJSON.address = $( "#f_physicalDescriptionTab_address_" + pf ).val();
-				if(!this.physDescJSON.address){
-					this.physDescJSON.address = "http://192.168.2.145:8383/Dummy/EmulateService?wsdl&name="+this.resultJSON.nodeLabel;
-				}
+				// WAT
+				// if(!this.physDescJSON.address){
+				// 	this.physDescJSON.address = "http://192.168.2.145:8383/Dummy/EmulateService?wsdl&name="+this.resultJSON.nodeLabel;
+				// }
 				this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation_" + pf ).val();
 				this.resultJSON.physicalDescription = this.physDescJSON;
 					
