@@ -1,3 +1,17 @@
+/*
+	Jeśli dwa inputy są dołączone -> select pierwszy dynamiczny (<option value="inputId">inputLabel</option>)
+									 drugi na sztywno z warunkami logcznymi (< > = itd)
+									 textbox z komentarzem, że albo wpisze stałą, albo zostawi pusty i aoutomatycznie zostanie dodaty tam ten drugi input.
+	
+	Jeśli jeden inputy jest dołącz.-> select pierwszy disabled z wartością ttego jednego
+									 drugi na sztywno z warunkami logcznymi (< > = itd)
+									 textbox z komentarzem, że pole jest wymagane i przyjmuje number.
+
+*/
+
+function isNumber(inp){
+	return !isNaN(inp);
+}
 
 	function form() {
 	// tutaj ustawiam LANG na forms
@@ -298,8 +312,22 @@
 				tabId: "ifMainTab",
 				formId: "ifMainForm",
 				fields: [{
-					label: "if",
-					id: "f_ifMainTab_if",
+					label: "ifVar",
+					id: "f_ifMainTab_ifVar",
+					inputType: "select",
+					validation: function(){},
+					values:[]
+				},
+				{
+					label: "ifRel",
+					id: "f_ifMainTab_ifRel",
+					inputType: "select",
+					validation: function(){},
+					values:["eq", "gt", "le", "leq", "geq"]
+				},
+				{
+					label: "ifVar2",
+					id: "f_ifMainTab_ifVar2",
 					inputType: "textBox",
 					validation: function(){},
 					values:[]
@@ -309,7 +337,7 @@
 					id: "f_ifMainTab_then",
 					inputType: "select",
 					validation: function(){},
-					values:["do something", "go to node"]	
+					values:[]	
 					// zawartość tych selectów będzie generowana dynamicznie
 					//w oparciu o bieżącą zawartość grafu
 				},
@@ -318,31 +346,12 @@
 					id: "f_ifMainTab_else",
 					inputType: "select",
 					validation: function(){},
-					values:["do something else", "in another node"]	
+					values:[]	
 					// zawartość tych selectów będzie generowana dynamicznie
 					//w oparciu o bieżącą zawartość grafu
 				}
-			]},
-			{
-				tabLabel: "variable assignment",
-				tabId: "assignVarTab",
-				formId: "assignVarForm",
-				fields: [{
-					label: "variable",
-					id: "f_assignVarTab_var",
-					inputType: "textBox",
-					validation: function(){},
-					values:[]
-				},
-				{
-					label: "assignment",
-					id: "f_assignVarTab_val",
-					inputType: "select",
-					validation: function(){},
-					values:["input1", "input2"]	//to też będzie dynamiczne
-				}
-			]},
-			],
+			]}
+		],
 		resultJSON = {
 			nodeId:"",
 			nodeLabel:"",
@@ -400,7 +409,6 @@
 		$("#f_addInputVariableForm_" + pf).prepend(formGenerator(gui.language, pf, formJSON[7]));
 		$("#f_graphSaveParamsForm_" + pf).prepend(formGenerator(gui.language, pf, graphSaveParamsJSON));
 		$("#tabs-7_" + pf).prepend(formGenerator(gui.language, pf, formJSON[8]));	
-		$("#tabs-8_" + pf).prepend(formGenerator(gui.language, pf, formJSON[9]));	
 
 		$("#form_" + pf).dialog({
 			autoOpen: false,
@@ -471,7 +479,6 @@
 				$('#tabs-5_' + pf).show(); $('#nonFunctionalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 				$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
 				$('#tabs-7_' + pf).hide(); $('#ifMainTab_' + pf).addClass("ui-tabs-hide");
-				$('#tabs-8_' + pf).hide(); $('#assignVarTab_' + pf).addClass("ui-tabs-hide");
 				$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).hide();
 				$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
 				$('#f_mainTab_serviceClass_addButton_' + pf).show();
@@ -483,8 +490,8 @@
 							$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 							$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
 							$tabs.tabs('select', 6);
-							$('#tabs-8_' + pf).show(); $('#assignVarTab_' + pf).removeClass("ui-tabs-hide");
 							$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
+							this.fillSelects();
 						}else{
 							$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
 							$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
@@ -504,6 +511,15 @@
 						$('#tabs-2_' + pf).show();				
 						break;
 				}
+			},
+			fillSelects: function fillSelects(){
+				$.each(gui.controller.current_graphData.nodes, function(){
+					$("#f_ifMainTab_then_" + pf).append("<option>"+this.nodeId+"</option>");
+					$("#f_ifMainTab_else_" + pf).append("<option>"+this.nodeId+"</option>");
+				});
+			},
+			appendToInputSelect: function appendToInputSelect(inputId){
+				$("#f_ifMainTab_ifVar_" + pf).append("<option>"+inputId+"</option>");
 			},
 		//funkcje czyszczące elementy formularza
 			clearNF: function clearNF(){
@@ -575,6 +591,10 @@
 				$( "#f_mainTab_controlType_" + pf ).val("");
 				$("#f_mainTab_serviceClass_list_" + pf).html("");
 				$tabs.tabs('select', 0);
+
+				$("#f_ifMainTab_then_" + pf).html('');
+				$("#f_ifMainTab_else_" + pf).html('');
+				$("#f_ifMainTab_ifVar_" + pf).html('');
 			},
 		//dodawanie elementów
 			appendIO: function appendIO(array, type){
@@ -677,6 +697,7 @@
 						"<td id=\"" + tempId + "_dataType\" class='tabField'>" + cutString(input.dataType, CFG.forms.maxStringLength) + "</td>" + 
 					"</tr>" 
 				);
+				if(temp[2]=='inputs') this.appendToInputSelect(input.id);
 			},
 			NFPropsAppender: function NFPropsAppender(input, number){
 				var tempId = "f_nonFunctionalDescriptionTabxNFProps-" + number;
@@ -915,7 +936,7 @@
 					}
 					else alert(langAlerts.errors.inputExists);		
 				}
-				else{	//edytujemy istniejÄ…cy input
+				else{	//edytujemy istniejący input
 					var destinationId = "f_inputsTabxinputs-" + index;
 					inputJSON.id = this.funcDescJSON.inputs[index].id;
 					this.funcDescJSON.inputs[index] = inputJSON;
