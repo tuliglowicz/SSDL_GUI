@@ -126,8 +126,9 @@ var language = {
 			ifVar2: "drugiej zmiennej",
 			then: "TO",
 			else: "WPP",
-			variable: "zmienna",
-			assignment: "znaczenie"
+			placeholder1: "wprowadź stałą; pole obowiązkowe",
+			placeholder2: "wprowadź stałą; puste = użycie drugiego wejścia",
+			noForm: "Ten wierzchołek nie ma edytowalnych parametrów!"
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -329,8 +330,9 @@ var language = {
 			ifVar2: "than ",
 			then: "THEN",
 			else: "else",
-			variable: "variable",
-			assignment: "assignment"
+			placeholder1: "nummeric constant must be given here",
+			placeholder2: "nummeric constant; if empty uses other input",
+			noForm: "This node has no editable parameters!"
 		},
 		formTabs: {
 			main: "Main",

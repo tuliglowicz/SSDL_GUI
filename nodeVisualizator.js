@@ -283,14 +283,18 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } 
+								move = this.dragIO(i, "in");
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								this.inputs[i].node.drag(move.move, move.start, move.end);
 								j = i+1;
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
 								if(j<8){ x = coordsList[j][0]; y = coordsList[j][1]; }
 								else{ x = coordsList[j%8][0]; y = coordsList[j%8][1]; } 
+								move = this.dragIO(i, "out");
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								this.outputs[i].node.drag(move.move, move.start, move.end);
 								j+=i;
 							}
 						} else {

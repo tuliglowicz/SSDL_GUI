@@ -113,7 +113,7 @@ function formGenerator(lang, postfix, json){
 				html.push("<textarea id=\"" + this.id + "_" + postfix + "\" class=\"text ui-widget-content ui-corner-all bigTextfield\" ></textarea>");
 			break;
 			case "select" :
-				html.push("<select id=\"" + this.id + "_" + postfix + "\" >");
+				html.push("<select id=\"" + this.id + "_" + postfix + "\" class='select'>");
 					$.each(this.values, function(){
 						html.push("<option value=\""+this+"\">"+this+"</option>")
 					});
