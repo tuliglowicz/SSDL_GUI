@@ -292,9 +292,7 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								if(j<8){ x = coordsList[j][0]; y = coordsList[j][1]; }
 								else{ x = coordsList[j%8][0]; y = coordsList[j%8][1]; } 
-								move = this.dragIO(i, "out");
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								this.outputs[i].node.drag(move.move, move.start, move.end);
 								j+=i;
 							}
 						} else {
