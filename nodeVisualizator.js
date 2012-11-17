@@ -677,7 +677,7 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			assumeColor : function assumeColor(nodeType, viewNode, controlType){
-				// console.log(controlType, nodeType, "--------------")
+				console.log(controlType, nodeType, "--------------")
 				if(nodeType == "control"){
 					if(controlType == "#conditionstart")
 						viewNode.color = CFG.colors.conditionStart;
@@ -688,7 +688,7 @@ function nodeVisualizator(view){
 					else if(controlType == "#end")
 						viewNode.color = CFG.colors.stop;
 				}
-				else if ( nodeType == "emulationService")
+				else if ( nodeType == "emulationservice")
 					viewNode.color = CFG.colors.emulationService;
 				else if(nodeType == "functionality")
 					viewNode.color = CFG.colors.functionality;
@@ -719,9 +719,10 @@ function nodeVisualizator(view){
 				viewNode.set.push(rect, label, img_gear);
 			},
 			visualiseNode : function visualiseNode(dataNode, x, y, forRepo){
+				// console.log(dataNode);
 				var viewNode = this.getBlankNode(x, y);
 				var nodeType = dataNode.nodeType.toLowerCase();
-				var controlType = dataNode.controlType.toLowerCase();
+				var controlType = dataNode.controlType ? dataNode.controlType.toLowerCase() : "";
 
 				this.prepareData( dataNode, viewNode );
 				this.assumeColor(nodeType, viewNode, controlType);
@@ -749,23 +750,32 @@ function nodeVisualizator(view){
 			},
 			draw_controlNode : function draw_controlNode(node){
 				var size = CFG.nodeDefaults.conditionSize,
-					offsetY = 5;
-				var mainShape, label;
-				node.x = node.x + CFG.nodeDefaults.defaultWidth / 2 + node.r/2;
-				if(node.controlType === "#conditionStart"){
-					mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": CFG.colors.conditionStart});
-				} else if( node.controlType == "#conditionEnd" ){
-					mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" l "+size+" -"+size+" M "+(node.x - size*.5)+" "+(node.y + size*1.5)+" l "+(size)+" -"+size).attr({"fill": CFG.colors.conditionEnd});
+					offsetY = 5,
+					isCondition = (node.controlType.toLowerCase() === "#conditionstart" || node.controlType.toLowerCase() === "#conditionend"),
+					mainShape,
+					label
+				;
+				if( isCondition ){
+					node.x = node.x + CFG.nodeDefaults.defaultWidth / 2 + size/2;
+					node.width = node.height = size;
+					if( node.controlType === "#conditionStart" ) {
+						mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z").attr({"fill": CFG.colors.conditionStart});
+					} else if( node.controlType == "#conditionEnd" ) {
+						mainShape = view.paper.path("M "+node.x+" "+node.y+" l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" l "+size+" -"+size+" M "+(node.x - size*.5)+" "+(node.y + size*1.5)+" l "+(size)+" -"+size).attr({"fill": CFG.colors.conditionEnd});
+					}
 				} else {
+					node.x = node.x + CFG.nodeDefaults.defaultWidth / 2 + node.r/2;
+					node.width = node.height = CFG.nodeDefaults.defaultRarius;
 					node.isStart = ( node.controlType && node.controlType.toLowerCase() == "#start" );
 					node.y = node.y + CFG.nodeDefaults.defaultRarius;
 					offsetY = 20;
+					node.width = node.height = node.r;
 					mainShape = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke});
-				}
-
+				} 
 
 				node.getPossiblePositionsOfConnectors = function getPossiblePositionsOfConnectors(){
-					return [[this.x, this.y]];
+
+					return [[this.x, ( isCondition ? this.y + CFG.nodeDefaults.conditionSize : this.y )]];
 				},
 
 				label = view.paper.text(node.x, node.y-offsetY, node.label);

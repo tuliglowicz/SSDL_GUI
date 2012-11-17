@@ -70,9 +70,11 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					y = oldNode.y
 				;
 
-				if(oldNode.mainShape.type == "circle"){
-					y -= oldNode.r;
-					x -= (oldNode.r / 2 + 130 / 2); //130 to szerokość node-a
+				if( oldNode.mainShape.type === "circle" ){
+					y -= CFG.nodeDefaults.defaultRarius;
+					x -= (CFG.nodeDefaults.defaultRarius / 2 + CFG.nodeDefaults.defaultWidth / 2);
+				} else if( oldNode.mainShape.type === "path" ){
+					x -= (CFG.nodeDefaults.conditionSize / 2 + CFG.nodeDefaults.defaultWidth / 2);					
 				}
 				oldNode.removeView();
 				
@@ -481,7 +483,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
 							// jsonFormatter(resultObj, true, true)
 							console.log(resultObj);
-							if( output && sourceNode && resultObj && resultObj.controlType.toLowerCase() != "#conditionstart" &&  resultObj.controlType.toLowerCase() != "#conditionend" && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
+							if( output && sourceNode && resultObj && resultObj.controlType && resultObj.controlType.toLowerCase() != "#conditionstart" &&  resultObj.controlType.toLowerCase() != "#conditionend" && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
 								console.log(resultObj.controlType);
 								if(resultObj.input.dataType === output.dataType){
 									gui.controller.reactOnEvent("AddDFEdge", {
@@ -497,7 +499,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							}
 							else {
 								var targetNode = gui.view.getNodesInsideRect(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY);
-								if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() == "functionality" || targetNode.type.toLowerCase() == "control" ) ){
+								if(targetNode && sourceNode && targetNode.id !== sourceNode.id && ( targetNode.type.toLowerCase() === "functionality" || targetNode.type.toLowerCase() === "control" && (targetNode.controlType && targetNode.controlType.toLowerCase() != "#conditionstart" &&  targetNode.controlType.toLowerCase() != "#conditionend")) ){
 									if(confirm(language[gui.language].alerts.addInputS +  targetNode.label+ language[gui.language].alerts.addInputE)){
 										gui.controller.reactOnEvent("addInput", {
 											sourceId : sourceNode.id,

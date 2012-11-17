@@ -197,6 +197,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					(function(e) {
 						//e = zwrócony JSONek
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
+						console.log(e, wrongsList, validatorObject);
 						if (wrongsList.length === 0) {
 							$.each(that.current_graphData.nodes, function(i, v) {
 								if (v.nodeId == e.nodeId) {
@@ -239,28 +240,26 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					break;
 				case "DELETE":
 					(function() {
-						var e;
+						// if( !confirm("Czy na pewno chcesz usunąć zaznaczone elementy?") ){
+						// 	return;
+						// }
+						var e, inp;
 						switch (gui.view.mode) {
 						case 'DF':
-							var len = gui.view.current_graph_view.edgesDF.length;
-							for (var i = len; i > 0; i--) {
-								e = gui.view.current_graph_view.edgesDF[i - 1];
-								if (e.highlighted) {
-									for (var j = 0; j < gui.view.current_graph_view.edgesDF.length; j++) {
-										if (gui.view.current_graph_view.edgesDF[j] === e) {
-											gui.view.current_graph_view.edgesDF[j].remove();
-											gui.view.current_graph_view.edgesDF.splice(j, 1);
-											j = len;
-										}
-									}
+							for (var i = gui.view.current_graph_view.edgesDF.length; i--;) {
+								e = gui.view.current_graph_view.edgesDF[i];
+								if (e && e.highlighted) {
+									inp = that.getInputById(e.targetId, e.input.id);
+									if(inp)	inp.source = [];
+									e.remove();
+									gui.view.current_graph_view.edgesDF.splice(i, 1);
 								}
 							}
 							break;
 						case 'CF':
-							len = gui.view.current_graph_view.edgesCF.length;
-							for (i = len; i > 0; i--) {
-								e = gui.view.current_graph_view.edgesCF[i - 1];
-								if (e.highlighted) {
+							for (i = gui.view.current_graph_view.edgesCF.length ; i-- ;) {
+								e = gui.view.current_graph_view.edgesCF[i];
+								if (e && e.highlighted && !e.labelPath ) {
 									var sId = e.source.id;
 									var tId = e.target.id;
 									var len = gui.controller.current_graphData.nodes.length;
@@ -268,17 +267,16 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 										if (gui.controller.current_graphData.nodes[j].nodeId == tId) {
 											var index = gui.controller.current_graphData.nodes[j].sources.indexOf(sId);
 											gui.controller.current_graphData.nodes[j].sources.splice(index, 1);
+										}
+										else if (gui.controller.current_graphData.nodes[j].nodeId == sId) {
+											var index = gui.controller.current_graphData.nodes[j].targets.indexOf(tId);
+											gui.controller.current_graphData.nodes[j].targets.splice(index, 1);
 											j = len;
 										}
 									}
-									len = gui.view.current_graph_view.edgesCF.length;
-									for (var j = 0; j < len; j++) {
-										if (gui.view.current_graph_view.edgesCF[j] === e) {
-											gui.view.current_graph_view.edgesCF[j].remove();
-											gui.view.current_graph_view.edgesCF.splice(j, 1);
-											j = len;
-										}
-									}
+
+									e.remove();
+									gui.view.current_graph_view.edgesCF.splice(i, 1);		
 								}
 							}
 							break;
@@ -287,19 +285,19 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						//część usuwająca node'y
 						var index;
 						gui.view.hideCurrentGraph();
-						for (var q = gui.view.current_graph_view.nodes.length; q > 0; q--) {
-							e = gui.view.current_graph_view.nodes[q - 1];
+						for (var q = gui.view.current_graph_view.nodes.length; q-- ;) {
+							e = gui.view.current_graph_view.nodes[ q ];
 							if (e.highlighted) {
+
+								gui.controller.current_graphData.nodes.splice(q, 1);
+								gui.view.current_graph_view.nodes.splice(q, 1);
+								
 								$.each(gui.controller.current_graphData.nodes, function(i, v) {
-									if (v.nodeId == e.id) {
-										gui.controller.current_graphData.nodes.splice(i, 1);
-										gui.view.current_graph_view.nodes.splice(i, 1);
-										return false;
+									if ( (index = v.sources.indexOf(e.id)) != -1) {
+										v.sources.splice(index, 1);
 									}
-								});
-								$.each(gui.controller.current_graphData.nodes, function(i, v) {
-									if ((index = v.sources.indexOf(e.id)) != -1) {
-										gui.controller.current_graphData.nodes[i].sources.splice(index, 1);
+									if ( (index = v.targets.indexOf(e.id)) != -1) {
+										v.targets.splice(index, 1);
 									}
 								});
 								for (var i = gui.view.current_graph_view.edgesCF.length; i > 0; i--) {
@@ -1043,7 +1041,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				var node = {};
 				node.nodeId = _this.find("nodeId:first").text();
 				node.nodeType = _this.find("nodeType:first").text();
-				node.nodeLabel = _this.find("nodeLabel:first").text();
+				node.nodeLabel = _this.find("nodeLabel:first").text() || node.nodeId;
 				node.controlType = _this.find("controlType:first").text();
 
 				node.physicalDescription = {};

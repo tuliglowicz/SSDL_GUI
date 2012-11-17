@@ -8,7 +8,6 @@
 									 textbox z komentarzem, że pole jest wymagane i przyjmuje number.
 
 */
-
 function form() {
 // tutaj ustawiam LANG na forms
 	var langForms = language[gui.language].forms;
@@ -363,6 +362,7 @@ function form() {
 			then:"",
 			else:""
 		},
+		sources:[],
 		targets:[]
 	},
 	physDescJSON = {
@@ -444,7 +444,8 @@ function form() {
 				this.cleanForm(true);
 				$('#ui-dialog-title-form_'+pf).text(titleText);
 				$( "#f_mainTab_label_" + pf ).val(node.nodeLabel);
-				$( "#f_mainTab_controlType_" + pf ).val(node.controlType);
+				$( "#f_mainTab_controlType_" + pf ).val(node.controlType).attr({disabled : "disable"});
+				this.resultJSON.controlType = node.controlType;
 				if(node.nodeType.toLowerCase() == "emulationservice" && node.emulation){
 					$( "#f_emulationTab_id_" + pf ).val(node.emulation.id || "");
 					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "");
@@ -461,6 +462,9 @@ function form() {
 					this.resultJSON.condition.if.relation = node.condition.if.relation;
 					this.resultJSON.condition.then = node.condition.then;
 					this.resultJSON.condition.else = node.condition.else;
+					this.resultJSON.sources = node.sources;
+					this.resultJSON.targets = node.targets;
+
 
 					this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
 					this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
@@ -910,7 +914,7 @@ function form() {
 			
 			this.resultJSON.nodeLabel = $( "#f_mainTab_label_" + pf ).val();
 			// console.log(this.resultJSON.nodeLabel);
-			this.resultJSON.controlType = $( "#f_mainTab_controlType_" + pf ).val();
+			// this.resultJSON.controlType = $( "#f_mainTab_controlType_" + pf ).val();
 			// this.resultJSON.alternatives = $( "#f_mainTab_alternatives" ).val();
 			
 			this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName_" + pf ).val();
@@ -942,7 +946,7 @@ function form() {
 			this.emulationJSON.vectors = $("#f_emulationTab_vectors_" + pf).val();
 			this.resultJSON.emulation = this.emulationJSON;
 
-			alert(jsonFormatter(this.resultJSON, true, true));
+			// alert(jsonFormatter(this.resultJSON, true, true));
 			// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
 			// alert(this.emulationJSON.vectors+":"+this.emulationJSON.id)
 			// alert(this.resultJSON.emulation.id+":"+this.resultJSON.emulation.vectors)
