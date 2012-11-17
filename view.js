@@ -107,7 +107,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						// console.log("bbb", io_tmp);
 						if(io_tmp){
 							this.output = io_tmp;
-							this.update();
+							if(this.mode === "DF")
+								this.update();
 						}
 						else {
 							this.remove();
@@ -120,7 +121,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						io_tmp = newNode.getInputById(this.input.id)
 						if(io_tmp){
 							this.input = io_tmp;
-							this.update();
+							if(this.mode === "DF")
+								this.update();
 						}
 						else {
 							this.remove();
@@ -576,6 +578,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
 				this.highlighted = true;
 
+				console.log(this)
+
 				return false;
 			},
 			init : function init(){
@@ -633,7 +637,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					if(this.labelPath)this.labelPath.remove();
 					this.fitLabel();
 				}
-				if(!keepSelected) this.highlighted = false;
+				if(!keepSelected)
+					this.highlighted = false;
 			}
 		},
 		addCFEdge : function addCFEdge(data, firstLoad){
@@ -777,6 +782,28 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			$.each(this.current_graph_view.edgesCF, function(){
 				if(this.source.id === sourceId && this.target.id === targetId){
 					foundedCFEdge = this;
+					return false;
+				}
+			});
+
+			return foundedCFEdge;
+		},
+		getCFEdgesFrom : function getEdge(sourceId){
+			var foundedCFEdge = [];
+			$.each(this.current_graph_view.edgesCF, function(){
+				if(this.source.id === sourceId){
+					foundedCFEdge.push(this);
+					// return false;
+				}
+			});
+
+			return foundedCFEdge;
+		},
+		getCFEdgesTo : function getEdge(targetId){
+			var foundedCFEdge = [];
+			$.each(this.current_graph_view.edgesCF, function(){
+				if(this.target.id === targetId){
+					foundedCFEdge.push(this);
 					return false;
 				}
 			});

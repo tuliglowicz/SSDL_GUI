@@ -318,7 +318,7 @@ function form() {
 				id: "f_ifMainTab_ifRel",
 				inputType: "select",
 				validation: function(){},
-				values:["eq", "gt", "less", "leq", "geq"]
+				values:["eq", "gt", "lt", "le", "ge"]
 			},
 			{
 				label: "ifVar2",

@@ -197,7 +197,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					(function(e) {
 						//e = zwrócony JSONek
 						var wrongsList = prepareFormMessages(validatorObject.validateNode(e));
-						console.log(e, wrongsList, validatorObject);
+						// console.log(e, wrongsList, validatorObject);
 						if (wrongsList.length === 0) {
 							$.each(that.current_graphData.nodes, function(i, v) {
 								if (v.nodeId == e.nodeId) {
@@ -207,6 +207,22 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 								}
 							});
 							gui.view.updateNode(e);
+
+							if(e.controlType.toLowerCase() === "#conditionstart" ){
+								var edges = gui.view.getCFEdgesFrom(e.nodeId);
+								if(edges.length == 2){
+									var THEN = gui.view.getNodeById( e.condition.then );
+									var ELSE = gui.view.getNodeById( e.condition.else );
+
+									edges[0].target = ( edges[0].label === "TRUE" ? THEN : ELSE)
+									edges[1].target = ( edges[1].label === "TRUE" ? THEN : ELSE)
+									edges[0].update();
+									edges[1].update();
+								} else {
+									console.log("stało się coś niedobrego?");
+								}
+							}
+
 
 							// jsonFormatter(e,1,1)
 							if( e.nodeType && e.nodeType.toLowerCase() == "emulationservice" ){
