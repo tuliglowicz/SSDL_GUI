@@ -374,7 +374,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							 	// type: 
 							});
 						}
-					}else if(isStartNode && sourceNode && !targetNode){
+					} else if(isStartNode && sourceNode && !targetNode){
 						var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
 						if(sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id)){
 							// alert("HURA");
@@ -430,8 +430,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					start: function start(x, y, evt){
 						if(!evt.ctrlKey){
 							console.log('arrow draw start');
-							offsetX = parseInt(canvas.offset().left) + parseInt(canvas.css("border-top-width"));
-							offsetY = parseInt(canvas.offset().top) + parseInt(canvas.css("border-left-width"));
+							offsetX = parseInt(canvas.offset().left, 10) + parseInt(canvas.css("border-top-width"), 10);
+							offsetY = parseInt(canvas.offset().top, 10) + parseInt(canvas.css("border-left-width"), 10);
 							bbox = this.getBBox();
 							cx = (bbox.x + bbox.x2) / 2;
 							cy = (bbox.y + bbox.y2) / 2;
@@ -440,7 +440,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 							$.each(gui.view.current_graph_view.nodes, function(i, v){
 								// if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || (v.type.toLowerCase() == "control" && typeof v.controlType == "string" && v.controlType.toLowerCase() != "#start")))
-								if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" )))
+								// alert(v.controlType)
+								if(v.id != sourceNode.id && (v.type.toLowerCase() == "functionality" || ( v.type.toLowerCase() == "control" && v.controlType.toLowerCase() != "#conditionstart" && v.controlType.toLowerCase() != "#conditionend" )))
 									glows.push( v.mainShape.glow({color: "purple"}) );
 								$.each(v.inputs, function(){
 									if(output && this.dataType === output.dataType && !gui.view.isInputConnected(v.id, this.id)){
@@ -479,7 +480,9 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 							var resultObj = gui.view.getInputByPosition(event.clientX-offsetX + window.scrollX, event.clientY - offsetY + window.scrollY );
 							// jsonFormatter(resultObj, true, true)
-							if( output && sourceNode && resultObj && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
+							console.log(resultObj);
+							if( output && sourceNode && resultObj && resultObj.controlType.toLowerCase() != "#conditionstart" &&  resultObj.controlType.toLowerCase() != "#conditionend" && !gui.view.isInputConnected(resultObj.targetId, resultObj.input.id) ){
+								console.log(resultObj.controlType);
 								if(resultObj.input.dataType === output.dataType){
 									gui.controller.reactOnEvent("AddDFEdge", {
 									 	sourceId: sourceNode.id,
@@ -539,15 +542,20 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			arrow : undefined,
 			arrowGlow : undefined,
 			highlighted : false,
+			labelPath : undefined,
 			hide: function hide(){
 				this.arrow[0].hide();
 				this.arrow[1].hide();
 				this.arrowGlow.hide();
+				if(this.labelPath)
+					this.labelPath.hide();
 			},
 			show: function show(){
 				this.arrow[0].myShow(300);
 				this.arrow[1].myShow(300);
 				this.arrowGlow.show();
+				if( this.labelPath )
+					this.labelPath.show();
 			},
 			remove : function remove(){
 				this.arrow[0].remove();
@@ -556,16 +564,50 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 			},
 			selectArrow : function(e, multiselect){
 				e = e || window.event;
-				if(!e.ctrlKey&&!multiselect){
+				if( !e.ctrlKey  && !multiselect ){
 					gui.controller.reactOnEvent("ESCAPE");
 				}
 				this.arrowGlow.remove();
 				this.arrowGlow = gui.view.paper.set();
-				this.arrowGlow.push(this.arrow[0].glow({width:5, fill:false, opacity:0.4}));
-				this.arrowGlow.push(this.arrow[1].glow({width:5, fill:false, opacity:0.4}));
+				this.arrowGlow.push(this.arrow[0].glow({width: CFG.egdeDefaults.glowSize, fill:false, opacity:0.4}));
+				this.arrowGlow.push(this.arrow[1].glow({width: CFG.egdeDefaults.glowSize, fill:false, opacity:0.4}));
 				e.stopPropagation? e.stopPropagation() : e.cancelBubble = true;
 				this.highlighted = true;
+
 				return false;
+			},
+			init : function init(){
+				// this.fitLabel();
+				this.update();
+				this.init = undefined;
+			},
+			fitLabel: function fitLabel(){
+
+				var p1, p2, p3, x1, x2, x3, y1, y2, y3, len, angle, label, offsetX = 10, offsetY = 8;
+				var path = this.arrow[0];
+				len = path.getTotalLength();
+				p1 = path.getPointAtLength( 0 );
+				p2 = path.getPointAtLength( len );
+				p3 = path.getPointAtLength( len / 2 );
+				x1 = p1.x;
+				y1 = p1.y;
+				x2 = p2.x;
+				y2 = p2.y;
+				x3 = p3.x;
+				y3 = p3.y;
+
+				angle = (Math.atan2(x1-x2,y2-y1) / Math.PI) * 180;
+				if(angle>0)
+					angle -= 180;
+				else if(angle==0) { 
+					angle-=90;
+					offsetX = -20;
+					offsetY = 0;
+				}
+				this.labelPath = gui.view.paper.text(x3-offsetX, y3-offsetY, this.label).toFront().attr({'stroke': 'black', 'stroke-width': '.5px'}).rotate(90+angle,x3,y3);
+
+
+				// return label;
 			},
 			update : function(keepSelected){
 				try {
@@ -576,19 +618,24 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				this.arrow = gui.view.visualiser.drawEdge(this.getCoords());
 				if(this.arrowGlow){
 					this.arrowGlow.remove();
-				}else{
+				} else{
 					this.arrowGlow = gui.view.paper.set();
 				}
-				this.arrowGlow.push(this.arrow[0].glow({width:5, color:'rgba(0,0,0,0)'}));
-				this.arrowGlow.push(this.arrow[1].glow({width:5, color:'rgba(0,0,0,0)'}));
+				this.arrowGlow.push(this.arrow[0].glow({width: CFG.egdeDefaults.glowSize, color:'rgba(0,0,0,0)'}));
+				this.arrowGlow.push(this.arrow[1].glow({width: CFG.egdeDefaults.glowSize, color:'rgba(0,0,0,0)'}));
 				this.arrow[0].click(this.selectArrow.bind(this));
 				this.arrow[1].click(this.selectArrow.bind(this));
 				this.arrowGlow.click(this.selectArrow.bind(this));
+				if(this.label){
+					// remove() jako sposób "na szybko". Zamiast tego można zmienić wartości atrybutów na nowe
+					if(this.labelPath)this.labelPath.remove();
+					this.fitLabel();
+				}
 				if(!keepSelected) this.highlighted = false;
 			}
 		},
 		addCFEdge : function addCFEdge(data, firstLoad){
-			console.log("addCFNode", data)
+			// console.log("addCFNode", data);
 			var foundedEdge = (firstLoad ? false : this.getCFEdge(data.source.id, data.target.id));
 			if(data.target.controlType && data.target.controlType.toLowerCase() == "#start"){
 				gui.logger.warning(language[gui.language].alerts.errors.startCantPassControl);
@@ -600,6 +647,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var edgeObject = {
 					source : data.source,
 					target : data.target,
+					label : data.label || "",
 					type: "CF",
 					toString : function toString(){
 						return "SSDL_CFEdge object";
@@ -625,7 +673,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 					}
 				};
 				edgeObject.extend(this.protoEdge);
-				edgeObject.update();
+				edgeObject.init();
+
 				return edgeObject;
 			}
 		},
@@ -820,10 +869,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 
 				var tmp;
 				$.each(graph_json.nodes, function(key, val){
-					 // alert(val.nodeId)
-					 // console.log( val )
 					$.each(val.sources, function(){
-						// console.log(this, graph_view.nodes.map(function(o){return o.id}))
+						console.log("-----------", this, graph_view.nodes.map(function(o){return o.id}))
 						tmp = that.addCFEdge({
 							source: that.getNodeById(this, graph_view.nodes),
 							target: that.getNodeById(val.nodeId, graph_view.nodes)
@@ -833,7 +880,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							graph_view.edgesCF.push(tmp);
 					});
 					$.each(val.targets, function(){
-						console.log(this, graph_view.nodes.map(function(o){return o.id}))
+						// console.log(this, graph_view.nodes.map(function(o){return o.id}))
 						tmp = that.addCFEdge({
 							source: that.getNodeById(val.nodeId, graph_view.nodes),
 							target: that.getNodeById(this, graph_view.nodes)
@@ -842,6 +889,25 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 						if(tmp)
 							graph_view.edgesCF.push(tmp);
 					});
+					if(val.controlType.toLowerCase() === "#conditionstart"){
+						tmp = that.addCFEdge({
+							source: that.getNodeById(val.nodeId, graph_view.nodes),
+							target: that.getNodeById(val.condition.then, graph_view.nodes),
+							label: "TRUE"
+						});
+
+						if(tmp)
+							graph_view.edgesCF.push(tmp);
+
+						tmp = that.addCFEdge({
+							source: that.getNodeById(val.nodeId, graph_view.nodes),
+							target: that.getNodeById(val.condition.else, graph_view.nodes),
+							label: "FALSE"
+						});
+
+						if(tmp)
+							graph_view.edgesCF.push(tmp);
+					}
 
 					$.each(val.functionalDescription.inputs, function(){
 						if(this && this.source && this.source.length == 2){

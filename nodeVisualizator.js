@@ -244,8 +244,10 @@ function nodeVisualizator(view){
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
 						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke),
-							isCFMode = gui.view.mode == "CF",
+							isCFMode = ( gui.view.mode === "CF" ),
 							length = this.inputs.length, x, y, that = this, nx, move;
+
+						// alert(isCFMode);
 						if(this.mainShape.node.nodeName === "circle"){
 							var mult = 1/1.41,
 								nx = this.x-5, ny = this.y-5, nr = this.r, //nx, ny = współrzędne node'a, nr = promień
@@ -258,7 +260,6 @@ function nodeVisualizator(view){
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } //TODO: działający algorytm rozmieszczenia tutaj
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
-								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length;
 							for(var i = 0; i < length; i++){
@@ -267,7 +268,6 @@ function nodeVisualizator(view){
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
 								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
 								move = gui.view.dragDFArrow(this.outputs[i].node, this).map();
-								if(isCFMode) this.outputs[i].node.hide();
 							}
 						} else if(this.mainShape.node.nodeName === "path"){
 							var mult = 1/1.41,
@@ -303,7 +303,6 @@ function nodeVisualizator(view){
 									this.inputs[i].node.drag(move.move, move.start, move.end);
 									this.inputs[i].node.node.setAttribute("class", this.id+" input " + this.inputs[i].id);
 								}
-								if(isCFMode) this.inputs[i].node.hide();
 							}
 							length = this.outputs.length; spacing = this.width/(length+1);
 							for(var i = 0; i < length; i++){
@@ -314,12 +313,16 @@ function nodeVisualizator(view){
 									this.outputs[i].node.drag(move.move, move.start, move.end);
 									this.outputs[i].node.node.setAttribute("class", this.id+" output " + this.outputs[i].id);
 								}
-								if(isCFMode) this.outputs[i].node.hide();
 							}
 						}
 						this.addInputTooltips();
 						this.addOutputTooltips();
-						if(!forRepo) $.each(this.set, function(){this.toFront});
+						// if(!forRepo)
+						// 	$.each(this.set, function(){this.toFront()});
+						if(isCFMode) {
+							$.each(this.outputs, function(){this.node.hide()});
+							$.each(this.inputs, function(){this.node.hide()});
+						}
 					},
 					dragIO: function dragIO(i, flag, paper){
 						var index = i,
@@ -607,15 +610,19 @@ function nodeVisualizator(view){
 							this.show();
 							// console.log(this.getBBox().x, this.getBBox().y);
 						});
-						$.each(this.inputs, function(){
-							this.node.show();
-						});
-						$.each(this.outputs, function(){
-							this.node.show();
-						});
-						$.each(this.connectors, function(){
-							this.show();
-						});
+
+						if( gui.view.mode === "CF" ){
+							$.each(this.connectors, function(){
+								this.show();
+							});
+						} else {
+							$.each(this.inputs, function(){
+								this.node.show();
+							});
+							$.each(this.outputs, function(){
+								this.node.show();
+							});
+						}
 					},
 					buildMenu : function buildMenu(){
 						if(!this.menu){
@@ -753,6 +760,11 @@ function nodeVisualizator(view){
 					offsetY = 20;
 					mainShape = view.paper.circle(node.x, node.y, node.r).attr({fill: node.color, stroke: CFG.colors.normalStroke});
 				}
+
+
+				node.getPossiblePositionsOfConnectors = function getPossiblePositionsOfConnectors(){
+					return [[this.x, this.y]];
+				},
 
 				label = view.paper.text(node.x, node.y-offsetY, node.label);
 

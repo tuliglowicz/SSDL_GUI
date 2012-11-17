@@ -154,7 +154,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						// e.name = 1;
 						// e.description = 1;
 						if (that.current_graphData.nodes.length < 3) {
-							alert(language[gui.language].alerts.emptyGraph)
+							alert(language[gui.language].alerts.emptyGraph);
 						} else if (!(e && e.name && e.description) && !graphToEditUrl) {
 							gui.view.form.editGraphSaveParams();
 						} else {
@@ -535,7 +535,6 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 							// console.log(this.graphData_tab)
 							gui.view.parseAndSetDataModelToView(this.graphData_tab);
-
 							this.reactOnEvent("SSDLLoaded", ssdl);
 						}).bind(that));
 					})(evtObj);
@@ -1045,6 +1044,8 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				node.nodeId = _this.find("nodeId:first").text();
 				node.nodeType = _this.find("nodeType:first").text();
 				node.nodeLabel = _this.find("nodeLabel:first").text();
+				node.controlType = _this.find("controlType:first").text();
+
 				node.physicalDescription = {};
 				node.physicalDescription.serviceName = _this.find("serviceName:first").text();
 				node.physicalDescription.serviceGlobalId = _this.find("serviceGlobalId:first").text();
@@ -1062,35 +1063,40 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.functionalDescription.metaKeywords.push($(this).text());
 				});
 				node.functionalDescription.inputs = [];
-				var input, tmp1, tmp2;
-				_this.find("functionalDescription inputs:first input").each(function() {
-					input = {}
-					input.class = $(this).find("class").text();
-					input.id = $(this).find("id").text();
-					input.label = $(this).find("label").text();
-					input.dataType = $(this).find("dataType").text();
-					input.properties = $(this).find("properties").text();
-					input.source = [];
+				if(node.controlType.toLowerCase() != "#start"){
+					var input, tmp1, tmp2;
+					_this.find("functionalDescription inputs:first input").each(function() {
+						input = {}
+						input.class = $(this).find("class").text();
+						input.id = $(this).find("id").text();
+						input.label = $(this).find("label").text();
+						input.dataType = $(this).find("dataType").text();
+						input.properties = $(this).find("properties").text();
+						input.source = [];
 
-					tmp1 = $(this).find("nodeId").text();
-					tmp2 = $(this).find("outputId").text();
-					if (tmp1.length > 0 && tmp1.length > 0) {
-						input.source.push(tmp1, tmp2);
-					}
-					node.functionalDescription.inputs.push(input);
-				});
+						tmp1 = $(this).find("nodeId").text();
+						tmp2 = $(this).find("outputId").text();
+						if (tmp1.length > 0 && tmp2.length > 0) {
+							input.source.push(tmp1, tmp2);
+						}
+						node.functionalDescription.inputs.push(input);
+					});
+				}
 				node.functionalDescription.outputs = [];
-				var output;
-				_this.find("functionalDescription outputs:first output").each(function() {
-					output = {}
-					output.class = $(this).find("class").text();
-					output.id = $(this).find("id").text();
-					output.label = $(this).find("label").text();
-					output.dataType = $(this).find("dataType").text();
-					output.properties = $(this).find("properties").text();
 
-					node.functionalDescription.outputs.push(output);
-				});
+				if(node.controlType.toLowerCase() != "#end"){
+					var output;
+					_this.find("functionalDescription outputs:first output").each(function() {
+						output = {}
+						output.class = $(this).find("class").text();
+						output.id = $(this).find("id").text();
+						output.label = $(this).find("label").text();
+						output.dataType = $(this).find("dataType").text();
+						output.properties = $(this).find("properties").text();
+
+						node.functionalDescription.outputs.push(output);
+					});
+				}
 				node.functionalDescription.preconditions = _this.find("functionalDescription preconditions:first").text();
 				node.functionalDescription.effects = _this.find("functionalDescription effects:first").text();
 				node.nonFunctionalDescription = [];
@@ -1107,7 +1113,6 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				});
 
 				node.alternatives = _this.find("alternatives:first").text();
-
 				node.subgraph = {};
 
 				if (_this.find("subGraph:first nodes").length > 0) {
@@ -1120,10 +1125,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.subgraph.parameters = _this.find("subGraph parameters:last").text();
 					node.subgraph.exceptions = _this.find("subGraph excptions:last").text();
 				}
-				node.controlType = _this.find("controlType:first").text();
 
 
-				var $condition = _this.find("condition:last");
+				var $condition = _this.find("condition:first");
 					node.condition = {};
 					node.condition.id = $condition.find("conditionId:first").text();
 					node.condition.paths = [];
@@ -1148,7 +1152,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					node.condition.else = $.trim( $condition.find("else:first").text() );
 
 				node.sources = [];
-				_this.find("sources:last source").each(function() {
+				_this.find("sources:first source").each(function() {
 					var txt = $(this).text();
 					if (txt.length > 0 && node.nodeId) {
 						node.sources.push(txt);
@@ -1156,7 +1160,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 				});
 
 				node.targets = [];
-				_this.find("targets:last target").each(function() {
+				_this.find("targets:first target").each(function() {
 					var txt = $(this).text();
 					if (txt && node.nodeId) {
 						node.targets.push(txt);

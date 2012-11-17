@@ -24,6 +24,9 @@ var CFG = {
 		maxLengthOfShownServiceName: 25,
 		conditionSize: 20
 	},
+	egdeDefaults : {
+		glowSize : 5
+	},
 	repoNode : {
 
 	},
