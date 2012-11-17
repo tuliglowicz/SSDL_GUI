@@ -121,11 +121,14 @@ var language = {
 			chooseYourDestiny: "Wybierz akcję",
 			new: "Nowy",
 			import: "Importuj z pliku",
-			if: "JEŻELI",
+			ifVar: "JEŻELI zmienna",
+			ifRel: "jest",
+			ifVar2: "drugiej zmiennej",
 			then: "TO",
 			else: "WPP",
-			variable: "zmienna",
-			assignment: "znaczenie"
+			placeholder1: "wprowadź stałą; pole obowiązkowe",
+			placeholder2: "wprowadź stałą; puste = użycie drugiego wejścia",
+			noForm: "Ten wierzchołek nie ma edytowalnych parametrów!"
 		},
 		formTabs: {
 			main: "Ogólne",
@@ -322,11 +325,14 @@ var language = {
 			chooseYourDestiny: "Choose action",
 			new: "New",
 			import: "Import from file",
-			if: "IF",
+			ifVar: "IF variable ",
+			ifRel: "is ",
+			ifVar2: "than ",
 			then: "THEN",
 			else: "else",
-			variable: "variable",
-			assignment: "assignment"
+			placeholder1: "nummeric constant must be given here",
+			placeholder2: "nummeric constant; if empty uses other input",
+			noForm: "This node has no editable parameters!"
 		},
 		formTabs: {
 			main: "Main",

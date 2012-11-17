@@ -283,7 +283,9 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } 
+								move = this.dragIO(i, "in");
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								this.inputs[i].node.drag(move.move, move.start, move.end);
 								j = i+1;
 							}
 							length = this.outputs.length;
