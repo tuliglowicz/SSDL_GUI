@@ -451,6 +451,7 @@ function form() {
 					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "");
 				}
 				if(!node.isBlank) {
+					this.resultJSON.nodeId = node.nodeId;
 					$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
 					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
 					$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId).addClass("longTextfield");
@@ -532,10 +533,12 @@ function form() {
 			}
 		},
 		fillSelects: function fillSelects(){
-			var inputCount = 0;
+			var inputCount = 0, id = this.resultJSON.nodeId, that = this;
 			$.each(gui.controller.current_graphData.nodes, function(){
-				$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
-				$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
+				if(this.nodeId&&this.controlType!=undefined&&this.nodeId!=id&&this.controlType.toLowerCase()!='#start'&&this.controlType.toLowerCase()!='#end'){
+					$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
+					$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
+				}
 			});
 			$("#f_ifMainTab_then_" + pf).val(this.resultJSON.condition.then);
 			$("#f_ifMainTab_else_" + pf).val(this.resultJSON.condition.else);
@@ -557,6 +560,27 @@ function form() {
 			$( "#f_ifMainTab_ifVar2_" + pf ).addClass("longTextfield");
 			$( "#f_ifMainTab_ifVar2_" + pf ).val(this.resultJSON.condition.if.value);
 			$( "#f_ifMainTab_ifRel_" + pf ).val(this.resultJSON.condition.if.relation);
+			$( "#f_ifMainTab_ifVar_" + pf ).change(function(){
+				var temp1 = $( "#f_ifMainTab_ifVar_" + pf ).val(),
+					temp2 = $( "#f_ifMainTab_ifVar2_" + pf ).val();
+				if(temp1==temp2) $( "#f_ifMainTab_ifVar2_" + pf ).val(that.getInputThatIsNot(temp1));
+			});
+			$("#f_ifMainTab_then_" + pf).change(function(){
+				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
+				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
+					temp2 = $("#f_ifMainTab_then_" + pf).val();
+				if(temp1==temp2) {
+					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
+				}
+			});
+			$("#f_ifMainTab_else_" + pf).change(function(){
+				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
+				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
+					temp2 = $("#f_ifMainTab_then_" + pf).val();
+				if(temp1==temp2) {
+					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
+				}
+			});
 		},
 	//funkcje czyszczące elementy formularza
 		clearNF: function clearNF(){
