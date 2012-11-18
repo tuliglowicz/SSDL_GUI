@@ -547,7 +547,7 @@ function form() {
 					inputCount++;
 					$("#f_ifMainTab_ifVar_" + pf).append("<option value='" + this.id + "'>"+this.id+"</option>");
 			}});
-			$("#f_ifMainTab_ifVar_" + pf).val(resultJSON.condition.if.variable);
+			$("#f_ifMainTab_ifVar_" + pf).val(this.resultJSON.condition.if.variable);
 			if(inputCount < 2){
 				$("#f_ifMainTab_ifVar_" + pf).attr('disabled', true);
 				$("#f_ifMainTab_ifVar2_" + pf).attr('placeholder', langForms.placeholder1);
@@ -952,10 +952,8 @@ function form() {
 			this.resultJSON.physicalDescription = this.physDescJSON;
 			
 			this.resultJSON.condition.if.relation = $("#f_ifMainTab_ifRel_" + pf).val();
-			tempVar = $("#f_ifMainTab_ifVar_" + pf).val();
-			this.resultJSON.condition.if.variable = tempVar;
-			tempVal = $("#f_ifMainTab_ifVar2_" + pf).val();
-			this.resultJSON.condition.if.value = (tempVal!=tempVar && tempVal!="") ? (!isNaN(tempVal) ? parseFloat(tempVal) : tempVal) : this.getInputThatIsNot(tempVar);
+			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val();
+			this.resultJSON.condition.if.value = $("#f_ifMainTab_ifVar2_" + pf).val();
 			this.resultJSON.condition.then = $("#f_ifMainTab_then_" + pf).val();
 			this.resultJSON.condition.else = $("#f_ifMainTab_else_" + pf).val();
 
