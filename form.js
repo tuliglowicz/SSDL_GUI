@@ -199,7 +199,7 @@ function form() {
 				id: "f_nonFunctionalDescriptionTab_relation",
 				inputType: "select",
 				validation: function(){},
-				values:["eq", "gt", "le", "leq", "geq"]
+				values:["eq", "gt", "less", "leq", "geq"]
 			},
 			{
 				label: "unit",
@@ -259,7 +259,7 @@ function form() {
 				id: "f_globalNonFunctionalDescription_relation",
 				inputType: "select",
 				validation: function(){},
-				values:["eq", "gt", "le", "leq", "geq"]
+				values:["eq", "gt", "less", "leq", "geq"]
 			},
 			{
 				label: "unit",
@@ -318,7 +318,7 @@ function form() {
 				id: "f_ifMainTab_ifRel",
 				inputType: "select",
 				validation: function(){},
-				values:["eq", "gt", "lt", "le", "ge"]
+				values:["eq", "gt", "leq", "less", "geq"]
 			},
 			{
 				label: "ifVar2",

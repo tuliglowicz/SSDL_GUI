@@ -122,6 +122,9 @@
 	.clickable{
 		cursor: pointer;
 	}
+	.select{
+		width: 165px;
+	}
 	.textfield{
 		width: 165px;
 		height: 17px;
