@@ -495,6 +495,7 @@ function form() {
 			$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).hide();
 			$('#tabs-1_' + pf).show(); $('#mainTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-2_' + pf).hide(); $('#physicalDescriptionTab_' + pf).addClass("ui-tabs-hide");
+			$('#tabs-3_' + pf).show(); $('#inputsTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-4_' + pf).show(); $('#outputsTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-5_' + pf).show(); $('#nonFunctionalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
@@ -506,6 +507,7 @@ function form() {
 				case "control" : 
 					if(controlType.toLowerCase()=='#conditionstart'){
 						$('#tabs-1_' + pf).hide(); $('#mainTab_' + pf).addClass("ui-tabs-hide");
+						$('#tabs-3_' + pf).hide(); $('#inputsTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
