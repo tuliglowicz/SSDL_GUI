@@ -658,6 +658,7 @@ function form() {
 			$("#f_ifMainTab_then_" + pf).html('');
 			$("#f_ifMainTab_else_" + pf).html('');
 			$("#f_ifMainTab_ifVar_" + pf).html('');
+			$("#f_ifMainTab_ifVar2_" + pf).val('');
 		},
 	//dodawanie elementów
 		appendIO: function appendIO(array, type){
@@ -953,11 +954,12 @@ function form() {
 			this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation_" + pf ).val();
 			this.resultJSON.physicalDescription = this.physDescJSON;
 			
-			this.resultJSON.condition.if.relation = $("#f_ifMainTab_ifRel_" + pf).val();
-			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val();
-			this.resultJSON.condition.if.value = $("#f_ifMainTab_ifVar2_" + pf).val();
-			this.resultJSON.condition.then = $("#f_ifMainTab_then_" + pf).val();
-			this.resultJSON.condition.else = $("#f_ifMainTab_else_" + pf).val();
+
+			this.resultJSON.condition.if.relation = (this.resultJSON.controlType.toLowerCase()=='#conditionstart') ? $("#f_ifMainTab_ifRel_" + pf).val() : "";
+			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val() || "";
+			this.resultJSON.condition.if.value = $("#f_ifMainTab_ifVar2_" + pf).val() || "";
+			this.resultJSON.condition.then = $("#f_ifMainTab_then_" + pf).val() || "";
+			this.resultJSON.condition.else = $("#f_ifMainTab_else_" + pf).val() || "";
 
 			this.funcDescJSON.description = $( "#f_mainTab_description_" + pf ).val();
 			this.removeUndefinedElements();
@@ -968,7 +970,7 @@ function form() {
 			this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
 			this.emulationJSON.name = this.resultJSON.nodeLabel;
 			this.emulationJSON.vectors = $("#f_emulationTab_vectors_" + pf).val();
-			this.resultJSON.emulation = this.emulationJSON;
+			if(this.resultJSON.nodeType=='emulationservice') this.resultJSON.emulation = this.emulationJSON;
 
 			// alert(jsonFormatter(this.resultJSON, true, true));
 			// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();
