@@ -568,19 +568,27 @@ function form() {
 				if(temp1==temp2) $( "#f_ifMainTab_ifVar2_" + pf ).val(that.getInputThatIsNot(temp1));
 			});
 			$("#f_ifMainTab_then_" + pf).change(function(){
-				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
-				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
-					temp2 = $("#f_ifMainTab_then_" + pf).val();
-				if(temp1==temp2) {
-					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
-				}
-			});
-			$("#f_ifMainTab_else_" + pf).change(function(){
 				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
+				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
+				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
 				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
 					temp2 = $("#f_ifMainTab_then_" + pf).val();
 				if(temp1==temp2) {
 					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
+					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
+					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
+				}
+			});
+			$("#f_ifMainTab_else_" + pf).change(function(){
+				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
+				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
+				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
+				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
+					temp2 = $("#f_ifMainTab_then_" + pf).val();
+				if(temp1==temp2) {
+					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
+					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
+					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
 				}
 			});
 		},
@@ -935,7 +943,7 @@ function form() {
 	*	EVENT HANDLERS START HERE
 	*/
 		submitAll: function submitAll(){
-			var tempVar, tempVal;
+			var tempVar;
 
 			this.clearErrors();
 			
@@ -957,7 +965,8 @@ function form() {
 
 			this.resultJSON.condition.if.relation = (this.resultJSON.controlType.toLowerCase()=='#conditionstart') ? $("#f_ifMainTab_ifRel_" + pf).val() : "";
 			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val() || "";
-			this.resultJSON.condition.if.value = $("#f_ifMainTab_ifVar2_" + pf).val() || "";
+			tempVar = $("#f_ifMainTab_ifVar2_" + pf).val();
+			this.resultJSON.condition.if.value = tempVar ? (isNaN(tempVar) ? tempVar : parseFloat(tempVar)) : "";
 			this.resultJSON.condition.then = $("#f_ifMainTab_then_" + pf).val() || "";
 			this.resultJSON.condition.else = $("#f_ifMainTab_else_" + pf).val() || "";
 
