@@ -1,13 +1,3 @@
-/*
-	Jeśli dwa inputy są dołączone -> select pierwszy dynamiczny (<option value="inputId">inputLabel</option>)
-									 drugi na sztywno z warunkami logcznymi (< > = itd)
-									 textbox z komentarzem, że albo wpisze stałą, albo zostawi pusty i aoutomatycznie zostanie dodaty tam ten drugi input.
-	
-	Jeśli jeden inputy jest dołącz.-> select pierwszy disabled z wartością ttego jednego
-									 drugi na sztywno z warunkami logcznymi (< > = itd)
-									 textbox z komentarzem, że pole jest wymagane i przyjmuje number.
-
-*/
 function form() {
 // tutaj ustawiam LANG na forms
 	var langForms = language[gui.language].forms;
@@ -500,21 +490,29 @@ function form() {
 			$('#tabs-5_' + pf).show(); $('#nonFunctionalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
 			$('#tabs-7_' + pf).hide(); $('#ifMainTab_' + pf).addClass("ui-tabs-hide");
+			$('#f_inputsTab_nextButton_' + pf).show();
+			$('#f_outputsTab_nextButton_' + pf).show();
 			$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).hide();
 			$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
 			$('#f_mainTab_serviceClass_addButton_' + pf).show();
 			switch(nodeType.toLowerCase()){
 				case "control" : 
+					$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 					if(controlType.toLowerCase()=='#conditionstart'){
 						$('#tabs-1_' + pf).hide(); $('#mainTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-3_' + pf).hide(); $('#inputsTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
-						$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
 						$tabs.tabs('select', 6);
-						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						this.fillSelects();
 					}else{
+						if(controlType.toLowerCase()=='#start'){
+							$('#tabs-3_' + pf).hide(); $('#inputsTab_' + pf).addClass("ui-tabs-hide");
+							$('#f_outputsTab_nextButton_' + pf).hide();
+						}else{
+							$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
+							$('#f_inputsTab_nextButton_' + pf).hide();
+						}
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
