@@ -1,13 +1,3 @@
-/*
-	Jeśli dwa inputy są dołączone -> select pierwszy dynamiczny (<option value="inputId">inputLabel</option>)
-									 drugi na sztywno z warunkami logcznymi (< > = itd)
-									 textbox z komentarzem, że albo wpisze stałą, albo zostawi pusty i aoutomatycznie zostanie dodaty tam ten drugi input.
-	
-	Jeśli jeden inputy jest dołącz.-> select pierwszy disabled z wartością ttego jednego
-									 drugi na sztywno z warunkami logcznymi (< > = itd)
-									 textbox z komentarzem, że pole jest wymagane i przyjmuje number.
-
-*/
 function form() {
 // tutaj ustawiam LANG na forms
 	var langForms = language[gui.language].forms;
@@ -501,21 +491,29 @@ function form() {
 			$('#tabs-5_' + pf).show(); $('#nonFunctionalDescriptionTab_' + pf).removeClass("ui-tabs-hide");
 			$('#tabs-6_' + pf).hide(); $('#emulationTab_' + pf).addClass("ui-tabs-hide");
 			$('#tabs-7_' + pf).hide(); $('#ifMainTab_' + pf).addClass("ui-tabs-hide");
+			$('#f_inputsTab_nextButton_' + pf).show();
+			$('#f_outputsTab_nextButton_' + pf).show();
 			$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).hide();
 			$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).show();
 			$('#f_mainTab_serviceClass_addButton_' + pf).show();
 			switch(nodeType.toLowerCase()){
 				case "control" : 
+					$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 					if(controlType.toLowerCase()=='#conditionstart'){
 						$('#tabs-1_' + pf).hide(); $('#mainTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-3_' + pf).hide(); $('#inputsTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
-						$('#tabs-5_' + pf).hide(); $('#nonFunctionalDescriptionTab_' + pf).addClass("ui-tabs-hide");
 						$('#tabs-7_' + pf).show(); $('#ifMainTab_' + pf).removeClass("ui-tabs-hide");
 						$tabs.tabs('select', 6);
-						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						this.fillSelects();
-					} else{
+					}else{
+						if(controlType.toLowerCase()=='#start'){
+							$('#tabs-3_' + pf).hide(); $('#inputsTab_' + pf).addClass("ui-tabs-hide");
+							$('#f_outputsTab_nextButton_' + pf).hide();
+						}else{
+							$('#tabs-4_' + pf).hide(); $('#outputsTab_' + pf).addClass("ui-tabs-hide");
+							$('#f_inputsTab_nextButton_' + pf).hide();
+						}
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
@@ -546,7 +544,6 @@ function form() {
 					$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
 				}
 			});
-
 			$("#f_ifMainTab_then_" + pf).val(this.resultJSON.condition.then);
 			$("#f_ifMainTab_else_" + pf).val(this.resultJSON.condition.else);
 			$.each(this.funcDescJSON.inputs, function(){
@@ -573,19 +570,27 @@ function form() {
 				if(temp1==temp2) $( "#f_ifMainTab_ifVar2_" + pf ).val(that.getInputThatIsNot(temp1));
 			});
 			$("#f_ifMainTab_then_" + pf).change(function(){
-				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
-				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
-					temp2 = $("#f_ifMainTab_then_" + pf).val();
-				if(temp1==temp2) {
-					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
-				}
-			});
-			$("#f_ifMainTab_else_" + pf).change(function(){
 				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
+				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
+				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
 				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
 					temp2 = $("#f_ifMainTab_then_" + pf).val();
 				if(temp1==temp2) {
 					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
+					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
+					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
+				}
+			});
+			$("#f_ifMainTab_else_" + pf).change(function(){
+				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
+				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
+				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
+				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
+					temp2 = $("#f_ifMainTab_then_" + pf).val();
+				if(temp1==temp2) {
+					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
+					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
+					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
 				}
 			});
 		},
@@ -940,7 +945,7 @@ function form() {
 	*	EVENT HANDLERS START HERE
 	*/
 		submitAll: function submitAll(){
-			var tempVar, tempVal;
+			var tempVar;
 
 			this.clearErrors();
 			
@@ -962,7 +967,8 @@ function form() {
 
 			this.resultJSON.condition.if.relation = (this.resultJSON.controlType.toLowerCase()=='#conditionstart') ? $("#f_ifMainTab_ifRel_" + pf).val() : "";
 			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val() || "";
-			this.resultJSON.condition.if.value = $("#f_ifMainTab_ifVar2_" + pf).val() || "";
+			tempVar = $("#f_ifMainTab_ifVar2_" + pf).val();
+			this.resultJSON.condition.if.value = tempVar ? (isNaN(tempVar) ? tempVar : parseFloat(tempVar)) : "";
 			this.resultJSON.condition.then = $("#f_ifMainTab_then_" + pf).val() || "";
 			this.resultJSON.condition.else = $("#f_ifMainTab_else_" + pf).val() || "";
 
