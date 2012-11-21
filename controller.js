@@ -214,11 +214,34 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 									var THEN = gui.view.getNodeById( e.condition.then );
 									var ELSE = gui.view.getNodeById( e.condition.else );
 
-									edges[0].target = ( edges[0].label === "TRUE" ? THEN : ELSE)
-									edges[1].target = ( edges[1].label === "TRUE" ? THEN : ELSE)
+									edges[0].target = ( edges[0].label === "TRUE" ? THEN : ELSE);
+									edges[1].target = ( edges[1].label === "TRUE" ? THEN : ELSE);
 									edges[0].update();
 									edges[1].update();
-								} else {
+									if(gui.view.mode !== "CF"){
+										edges[0].hide();
+										edges[1].hide();
+									}
+								} else if(edges.length == 0){
+									var THEN = gui.view.getNodeById( e.condition.then );
+									var ELSE = gui.view.getNodeById( e.condition.else );
+
+									that.reactOnEvent("AddCFEdge", {
+									 	source: e,
+									 	target: THEN,
+									 	CF_or_DF: "CF",
+									 	label: "TRUE",
+									 	// type: 
+									});
+									that.reactOnEvent("AddCFEdge", {
+									 	source: e,
+									 	target: ELSE,
+									 	CF_or_DF: "CF",
+									 	label: "FALSE",
+									 	// type: 
+									});
+								}
+								else {
 									console.log("stało się coś niedobrego?");
 								}
 							}
@@ -447,11 +470,14 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					(function(e) {
 						// var target = gui.controller.getNodeById(e.target.id);
 						// target.sources.push(e.source.id);
+						console.log(e);
 						var source = gui.controller.getNodeById( e.source.id );
+						if(source){
 							source.targets.push( e.target.id );
-						var edge = gui.view.addCFEdge(e);
-						if(edge)
-							gui.view.current_graph_view.edgesCF.push(edge);
+							var edge = gui.view.addCFEdge(e);
+							if(edge)
+								gui.view.current_graph_view.edgesCF.push(edge);
+						}
 					})(evtObj);
 					break;
 				case "ADDDFEDGE":
@@ -595,6 +621,12 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					(function(e) {
 						e.nodeId = that.generateId();
 						e.isBlank = true;
+						e.functionalDescription = {};
+						e.functionalDescription.inputs = [];
+						e.functionalDescription.outputs = [];
+						// var blankNode = that.getBlankModelNode();
+						// blankNode.extend(e);
+						console.log(e);
 						var graphNode = gui.view.visualiser.visualiseNode(e);
 						graphNode.switchMode( gui.view.mode );
 						gui.view.current_graph_view.nodes.push(graphNode);
@@ -630,38 +662,36 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		getInputById: function getInputById(nodeId, inputId) {
 			var result;
 
-			if (gui.controller.current_graphData.nodes) {
-				$.each(gui.controller.current_graphData.nodes, function() {
-					if (this.nodeId === nodeId) {
-						$.each(this.functionalDescription.inputs, function() {
-							if (this.id === inputId) {
-								result = this;
-								return false;
-							}
-						});
-						return false;
-					}
-				});
-			}
+			$.each(gui.controller.current_graphData.nodes, function() {
+				// if (this.nodeId === nodeId && this.functionalDescription && this.functionalDescription.inputs) {
+				if (this.nodeId === nodeId){
+					console.log(this.nodeLabel);
+					$.each(this.functionalDescription.inputs, function() {
+						if (this.id === inputId) {
+							result = this;
+							return false;
+						}
+					});
+					return false;
+				}
+			});
 
 			return result;
 		},
 		getOutputById: function getOutputById(nodeId, inputId) {
 			var result;
 
-			if (gui.controller.current_graphData.nodes) {
-				$.each(gui.controller.current_graphData.nodes, function() {
-					if (this.nodeId === nodeId) {
-						$.each(this.functionalDescription.outputs, function() {
-							if (this.id === inputId) {
-								result = this;
-								return false;
-							}
-						});
-						return false;
-					}
-				});
-			}
+			$.each(gui.controller.current_graphData.nodes, function() {
+				if (this.nodeId === nodeId) {
+					$.each(this.functionalDescription.outputs, function() {
+						if (this.id === inputId) {
+							result = this;
+							return false;
+						}
+					});
+					return false;
+				}
+			});
 
 			return result;
 		},
@@ -940,10 +970,27 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							tabOutput.push(tabulacja + "\t\t\t\t</input>\n");
 						});
 						tabOutput.push(tabulacja + "\t\t\t</inputs>\n");
+					} else if(node.controlType.toLowerCase() === "#start" && functionalDescription.outputs && functionalDescription.outputs.length > 0){
+						tabOutput.push(tabulacja + "\t\t\t<inputs>\n");
+						$.each(functionalDescription.outputs, function(key, output) {
+							tabOutput.push(tabulacja + "\t\t\t\t<input>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<class>" + (output.class || "") + "</class>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<id>" + (output.id || "") + "</id>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<label>" + (output.label || "") + "</label>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<dataType>" + (output.dataType || "") + "</dataType>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<properties>" + (output.properties || "") + "</properties>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<source>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t\t<nodeId>" + (node.nodeId || "") + "</nodeId>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t\t<outputId>" + (output.id || "") + "</outputId>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t</source>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t</input>\n");
+						});
+						tabOutput.push(tabulacja + "\t\t\t</inputs>\n");
 					} else {
 						tabOutput.push(tabulacja + "\t\t\t<inputs/>\n");
 					}
-					if (functionalDescription.inputs && functionalDescription.outputs.length > 0) {
+
+					if (functionalDescription.outputs && functionalDescription.outputs.length > 0) {
 						tabOutput.push(tabulacja + "\t\t\t<outputs>\n");
 						$.each(functionalDescription.outputs, function(key, output) {
 							tabOutput.push(tabulacja + "\t\t\t\t<output>\n");
@@ -952,6 +999,18 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							tabOutput.push(tabulacja + "\t\t\t\t\t<label>" + (output.label || "") + "</label>\n");
 							tabOutput.push(tabulacja + "\t\t\t\t\t<dataType>" + (output.dataType || "") + "</dataType>\n");
 							tabOutput.push(tabulacja + "\t\t\t\t\t<properties>" + (output.properties || "") + "</properties>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t</output>\n");
+						});
+						tabOutput.push(tabulacja + "\t\t\t</outputs>\n");
+					} else if(node.controlType.toLowerCase() === "#end" && functionalDescription.inputs && functionalDescription.inputs.length > 0){
+						tabOutput.push(tabulacja + "\t\t\t<outputs>\n");
+						$.each(functionalDescription.inputs, function(key, inputs) {
+							tabOutput.push(tabulacja + "\t\t\t\t<output>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<class>" + (inputs.class || "") + "</class>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<id>" + (inputs.id || "") + "</id>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<label>" + (inputs.label || "") + "</label>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<dataType>" + (inputs.dataType || "") + "</dataType>\n");
+							tabOutput.push(tabulacja + "\t\t\t\t\t<properties>" + (inputs.properties || "") + "</properties>\n");
 							tabOutput.push(tabulacja + "\t\t\t\t</output>\n");
 						});
 						tabOutput.push(tabulacja + "\t\t\t</outputs>\n");
@@ -1143,7 +1202,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 
 				var $condition = _this.find("condition:first");
 					node.condition = {};
-					node.condition.id = $condition.find("conditionId:first").text();
+					node.condition.conditionId = $condition.find("conditionId:first").text();
 					node.condition.paths = [];
 					var path;
 					$condition.find("paths:first path").each(function(){

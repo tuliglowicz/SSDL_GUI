@@ -434,7 +434,8 @@ function form() {
 		selectedGlobalNFPropertyIndex: -1,
 
 		init: function init(node){
-			if(node.nodeType.toLowerCase()=='control'&&node.controlType.toLowerCase()=='#conditionend') alert(langForms.noForm);
+			if(node.nodeType.toLowerCase()==='control'&&node.controlType.toLowerCase()==='#conditionend')
+				alert(langForms.noForm);
 			else {
 				var titleText;
 				//CO Z TYMI LABELAMI?!
@@ -458,6 +459,7 @@ function form() {
 					$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address).addClass("longTextfield");
 					$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation).addClass("longTextfield");
 
+					this.resultJSON.condition.conditionId = node.condition.conditionId;
 					this.resultJSON.condition.if.value = node.condition.if.value;
 					this.resultJSON.condition.if.variable = node.condition.if.variable;
 					this.resultJSON.condition.if.relation = node.condition.if.relation;
@@ -465,7 +467,6 @@ function form() {
 					this.resultJSON.condition.else = node.condition.else;
 					this.resultJSON.sources = node.sources;
 					this.resultJSON.targets = node.targets;
-
 
 					this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
 					this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
@@ -514,7 +515,7 @@ function form() {
 						$tabs.tabs('select', 6);
 						$('#f_nonFunctionalDescriptionTab_nextButton_' + pf).show();
 						this.fillSelects();
-					}else{
+					} else{
 						$( 'label[for="f_mainTab_controlType_' + pf + '"], #f_mainTab_controlType_' + pf + ', #f_mainTab_controlType_validation_' + pf ).show();
 						$('label[for="f_mainTab_serviceClass_' + pf + '"], #f_mainTab_serviceClass_' + pf).hide();
 						$('#f_mainTab_serviceClass_addButton_' + pf).hide();
@@ -537,11 +538,15 @@ function form() {
 		fillSelects: function fillSelects(){
 			var inputCount = 0, id = this.resultJSON.nodeId, that = this;
 			$.each(gui.controller.current_graphData.nodes, function(){
-				if(this.nodeId&&this.controlType!=undefined&&this.nodeId!=id&&this.controlType.toLowerCase()!='#start'&&this.controlType.toLowerCase()!='#end'){
-					$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
-					$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeId+"</option>");
+				if(this.nodeId && this.nodeType.toLowerCase()!=='control'){
+					$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
+					$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
+				} else if(this.controlType.toLowerCase() === "#conditionend" && that.resultJSON.condition.conditionId == this.condition.conditionId){
+					$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
+					$("#f_ifMainTab_else_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
 				}
 			});
+
 			$("#f_ifMainTab_then_" + pf).val(this.resultJSON.condition.then);
 			$("#f_ifMainTab_else_" + pf).val(this.resultJSON.condition.else);
 			$.each(this.funcDescJSON.inputs, function(){

@@ -15,21 +15,56 @@
 					this.paper = Raphael("blankNodes_"+pf, gui.view.columnParams.leftCol.width-1, 500);
 				}
 			},
+			conditionIterator : (function(){
+				var counter = Math.floor(Math.random()*1e6);
+
+				return {
+					next : function(){
+						return ++counter;
+					}
+				}
+			})(),
 			draw: function draw(){
 				var nodeLength = 135,
 					nodeHeight = 35,
 					nodeHorizontalPosition = this.paper.width/2 - nodeLength/2, 
-					textHorizontalPosition = this.paper.width/2;
+					textHorizontalPosition = this.paper.width/2,
+					that = this;
 				
-				var onDblClick = function onDblClick(nodeType){
+				var onDblClick = function onDblClick(nodeType, controlType){
 					return function(){
-						if(gui.controller)
-							if(nodeType==="EmulationService"){
+						if(gui.controller){
+							if(nodeType==="EmulationService") {
 								$("#f_dialog_emulationService_" + pf).dialog('open');
 							}
-							else{
-							var label = prompt(language[gui.language].alerts.addLabelNewNode);
-							if(label) gui.controller.reactOnEvent("AddBlankNode", {nodeLabel:label, nodeType:nodeType});
+							else if(controlType === "#conditionStart"){
+								var conditionId = that.conditionIterator.next();
+								gui.controller.reactOnEvent("AddBlankNode", {
+									nodeLabel : "If",
+									nodeType : nodeType,
+									controlType : controlType,
+									condition: {
+										id: conditionId
+									}
+								});
+								gui.controller.reactOnEvent("AddBlankNode", {
+									nodeLabel : "EndIf",
+									nodeType : nodeType,
+									controlType : "#conditionEnd",
+									condition: {
+										id: conditionId
+									}
+								});
+							}
+							else {
+								var label = prompt(language[gui.language].alerts.addLabelNewNode);
+								if(label)
+									gui.controller.reactOnEvent("AddBlankNode", {
+										nodeLabel:label,
+										nodeType:nodeType,
+										controlType: controlType
+									});
+							}
 						}
 					}
 				}
@@ -80,7 +115,7 @@
 				var size = CFG.nodeDefaults.conditionSize;
 				var repo_if = this.paper.path("M "+(nodeHorizontalPosition+65)+" 260 l "+size+" "+size+" l -"+size+" "+size+" l -"+size+" -"+size+" z")
 					.attr({fill: CFG.colors.conditionStart})
-					// .dblclick(onDblClick("IF"));
+					.dblclick(onDblClick("Control", "#conditionStart"));
 				repo_if.node.setAttribute("class","repository_element");
 				this.dataSet.push(repo_if);
 			}

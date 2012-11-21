@@ -374,7 +374,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 							gui.controller.reactOnEvent("AddCFEdge", {
 							 	source: sourceNode,
 							 	target: targetNode,
-							 	CF_or_DF: gui.view.mode
+							 	CF_or_DF: "CF"
 							 	// type: 
 							});
 						}
