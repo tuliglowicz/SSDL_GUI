@@ -317,8 +317,30 @@ function camelize(str) {
 	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
 		if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
 		return index == 0 ? match.toLowerCase() : match.toUpperCase();
-	})
+	});
 };
+
+var copyProps = function copyProps(from, to){
+	if( typeof from !== "object" || typeof to !== "object"){
+		throw {
+			name : "typeError",
+			message : "need 2 orgs and both type object"
+		};
+	} else {
+		for(var i in from){
+			if(from.hasOwnProperty(i)){
+				// console.log(from[i], "->", to[i]);
+				if(typeof from[i] != "object"){
+					to[i] = from[i];
+				} else {
+					to[i] = from[i].clone();
+				}
+			}
+		}
+	}
+
+	return to;
+}
 
 //object prototype extensions
 Object.defineProperty(Object.prototype, "extend", { //extend object by (cloned or refferenced) attributes of passed object

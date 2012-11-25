@@ -46,6 +46,10 @@ var CFG = {
 		"mediator",
 		"streamingworkflowengine"
 	],
+	flexibleTypes : [
+		"functionality",
+		"emulationservice"
+	],
 	actions : {
 		showLabelDuringNodeDrag : true
 	},
@@ -56,7 +60,7 @@ var CFG = {
 		language : "PL" // "EN"
 	},
 	url_emulationService : "",
-	url_askForId : "askForId.xml",
+	url_askForId : "XML/askForId.xml",
 	showLabelDuringNodeDrag : true,
 	//rzeczy Doroty
 	forms : {		

@@ -241,6 +241,12 @@ function nodeVisualizator(view){
 							node.connectors[i].node.setAttribute("class", node.id+" connector");
 					},
 					drawIO : function drawIO(paper, forRepo){
+						if(!paper){
+							throw {
+								name: "object missing",
+								message: "argument \"paper\" is obligatory!\nnodeVisualizator::drawIO"
+							}
+						}
 						//paper = kanwa, na której rysuje się danego node'a
 						//forRepo = opcjonalny parametr, przyjmuje true, jeżeli nie mają być rysowane strzałki
 						var strokeColor = (this.highlighted ? CFG.colors.highlightStroke : CFG.colors.normalStroke),
@@ -283,9 +289,8 @@ function nodeVisualizator(view){
 							for(var i = 0; i < length; i++){
 								if(i<8){ x = coordsList[i][0]; y = coordsList[i][1]; }
 								else{ x = coordsList[i%8][0]; y = coordsList[i%8][1]; } 
-								move = this.dragIO(i, "in");
 								this.inputs[i].node = paper.path(this.inputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
-								this.inputs[i].node.drag(move.move, move.start, move.end);
+								this.inputs[i].node.node.setAttribute("class", this.id + " input " + this.inputs[i].id);
 								j = i+1;
 							}
 							length = this.outputs.length;
@@ -293,6 +298,9 @@ function nodeVisualizator(view){
 								if(j<8){ x = coordsList[j][0]; y = coordsList[j][1]; }
 								else{ x = coordsList[j%8][0]; y = coordsList[j%8][1]; } 
 								this.outputs[i].node = paper.path(this.outputPathString(x, y)).attr({'fill': this.color, stroke: strokeColor});
+								this.outputs[i].node.node.setAttribute("class", this.id + " output " + this.outputs[i].id);
+								var move = this.dragIO(i, "out");
+								this.outputs[i].node.drag(move.move, move.start, move.end);
 								j+=i;
 							}
 						} else {
@@ -327,6 +335,13 @@ function nodeVisualizator(view){
 						}
 					},
 					dragIO: function dragIO(i, flag, paper){
+						// console.log(this, arguments)
+						if(arguments.length < 2){
+							throw {
+								name: "object missing",
+								message: "argument \"index\" and \"flag\" are obligatory!\nnodeVisualizator::dragIO"
+							}
+						}
 						var index = i,
 							kunwa = paper || gui.view.paper,
 							obj = (flag==="in") ? this.inputs[i].node : this.outputs[i].node,
@@ -364,7 +379,8 @@ function nodeVisualizator(view){
 									funE();
 									ctrlPressed = false;
 								}
-						};
+							}
+						;
 						return result;
 					},
 					moveIO: function moveIO(i, flag){
@@ -677,7 +693,7 @@ function nodeVisualizator(view){
 				return viewNode;
 			},
 			assumeColor : function assumeColor(nodeType, viewNode, controlType){
-				console.log(controlType, nodeType, "--------------")
+				// console.log(controlType, nodeType, "--------------")
 				if(nodeType == "control"){
 					if(controlType == "#conditionstart")
 						viewNode.color = CFG.colors.conditionStart;
@@ -730,8 +746,8 @@ function nodeVisualizator(view){
 				if ( nodeType == "control" ){
 					this.draw_controlNode(viewNode);
 
-					// if(viewNode.isStart)
-					// 	view.dragCFArrow( viewNode.mainShape, viewNode );
+					if(viewNode.isStart)
+						view.dragCFArrow( viewNode.mainShape, viewNode );
 
 				} else {
 					this.draw_rectNode(viewNode);

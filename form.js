@@ -424,6 +424,7 @@ function form() {
 		selectedGlobalNFPropertyIndex: -1,
 
 		init: function init(node){
+			console.log(node)
 			if(node.nodeType.toLowerCase()==='control'&&node.controlType.toLowerCase()==='#conditionend')
 				alert(langForms.noForm);
 			else {
@@ -441,40 +442,29 @@ function form() {
 					$( "#f_emulationTab_id_" + pf ).val(node.emulation.id || "");
 					$( "#f_emulationTab_vectors_" + pf ).val(node.emulation.vectors || "");
 				}
-				if(!node.isBlank) {
-					this.resultJSON.nodeId = node.nodeId;
-					$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
-					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId).addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address).addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation).addClass("longTextfield");
+				this.resultJSON.nodeId = node.nodeId;
+				$( "#f_mainTab_description_" + pf ).val(node.functionalDescription.description);
+				$( "#f_physicalDescriptionTab_serviceName_" + pf ).val(node.physicalDescription.serviceName).addClass("longTextfield");
+				$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val(node.physicalDescription.serviceGlobalId).addClass("longTextfield");
+				$( "#f_physicalDescriptionTab_address_" + pf ).val(node.physicalDescription.address).addClass("longTextfield");
+				$( "#f_physicalDescriptionTab_operation_" + pf ).val(node.physicalDescription.operation).addClass("longTextfield");
 
-					this.resultJSON.condition.conditionId = node.condition.conditionId;
-					this.resultJSON.condition.if.value = node.condition.if.value;
-					this.resultJSON.condition.if.variable = node.condition.if.variable;
-					this.resultJSON.condition.if.relation = node.condition.if.relation;
-					this.resultJSON.condition.then = node.condition.then;
-					this.resultJSON.condition.else = node.condition.else;
-					this.resultJSON.sources = node.sources;
-					this.resultJSON.targets = node.targets;
+				this.resultJSON.condition.conditionId = node.condition.conditionId;
+				this.resultJSON.condition.if.value = node.condition.if.value;
+				this.resultJSON.condition.if.variable = node.condition.if.variable;
+				this.resultJSON.condition.if.relation = node.condition.if.relation;
+				this.resultJSON.condition.then = node.condition.then;
+				this.resultJSON.condition.else = node.condition.else;
+				this.resultJSON.sources = node.sources;
+				this.resultJSON.targets = node.targets;
 
-					this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
-					this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
-					this.appendIO(node.functionalDescription.inputs, "inputs");
-					this.appendIO(node.functionalDescription.outputs, "outputs");
-					this.appendNonFuncDesc(node.nonFunctionalDescription);
-				} else {
-					$( "#f_physicalDescriptionTab_serviceName_" + pf ).val("").addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val("").addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_address_" + pf ).val("").addClass("longTextfield");
-					$( "#f_physicalDescriptionTab_operation_" + pf ).val("").addClass("longTextfield");
+				this.appendList(node.functionalDescription.serviceClasses, "serviceClasses");
+				this.appendList(node.functionalDescription.metaKeywords, "metaKeywords");
+				console.log(node.functionalDescription.inputs)
+				this.appendIO(node.functionalDescription.inputs, "inputs");
+				this.appendIO(node.functionalDescription.outputs, "outputs");
+				this.appendNonFuncDesc(node.nonFunctionalDescription);
 
-					this.resultJSON.condition.if.value = "";
-					this.resultJSON.condition.if.variable = "";
-					this.resultJSON.condition.if.relation = "";
-					this.resultJSON.condition.then = "";
-					this.resultJSON.condition.else = "";
-				}
 				this.adjustForm(node.nodeType, node.controlType);
 				this.resultJSON.nodeId = node.nodeId;
 				this.resultJSON.nodeType = node.nodeType;
@@ -535,6 +525,9 @@ function form() {
 		},
 		fillSelects: function fillSelects(){
 			var inputCount = 0, id = this.resultJSON.nodeId, that = this;
+			
+			$("#f_ifMainTab_then_" + pf).append("<option value=''></option>");
+			$("#f_ifMainTab_else_" + pf).append("<option value=''></option>");
 			$.each(gui.controller.current_graphData.nodes, function(){
 				if(this.nodeId && this.nodeType.toLowerCase()!=='control'){
 					$("#f_ifMainTab_then_" + pf).append("<option value='" + this.nodeId + "'>"+this.nodeLabel+"</option>");
@@ -569,27 +562,15 @@ function form() {
 					temp2 = $( "#f_ifMainTab_ifVar2_" + pf ).val();
 				if(temp1==temp2) $( "#f_ifMainTab_ifVar2_" + pf ).val(that.getInputThatIsNot(temp1));
 			});
-			$("#f_ifMainTab_then_" + pf).change(function(){
+			$("#f_ifMainTab_then_" + pf +", #f_ifMainTab_else_" + pf).change(function(){
 				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
 				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
 				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
 				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
 					temp2 = $("#f_ifMainTab_then_" + pf).val();
-				if(temp1==temp2) {
+				if( (temp1 || temp2) && temp1===temp2) {
 					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
 					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
-					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
-				}
-			});
-			$("#f_ifMainTab_else_" + pf).change(function(){
-				$("#f_ifMainTab_else_" + pf).removeClass('ui-state-error');
-				$("#f_ifMainTab_then_" + pf).removeClass('ui-state-error');
-				$("#f_button_sumbitAllButton_" + pf).attr('disabled', false);
-				var temp1 = $("#f_ifMainTab_else_" + pf).val(),
-					temp2 = $("#f_ifMainTab_then_" + pf).val();
-				if(temp1==temp2) {
-					$("#f_ifMainTab_else_" + pf).addClass('ui-state-error');
-					$("#f_ifMainTab_then_" + pf).addClass('ui-state-error');
 					$("#f_button_sumbitAllButton_" + pf).attr('disabled', true);
 				}
 			});
@@ -948,6 +929,7 @@ function form() {
 			var tempVar;
 
 			this.clearErrors();
+			console.log(this.resultJSON)
 			
 			this.resultJSON.nodeLabel = $( "#f_mainTab_label_" + pf ).val();
 			// console.log(this.resultJSON.nodeLabel);
@@ -957,13 +939,8 @@ function form() {
 			this.physDescJSON.serviceName = $( "#f_physicalDescriptionTab_serviceName_" + pf ).val();
 			this.physDescJSON.serviceGlobalId = $( "#f_physicalDescriptionTab_serviceGlobalId_" + pf ).val();
 			this.physDescJSON.address = $( "#f_physicalDescriptionTab_address_" + pf ).val();
-			// WAT
-			// if(!this.physDescJSON.address){
-			// 	this.physDescJSON.address = "http://192.168.2.145:8383/Dummy/EmulateService?wsdl&name="+this.resultJSON.nodeLabel;
-			// }
 			this.physDescJSON.operation = $( "#f_physicalDescriptionTab_operation_" + pf ).val();
-			this.resultJSON.physicalDescription = this.physDescJSON;
-			
+			this.resultJSON.physicalDescription = this.physDescJSON;			
 
 			this.resultJSON.condition.if.relation = (this.resultJSON.controlType.toLowerCase()=='#conditionstart') ? $("#f_ifMainTab_ifRel_" + pf).val() : "";
 			this.resultJSON.condition.if.variable = $("#f_ifMainTab_ifVar_" + pf).val() || "";
@@ -981,7 +958,7 @@ function form() {
 			this.emulationJSON.id = $("#f_emulationTab_id_" + pf).val();
 			this.emulationJSON.name = this.resultJSON.nodeLabel;
 			this.emulationJSON.vectors = $("#f_emulationTab_vectors_" + pf).val();
-			if(this.resultJSON.nodeType=='emulationservice') this.resultJSON.emulation = this.emulationJSON;
+			this.resultJSON.emulation = this.emulationJSON;
 
 			// alert(jsonFormatter(this.resultJSON, true, true));
 			// this.emulationJSON.name = $("#f_emulationTab_name_" + pf).val();

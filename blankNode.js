@@ -20,7 +20,7 @@
 
 				return {
 					next : function(){
-						return ++counter;
+						return "condition_" + (++counter);
 					}
 				}
 			})(),
@@ -43,16 +43,96 @@
 									nodeLabel : "If",
 									nodeType : nodeType,
 									controlType : controlType,
+									functionalDescription:{
+										description : "",
+										effects : "",
+										preconditions : "",
+										serviceClasses : [],
+										metaKeywords : [],
+										inputs : [
+											{
+												class: "dynamic",
+												dataType: "dynamic",
+												id: "number1",
+												label: "number1",
+												properties: "",
+												source: []
+											},
+											{
+												class: "dynamic",
+												dataType: "dynamic",
+												id: "number2",
+												label: "number2",
+												properties: "",
+												source: []
+											}
+										],
+										outputs : []
+									},
 									condition: {
-										id: conditionId
+										conditionId : conditionId,
+										paths : "",
+										type : "",
+										if : {
+											path : "",
+											variable : "",
+											relation : "",
+											value : ""	
+										},
+										then : "",
+										else : ""
 									}
 								});
 								gui.controller.reactOnEvent("AddBlankNode", {
 									nodeLabel : "EndIf",
 									nodeType : nodeType,
 									controlType : "#conditionEnd",
+									functionalDescription:{
+										description : "",
+										effects : "",
+										preconditions : "",
+										serviceClasses : [],
+										metaKeywords : [],
+										inputs : [
+											{
+												class: "dynamic",
+												dataType: "dynamic",
+												id: "return1",
+												label: "return1",
+												properties: "",
+												source: []
+											},
+											{
+												class: "dynamic",
+												dataType: "dynamic",
+												id: "return2",
+												label: "return2",
+												properties: "",
+												source: []
+											}
+										],
+										outputs : [
+											{
+												class: "dynamic",
+												dataType: "dynamic",
+												id: "result",
+												label: "result",
+												properties: "",
+											}
+										]
+									},
 									condition: {
-										id: conditionId
+										conditionId : conditionId,
+										paths : [],
+										type : "",
+										if : {
+											path : "",
+											variable : "",
+											relation : "",
+											value : ""	
+										},
+										then : "",
+										else : ""
 									}
 								});
 							}
@@ -62,7 +142,6 @@
 									gui.controller.reactOnEvent("AddBlankNode", {
 										nodeLabel:label,
 										nodeType:nodeType,
-										controlType: controlType
 									});
 							}
 						}
