@@ -442,7 +442,6 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 										else if (gui.controller.current_graphData.nodes[j].nodeId == sId) {
 											var index = gui.controller.current_graphData.nodes[j].targets.indexOf(tId);
 											gui.controller.current_graphData.nodes[j].targets.splice(index, 1);
-											j = len;
 										}
 									}
 
@@ -634,8 +633,12 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 						e.functionalDescription.inputs = $.extend(true, [], e.functionalDescription.inputs);
 						e.functionalDescription.outputs = $.extend(true, [], e.functionalDescription.outputs);
 
-						that.current_graphData.nodes.push(e)
-						gui.view.addNodeFromRepo(e);
+						var newDataNode = that.getBlankModelNode();
+
+						copyProps( e, newDataNode);
+
+						that.current_graphData.nodes.push( newDataNode );
+						gui.view.addNodeFromRepo( newDataNode );
 					})(evtObj);
 					break;
 				case "EDITNODE":

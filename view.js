@@ -327,8 +327,8 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				start = function start(){
 					if(gui.view.mode == "CF" || isStartNode){
 						tmp = paper.canvas.getBBox();
-						offsetX = canvas.offset().left + parseInt(canvas.css("border-top-width"), 10) - tmp.x;
-						offsetY = canvas.offset().top + parseInt(canvas.css("border-left-width"), 10) - tmp.y;
+						offsetX = canvas.offset().left + parseInt(canvas.css("border-top-width"), 10) - 2*tmp.x;
+						offsetY = canvas.offset().top + parseInt(canvas.css("border-left-width"), 10) - 2*tmp.y;
 						bbox = this.getBBox();
 						cx = (bbox.x + bbox.x2) / 2;
 						cy = (bbox.y + bbox.y2) / 2;

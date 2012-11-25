@@ -747,7 +747,7 @@ function nodeVisualizator(view){
 					this.draw_controlNode(viewNode);
 
 					if(viewNode.isStart)
-						view.dragCFArrow( viewNode.mainShape, viewNode );
+						view.dragCFArrow( viewNode.mainShape, viewNode, true );
 
 				} else {
 					this.draw_rectNode(viewNode);
