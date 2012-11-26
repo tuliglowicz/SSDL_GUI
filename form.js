@@ -1817,8 +1817,8 @@ function form() {
 	$("#f_graphSaveParamsForm_" + pf).dialog({
 		autoOpen: false,
 		modal: true,
-		height: CFG.forms.dialogHeight,
-		width: CFG.forms.dialogWidth
+		height: CFG.forms.graphSaveParamsHeight,
+		width: CFG.forms.graphSaveParamsWidth
 	});
 
 	return result;
