@@ -42,6 +42,7 @@
 				this.clear();
 
 				$.each(this.data, function(k, dataNode) {
+					// console.log(dataNode)
 					n++;
 					newRepoService = visualiser.getBlankNode();
 					visualiser.prepareData(dataNode, newRepoService);
