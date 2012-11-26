@@ -41,7 +41,7 @@ def createMergedFile(fileArray, file)
 			createMergedFile(part.subfiles,file)
 		end
 			file.puts("//Poczatek pliku " + part.name)
-				File.open(part.name).each do |line|
+				File.open("../"+part.name).each do |line|
 			file.puts(line)
 		end
 		file.puts("//Koniec pliku " + part.name)
