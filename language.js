@@ -32,6 +32,7 @@ var language = {
 			addLabelNewNode: "Wpisz etykietę dla nowego wierzchołka:",
 			addInputS: "Czy chcesz dodać nowe wejście w wierzchołku o etykiecie ",
 			addInputE: " ?",
+			emptyGraph: "Nie można zapisać pustego grafu!",
 			addOutputS: "Czy chcesz dodać nowe wyjście w wierzchołku o etykiecie ",
 			addOutputE: " ?",
 			inputData: "Wprowadź dane!",
@@ -355,7 +356,6 @@ var language = {
 			shWarning: "show/hide warnings",
 			shError: "show/hide errors",
 			delComm: "delete communicate",
-
 		},
 
 		mainMenu: {
