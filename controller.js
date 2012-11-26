@@ -260,13 +260,13 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					break;
 				case "SAVE":
 					(function(e) {
+						console.log(e);
 						// na szybko
 						// 	$("#saveDialog").dialog("open");
 						// } else {
-						var savedSSDL = that.saveSSDL();
 						// var validation = validatorObject.validateGraph(that.getRoot());
 						// jsonFormatter(validation,1,1)
-
+						var savedSSDL;
 						// e = e || {};
 						// e.name = 1;
 						// e.description = 1;
@@ -280,6 +280,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 							// 	confirmation = confirm(language[gui.language].alerts.graphNotPassedValidation); 
 
 							if (confirmation) {
+								savedSSDL = that.saveSSDL();
 								var output = !graphToEditUrl ? "name=" + e.name + "&description=" + e.description + "&" : "";
 								output += "ssdl=" + savedSSDL;
 
@@ -912,6 +913,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					input.label = $(this).find("ns2\\:label").text();
 					input.dataType = $(this).find("ns2\\:dataType").text();
 					input.properties = $(this).find("ns2\\:properties").text();
+					input.source = [];
 
 					node.functionalDescription.inputs.push(input);
 
@@ -948,6 +950,12 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			return tab;
 		},
 		convertJSON2XML: function convertJSON2XML(json, humanFriendly) {
+			if( !json ){
+				throw {
+					name: "object missing",
+					message: "argument json is obligatory"
+				}
+			}
 			function parseGraph(subgraph, tabulacja) {
 				tabulacja = (tabulacja && typeof tabulacja == "string" ? tabulacja : "");
 				if (subgraph && subgraph.nodes && subgraph.nodes.length > 0) {
@@ -957,9 +965,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					});
 					tabOutput.push(tabulacja + "</nodes>\n"); /* Koniec wierzchołków  w grafie */
 				} else {
-					tabOutput.push(tabulacja + "<nodes/>\n")
+					tabOutput.push(tabulacja + "<nodes/>\n");
 				}
-				parseGraphAtributes(subgraph, tabulacja)
+				parseGraphAtributes(subgraph, tabulacja);
 			}
 
 			function parseGraphAtributes(graph, tabulacja) { /* Dane wejściowe  w grafie */
@@ -1041,6 +1049,7 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 					if (functionalDescription.inputs && functionalDescription.inputs.length > 0) {
 						tabOutput.push(tabulacja + "\t\t\t<inputs>\n");
 						$.each(functionalDescription.inputs, function(key, input) {
+							console.log(input);
 							tabOutput.push(tabulacja + "\t\t\t\t<input>\n");
 							tabOutput.push(tabulacja + "\t\t\t\t\t<class>" + (input.class || "") + "</class>\n");
 							tabOutput.push(tabulacja + "\t\t\t\t\t<id>" + (input.id || "") + "</id>\n");
@@ -1173,7 +1182,8 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 			}
 
 			var tabOutput = [],
-				physicalDescription, functionalDescription, nonFunctionalDescription, i = 0;;
+				physicalDescription, functionalDescription, nonFunctionalDescription, i = 0
+			;
 			// console.log(jsonFormatter(json, true))
 			tabOutput.push("<graph version=\"1.3\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 			parseGraph(json, "\t");
@@ -1361,6 +1371,9 @@ function Controller(url, saveUrl, graphToEditUrl, graphToEditName, gui) {
 		},
 		getRoot: function getRoot() {
 			var result;
+			if(!this.graphData_tab.length){
+				this.graphData_tab.push( this.current_graphData );
+			}
 			for (var i = this.graphData_tab.length - 1, j = -1; i > j; i--) {
 				if (this.graphData_tab[i].isRoot) {
 					result = this.graphData_tab[i];
