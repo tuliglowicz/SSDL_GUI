@@ -68,6 +68,8 @@ var CFG = {
 		mainFormHeight : 400,
 		dialogWidth : 300,
 		dialogHeight : 200,
+		graphSaveParamsWidth : 450,
+		graphSaveParamsHeight: 235,
 		addSthFormWidth : 450,
 		addSthFormHeight : 250,
 		addSthFormWidthB : 350,
