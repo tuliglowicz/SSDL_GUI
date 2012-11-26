@@ -5,31 +5,39 @@
 	</file>
 	<file>
 		<name>config.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
-		<file>
+	<file>
 		<name>library.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
-			<file>
+	<file>
 		<name>lib.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
-			<file>
+	<file>
 		<name>generators.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
-		<file>
+	<file>
 		<name>validators.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
-			<file>
+	<file>
 		<name>myValidator.js</name>
-	<subfiles/>
+		<subfiles/>
 	</file>
 	<file>
 		<name>view.js</name>
 		<subfiles>
+			<file>
+				<name>dragNodes.js</name>
+				<subfiles/>
+			</file>
+			<file>
+				<name>sideScroller.js</name>
+				<subfiles/>
+			</file>
 			<file>
 				<name>menu.js</name>
 				<subfiles/>
@@ -65,7 +73,7 @@
 		</subfiles>
 	</file>
 	<file>
-		<name>controler.js</name>
+		<name>controller.js</name>
 		<subfiles>
 			<file>
 				<name>repoNodes.js</name>
