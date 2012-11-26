@@ -1,0 +1,211 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+</head>
+<script src="jsLitmus.js"></script>
+<script>
+
+var validateMe = [
+	{
+		nodeId : "Jan",
+		nodeLabel : "Janeczek",
+		nodeType : "Service",
+		physicalDescription : {
+			address: "http://localhost:8383/MathServiceWS/MathService?wsdl",
+			operation: "add",
+			serviceGlobalId: "globalneId",
+			serviceName: "serwiseczek"
+		}
+	},
+	{
+		nodeId : "Gazda",
+		nodeLabel : "Grześ",
+		nodeType : "jhsadk",
+		physicalDescription : {
+			address: "?wsdl",
+			operation: 5,
+			serviceGlobalId: null,
+			serviceName: /asdasd/
+		}
+	},
+	{
+		nodeId : "Jan2",
+		nodeLabel : "Janeczek",
+		nodeType : "Functionality",
+		physicalDescription : {
+			address: function(){ return "http://ololo.pl/?wsdl"; },
+			operation: true,
+			serviceGlobalId: undefined,
+			serviceName: new Date()
+		}
+	},
+]
+var acceptable_types = [
+	"service",
+	"functionality",
+	"mediator",
+	"streamingworkflowengine",
+	"javaservice",
+	"control"
+];
+
+
+var validator = {
+	// wszystkie dostępne sprawdzenia
+	types : {
+		isPresent : {
+			validate : function(value){
+				return !!value || value == 0;
+			},
+			instructions : "Wartość tego pola nie może być pusta!"
+		},
+		isString : {
+			validate : function(value){
+				return typeof value === "string";
+			},
+			instructions : "Wartość tego pola musi być łańcuchem znaków (string)"
+		},
+		isNumber : {
+			validate : function(value){
+				return !isNaN(value);
+			},
+			instructions : "Wartość tego pola musi być liczbą."
+		},
+		oneOfValidTypes : {
+			validate : function(value, types){
+				return !~acceptable_types.indexOf(value);
+			},
+			instructions : "To pole musi przyjąć jedną z wartości: "+acceptable_types.join(", ")
+		},
+		isUrl : {
+			validate : function(value){
+				return !/(:?(:?http\:\/\/www\.)|(:?https\:\/\/www\.)|(:?http\:\/\/)|(:?www\.)|(:?https\:\/\/))(:?.*)?wsdl/.test(value);
+			},
+			instructions : "Wartość tego pola musi reprezentować poprawny URL do pliku WSDL"
+		},
+		isUnique : {
+			validate : function(value){
+				return true;
+				// TO DO
+			},
+			instructions : "Wartość tego pola musi być unikatowa."
+		}
+	},
+
+	//komunikaty o błędach
+	// z aktualnej sesji walidacyjnej
+	messages: [],
+
+	// aktualna konfiguracja walidacji
+	// nazwa => rodzaj testu
+	config : {
+		nodeId : "isPresent, isString, isUnique",
+		nodeLabel : "isPresent, isString",
+		nodeType : "isPresent, isString, oneOfValidTypes",
+		physicalDescription : {
+			address: "isPresent, isString, isUrl",
+			operation: "isPresent, isString",
+			serviceGlobalId: "isPresent, isString",
+			serviceName: "isPresent, isString"
+		}
+	},
+
+	//funkcja pomocnicza
+	hasErrors : function (data){
+		return this.messages.length > 0;
+	},
+
+	errorCount : function errorCount(){
+		return this.messages.length;
+	},
+
+	validateNode : function validateNode( data ){
+		var that = this,
+			node = data.nodeId ? " w "+data.nodeId+" " : "";
+
+			// alert(data.nodeId);
+
+		(function inner(data, configObj, path){
+			// alert(node)
+
+			var i, msg, type, checker, result_ok, config;
+
+			that.messages = [];
+			config = configObj || that.config;
+
+			// console.log(data)
+
+			for (i in data){
+				if ( data.hasOwnProperty( i ) ) {
+					type = config[i];
+
+					if (!type)
+						continue;
+
+					if ( typeof data[i] === "object" && typeof type === "object" ){
+
+						inner( data[i], type, path+"."+i);
+					}
+					else if( typeof data[i] !== "object" ) {
+
+						type = type.split(", ");
+
+						for ( j = type.length; j--; ){
+							checker = that.types[ type[ j ] ];
+							
+							if( !checker ){
+								throw {
+									name : "validationError",
+									message : "Brak obsługi dla klucza: " + type // JACKU TUTAJ
+								};
+							}
+
+							result_ok = checker.validate(data);
+							if ( !result_ok ) {
+								msg = "Niepoprawna wartość "+data[i]+" *" + i + "*"+node+"; " + checker.instructions;
+								that.messages.push( msg );
+							} else {
+
+							};
+						}
+					}					
+				};
+			}
+		})(data, undefined, "givenDATA");
+
+
+		return this.hasErrors();
+	},
+	validateNodes : function validateNodes(input){
+		if( isArray(input) ){
+			for(var i=input.length; i--; ){
+				console.log( input[i].nodeId, "now validating");
+				this.validateNode( input[i] )
+			}
+		}
+		else {
+			throw {
+				name: "typeError",
+				message : "Array neaded, got " + getType( input )
+			}
+		}
+	}
+}
+
+// PROXY.attach
+
+function isArray( input ){
+	return Object.prototype.toString.call( input ) === "[object Array]";
+}
+function getType(input){
+	var type = Object.prototype.toString.call( input );
+		type = type.substring(8, type.length-1).toLowerCase();
+
+	return type;
+}
+
+validator.validateNodes(validateMe);
+// console.log()
+for(i in validator.messages){ console.log(validator.messages[i])}
+
+</script>

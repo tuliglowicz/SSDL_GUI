@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<META charset="UTF-8"/>
+		<META HTTP-EQUIV="cache-control" CONTENT="no-cache"/>
+		<title>Interface</title>
+		<script src="javascripts/jquery-1.7.2.js"></script>
+		<script src="javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+		<script src="javascripts/raphael.js"></script>
+		<script src="javascripts/shortcut.js"></script>
+		<script src="javascripts/jquery.tinyscrollbar.js"></script>
+		<script src="javascripts/Slider2.js"></script>
+		<script src="SSDL_GUI.js"></script>
+		<link type="text/css" href="stylesheets/my_style.css" rel="stylesheet" />
+		<link type="text/css" href="stylesheets/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id="sandbox" style="background-color:ivory;"> </div>
+		<div id="raport" style='clear: both; display:block;'></div>
+
+		<script>
+			"use strict";
+
+			// var A = Graph_GUI("sandbox", 1280, 600, undefined, "file:///F:/Praca%20itSOA/SSDL_GUI_github/XML/get_all_atomic_service.xml", "", "file:///F:/Praca%20itSOA/SSDL_GUI_github/XML/7_SLA_map.xml", "7_SLA_map"); // "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
+
+			Graph_GUI("sandbox", 1280, 600, undefined, "XML/get_all_atomic_service.xml", "", "XML/RoundingDynamic.xml", "Rounding Dynamic"); // "7_SLA_map.xml", "7_SLA_map", "public/ssdl_editor/");
+
+		</script>
+	</body>
+</html>
