@@ -459,7 +459,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 										if( v.id != sourceNode.id && sourceNode.controlType.toLowerCase() != "#conditionend" && !!~CFG.flexibleTypes.indexOf( v.type.toLowerCase() ) )
 											glows.push( v.mainShape.glow({color: "purple"}) );
 										$.each(v.inputs, function(){
-											if((this.dataType === output.dataType || this.dataType === "dynamic") && !gui.view.isInputConnected(v.id, this.id)){ // ERROR? powinno być gui.controller
+											if((this.dataType.toLowerCase() === output.dataType.toLowerCase() || this.dataType.toLowerCase() === "dynamic") && !gui.view.isInputConnected(v.id, this.id)){ // ERROR? powinno być gui.controller
 												glows.push( this.node.glow({color: "green"}) );
 											}
 										});
@@ -926,7 +926,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				try{
 					var deployerOutput = gui.controller.deploy(graph_json, paper.width);
 				} catch(e){
-					console.error(e);
+					// console.error(e);
 				}
 
 				var tmpCoords, x, y;
@@ -945,7 +945,7 @@ function View(id, width, height, gui, graphSaveParamsJSON){
 				var tmp;
 				$.each(graph_json.nodes, function(key, val){
 					$.each(val.sources, function(){
-						console.log("-----------", this, graph_view.nodes.map(function(o){return o.id}))
+						// console.log("-----------", this, graph_view.nodes.map(function(o){return o.id}))
 						tmp = that.addCFEdge({
 							source: that.getNodeById(this, graph_view.nodes),
 							target: that.getNodeById(val.nodeId, graph_view.nodes)
