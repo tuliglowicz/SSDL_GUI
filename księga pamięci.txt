@@ -1,6 +1,0 @@
-1. WŁODEK: wywaliłem sporo plików z folderu javascripts. Między innymi stare i zminimalizowane wersje bibliotek.
-	przed deployem całości należy podmienić je wersjami zminimalizowanymi.
-
-2. WŁODEK: Postanowiłem, żeby nie robić , nie aktualizować walidacji. Ciągle się coś zmienia, a nie mam zamiaru co chwilę coś tam zmieniać.
-
-3. WŁODEK: przy parsowaniu nodeType i controlType muszą być ustawione na lowerCase.
